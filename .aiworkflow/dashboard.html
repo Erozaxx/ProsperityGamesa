@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T18:33:14Z",
+  "generated": "2026-06-12T18:51:59Z",
   "iteration": {
     "id": "iter-001",
     "goal": "Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.",
@@ -390,8 +390,8 @@ const DATA = {
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Architektonická analýza původní hry: vypíchnout klíčové mechaniky a jejich engine/datový model (čas/engine, populace, ekonomika/trh, výzkum, vojsko/AI svět, save). Vstupy: `doc/original_source/`, `doc/original_source_doc.md`. Model: Fable (xhigh). (in-flight)",
-        "done": false
+        "text": "architect – Architektonická analýza původní hry: vypíchnout klíčové mechaniky a jejich engine/datový model (čas/engine, populace, ekonomika/trh, výzkum, vojsko/AI svět, save). Vstupy: `doc/original_source/`, `doc/original_source_doc.md`. Model: Fable (xhigh).",
+        "done": true
       },
       {
         "id": "T-002",
@@ -420,18 +420,18 @@ const DATA = {
       }
     ],
     "total": 6,
-    "done_count": 0
+    "done_count": 1
   },
   "closed_iterations": [],
   "agents": [
     {
       "slug": "architect",
-      "status": "idle",
-      "task_id": "",
-      "brief": "",
-      "iteration": "",
-      "started": "",
-      "completed": ""
+      "status": "done",
+      "task_id": "T-001",
+      "brief": "context/inbox/brief_architect_T-001_iter-001.md (BRIEF-001)",
+      "iteration": "iter-001",
+      "started": "2026-06-12",
+      "completed": "2026-06-12"
     },
     {
       "slug": "audience-adapter",
@@ -632,9 +632,21 @@ const DATA = {
       "completed": ""
     }
   ],
-  "outputs": [],
+  "outputs": [
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/analysis_keymechanics_iter-001_T-001.md",
+      "type": "final",
+      "name": "analysis_keymechanics_iter-001_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-12T18:50:58Z",
+      "description": "architektonická analýza klíčových mechanik originálu hotová"
+    }
+  ],
   "metrics": {},
-  "agent_tokens": {}
+  "agent_tokens": {
+    "architect": 193948
+  }
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
