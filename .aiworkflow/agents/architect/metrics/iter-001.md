@@ -23,3 +23,11 @@
 - **tool_uses**: 42
 - **duration_ms**: 701409
 - **Output**: artifacts/final/analysis_refactoring_maintainability_iter-001_T-002b.md (199 ř., 13 nálezů A–D)
+
+## T-002a
+- **Timestamp**: 2026-06-12T19:22:34Z
+- **Model**: fable (xhigh)
+- **total_tokens**: 148885
+- **tool_uses**: 40
+- **duration_ms**: 769637
+- **Output**: artifacts/final/analysis_refactoring_perf-offline_iter-001_T-002a.md (16 nálezů A–C + prioritizovaný seznam)
