@@ -1,0 +1,365 @@
+{
+  "version": "0.9.5",
+  "STEPSPERDAY": 900,
+  "AIMechanicStart": 567000,
+  "revoltMechanicStart": 630000,
+  "TREEMATURETIME": 36,
+  "TAXCENTERBASE": 22,
+  "CITYGUARDBASE": 56,
+  "GOLDCOSTPERARCHER": 1620,
+  "ARCHERUPKEEP": 162,
+  "GOLDCOSTPERWARRIOR": 1080,
+  "WARRIORUPKEEP": 108,
+  "BASEENGINERATE": 0.05,
+  "BASECARAVANCAPACITY": 10000,
+  "CAUSESOFDEATH": [
+    "had a bad accident and died",
+    "ate some bad food and died of food poisoning",
+    "has died of dysentery",
+    "died peacefully of an unknown reason",
+    "got bored and did something stupid, then died",
+    "picked a fight with the wrong animal (bear)",
+    "picked a fight with the wrong animal (chicken)",
+    "picked a fight with the wrong animal (cow)",
+    "blacked out while horse riding and stunned to death by wasps",
+    "committed suicide after learning he had an uncurable illness",
+    "trampled by a herd of deer... so the story goes",
+    "assassinated by accident. You got lucky",
+    "died of boredom, literally",
+    "died from smoking weird herbs picked up in the forest"
+  ],
+  "houseTypes": {
+    "tent": {
+      "type": "tent",
+      "effects": {
+        "attractiveness": 0,
+        "workers": 3
+      }
+    },
+    "hovel": {
+      "type": "hovel",
+      "effects": {
+        "attractiveness": -1,
+        "workers": 3,
+        "capacity": 200
+      }
+    },
+    "house": {
+      "type": "house",
+      "effects": {
+        "attractiveness": 0,
+        "workers": 5,
+        "capacity": 600
+      }
+    },
+    "mansion": {
+      "type": "mansion",
+      "effects": {
+        "attractiveness": 4,
+        "workers": 6,
+        "capacity": 1000
+      }
+    },
+    "manor": {
+      "type": "manor",
+      "effects": {
+        "attractiveness": 8,
+        "workers": 10,
+        "capacity": 1400
+      }
+    },
+    "chateau": {
+      "type": "chateau",
+      "effects": {
+        "attractiveness": 25,
+        "workers": 20,
+        "capacity": 3000
+      }
+    },
+    "estate": {
+      "type": "estate",
+      "effects": {
+        "attractiveness": 100,
+        "workers": 20,
+        "capacity": 10000
+      }
+    },
+    "publichouse": {
+      "type": "publichouse",
+      "effects": {
+        "attractiveness": -10,
+        "workers": 25,
+        "capacity": 3000
+      }
+    }
+  },
+  "companies": {
+    "explorer": [
+      {
+        "id": "Explorers",
+        "name": "The Explorers",
+        "mapsAvailable": [
+          "field",
+          "market",
+          "academy",
+          "tinkery",
+          "council"
+        ]
+      }
+    ],
+    "houseBuilder": [
+      {
+        "id": "KuttingKorners",
+        "name": "Kutting Korners",
+        "cost": {
+          "gold": 2000
+        },
+        "type": "hovel"
+      },
+      {
+        "id": "BrickingBad",
+        "name": "Bricking Bad",
+        "cost": {
+          "gold": 9000
+        },
+        "type": "house"
+      },
+      {
+        "id": "HonestlyGood",
+        "name": "Honestly Good",
+        "cost": {
+          "gold": 30000
+        },
+        "type": "mansion"
+      },
+      {
+        "id": "LawyeredUp",
+        "name": "Lawyered Up Conglomeration",
+        "cost": {
+          "gold": 200000
+        },
+        "type": "manor"
+      }
+    ],
+    "mineBuilder": {
+      "id": "StrikeGoldInc",
+      "name": "Strike Gold Inc.",
+      "cost": {
+        "gold": 10000,
+        "wood": 2400
+      }
+    }
+  },
+  "achievements": {
+    "achieveSettlement": {
+      "id": "achieveSettlement",
+      "name": "Settled Down",
+      "description": "Your camp has become a settlement through the hard work of you and your people",
+      "level": 0,
+      "unlocked": false
+    },
+    "achieveVillage": {
+      "id": "achieveVillage",
+      "name": "Village Life",
+      "description": "Your settlement has become a village, complete with thriving economy and sturdy infrastructure",
+      "level": 1,
+      "unlocked": false
+    },
+    "achieveTown": {
+      "id": "achieveTown",
+      "name": "Town Status",
+      "description": "Your village has earned a spot on the map thanks to your hard work",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveCity": {
+      "id": "achieveCity",
+      "name": "City Builder",
+      "description": "Not only have you thwarted threats, but have continually improved your town into a city",
+      "level": 3,
+      "unlocked": false
+    },
+    "achieveCenturion": {
+      "id": "achieveCenturion",
+      "name": "Centurion",
+      "description": "You have amassed an army of 100 units",
+      "level": 1,
+      "unlocked": false
+    },
+    "achieveCohort": {
+      "id": "achieveCohort",
+      "name": "Cohort",
+      "description": "You have amassed an army of 500 units",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveLegion": {
+      "id": "achieveLegion",
+      "name": "Legion",
+      "description": "You have amassed an army of 5000 units, go forth and dominate!",
+      "level": 3,
+      "unlocked": false
+    },
+    "achieveBenevolence": {
+      "id": "achieveBenevolence",
+      "name": "Benevolent Leader",
+      "description": "You have won the heart and minds of your enemies, acquiring them through non-lethal means",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveFeared": {
+      "id": "achieveFeared",
+      "name": "Feared Leader",
+      "description": "Your ruthlessness has opened the doors to many cities without struggle out of respect, or fear, of you",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveMight": {
+      "id": "achieveMight",
+      "name": "Mighty Leader",
+      "description": "Your military prowess has forced your opponents into obedience, and with no alternatives, join your side",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveGoldHoarder": {
+      "id": "achieveGoldHoarder",
+      "name": "Gold Hoarder",
+      "description": "Careful economic management has amassed you a fortune over 1 million gold",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveLuxury": {
+      "id": "achieveLuxury",
+      "name": "Luxury",
+      "description": "Manors are for plebs, you moved into a chateau overlooking the city",
+      "level": 3,
+      "unlocked": false
+    },
+    "achieveExtravagance": {
+      "id": "achieveExtravagance",
+      "name": "Extravagance",
+      "description": "Being too good for the city, you moved out to the country in your very own Estate",
+      "level": 4,
+      "unlocked": false
+    },
+    "achieveUnhygienic": {
+      "id": "achieveUnhygienic",
+      "name": "Unhygienic",
+      "description": "Well done, everyone is sick, even the cows",
+      "level": 0,
+      "unlocked": false
+    },
+    "achievementSurvivedWinter": {
+      "id": "achievementSurvivedWinter",
+      "name": "Survived Winter",
+      "description": "A year has passed and you have not given up, kudos",
+      "level": 0,
+      "unlocked": false
+    }
+  },
+  "season": {
+    "stepsPerSeason": 81900,
+    "stepsPerDay": 900,
+    "curSeason": "Winter",
+    "curDay": 16,
+    "curMonth": 12,
+    "curYear": 922,
+    "seasonLength": {
+      "Spring": 91,
+      "Summer": 91,
+      "Autumn": 91,
+      "Winter": 91
+    }
+  },
+  "maps": [
+    "main",
+    "home",
+    "forest",
+    "mine",
+    "field",
+    "market",
+    "tinkery",
+    "academy",
+    "council"
+  ],
+  "conditions": {},
+  "levelUpUI": {
+    "curlevelUp": null
+  },
+  "dialogueUI": {
+    "display": false,
+    "curDialogue": null,
+    "text": "",
+    "curSpeakerId": "",
+    "curOptions": []
+  },
+  "storyScreens": {
+    "intro": {
+      "state": 1,
+      "curStep": null
+    },
+    "chapter2": {
+      "state": 0,
+      "curStep": null
+    }
+  },
+  "sectors": {},
+  "techBase": 100,
+  "techScale": 1.25,
+  "techTree": {
+    "id": "techTreeRoot",
+    "obj": {},
+    "children": []
+  },
+  "upgrades": {},
+  "browserNotificationTypes": {
+    "tech": {
+      "icon": "images/icons/potion.png",
+      "name": "Tech"
+    },
+    "battle": {
+      "icon": "images/icons/battle_s.png",
+      "name": "Battle"
+    },
+    "contract": {
+      "icon": "images/icons/message_s.png",
+      "name": "Contracts"
+    },
+    "merchant": {
+      "icon": "images/icons/merchant_s.png",
+      "name": "Merchants"
+    },
+    "msg": {
+      "icon": "images/icons/message_s.png",
+      "name": "Messages"
+    },
+    "building": {
+      "icon": "images/icons/house_s.png",
+      "name": "Construction"
+    },
+    "fire": {
+      "icon": "images/icons/fire_s.png",
+      "name": "Fire"
+    },
+    "storyline": {
+      "icon": "images/icons/arrowheart.png",
+      "name": "Storyline"
+    },
+    "unlockedBuildings": {
+      "icon": "images/icons/house_s.png",
+      "name": "Building Unlock"
+    },
+    "disease": {
+      "icon": "images/icons/potion_red.png",
+      "name": "Diseases"
+    },
+    "mine": {
+      "icon": "images/icons/earth.png",
+      "name": "Mining"
+    },
+    "monthlyFinance": {
+      "icon": "images/icons/merchant_s.png",
+      "name": "Monthly Finances"
+    }
+  }
+}

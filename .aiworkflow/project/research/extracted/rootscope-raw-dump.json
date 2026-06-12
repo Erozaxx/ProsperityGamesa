@@ -1,0 +1,805 @@
+{
+  "$apply": "[Function]",
+  "$applyAsync": "[Function]",
+  "$broadcast": "[Function]",
+  "$digest": "[Function]",
+  "$emit": "[Function]",
+  "$evalAsync": "[Function]",
+  "$new": "[Function]",
+  "$on": "[Function]",
+  "$watch": "[Function]",
+  "$watchCollection": "[Function]",
+  "$watchGroup": "[Function]",
+  "AIMechanicStart": 567000,
+  "ARCHERUPKEEP": 162,
+  "BASECARAVANCAPACITY": 10000,
+  "BASEENGINERATE": 0.05,
+  "CAUSESOFDEATH": [
+    "had a bad accident and died",
+    "ate some bad food and died of food poisoning",
+    "has died of dysentery",
+    "died peacefully of an unknown reason",
+    "got bored and did something stupid, then died",
+    "picked a fight with the wrong animal (bear)",
+    "picked a fight with the wrong animal (chicken)",
+    "picked a fight with the wrong animal (cow)",
+    "blacked out while horse riding and stunned to death by wasps",
+    "committed suicide after learning he had an uncurable illness",
+    "trampled by a herd of deer... so the story goes",
+    "assassinated by accident. You got lucky",
+    "died of boredom, literally",
+    "died from smoking weird herbs picked up in the forest"
+  ],
+  "CITYGUARDBASE": 56,
+  "GOLDCOSTPERARCHER": 1620,
+  "GOLDCOSTPERWARRIOR": 1080,
+  "STEPSPERDAY": 900,
+  "TAXCENTERBASE": 22,
+  "TREEMATURETIME": 36,
+  "WARRIORUPKEEP": 108,
+  "achievements": {
+    "achieveSettlement": {
+      "id": "achieveSettlement",
+      "name": "Settled Down",
+      "description": "Your camp has become a settlement through the hard work of you and your people",
+      "level": 0,
+      "unlocked": false
+    },
+    "achieveVillage": {
+      "id": "achieveVillage",
+      "name": "Village Life",
+      "description": "Your settlement has become a village, complete with thriving economy and sturdy infrastructure",
+      "level": 1,
+      "unlocked": false
+    },
+    "achieveTown": {
+      "id": "achieveTown",
+      "name": "Town Status",
+      "description": "Your village has earned a spot on the map thanks to your hard work",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveCity": {
+      "id": "achieveCity",
+      "name": "City Builder",
+      "description": "Not only have you thwarted threats, but have continually improved your town into a city",
+      "level": 3,
+      "unlocked": false
+    },
+    "achieveCenturion": {
+      "id": "achieveCenturion",
+      "name": "Centurion",
+      "description": "You have amassed an army of 100 units",
+      "level": 1,
+      "unlocked": false
+    },
+    "achieveCohort": {
+      "id": "achieveCohort",
+      "name": "Cohort",
+      "description": "You have amassed an army of 500 units",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveLegion": {
+      "id": "achieveLegion",
+      "name": "Legion",
+      "description": "You have amassed an army of 5000 units, go forth and dominate!",
+      "level": 3,
+      "unlocked": false
+    },
+    "achieveBenevolence": {
+      "id": "achieveBenevolence",
+      "name": "Benevolent Leader",
+      "description": "You have won the heart and minds of your enemies, acquiring them through non-lethal means",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveFeared": {
+      "id": "achieveFeared",
+      "name": "Feared Leader",
+      "description": "Your ruthlessness has opened the doors to many cities without struggle out of respect, or fear, of you",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveMight": {
+      "id": "achieveMight",
+      "name": "Mighty Leader",
+      "description": "Your military prowess has forced your opponents into obedience, and with no alternatives, join your side",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveGoldHoarder": {
+      "id": "achieveGoldHoarder",
+      "name": "Gold Hoarder",
+      "description": "Careful economic management has amassed you a fortune over 1 million gold",
+      "level": 2,
+      "unlocked": false
+    },
+    "achieveLuxury": {
+      "id": "achieveLuxury",
+      "name": "Luxury",
+      "description": "Manors are for plebs, you moved into a chateau overlooking the city",
+      "level": 3,
+      "unlocked": false
+    },
+    "achieveExtravagance": {
+      "id": "achieveExtravagance",
+      "name": "Extravagance",
+      "description": "Being too good for the city, you moved out to the country in your very own Estate",
+      "level": 4,
+      "unlocked": false
+    },
+    "achieveUnhygienic": {
+      "id": "achieveUnhygienic",
+      "name": "Unhygienic",
+      "description": "Well done, everyone is sick, even the cows",
+      "level": 0,
+      "unlocked": false
+    },
+    "achievementSurvivedWinter": {
+      "id": "achievementSurvivedWinter",
+      "name": "Survived Winter",
+      "description": "A year has passed and you have not given up, kudos",
+      "level": 0,
+      "unlocked": false
+    }
+  },
+  "addArmy": "[Function]",
+  "addSets": "[Function]",
+  "addWorker": "[Function]",
+  "autoSave": "[Function]",
+  "browserNotificationTypes": {
+    "tech": {
+      "icon": "images/icons/potion.png",
+      "name": "Tech"
+    },
+    "battle": {
+      "icon": "images/icons/battle_s.png",
+      "name": "Battle"
+    },
+    "contract": {
+      "icon": "images/icons/message_s.png",
+      "name": "Contracts"
+    },
+    "merchant": {
+      "icon": "images/icons/merchant_s.png",
+      "name": "Merchants"
+    },
+    "msg": {
+      "icon": "images/icons/message_s.png",
+      "name": "Messages"
+    },
+    "building": {
+      "icon": "images/icons/house_s.png",
+      "name": "Construction"
+    },
+    "fire": {
+      "icon": "images/icons/fire_s.png",
+      "name": "Fire"
+    },
+    "storyline": {
+      "icon": "images/icons/arrowheart.png",
+      "name": "Storyline"
+    },
+    "unlockedBuildings": {
+      "icon": "images/icons/house_s.png",
+      "name": "Building Unlock"
+    },
+    "disease": {
+      "icon": "images/icons/potion_red.png",
+      "name": "Diseases"
+    },
+    "mine": {
+      "icon": "images/icons/earth.png",
+      "name": "Mining"
+    },
+    "monthlyFinance": {
+      "icon": "images/icons/merchant_s.png",
+      "name": "Monthly Finances"
+    }
+  },
+  "build": "[Function]",
+  "callFn": "[Function]",
+  "canAfford": "[Function]",
+  "checkCondition": "[Function]",
+  "checkPlayerDefaults": "[Function]",
+  "companies": {
+    "explorer": [
+      {
+        "id": "Explorers",
+        "name": "The Explorers",
+        "mapsAvailable": [
+          "field",
+          "market",
+          "academy",
+          "tinkery",
+          "council"
+        ]
+      }
+    ],
+    "houseBuilder": [
+      {
+        "id": "KuttingKorners",
+        "name": "Kutting Korners",
+        "cost": {
+          "gold": 2000
+        },
+        "type": "hovel"
+      },
+      {
+        "id": "BrickingBad",
+        "name": "Bricking Bad",
+        "cost": {
+          "gold": 9000
+        },
+        "type": "house"
+      },
+      {
+        "id": "HonestlyGood",
+        "name": "Honestly Good",
+        "cost": {
+          "gold": 30000
+        },
+        "type": "mansion"
+      },
+      {
+        "id": "LawyeredUp",
+        "name": "Lawyered Up Conglomeration",
+        "cost": {
+          "gold": 200000
+        },
+        "type": "manor"
+      }
+    ],
+    "mineBuilder": {
+      "id": "StrikeGoldInc",
+      "name": "Strike Gold Inc.",
+      "cost": {
+        "gold": 10000,
+        "wood": 2400
+      }
+    }
+  },
+  "conditions": {
+    "hasGood": "[Function]",
+    "importantEventUsed": "[Function]",
+    "playerEventCount": "[Function]",
+    "taskWorkers": "[Function]"
+  },
+  "configged": false,
+  "dialogueUI": {
+    "display": false,
+    "curDialogue": null,
+    "text": "",
+    "curSpeakerId": "",
+    "curOptions": []
+  },
+  "engine": {
+    "normalRate": 0.05,
+    "slowRate": 2.8,
+    "rate": 0.05,
+    "curStep": 0,
+    "maxStep": 500000000,
+    "schedule": {},
+    "logs": [
+      "Welcome to Prosperity the Game",
+      "Please remember to subscribe to www.reddit.com/r/ProsperityGame"
+    ],
+    "maxlogs": 200,
+    "useNotification": true,
+    "autoSave": true,
+    "stopped": 0,
+    "countEvent": "[Function]",
+    "insert": "[Function]",
+    "speeds": [
+      {
+        "name": "Pause",
+        "rate": 0,
+        "active": false
+      },
+      {
+        "name": "1x",
+        "rate": 0.05,
+        "active": true
+      },
+      {
+        "name": "2x",
+        "rate": 0.025,
+        "active": false
+      }
+    ],
+    "speed": 1,
+    "switchSpeed": "[Function]"
+  },
+  "evalPreconditions": "[Function]",
+  "extendObj": "[Function]",
+  "fixImportantEvents": "[Function]",
+  "fns": {
+    "equalizeArray": "[Function]",
+    "cullWorker": "[Function]",
+    "randJob": "[Function]",
+    "getTitle": "[Function]",
+    "setStatus": "[Function]",
+    "getNPC": "[Function]",
+    "range": "[Function]",
+    "faint": "[Function]",
+    "unfaint": "[Function]",
+    "randRound": "[Function]",
+    "checkCaravan": "[Function]",
+    "count": "[Function]",
+    "pickWeightedRand": "[Function]",
+    "raidedByAI": "[Function]",
+    "showLevelUpUI": "[Function]",
+    "eventRetaliate": "[Function]",
+    "costOfNthUnit": "[Function]",
+    "updateTotalMilitaryUnits": "[Function]",
+    "calcBulkUnitCost": "[Function]",
+    "takeOver": "[Function]",
+    "calcArcherStats": "[Function]",
+    "parseEffects": "[Function]",
+    "parseKeyWord": "[Function]",
+    "calcWarriorStats": "[Function]",
+    "calcHuntingSpeed": "[Function]",
+    "getCapital": "[Function]",
+    "getGoldValue": "[Function]",
+    "isWinter": "[Function]",
+    "isSpring": "[Function]",
+    "isSummer": "[Function]",
+    "isAutumn": "[Function]",
+    "notWinter": "[Function]",
+    "notSpring": "[Function]",
+    "notSummer": "[Function]",
+    "notAutumn": "[Function]",
+    "growTrees": "[Function]",
+    "growCrops": "[Function]",
+    "haslivestock": "[Function]",
+    "livestockMinNumCheeseFarmer": "[Function]",
+    "stepsToDays": "[Function]",
+    "workersReturnFromAltona": "[Function]",
+    "eventStory": "[Function]",
+    "startMilontiTale": "[Function]",
+    "eventJulietPursuit": "[Function]",
+    "startJulietPursuit": "[Function]",
+    "comesOfAge": "[Function]",
+    "retirement": "[Function]",
+    "killWorkerBecauseReason": "[Function]",
+    "loadImportantEvent": "[Function]",
+    "createNotif": "[Function]",
+    "processLoot": "[Function]",
+    "eventWarlordCapturesPointAnne": "[Function]",
+    "eventWarlordAttacksRedWater": "[Function]",
+    "eventWarlordAttacksTomiko": "[Function]",
+    "eventWarlordAttacksSilverInslet": "[Function]",
+    "eventWarlordAttacksNephton": "[Function]",
+    "eventWarlordAttacksHornCastle": "[Function]",
+    "eventPsychoAttacksHighFalls": "[Function]",
+    "eventPrincessCapturesKitsilano": "[Function]",
+    "eventPrincessCapturesAltona": "[Function]",
+    "eventHuntingRaid": "[Function]",
+    "eventHuntingRaidReturn": "[Function]",
+    "eventHuntingOfferReturn": "[Function]",
+    "eventMineBuilder": "[Function]",
+    "eventMineExpander": "[Function]",
+    "eventHouseBuilder": "[Function]",
+    "eventGoodsBuyer": "[Function]",
+    "eventGoodsSeller": "[Function]",
+    "eventMarbleSeller": "[Function]",
+    "eventWanderer": "[Function]",
+    "eventFoundField": "[Function]",
+    "eventNewPeople": "[Function]",
+    "eventMasterBuilder": "[Function]",
+    "eventBanditRaidBegin": "[Function]",
+    "eventTravellingPhysician": "[Function]",
+    "eventUnlockBeeKeeping": "[Function]",
+    "eventWolfRaidAttack": "[Function]",
+    "contractGoodsBuyerComplete": "[Function]",
+    "contractGoodsSellerComplete": "[Function]",
+    "noop": "[Function]",
+    "contractMarbleSellerComplete": "[Function]",
+    "contractMarbleSellerExpire": "[Function]",
+    "contractMarbleSellerReject": "[Function]",
+    "contractXimniTraderComplete": "[Function]",
+    "contractXimniTraderIncomplete": "[Function]",
+    "contractMercenaryComplete": "[Function]",
+    "contractMercenaryExpire": "[Function]",
+    "contractMineBuilderComplete": "[Function]",
+    "contractMineBuilderExpire": "[Function]",
+    "contractMineBuilderReject": "[Function]",
+    "contractMineExpanderComplete": "[Function]",
+    "warehouseFull": "[Function]",
+    "removeWarehouseFullFlag": "[Function]",
+    "eventMercenariesForHire": "[Function]",
+    "eventPrincessBeeKeeper": "[Function]",
+    "eventAbbyAsksBees": "[Function]",
+    "eventAbbyAsksWinter": "[Function]",
+    "eventPlague": "[Function]",
+    "eventXimniTrader": "[Function]",
+    "collapseBuilding": "[Function]",
+    "buildingNeedsRepair": "[Function]",
+    "isMineDamaged": "[Function]",
+    "endGame": "[Function]",
+    "triggerImportantEvent": "[Function]",
+    "destroyBuilding": "[Function]",
+    "pubBuild": "[Function]",
+    "listGoods": "[Function]",
+    "convertToCurrency": "[Function]",
+    "setCaravanReady": "[Function]",
+    "caravanReturns": "[Function]",
+    "caravanUnload": "[Function]",
+    "processAI": "[Function]",
+    "gatherTributes": "[Function]",
+    "hasField": "[Function]",
+    "hasMine": "[Function]",
+    "hasMarket": "[Function]",
+    "hasMilitaryCouncil": "[Function]",
+    "hasPub": "[Function]",
+    "hasHerbalistShop": "[Function]",
+    "redistributeForces": "[Function]",
+    "warningAIAttacking": "[Function]",
+    "dangerAIAttacking": "[Function]",
+    "AIISAttacking": "[Function]",
+    "updateMilitaryRating": "[Function]",
+    "startBattle": "[Function]",
+    "banditAttack": "[Function]",
+    "toStringT": "[Function]",
+    "addQuest": "[Function]",
+    "createQuest": "[Function]",
+    "removeQuest": "[Function]",
+    "dayFromStep": "[Function]",
+    "moonFromDay": "[Function]",
+    "dateFromDay": "[Function]",
+    "calcCaravanCapacity": "[Function]",
+    "convertSpace": "[Function]",
+    "calcSpaceAvailable": "[Function]",
+    "calcSpaceUsed": "[Function]",
+    "increaseFavour": "[Function]",
+    "fixFavourLimits": "[Function]",
+    "procLoot": "[Function]",
+    "pickOne": "[Function]",
+    "getScholarLevelCap": "[Function]",
+    "nameUsed": "[Function]",
+    "genName": "[Function]",
+    "changeSeason": "[Function]",
+    "procAccident": "[Function]"
+  },
+  "gamelog": {
+    "displayed": false,
+    "hasNew": false,
+    "toggle": "[Function]",
+    "init": "[Function]",
+    "insert": "[Function]"
+  },
+  "getFaceStyle": "[Function]",
+  "getParsedText": "[Function]",
+  "houseTypes": {
+    "tent": {
+      "type": "tent",
+      "effects": {
+        "attractiveness": 0,
+        "workers": 3
+      }
+    },
+    "hovel": {
+      "type": "hovel",
+      "effects": {
+        "attractiveness": -1,
+        "workers": 3,
+        "capacity": 200
+      }
+    },
+    "house": {
+      "type": "house",
+      "effects": {
+        "attractiveness": 0,
+        "workers": 5,
+        "capacity": 600
+      }
+    },
+    "mansion": {
+      "type": "mansion",
+      "effects": {
+        "attractiveness": 4,
+        "workers": 6,
+        "capacity": 1000
+      }
+    },
+    "manor": {
+      "type": "manor",
+      "effects": {
+        "attractiveness": 8,
+        "workers": 10,
+        "capacity": 1400
+      }
+    },
+    "chateau": {
+      "type": "chateau",
+      "effects": {
+        "attractiveness": 25,
+        "workers": 20,
+        "capacity": 3000
+      }
+    },
+    "estate": {
+      "type": "estate",
+      "effects": {
+        "attractiveness": 100,
+        "workers": 20,
+        "capacity": 10000
+      }
+    },
+    "publichouse": {
+      "type": "publichouse",
+      "effects": {
+        "attractiveness": -10,
+        "workers": 25,
+        "capacity": 3000
+      }
+    }
+  },
+  "inIntro": true,
+  "insertFood": "[Function]",
+  "insertInventory": "[Function]",
+  "insertNotificationBar": "[Function]",
+  "isAdmin": "[Function]",
+  "isRunning": false,
+  "itemList": {},
+  "levelUpUI": {
+    "curlevelUp": null,
+    "show": "[Function]",
+    "select": "[Function]",
+    "selectTP": "[Function]"
+  },
+  "linkItemList": "[Function]",
+  "loadFromServer": "[Function]",
+  "maps": [
+    "main",
+    "home",
+    "forest",
+    "mine",
+    "field",
+    "market",
+    "tinkery",
+    "academy",
+    "council"
+  ],
+  "mergeSets": "[Function]",
+  "multSet": "[Function]",
+  "musicPlayer": {
+    "playlist": [
+      {
+        "filename": "Home-Forest.mp3",
+        "title": "Home Forest - Eric Matyas - www.soundimage.org",
+        "tags": [
+          "home",
+          "spring",
+          "summer",
+          "autumn",
+          "winter"
+        ]
+      },
+      {
+        "filename": "The-Seventy-Seas.mp3",
+        "title": "The Seventy Seas - Eric Matyas - www.soundimage.org",
+        "tags": [
+          "summer"
+        ]
+      },
+      {
+        "filename": "Enchanted-Woods.mp3",
+        "title": "Enchanted Woods - Eric Matyas - www.soundimage.org",
+        "tags": [
+          "forest",
+          "field",
+          "spring",
+          "summer",
+          "autumn"
+        ]
+      },
+      {
+        "filename": "Introspection.mp3",
+        "title": "Introspection - Eric Matyas - www.soundimage.org",
+        "tags": [
+          "university",
+          "council",
+          "militaryCouncil"
+        ]
+      },
+      {
+        "filename": "The-Village.mp3",
+        "title": "The Village - Eric Matyas - www.soundimage.org",
+        "tags": [
+          "home",
+          "council",
+          "university",
+          "field"
+        ]
+      },
+      {
+        "filename": "Tough-Choices.mp3",
+        "title": "Tough Choices - Eric Matyas - www.soundimage.org",
+        "tags": [
+          "university",
+          "council",
+          "militaryCouncil",
+          "masonsGuild"
+        ]
+      },
+      {
+        "filename": "96-Blocks.mp3",
+        "title": "96 Blocks - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Ancient-Construction.mp3",
+        "title": "Ancient Construction - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Autumn-Changes.mp3",
+        "title": "Autumn Changes - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Awkward-Princess_v001.mp3",
+        "title": "Awkward Princess - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Bustling-Ancient-City.mp3",
+        "title": "Bustling Ancient City - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Cool-Adventure-Intro.mp3",
+        "title": "Cool Adventure Intro - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Forest-Chase.mp3",
+        "title": "Forest Chase - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Happy-Hour.mp3",
+        "title": "Happy Hour - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Icicles.mp3",
+        "title": "Iciciles - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Impossible-Decision.mp3",
+        "title": "Impossible Decision - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Kingdom-of-Lost-Dreams.mp3",
+        "title": "Kingdom of Lost Dreams - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Lost-Meadow.mp3",
+        "title": "Lost Meadow - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Medieval-Halloween.mp3",
+        "title": "Medieval Halloween - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Melt.mp3",
+        "title": "Melt - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Morning-Frost.mp3",
+        "title": "Morning Forest - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Old-World-Vanishing.mp3",
+        "title": "Old World Vanishing - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "On-Things-to-Come.mp3",
+        "title": "On Things to Come - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Sculpture-Garden.mp3",
+        "title": "Sculpture Garden - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Secret-Journey.mp3",
+        "title": "Secret Journey - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Special-Day.mp3",
+        "title": "Special Day - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "SpringThaw.mp3",
+        "title": "Spring Thaw - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Sunrise.mp3",
+        "title": "Sunrise - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "The-Awkward-Princess-Returns.mp3",
+        "title": "The Awkward Princess Returns - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "The-Builders.mp3",
+        "title": "The Builders - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "The-Darkness-Below.mp3",
+        "title": "The Darkness Below - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Walled-City-of-Doom.mp3",
+        "title": "Walled City of Doom - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "Winter-Morning.mp3",
+        "title": "Winter Morning - Eric Matyas - www.soundimage.org"
+      },
+      {
+        "filename": "a-transient-game.mp3",
+        "title": "A Transient Game - mattesar - www.soundcloud.com/mattesarmusic"
+      },
+      {
+        "filename": "las-estrellas.mp3",
+        "title": "Las Estrellas - mattesar - www.soundcloud.com/mattesarmusic"
+      }
+    ],
+    "initialized": false,
+    "index": null,
+    "playing": false,
+    "loaded": [],
+    "played": 0,
+    "volume": 50,
+    "shuffle": "[Function]",
+    "load": "[Function]",
+    "play": "[Function]",
+    "pause": "[Function]",
+    "resume": "[Function]",
+    "selectNext": "[Function]",
+    "toggleMusicEnabled": "[Function]",
+    "initialize": "[Function]"
+  },
+  "nextContractId": 0,
+  "recursiveMerge": "[Function]",
+  "reset": "[Function]",
+  "revoltMechanicStart": 630000,
+  "saveToServer": "[Function]",
+  "savegame": "[Function]",
+  "scaleCost": "[Function]",
+  "season": {
+    "stepsPerSeason": 81900,
+    "stepsPerDay": 900,
+    "curSeason": "Winter",
+    "curDay": 16,
+    "curMonth": 12,
+    "curYear": 922,
+    "seasonLength": {
+      "Spring": 91,
+      "Summer": 91,
+      "Autumn": 91,
+      "Winter": 91
+    }
+  },
+  "sectors": {},
+  "shuffle": "[Function]",
+  "storyScreens": {
+    "intro": {
+      "state": 1,
+      "curStep": null
+    },
+    "chapter2": {
+      "state": 0,
+      "curStep": null
+    }
+  },
+  "techBase": 100,
+  "techScale": 1.25,
+  "techTree": {
+    "id": "techTreeRoot",
+    "obj": {},
+    "children": []
+  },
+  "triggerBandit": "[Function]",
+  "unlock": "[Function]",
+  "updateHomeName": "[Function]",
+  "upgrades": {},
+  "version": "0.9.5",
+  "world": {}
+}
