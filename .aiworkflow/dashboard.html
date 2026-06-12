@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T20:18:11Z",
+  "generated": "2026-06-12T20:25:03Z",
   "iteration": {
     "id": "iter-001",
     "goal": "Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.",
@@ -415,8 +415,8 @@ const DATA = {
       },
       {
         "id": "T-004",
-        "text": "(in-flight): architect – Micro-rework dle review: F1–F3 redakční přesnost citací + doplnit G1 (seedovatelný RNG) a G2 (bitvy v catch-upu) do analýz. Model: Fable.",
-        "done": false
+        "text": "architect – Micro-rework dle review: F1–F3 redakční přesnost citací + doplnit G1 (seedovatelný RNG) a G2 (bitvy v catch-upu) do analýz. Model: Fable.",
+        "done": true
       },
       {
         "id": "T-005",
@@ -430,15 +430,15 @@ const DATA = {
       }
     ],
     "total": 8,
-    "done_count": 5
+    "done_count": 6
   },
   "closed_iterations": [],
   "agents": [
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-002a + T-002b (paralelní běhy)",
-      "brief": "context/inbox/brief_architect_T-002a_iter-001.md (BRIEF-002a), context/inbox/brief_architect_T-002b_iter-001.md (BRIEF-002b)",
+      "task_id": "T-004",
+      "brief": "context/inbox/brief_architect_T-004_iter-001.md (BRIEF-004)",
       "iteration": "iter-001",
       "started": "2026-06-12",
       "completed": "2026-06-12"
@@ -658,7 +658,7 @@ const DATA = {
       "type": "final",
       "name": "analysis_refactoring_maintainability_iter-001_T-002b.md",
       "task": "T-002",
-      "completed": "2026-06-12T19:21:23Z",
+      "completed": "2026-06-12T20:23:17Z",
       "description": ""
     },
     {
@@ -667,8 +667,17 @@ const DATA = {
       "type": "final",
       "name": "analysis_refactoring_perf-offline_iter-001_T-002a.md",
       "task": "T-002",
-      "completed": "2026-06-12T19:21:42Z",
+      "completed": "2026-06-12T20:23:04Z",
       "description": ""
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/rework_iter-001_T-004.md",
+      "type": "final",
+      "name": "rework_iter-001_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-12T20:24:06Z",
+      "description": "micro-rework F1-F3 + G1/G2 hotov"
     },
     {
       "agent": "reviewer",
@@ -682,7 +691,7 @@ const DATA = {
   ],
   "metrics": {},
   "agent_tokens": {
-    "architect": 456821,
+    "architect": 549627,
     "reviewer": 112095
   }
 };

@@ -12,7 +12,7 @@
 - [x] T-002a: architect – Refactoring kandidáti: výkon & runtime + save/offline + serverové závislosti (pohledem mobile PWA/offline). Model: Fable (xhigh).
 - [x] T-002b: architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).
 - [x] T-003: reviewer – Review analýz a doporučení (T-001 + T-002a + T-002b); úplnost, technická správnost, proveditelnost; konsolidace prioritizovaného seznamu
-- [ ] T-004 (in-flight): architect – Micro-rework dle review: F1–F3 redakční přesnost citací + doplnit G1 (seedovatelný RNG) a G2 (bitvy v catch-upu) do analýz. Model: Fable.
+- [x] T-004: architect – Micro-rework dle review: F1–F3 redakční přesnost citací + doplnit G1 (seedovatelný RNG) a G2 (bitvy v catch-upu) do analýz. Model: Fable.
 - [ ] T-005: human – Review a schválení analýzy uživatelem (blocker)
 - [ ] T-006: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 

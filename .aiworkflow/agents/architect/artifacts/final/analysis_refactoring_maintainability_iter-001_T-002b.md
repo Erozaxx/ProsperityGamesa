@@ -99,7 +99,7 @@ Překlep v ID (při `Engine.insert`, v kontraktech `onComplete/onExpire/onReject
 **Riziko: střední–vysoké. Úsilí: nízké.**
 
 ### B5. Křehké výrazy bez testů – ilustrativní nález — **Low** (jako vzor; jednotlivost)
-`home.js:970`: `Math.random() < home.consecutiveDiseased * (0.02 + $rootScope.itemList.p_innoculation.running ? 0.01 : 0)` – priorita operátorů dělá z `(0.02 + running) ? 0.01 : 0` vždy `0.01` (resp. `0` při `running undefined`, kdy `0.02+undefined=NaN`). Záměr „základ 0.02 + bonus 0.01" je ztracen; nikdo si nevšiml, protože balanc není testovatelný (D2). Dopad: důkaz, že vzorce zadrátované do podmínek bez jednotkových testů degradují. Alternativa: vzorce jako pojmenované čisté funkce s testy (viz D2). **Riziko vzoru: střední. Úsilí: nízké.**
+`home.js:970`: `Math.random() < home.consecutiveDiseased * (0.02 + $rootScope.itemList.p_innoculation.running ? 0.01 : 0)` – priorita operátorů dělá z `(0.02 + running) ? 0.01 : 0` vždy `0.01` (resp. `0` při `running undefined`, kdy `0.02+undefined=NaN`). Záměr „základ 0.02 + bonus 0.01" je ztracen; nikdo si nevšiml, protože balanc není testovatelný (D2). Druhý exemplář téhož vzoru: `world.js:568–569` počítá `isNewDay/isNewNoon` z `Engine.curStep` – ta je ovšem **service-level undefined** (service literál `Engine` v engine.js žádnou property `curStep` nemá), zatímco skutečný čítač `$rootScope.engine.curStep` existuje a funguje normálně; `undefined % x` → `NaN` → flagy jsou tiše vždy false a služby si proto den/poledne počítají lokálně z `$rootScope.engine.curStep` (detailně T-002a A6). Dopad: důkaz, že vzorce zadrátované do podmínek bez jednotkových testů degradují. Alternativa: vzorce jako pojmenované čisté funkce s testy (viz D2). **Riziko vzoru: střední. Úsilí: nízké.**
 
 ---
 

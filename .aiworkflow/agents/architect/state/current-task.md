@@ -1,39 +1,34 @@
 # Current Task
 
-- **Task ID**: T-002a + T-002b (paralelní běhy)
-- **Brief**: context/inbox/brief_architect_T-002a_iter-001.md (BRIEF-002a), context/inbox/brief_architect_T-002b_iter-001.md (BRIEF-002b)
+- **Task ID**: T-004
+- **Brief**: context/inbox/brief_architect_T-004_iter-001.md (BRIEF-004)
 - **Iteration**: iter-001
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-12
 - **Completed**: 2026-06-12
 
 ## Co teď dělám
-Hotovo (oba paralelní tasky):
-- **T-002a**: refactoring kandidáti – výkon & runtime + save/offline + serverové
-  závislosti (pohledem mobile-first PWA offline). 16 nálezů (A1–A8, B1–B5, C1–C4),
-  každý s problémem, dopadem, prioritou, alternativou a odhadem rizika/úsilí;
-  závěrem prioritizovaný seznam 14 položek.
-  Výstup: `artifacts/final/analysis_refactoring_perf-offline_iter-001_T-002a.md`
-- **T-002b**: refactoring kandidáti v rovině údržba & architektura (provázanost
-  centrálních uzlů, křehkost string-callback dispatchů a load pipeline,
-  oddělení UI↔logika, balanc-as-code). 13 nálezů + prioritizovaný seznam.
-  Výstup: `artifacts/final/analysis_refactoring_maintainability_iter-001_T-002b.md`
+Hotovo – micro-rework analýz dle review T-003:
+- **F1**: T-002a A6 (zapracováno v prvním běhu, commit 436b681) + T-002b B5 –
+  `Engine.curStep` je service-level undefined, `$rootScope.engine.curStep` funguje.
+- **F2**: T-002a A8/B1 – citace `save: function(callback)` (game.js ř. 112) vs.
+  volání z `autoSave` (ř. 45); zapracováno v prvním běhu, ověřeno proti zdroji.
+- **F3**: T-002a C2 – precedence bug `/market` explicitně na ř. 25 (volání),
+  ne uvnitř `getUpdatedData` (ř. 263+).
+- **G1**: T-002a B5 + tabulka D (#15) – seedovatelný/serializovatelný RNG
+  (originál `Math.random()` + `services/rand.js`) jako předpoklad catch-upu, Med.
+- **G2**: T-002a B5 – auto-resolve bitev při catch-upu jako důsledek bitvy coby
+  deterministického automatu na jednotném čase (A4 / T-002b C3 / K7-K8), Med.
+- Rework note: `artifacts/final/rework_iter-001_T-004.md`
+- Všechny citované řádky ověřeny proti `doc/original_source/.../services/`.
 
 ## Dílčí checklist
-- [x] T-001: Architektonická analýza originálu – klíčové mechaniky + jejich engine/datový model + mapa závislostí. (hotovo dříve)
-- [x] T-002a: Refactoring kandidáti – výkon & runtime + save/offline + serverové závislosti.
-- [x] T-002b: Refactoring kandidáti – údržba & architektura (provázanost, křehkost, UI↔logika, balanc).
+- [x] T-004: Zapracovat F1–F3 + G1, G2 do existujících analýz; zapsat rework note.
 
 ## Předpoklady
-- Plné JSON katalogy (listBuildings/listGoods/listTechs/listZone…) nejsou v repu –
-  struktura odvozena z linkovacích funkcí config.js a extracted dumpů; konkrétní
-  položky nutno dotěžit při rebuildu (zaznamenáno v kap. 15 analýzy T-001).
-  Pro offline řešení (T-002a C1) postačí dotěžení + precache.
-- Serverová dynamika /market není ve zdrojích klienta – klientská náhrada
-  (T-002a C2) vyžaduje balanční kalibraci.
-- Odhady úsilí platí pro greenfield rebuild, ne přepis originálu.
-- Nálezy T-002a A5 (dvojí Skills.step) a C2 (/market) mají balanční přesah do
-  balanc-as-code agendy T-002b.
+- Konsolidovaný seznam reviewera (T-003 §6) nedotčen; F4 neřešeno (vyřešeno K7/K8).
+- Číslování tabulky D v T-002a zachováno (G1 přidán jako #15), aby existující
+  reference na položky 1–14 zůstaly platné.
 
 ## Blockery
 –

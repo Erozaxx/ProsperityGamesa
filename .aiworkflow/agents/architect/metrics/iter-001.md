@@ -31,3 +31,11 @@
 - **tool_uses**: 40
 - **duration_ms**: 769637
 - **Output**: artifacts/final/analysis_refactoring_perf-offline_iter-001_T-002a.md (16 nálezů A–C + prioritizovaný seznam)
+
+## T-004 (micro-rework)
+- **Timestamp**: 2026-06-12T20:24:06Z
+- **Model**: fable
+- **total_tokens**: 92806
+- **tool_uses**: 30
+- **duration_ms**: 356853
+- **Output**: rework_iter-001_T-004.md + edity T-002a (F3, G1, G2) a T-002b (F1)
