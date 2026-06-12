@@ -1,0 +1,20 @@
+{
+  "name": "Prosperity",
+  "short_name": "Prosperity",
+  "description": "Offline idle ekonomická hra o budování bohatství.",
+  "lang": "cs",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1f17",
+  "theme_color": "#0f1f17",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
