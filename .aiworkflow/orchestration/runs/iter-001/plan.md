@@ -2,7 +2,7 @@
 
 - **Created**: 2026-06-12
 - **Goal**: Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.
-- **Status**: active
+- **Status**: closed
 - **Pozn. k modelu**: Architektonické tasky (T-001, T-002) běží na modelu **Fable** s požadavkem na maximální analytickou hloubku (xhigh) – experiment k otestování capability modelu.
 
 ## Master Checklist
