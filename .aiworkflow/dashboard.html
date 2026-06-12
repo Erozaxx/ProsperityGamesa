@@ -382,39 +382,44 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T18:26:10Z",
+  "generated": "2026-06-12T18:31:46Z",
   "iteration": {
     "id": "iter-001",
-    "goal": "Navrhnout architekturu nové hry – věrný rebuild Prosperity (mobile-first PWA, offline) – stack, struktura, herní engine, save formát, datový model.",
+    "goal": "Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Navrhnout architekturu rebuildu Prosperity (stack, struktura projektu, herní engine/smyčka & čas, datový/save model, vrstvy logika↔UI, plán iterací systémů); vstupy: `doc/original_source_doc.md`, `.aiworkflow/zadani_projektu.md`",
+        "text": "architect – Architektonická analýza původní hry: vypíchnout klíčové mechaniky a jejich engine/datový model (čas/engine, populace, ekonomika/trh, výzkum, vojsko/AI svět, save). Vstupy: `doc/original_source/`, `doc/original_source_doc.md`. Model: Fable (xhigh).",
         "done": false
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery)",
+        "text": "architect – Identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring (odůvodnění, dopad, priorita, navrhované alternativy). Model: Fable (xhigh).",
         "done": false
       },
       {
         "id": "T-003",
-        "text": "architect – Zapracovat nálezy z review (pokud reviewer něco našel)",
+        "text": "reviewer – Review analýzy a doporučení (úplnost, technická správnost, proveditelnost; všechny nálezy)",
         "done": false
       },
       {
         "id": "T-004",
-        "text": "human – Review a schválení architektury uživatelem (blocker před implementací)",
+        "text": "architect – Zapracovat nálezy z review (pokud reviewer něco našel)",
         "done": false
       },
       {
         "id": "T-005",
+        "text": "human – Review a schválení analýzy uživatelem (blocker)",
+        "done": false
+      },
+      {
+        "id": "T-006",
         "text": "human – Schválení uzavření iterace (review výsledků před /close-iteration)",
         "done": false
       }
     ],
-    "total": 5,
+    "total": 6,
     "done_count": 0
   },
   "closed_iterations": [],

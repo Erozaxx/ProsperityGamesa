@@ -1,27 +1,27 @@
 # Iteration Plan: iter-001
 
 - **Created**: 2026-06-12
-- **Goal**: Navrhnout architekturu nové hry – věrný rebuild Prosperity (mobile-first PWA, offline) – stack, struktura, herní engine, save formát, datový model.
+- **Goal**: Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.
 - **Status**: active
+- **Pozn. k modelu**: Architektonické tasky (T-001, T-002) běží na modelu **Fable** s požadavkem na maximální analytickou hloubku (xhigh) – experiment k otestování capability modelu.
 
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
-- [ ] T-001: architect – Navrhnout architekturu rebuildu Prosperity (stack, struktura projektu, herní engine/smyčka & čas, datový/save model, vrstvy logika↔UI, plán iterací systémů); vstupy: `doc/original_source_doc.md`, `.aiworkflow/zadani_projektu.md`
-- [ ] T-002: reviewer – Review architektury (všechny nálezy, nejen blockery)
-- [ ] T-003: architect – Zapracovat nálezy z review (pokud reviewer něco našel)
-- [ ] T-004: human – Review a schválení architektury uživatelem (blocker před implementací)
-- [ ] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)
+- [ ] T-001: architect – Architektonická analýza původní hry: vypíchnout klíčové mechaniky a jejich engine/datový model (čas/engine, populace, ekonomika/trh, výzkum, vojsko/AI svět, save). Vstupy: `doc/original_source/`, `doc/original_source_doc.md`. Model: Fable (xhigh).
+- [ ] T-002: architect – Identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring (odůvodnění, dopad, priorita, navrhované alternativy). Model: Fable (xhigh).
+- [ ] T-003: reviewer – Review analýzy a doporučení (úplnost, technická správnost, proveditelnost; všechny nálezy)
+- [ ] T-004: architect – Zapracovat nálezy z review (pokud reviewer něco našel)
+- [ ] T-005: human – Review a schválení analýzy uživatelem (blocker)
+- [ ] T-006: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
 ## Quality Gates
 - [ ] Plan neobsahuje orchestratora jako agenta u žádného tasku
-- [ ] Architect návrh prošel reviewer review a případnou opravou (T-002, T-003)
-- [ ] Architect návrh schválen uživatelem (T-004)
-- [ ] Code review (Reviewer)
-- [ ] QA validace (Tester)
+- [ ] Analýza prošla reviewer review a případnou opravou (T-003, T-004)
+- [ ] Analýza schválena uživatelem (T-005)
 
 ## Exit Criteria
-- Schválený architektonický návrh (artefakt v `agents/architect/artifacts/final/`): stack, struktura projektu, herní engine/smyčka, datový + save model, vrstvení, plán iterací systémů.
-- Návrh prošel reviewem (T-002) a schválením uživatele (T-004).
+- Architektonická analýza (artefakt v `agents/architect/artifacts/final/`): klíčové mechaniky + jejich engine/datový model, a seznam neefektivních mechanik s doporučeními na refactoring (priorita, dopad, alternativy).
+- Analýza prošla reviewem (T-003) a schválením uživatele (T-005).
 
 ## Decisions Made This Iteration
 –
