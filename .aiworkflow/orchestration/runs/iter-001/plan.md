@@ -13,13 +13,13 @@
 - [x] T-002b: architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).
 - [x] T-003: reviewer – Review analýz a doporučení (T-001 + T-002a + T-002b); úplnost, technická správnost, proveditelnost; konsolidace prioritizovaného seznamu
 - [x] T-004: architect – Micro-rework dle review: F1–F3 redakční přesnost citací + doplnit G1 (seedovatelný RNG) a G2 (bitvy v catch-upu) do analýz. Model: Fable.
-- [ ] T-005: human – Review a schválení analýzy uživatelem (blocker)
-- [ ] T-006: human – Schválení uzavření iterace (review výsledků před /close-iteration)
+- [x] T-005: human – Review a schválení analýzy uživatelem (blocker)
+- [x] T-006: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
 ## Quality Gates
-- [ ] Plan neobsahuje orchestratora jako agenta u žádného tasku
-- [ ] Analýza prošla reviewer review a případnou opravou (T-003, T-004)
-- [ ] Analýza schválena uživatelem (T-005)
+- [x] Plan neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Analýza prošla reviewer review a případnou opravou (T-003, T-004)
+- [x] Analýza schválena uživatelem (T-005)
 
 ## Exit Criteria
 - Architektonická analýza (artefakt v `agents/architect/artifacts/final/`): klíčové mechaniky + jejich engine/datový model, a seznam neefektivních mechanik s doporučeními na refactoring (priorita, dopad, alternativy).
