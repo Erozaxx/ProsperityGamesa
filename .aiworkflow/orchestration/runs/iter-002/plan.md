@@ -10,7 +10,7 @@
 - [x] T-002: reviewer – Review architektury (všechny nálezy, nejen blockery)
 - [x] T-003: architect – Zapracovat všechny nálezy z review (S-01..S-06 + N-01..N-04) do návrhu architektury + rework note. Model: Fable.
 - [x] T-004: human – Review a schválení architektury uživatelem (blocker před implementací)
-- [ ] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)
+- [x] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
 ## Quality Gates
 - [x] Plan neobsahuje orchestratora jako agenta u žádného tasku
