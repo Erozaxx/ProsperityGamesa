@@ -2,7 +2,7 @@
 
 - **Created**: 2026-06-12
 - **Goal**: Navrhnout projekt/architekturu na vytvoření hry – věrný rebuild Prosperity (mobile-first PWA, offline) – na základě materiálů z iter-01 (vstup = rozcestník).
-- **Status**: active
+- **Status**: closed
 
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
