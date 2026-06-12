@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T19:09:55Z",
+  "generated": "2026-06-12T19:22:42Z",
   "iteration": {
     "id": "iter-001",
     "goal": "Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.",
@@ -400,8 +400,8 @@ const DATA = {
       },
       {
         "id": "",
-        "text": "T-002b (in-flight): architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).",
-        "done": false
+        "text": "T-002b: architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).",
+        "done": true
       },
       {
         "id": "T-003",
@@ -425,18 +425,18 @@ const DATA = {
       }
     ],
     "total": 7,
-    "done_count": 1
+    "done_count": 2
   },
   "closed_iterations": [],
   "agents": [
     {
       "slug": "architect",
-      "status": "idle",
-      "task_id": "T-002",
-      "brief": "context/inbox/brief_architect_T-002_iter-001.md (BRIEF-002)",
+      "status": "done",
+      "task_id": "T-002a + T-002b (paralelní běhy)",
+      "brief": "context/inbox/brief_architect_T-002a_iter-001.md (BRIEF-002a), context/inbox/brief_architect_T-002b_iter-001.md (BRIEF-002b)",
       "iteration": "iter-001",
       "started": "2026-06-12",
-      "completed": ""
+      "completed": "2026-06-12"
     },
     {
       "slug": "audience-adapter",
@@ -646,11 +646,29 @@ const DATA = {
       "task": "T-001",
       "completed": "2026-06-12T18:50:58Z",
       "description": "architektonická analýza klíčových mechanik originálu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/analysis_refactoring_maintainability_iter-001_T-002b.md",
+      "type": "final",
+      "name": "analysis_refactoring_maintainability_iter-001_T-002b.md",
+      "task": "T-002",
+      "completed": "2026-06-12T19:21:23Z",
+      "description": ""
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/analysis_refactoring_perf-offline_iter-001_T-002a.md",
+      "type": "final",
+      "name": "analysis_refactoring_perf-offline_iter-001_T-002a.md",
+      "task": "T-002",
+      "completed": "2026-06-12T19:21:42Z",
+      "description": ""
     }
   ],
   "metrics": {},
   "agent_tokens": {
-    "architect": 193948
+    "architect": 307936
   }
 };
 

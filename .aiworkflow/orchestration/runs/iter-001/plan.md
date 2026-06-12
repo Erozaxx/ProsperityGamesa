@@ -10,7 +10,7 @@
 - [x] T-001: architect – Architektonická analýza původní hry: vypíchnout klíčové mechaniky a jejich engine/datový model (čas/engine, populace, ekonomika/trh, výzkum, vojsko/AI svět, save). Vstupy: `doc/original_source/`, `doc/original_source_doc.md`. Model: Fable (xhigh).
 - [~] T-002: SPLIT na T-002a + T-002b (po stream idle timeoutu na Fable rozděleno na kratší tasky)
 - [ ] T-002a (in-flight): architect – Refactoring kandidáti: výkon & runtime + save/offline + serverové závislosti (pohledem mobile PWA/offline). Model: Fable (xhigh).
-- [ ] T-002b (in-flight): architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).
+- [x] T-002b: architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).
 - [ ] T-003: reviewer – Review analýz a doporučení (T-001 + T-002a + T-002b); úplnost, technická správnost, proveditelnost; konsolidace prioritizovaného seznamu
 - [ ] T-004: architect – Zapracovat nálezy z review (pokud reviewer něco našel)
 - [ ] T-005: human – Review a schválení analýzy uživatelem (blocker)
