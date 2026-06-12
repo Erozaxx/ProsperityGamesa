@@ -1,54 +1,50 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-002)
-- **Brief**: context/inbox/brief_architect_T-001_iter-002.md (BRIEF-005)
+- **Task ID**: T-003 (iter-002)
+- **Brief**: context/inbox/brief_architect_T-003_iter-002.md (BRIEF-007)
 - **Iteration**: iter-002
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-12
 - **Completed**: 2026-06-12
 
 ## Co teď dělám
-Hotovo – návrh architektury projektu rebuildu Prosperity:
-`artifacts/final/architecture_proposal_iter-002_T-001.md` (sekce 0–14, 543 ř.).
+Hotovo – zapracování všech nálezů z review T-002 (S-01..S-06, N-01..N-04 + povýšení R-I)
+do `artifacts/final/architecture_proposal_iter-002_T-001.md` (light redakce, podstata
+rozhodnutí D1–D13 beze změny). Mapa „nález → kde a jak zapracován" v rework note:
+`artifacts/final/rework_iter-002_T-003.md`.
 
-Pokrytí Scope IN:
-- **Stack (D1)**: ES2022 moduly + JSDoc/`tsc --checkJs` bez build kroku, vendorovaný
-  preact+htm, node:test, ruční SW; 3 alternativy s důvody zamítnutí (§2).
-- **Vrstvení (K0/K9)**: headless core ↔ UI přes read-only snapshot + command API,
-  ASCII diagram (§3).
-- **Engine & čas (K3/K6/K16/K17)**: fixed-timestep s akumulátorem – jeden mechanismus
-  live/background/offline; scheduler heap + periodika jako data; centrální tickOrder
-  (rozpad Home.step); RNG streamy per systém (§4).
-- **Data & katalogy (K2/K4/K13–K15, K10)**: verzované JSONy, schema validace fail-fast,
-  immutable katalog + modifikátory, balanc do dat + čisté vzorce (§5).
-- **Save (K1/K11/K12)**: IndexedDB, rotující generace, lastSimTimestamp, allowlist
-  persist schémata, load = čistá konstrukce, verzované migrace, export/import (§6).
-- **Resource vrstva (K5)** + účetnictví/achievementy jako observery (§7).
-- **Pozdní systémy (K8/R4)**: battle automat + zone tick kontrakty navržené teď (§8).
-- **R1–R4 rozhodnuto** (D9–D12): klientský trh s mean-reversion driftem; cap 8 h jako
-  balance konstanta + auto-resolve bitev + pokračování po eventu; extrakční pipeline M1
-  s gap-reportem (dílčí eskalace jen pro nedotěžitelné díry); kontrakty+stuby+testy (§9).
-- **Mapování K0–K19** na sekce a milníky (§10); **milníky M0–M9, MVP = M0–M4** (§11);
-  **rizika R-A–R-J + mitigace** (§12); předpoklady (§13); handoff doporučení (§14).
+Shrnutí zásahů:
+- **S-01**: §2.2 nový odstavec runtime zero-build vs. dev/CI Node toolchain; DoD M0 =
+  funkční `tsc --checkJs` CI gate (§11/M0); úprava D1 řádku a §2.1.
+- **S-02**: §9.2 cap rozdělen na technický strop (`capTechRealHours: 8`, potvrzení po
+  benchmarku M0) a balanční hodnotu (`capRealHours`, ladí M9); engine uplatňuje min;
+  D10 řádek + §14.1 aktualizovány.
+- **S-03**: §9.1 kalibrace = hratelnostní cíle (ne serverové křivky); upřesněn DoD M9 + §13.3.
+- **S-04**: §11 M2 zmenšen na catch-up MVP + nový odstavec se zdůvodněním a povoleným
+  splitem M2a/M2b.
+- **S-05**: §4.1 catch-up-safe invariant; zařazen do DoD všech milníků od M2 (§11).
+- **S-06**: negativní kontraktní test – stub world neoceňuje před M4 (§8.2, §9.4, §9.1).
+- **N-01**: §9.2 = kanonická formulace capu; pozn. pod §12 jen odkazuje.
+- **N-02**: §9.1 explicitní clamp `available ∈ [0, max]`.
+- **N-03**: PWA smoke check průběžně od M0 (§11 úvod + M0 + M9).
+- **N-04**: ASCII diagram §3.5 a tickOrder §4.3 označeny jako živé artefakty, kontrola
+  v reviewer gate (§11).
+- **R-I**: dopad povýšen na Vysoký + označen jako největší reálné riziko dle review.
 
 ## Dílčí checklist
-- [x] T-001: Návrh architektury projektu rebuildu (stack, struktura, engine+čas+catch-up, data/save model, rozpad iterací, R1–R4, rizika).
+- [x] T-003: Zapracovat S-01..S-06 + N-01..N-04 do návrhu; zapsat rework note.
 
 ### Pracovní rozpad (interní)
-- [x] Přečteno: AGENTS.md, brief, rozcestník, zadání, original_source_doc
-- [x] Přečteno: T-001/T-002a/T-002b analýzy, T-004 rework, T-003 review (K0–K19, R1–R4)
-- [x] Sekce 1–3: cíle, stack, struktura+vrstvení
-- [x] Sekce 4–6: engine+čas+RNG, data/katalogy, save model
-- [x] Sekce 7–9: resource vrstva, registry, tick rozpad, pozdní systémy
-- [x] Sekce 10–13(+14): R1–R4, mapování K0–K19, iterace/milníky, rizika+diagram
-- [x] Validace artefaktu + handoff
+- [x] Přečteno: AGENTS.md, brief BRIEF-007, review T-002 (§6 tabulka, §7)
+- [x] S-01, S-02 (M0 DoD, cap split), S-03 (M9 DoD)
+- [x] S-04 (M2), S-05 (invariant), S-06 (kontraktní test)
+- [x] N-01..N-04 + povýšení R-I
+- [x] Rework note + aktualizace hlavičky návrhu
+- [x] Validace + handoff
 
 ## Předpoklady
-- Plné katalogy nejsou v repu (R3) – dotěžení = milník M1 s gap-reportem; eskalace
-  uživateli jen pro reálné díry.
-- Cap catch-upu a drift konstanta trhu jsou balance data – kalibrace v M9, architektura
-  na hodnotách nezávisí.
-- Doporučená navazující kontrola: challenger review bodů D1 (no-build), D10 (cap), §9.1 (drift).
+- Light zásah dle Scope IN briefu – žádné nové architektonické rozhodnutí; struktura
+  návrhu (§0–§14) zachována; review artefakt reviewera nedotčen.
 
 ## Blockery
 –
