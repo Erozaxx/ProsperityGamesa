@@ -8,7 +8,7 @@
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
 - [x] T-001: architect – Architektonická analýza původní hry: vypíchnout klíčové mechaniky a jejich engine/datový model (čas/engine, populace, ekonomika/trh, výzkum, vojsko/AI svět, save). Vstupy: `doc/original_source/`, `doc/original_source_doc.md`. Model: Fable (xhigh).
-- [ ] T-002: architect – Identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring (odůvodnění, dopad, priorita, navrhované alternativy). Model: Fable (xhigh).
+- [ ] T-002: architect – Identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring (odůvodnění, dopad, priorita, navrhované alternativy). Model: Fable (xhigh). (in-flight)
 - [ ] T-003: reviewer – Review analýzy a doporučení (úplnost, technická správnost, proveditelnost; všechny nálezy)
 - [ ] T-004: architect – Zapracovat nálezy z review (pokud reviewer něco našel)
 - [ ] T-005: human – Review a schválení analýzy uživatelem (blocker)
