@@ -382,64 +382,51 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T20:25:03Z",
+  "generated": "2026-06-12T22:48:45Z",
   "iteration": {
-    "id": "iter-001",
-    "goal": "Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.",
+    "id": "iter-002",
+    "goal": "Navrhnout projekt/architekturu na vytvoření hry – věrný rebuild Prosperity (mobile-first PWA, offline) – na základě materiálů z iter-01 (vstup = rozcestník).",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Architektonická analýza původní hry: vypíchnout klíčové mechaniky a jejich engine/datový model (čas/engine, populace, ekonomika/trh, výzkum, vojsko/AI svět, save). Vstupy: `doc/original_source/`, `doc/original_source_doc.md`. Model: Fable (xhigh).",
+        "text": "architect – Navrhnout architekturu projektu rebuildu (stack + zdůvodnění, struktura a vrstvení logika↔UI, herní engine & čas + offline catch-up, datový + save model, katalogy/balanc, rozpad systémů do iterací, rozhodnutí k R1–R4, rizika). POVINNÝ VSTUP: `.aiworkflow/project/architecture/iter-02-input-rozcestnik.md` (+ materiály z iter-01, na které odkazuje)",
         "done": true
       },
       {
         "id": "T-002",
-        "text": "SPLIT → T-002a + T-002b (oba hotovi)",
-        "done": true
-      },
-      {
-        "id": "",
-        "text": "T-002a: architect – Refactoring kandidáti: výkon & runtime + save/offline + serverové závislosti (pohledem mobile PWA/offline). Model: Fable (xhigh).",
-        "done": true
-      },
-      {
-        "id": "",
-        "text": "T-002b: architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).",
+        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery)",
         "done": true
       },
       {
         "id": "T-003",
-        "text": "reviewer – Review analýz a doporučení (T-001 + T-002a + T-002b); úplnost, technická správnost, proveditelnost; konsolidace prioritizovaného seznamu",
+        "text": "architect – Zapracovat všechny nálezy z review (S-01..S-06 + N-01..N-04) do návrhu architektury + rework note. Model: Fable.",
         "done": true
       },
       {
         "id": "T-004",
-        "text": "architect – Micro-rework dle review: F1–F3 redakční přesnost citací + doplnit G1 (seedovatelný RNG) a G2 (bitvy v catch-upu) do analýz. Model: Fable.",
+        "text": "human – Review a schválení architektury uživatelem (blocker před implementací)",
         "done": true
       },
       {
         "id": "T-005",
-        "text": "human – Review a schválení analýzy uživatelem (blocker)",
-        "done": false
-      },
-      {
-        "id": "T-006",
         "text": "human – Schválení uzavření iterace (review výsledků před /close-iteration)",
         "done": false
       }
     ],
-    "total": 8,
-    "done_count": 6
+    "total": 5,
+    "done_count": 4
   },
-  "closed_iterations": [],
+  "closed_iterations": [
+    "iter-001"
+  ],
   "agents": [
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-004",
-      "brief": "context/inbox/brief_architect_T-004_iter-001.md (BRIEF-004)",
-      "iteration": "iter-001",
+      "task_id": "T-003 (iter-002)",
+      "brief": "context/inbox/brief_architect_T-003_iter-002.md (BRIEF-007)",
+      "iteration": "iter-002",
       "started": "2026-06-12",
       "completed": "2026-06-12"
     },
@@ -599,9 +586,9 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-003",
-      "brief": "BRIEF-003",
-      "iteration": "iter-001",
+      "task_id": "T-002",
+      "brief": "BRIEF-006",
+      "iteration": "iter-002",
       "started": "2026-06-12",
       "completed": "2026-06-12"
     },
@@ -649,8 +636,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-12T18:50:58Z",
-      "description": "architektonická analýza klíčových mechanik originálu hotová"
+      "completed": "2026-06-12T21:15:25Z",
+      "description": "návrh architektury projektu rebuildu hotov"
     },
     {
       "agent": "architect",
@@ -658,7 +645,7 @@ const DATA = {
       "type": "final",
       "name": "analysis_refactoring_maintainability_iter-001_T-002b.md",
       "task": "T-002",
-      "completed": "2026-06-12T20:23:17Z",
+      "completed": "2026-06-12T20:55:56Z",
       "description": ""
     },
     {
@@ -667,8 +654,17 @@ const DATA = {
       "type": "final",
       "name": "analysis_refactoring_perf-offline_iter-001_T-002a.md",
       "task": "T-002",
-      "completed": "2026-06-12T20:23:04Z",
+      "completed": "2026-06-12T20:55:56Z",
       "description": ""
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md",
+      "type": "final",
+      "name": "architecture_proposal_iter-002_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-12T21:15:25Z",
+      "description": "návrh architektury projektu rebuildu hotov"
     },
     {
       "agent": "architect",
@@ -680,6 +676,15 @@ const DATA = {
       "description": "micro-rework F1-F3 + G1/G2 hotov"
     },
     {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/rework_iter-002_T-003.md",
+      "type": "final",
+      "name": "rework_iter-002_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-12T22:40:03Z",
+      "description": "zapracování všech nálezů z review hotovo"
+    },
+    {
       "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iter-001_T-003.md",
       "type": "final",
@@ -687,12 +692,34 @@ const DATA = {
       "task": "T-003",
       "completed": "2026-06-12T20:11:53Z",
       "description": "review tří analýz + konsolidace hotová"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-002_T-002.md",
+      "type": "final",
+      "name": "review_iter-002_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-12T22:28:21Z",
+      "description": "review návrhu architektury hotová"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/drafts/review_iter-002_T-002_PARTIAL.md",
+      "type": "draft",
+      "name": "review_iter-002_T-002_PARTIAL.md",
+      "task": "T-002",
+      "completed": "2026-06-12T22:28:21Z",
+      "description": "review návrhu architektury hotová"
     }
   ],
-  "metrics": {},
+  "metrics": {
+    "iter-001_summary": {
+      "raw": "# Orchestration Metrics: iter-001\n\n- **Closed**: 2026-06-12\n\n## Per-Agent Metrics\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| architect | T-001 | fable (xhigh) | 193948 | 62 | 1057919 |\n| architect | T-002 (timeout) | fable (xhigh) | 12276 | 22 | 597776 |\n| architect | T-002a | fable (xhigh) | 148885 | 40 | 769637 |\n| architect | T-002b | fable (xhigh) | 101712 | 42 | 701409 |\n| reviewer | T-003 | opus | 112095 | 46 | 436473 |\n| architect | T-004 | fable | 92806 | 30 | 356853 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Poznámky\n- T-002 (široký task) padl na Fable stream idle timeout → rozdělen na T-002a + T-002b (úspěšné).\n- Fable: 5/6 architektonických běhů úspěšných, hluboké výstupy + nález reálných bugů; široké tasky lépe štěpit.\n"
+    }
+  },
   "agent_tokens": {
-    "architect": 549627,
-    "reviewer": 112095
+    "architect": 257167,
+    "reviewer": 106591
   }
 };
 

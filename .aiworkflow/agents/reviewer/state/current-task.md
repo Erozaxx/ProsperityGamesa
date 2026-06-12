@@ -1,19 +1,25 @@
 # Current Task
 
-- **Task ID**: T-003
-- **Brief**: BRIEF-003
-- **Iteration**: iter-001
+- **Task ID**: T-002
+- **Brief**: BRIEF-006
+- **Iteration**: iter-002
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-12
 - **Completed**: 2026-06-12
 
 ## Co teď dělám
-Hotovo: review tří analýz (T-001, T-002a, T-002b) + jeden konsolidovaný prioritizovaný refactoring seznam.
-Výstup: agents/reviewer/artifacts/final/review_iter-001_T-003.md
+Hotovo: review návrhu architektury rebuildu (architecture_proposal_iter-002_T-001).
+Výstup: agents/reviewer/artifacts/final/review_iter-002_T-002.md
+
+## Výsledek
+Verdikt: GO s úpravami. 0 BLOCKER, 0 položek vyžadujících T-003 architect rework.
+6 SUGGESTION (S-01..S-06) + 4 NITPICK (N-01..N-04) – redakce / vstupy do M0/M1/M9.
+Cílená kontrola: D1 (no-build) OK, D10/R2 (cap 8 h) OK, R1 (drift trhu §9.1) OK.
+K0–K19 úplně a reálně namapováno; R1–R4 skutečně rozhodnuto; konzistentní s iter-01, bez rozporů.
 
 ## Předpoklady
-- Ověřeno 9 high-impact tvrzení proti zdroji v0.9.5 (9/9 věcně potvrzeno; 1 drobná nepřesnost v citaci).
-- Plné JSON katalogy nejsou v repu – tvrzení o obsahu katalogů nelze nezávisle doložit nad rámec listfood.js.
+- Vybraná čísla ověřena proti original_source_doc.md (cenový vzorec trhu, časové konstanty, aritmetika capu).
+- Plné JSON katalogy nejsou v repu – úplnost extrakce (R3/M1) ověří až M1 gap report.
 
 ## Blockery
-Žádné. Verdikt: GO s úpravami (0 BLOCKER, 0 položek vyžadujících T-004 rework; F1–F4 jen redakce).
+Žádné. Doporučení: APPROVE → předat uživateli ke schválení (T-004).

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prosperity Rebuild – High Level Design (Architecture Overview)</title>
+<style>
+  :root{
+    --bg:#0f1f17; --panel:#16291f; --panel2:#1d3528; --line:#2c4a38;
+    --accent:#3ddc84; --accent2:#5bc8ff; --warn:#e2b15a; --danger:#e2645a;
+    --text:#eaf5ee; --dim:#9fb6a8; --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.5;}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 64px;}
+  header.top{border-bottom:2px solid var(--accent);padding-bottom:16px;margin-bottom:24px;}
+  header.top h1{margin:0 0 4px;font-size:1.7rem;color:var(--accent);letter-spacing:.3px;}
+  header.top .sub{color:var(--dim);font-size:1rem;}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
+    padding:3px 12px;font-size:.8rem;color:var(--dim);}
+  .chip.go{border-color:var(--accent);color:var(--accent);}
+  h2{font-size:1.15rem;margin:34px 0 12px;color:var(--accent);
+    border-left:4px solid var(--accent);padding-left:10px;}
+  h3{font-size:.95rem;color:var(--accent2);margin:18px 0 8px;}
+  p{margin:0 0 12px;} .dim{color:var(--dim);} small{color:var(--dim);}
+  .lead{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;font-size:.97rem;}
+  .grid{display:grid;gap:12px;}
+  .cards{grid-template-columns:repeat(auto-fill,minmax(255px,1fr));}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:12px 14px;}
+  .card .id{display:inline-block;font-weight:700;color:var(--accent);margin-right:6px;}
+  .card .sec{float:right;color:var(--dim);font-size:.72rem;border:1px solid var(--line);
+    border-radius:6px;padding:1px 6px;}
+  .card p{margin:6px 0 0;font-size:.85rem;}
+
+  /* block diagrams */
+  .diagram{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;overflow-x:auto;}
+  .row{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;}
+  .col{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .box{background:var(--panel2);border:1.5px solid var(--line);border-radius:10px;
+    padding:10px 14px;min-width:120px;text-align:center;font-size:.85rem;}
+  .box .t{font-weight:700;color:var(--text);display:block;}
+  .box .d{color:var(--dim);font-size:.74rem;display:block;margin-top:2px;}
+  .box.accent{border-color:var(--accent);box-shadow:0 0 0 1px rgba(61,220,132,.15) inset;}
+  .box.blue{border-color:var(--accent2);} .box.warn{border-color:var(--warn);}
+  .box.core{background:#13261c;border-color:var(--accent);}
+  .arrow{display:flex;align-items:center;justify-content:center;color:var(--accent);
+    font-size:1.3rem;padding:0 10px;}
+  .arrow.v{padding:4px 0;}
+  .arrow .lbl{font-size:.68rem;color:var(--dim);}
+  .stack{display:flex;flex-direction:column;gap:8px;}
+  .band{border:1.5px dashed var(--line);border-radius:10px;padding:12px;}
+  .band .bt{font-size:.75rem;color:var(--accent2);text-transform:uppercase;
+    letter-spacing:.5px;margin-bottom:8px;display:block;}
+  .pills{display:flex;flex-wrap:wrap;gap:6px;}
+  .pill{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+    padding:5px 9px;font-size:.78rem;}
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+  th{background:var(--panel2);color:var(--accent);font-weight:600;}
+  tr:nth-child(even) td{background:rgba(255,255,255,.015);}
+  .prio-h{color:var(--danger);font-weight:700;} .prio-m{color:var(--warn);}
+
+  /* milestones */
+  .timeline{display:flex;flex-wrap:wrap;gap:10px;}
+  .ms{flex:1 1 180px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:11px 13px;position:relative;}
+  .ms.mvp{border-color:var(--accent);}
+  .ms .ms-id{font-weight:700;color:var(--accent);}
+  .ms.mvp .ms-id::after{content:" • MVP";color:var(--accent2);font-size:.72rem;}
+  .ms .ms-t{font-size:.83rem;margin-top:3px;}
+  .ms .ms-r{font-size:.74rem;color:var(--dim);margin-top:6px;border-top:1px solid var(--line);padding-top:5px;}
+  .legend{font-size:.78rem;color:var(--dim);margin-top:8px;}
+  footer{margin-top:40px;border-top:1px solid var(--line);padding-top:16px;
+    font-size:.8rem;color:var(--dim);}
+  a{color:var(--accent2);}
+  @media print{body{background:#fff;color:#111}.box,.card,.diagram,.lead,.ms{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Prosperity Rebuild — High Level Design</h1>
+  <div class="sub">Architektura projektu · věrný rebuild hry „Prosperity" jako mobile-first PWA, offline</div>
+  <div class="meta">
+    <span class="chip">iter-002 / T-001 (rev. T-003)</span>
+    <span class="chip go">Review: GO s úpravami · 0 blockerů</span>
+    <span class="chip">Headless sim + preact UI</span>
+    <span class="chip">ES2022 · runtime zero-build</span>
+    <span class="chip">offline-first · IndexedDB</span>
+  </div>
+</header>
+
+<section>
+  <p class="lead"><strong>Shrnutí.</strong> Headless kroková simulace v čistých ES modulech (JS + JSDoc typy,
+  bez build kroku) s tenkou <strong>preact</strong> UI vrstvou, local-first persistencí v <strong>IndexedDB</strong>
+  a jediným <strong>fixed-timestep</strong> mechanismem pro live běh, background i offline catch-up. Přímá realizace
+  konsolidovaného seznamu <strong>K0–K19</strong> z analýzy iter-01: bází je jediný serializovatelný stav vlastněný
+  simulací (K0), nad ním deklarativní scheduler a tick-orchestrace (K3/K6), data-driven katalogy s vrstvou
+  modifikátorů (K2/K13–K15), balanc jako data + čisté vzorce (K4), registry transakce (K5) a fail-fast string-ID
+  registr (K10).</p>
+</section>
+
+<!-- ============ DIAGRAM 1: VRSTVENÍ ============ -->
+<h2>1 · Vrstvení a hranice (D2 · K0 · K9)</h2>
+<div class="diagram">
+  <div class="stack">
+    <div class="band" style="border-color:var(--accent2)">
+      <span class="bt">UI vrstva — preact (renderuje jen snapshot, žádná herní logika)</span>
+      <div class="pills">
+        <span class="pill">screens</span><span class="pill">komponenty</span>
+        <span class="pill">selektory</span><span class="pill">UI-only stav (neukládá se)</span>
+      </div>
+    </div>
+
+    <div class="row" style="gap:40px;margin:4px 0">
+      <div class="col">
+        <div class="arrow v">▼ <span class="lbl">commands / intent</span></div>
+      </div>
+      <div class="col">
+        <div class="arrow v" style="color:var(--accent2)">▲ <span class="lbl">read-only snapshot (dirty flag)</span></div>
+      </div>
+    </div>
+
+    <div class="band core" style="border-color:var(--accent)">
+      <span class="bt" style="color:var(--accent)">HEADLESS CORE — žádný DOM / fetch / Date.now / Math.random</span>
+      <div class="row" style="gap:8px;justify-content:flex-start">
+        <span class="pill">engine (clock · scheduler · tickOrder · rng)</span>
+        <span class="pill">state (jediný serializovatelný stav · invarianty)</span>
+        <span class="pill">systems ×15</span>
+        <span class="pill">catalog (immutable + effective)</span>
+        <span class="pill">balance + formulas (čisté vzorce)</span>
+        <span class="pill">resources (registry transakce)</span>
+        <span class="pill">registry (fail-fast string-ID)</span>
+        <span class="pill">commands · events (ring buffer)</span>
+      </div>
+    </div>
+
+    <div class="row" style="gap:40px;margin:4px 0">
+      <div class="arrow v">▼ <span class="lbl">persist schéma (allowlist)</span></div>
+      <div class="arrow v">▼ <span class="lbl">načti katalogy (JSON)</span></div>
+    </div>
+
+    <div class="row" style="gap:14px">
+      <div class="box blue"><span class="t">save/</span><span class="d">IndexedDB · generace · migrace · export string</span></div>
+      <div class="box blue"><span class="t">data/</span><span class="d">verzované JSON katalogy + balance (extrakce M1)</span></div>
+      <div class="box"><span class="t">app/</span><span class="d">bootstrap · rAF smyčka · visibility/pagehide · SW</span></div>
+    </div>
+  </div>
+  <p class="legend">Pravidla vynucená CI grepem: <code>core/</code> importuje jen <code>core/</code>; <code>data/</code> jsou čistá data;
+  <code>ui/</code> zapisuje výhradně přes <code>commands</code>. Render technologie je za hranicí snapshot/command vyměnitelná (fallback: vanilla DOM).</p>
+</div>
+
+<!-- ============ DIAGRAM 2: ENGINE / TICK PIPELINE ============ -->
+<h2>2 · Engine — fixed-timestep &amp; tickOrder (D3 · K3 · K6 · K16)</h2>
+<div class="diagram">
+  <h3 style="margin-top:0">Jeden mechanismus pro live / background / offline catch-up</h3>
+  <div class="row" style="gap:0;flex-wrap:nowrap;overflow-x:auto">
+    <div class="box"><span class="t">now − lastTime</span><span class="d">× speed (0/1/2)</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><span class="t">accumulator</span><span class="d">+= Δt</span></div>
+    <div class="arrow">→</div>
+    <div class="box accent"><span class="t">stepsDue</span><span class="d">⌊acc / 50 ms⌋</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><span class="t">min(due, budget)</span><span class="d">zbytek příští frame</span></div>
+    <div class="arrow">→</div>
+    <div class="box core"><span class="t">engine.step()</span><span class="d">× N · levný krok</span></div>
+    <div class="arrow">→</div>
+    <div class="box blue"><span class="t">markDirty()</span><span class="d">render ~10–15×/s</span></div>
+  </div>
+  <p class="legend">Krok = <strong>0,05 s</strong> · 900 kroků/den · sezóna 91 dní. Rychlosti Pause/1×/2×. Interaktivní eventy umí dávku přerušit (<code>stopPending</code>).</p>
+
+  <h3>tickOrder uvnitř jednoho kroku (rozpad Home.step — živý artefakt)</h3>
+  <div class="row" style="gap:0;flex-wrap:nowrap;overflow-x:auto">
+    <div class="box"><span class="t">1 · calendar</span><span class="d">den/měsíc/sezóna → hrany času</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><span class="t">2 · one-shot</span><span class="d">schedule[curStep] (min-heap)</span></div>
+    <div class="arrow">→</div>
+    <div class="box accent"><span class="t">3 · periodika dle hran</span><span class="d">step · quarterDay · noon · day · month · season</span></div>
+    <div class="arrow">→</div>
+    <div class="box warn"><span class="t">4 · eventFlush</span><span class="d">+ dev-invarianty (NaN/zápor → výjimka)</span></div>
+  </div>
+  <p class="legend">Periodika registrovaná jako <em>data</em> <code>{id, every, order, systemFn}</code>; engine počítá hrany jednou za krok → žádné modulo prology v hot-path. RNG: pojmenované streamy per systém, stav v save (reprodukovatelný catch-up).</p>
+</div>
+
+<!-- ============ DIAGRAM 3: SAVE / CATCH-UP ============ -->
+<h2>3 · Save &amp; offline catch-up (D6 · K1 · K11 · K3-cap)</h2>
+<div class="diagram">
+  <div class="row" style="gap:0;flex-wrap:nowrap;overflow-x:auto">
+    <div class="box blue"><span class="t">load save</span><span class="d">IndexedDB generace</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><span class="t">čistá konstrukce</span><span class="d">state = build(katalog, persist)</span></div>
+    <div class="arrow">→</div>
+    <div class="box accent"><span class="t">missedMs</span><span class="d">now − lastSimTimestamp</span></div>
+    <div class="arrow">→</div>
+    <div class="box warn"><span class="t">cap</span><span class="d">min(tech 8 h*, balanc)</span></div>
+    <div class="arrow">→</div>
+    <div class="box core"><span class="t">dávka kroků</span><span class="d">chunk ~25k + progress · TÝŽ engine</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><span class="t">summary UI</span><span class="d">co se stalo offline</span></div>
+  </div>
+  <p class="legend">Persist = deklarativní allowlist schéma per doména (jen dynamika), verzované migrace, load = čistá konstrukce. Autosave: perioda + pagehide/visibilitychange + po událostech. Export/import savu jako string (pojistka proti evikci na iOS). <small>*8 h = technický strop potvrzený benchmarkem M0; balanční hodnota se ladí v M9 (S-02).</small></p>
+</div>
+
+<!-- ============ DIAGRAM 4: DATA / KATALOGY ============ -->
+<h2>4 · Data, katalogy &amp; balanc (D5 · K2 · K4 · K13–K15)</h2>
+<div class="diagram">
+  <div class="row" style="gap:0;flex-wrap:nowrap;overflow-x:auto">
+    <div class="box blue"><span class="t">data/*.json</span><span class="d">verzované katalogy (extrakce M1)</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><span class="t">loader + schema</span><span class="d">validace při loadu (fail-fast)</span></div>
+    <div class="arrow">→</div>
+    <div class="box accent"><span class="t">immutable katalog</span><span class="d">byId index</span></div>
+    <div class="arrow">→</div>
+    <div class="box"><span class="t">+ modifikátory</span><span class="d">budovy · techy · eventy</span></div>
+    <div class="arrow">→</div>
+    <div class="box core"><span class="t">effective()</span><span class="d">base × ∏ modifikátory</span></div>
+  </div>
+  <p class="legend">Balanc = data (<code>balance.js</code> konstanty) + čisté testovatelné vzorce (<code>formulas.js</code>). Akce obsahu (<code>onBuild</code>, upgrade, event) jako string-ID do registru efektů — save ukládá jen seznam aktivních modifikátorů. Známé pasti originálu zapečené do dat (Skills 2×/krok, market perioda).</p>
+</div>
+
+<!-- ============ ROZHODNUTÍ D1–D13 ============ -->
+<h2>5 · Registr klíčových rozhodnutí (D1–D13)</h2>
+<div class="grid cards">
+  <div class="card"><span class="sec">§2</span><span class="id">D1</span>Stack: ES2022 + JSDoc + <code>tsc --checkJs</code>, runtime zero-build; vendor preact+htm; node:test; ruční SW.</div>
+  <div class="card"><span class="sec">§3</span><span class="id">D2</span>Vrstvení: headless core ↔ UI přes read-only snapshot + command API.</div>
+  <div class="card"><span class="sec">§4</span><span class="id">D3</span>Engine: fixed-timestep 0,05 s + akumulátor; min-heap schedule + periodika; centrální tickOrder.</div>
+  <div class="card"><span class="sec">§4.4</span><span class="id">D4</span>RNG: seedovatelný PRNG, pojmenované streamy per systém, stav v save.</div>
+  <div class="card"><span class="sec">§5</span><span class="id">D5</span>Katalogy: verzované JSON, schema validace, immutable + modifikátory, efekty jako string-ID.</div>
+  <div class="card"><span class="sec">§6</span><span class="id">D6</span>Save: IndexedDB, rotující generace, lastSimTimestamp, allowlist schéma, migrace, export string.</div>
+  <div class="card"><span class="sec">§7</span><span class="id">D7</span>Transakce: registry <code>resourceHandlers[kind]</code>; účetnictví a achievementy jako observery.</div>
+  <div class="card"><span class="sec">§8</span><span class="id">D8</span>Bitva: deterministický serializovatelný automat (sub-step 30 ms), auto-resolve v catch-upu.</div>
+  <div class="card"><span class="sec">§9.1</span><span class="id">D9</span><strong>R1:</strong> klientský trh — lokální available + denní mean-reversion drift; vzorec ceny 1:1.</div>
+  <div class="card"><span class="sec">§9.2</span><span class="id">D10</span><strong>R2:</strong> cap catch-upu = technický strop 8 h (benchmark M0) + oddělená balanční hodnota (M9).</div>
+  <div class="card"><span class="sec">§9.3</span><span class="id">D11</span><strong>R3:</strong> extrakční pipeline = M1 s gap-reportem; eskalace jen pro nedotěžitelné díry.</div>
+  <div class="card"><span class="sec">§9.4</span><span class="id">D12</span><strong>R4:</strong> kontrakty pozdních systémů teď + stub registrace + kontraktní testy od M2; impl. M7.</div>
+  <div class="card"><span class="sec">§4.6</span><span class="id">D13</span>Simulace v main threadu (frame budget); Web Worker jen jako eskalační cesta po benchmarku.</div>
+</div>
+
+<!-- ============ MILNÍKY ============ -->
+<h2>6 · Rozpad do milníků M0–M9 (MVP = M0–M4)</h2>
+<div class="timeline">
+  <div class="ms mvp"><div class="ms-id">M0</div><div class="ms-t">Kostra &amp; engine, PWA shell, scheduler, RNG, save minimal, benchmark</div><div class="ms-r">„prázdná" hra: čas běží, save/pauza offline</div></div>
+  <div class="ms mvp"><div class="ms-id">M1</div><div class="ms-t">Katalogy &amp; balanc data, extrakce + gap report, tabulkové testy vzorců</div><div class="ms-r">data kompletní a validovaná</div></div>
+  <div class="ms mvp"><div class="ms-id">M2</div><div class="ms-t">Populace, bydlení, jídlo; resource vrstva; persist+migrace; catch-up MVP</div><div class="ms-r">osada žije; offline progres</div></div>
+  <div class="ms mvp"><div class="ms-id">M3</div><div class="ms-t">Produkce &amp; joby &amp; skilly (les/pole/důl)</div><div class="ms-r">produkční smyčka</div></div>
+  <div class="ms mvp"><div class="ms-id">M4</div><div class="ms-t">Ekonomika &amp; trh (gold, daně, klientský trh, karavany)</div><div class="ms-r">MVP jádro: idle smyčka hotová</div></div>
+  <div class="ms"><div class="ms-id">M5</div><div class="ms-t">Budovy &amp; stavba &amp; kontrakty</div><div class="ms-r">město roste</div></div>
+  <div class="ms"><div class="ms-id">M6</div><div class="ms-t">Výzkum &amp; dovednosti (tech strom)</div><div class="ms-r">dlouhodobá progrese</div></div>
+  <div class="ms"><div class="ms-id">M7</div><div class="ms-t">AI svět, vojsko, bitvy (automat)</div><div class="ms-r">pozdní hra; auto-resolve</div></div>
+  <div class="ms"><div class="ms-id">M8</div><div class="ms-t">Příběh &amp; meta (intro, achievementy, notifikace)</div><div class="ms-r">obsahová vrstva</div></div>
+  <div class="ms"><div class="ms-id">M9</div><div class="ms-t">Balanční kalibrace &amp; release (PWA audit, licence/assety)</div><div class="ms-r">release kandidát</div></div>
+</div>
+<p class="legend">Každý milník končí: zelené testy (vzorce, determinismus, save round-trip; od M2 <strong>catch-up-safe invariant</strong>), průběžný PWA smoke check (od M0), reviewer gate (kontrakty §8, živé artefakty). Risk-first řazení: nejdražší nejistoty (cena kroku, extrakce, catch-up) v M0–M2.</p>
+
+<!-- ============ R1-R4 ============ -->
+<h2>7 · Otevřené otázky z iter-01 — rozhodnuto</h2>
+<table>
+  <tr><th>#</th><th>Otázka</th><th>Rozhodnutí</th></tr>
+  <tr><td><strong>R1</strong></td><td>Klientská tržní simulace (server chybí)</td><td>Lokální <code>available</code> + denní mean-reversion drift k baseline; cenový vzorec 1:1; kalibrace proti <em>hratelnostním cílům</em> (M9).</td></tr>
+  <tr><td><strong>R2</strong></td><td>Cap offline catch-upu</td><td>Technický strop 8 h (potvrzení benchmarkem M0) <em>oddělený</em> od balanční hodnoty (ladí M9); eventy pozastaví, bitvy auto-resolve.</td></tr>
+  <tr><td><strong>R3</strong></td><td>Plné katalogy nejsou v repu</td><td>Extrakční pipeline jako M1 + gap report; eskalace uživateli jen pro nedotěžitelné díry.</td></tr>
+  <tr><td><strong>R4</strong></td><td>Pozdní systémy „na papíře"</td><td>Kontrakty definované teď + stub registrace + kontraktní testy od M2; implementace M7 jako samostatný milník.</td></tr>
+</table>
+
+<!-- ============ RIZIKA ============ -->
+<h2>8 · Top rizika &amp; mitigace</h2>
+<table>
+  <tr><th>#</th><th>Riziko</th><th>P/D</th><th>Mitigace</th></tr>
+  <tr><td><strong>R-I</strong></td><td><strong>Disciplína bez build kroku</strong> (největší reálné riziko dle review)</td><td><span class="prio-h">Stř / Vysoký</span></td><td>CI <code>tsc --checkJs</code> funkční už jako DoD M0; grep zakázaných importů v core (DOM/fetch/Date.now/Math.random); reviewer checklist.</td></tr>
+  <tr><td>R-A</td><td>Extrakce katalogů neúplná (R3)</td><td><span class="prio-m">Stř / Vysoký</span></td><td>M1 gap report; schema validace; eskalace; referenční čísla testem.</td></tr>
+  <tr><td>R-B</td><td>Cena kroku nedovolí catch-up</td><td><span class="prio-m">Stř / Stř</span></td><td>Benchmark M0 na low-end mobilu; levný krok by-design; chunking; eskalace Worker/snížení capu.</td></tr>
+  <tr><td>R-C</td><td>Trh diverguje od „feel" originálu (R1)</td><td><span class="prio-m">Stř / Stř</span></td><td>Vzorec 1:1; jediný nový prvek je drift <code>k</code>; kalibrace M9.</td></tr>
+  <tr><td>R-E</td><td>Pozdní systémy zůstanou na papíře (R4)</td><td><span class="prio-m">Stř / Vysoký</span></td><td>Kontrakty + stub + kontraktní testy + milestone DoD; M7 samostatný milník.</td></tr>
+  <tr><td>R-F</td><td>iOS/Safari evikce IndexedDB</td><td><span class="prio-m">Stř / Vysoký</span></td><td><code>storage.persist()</code>; export/import string; výzva k exportu; generace.</td></tr>
+  <tr><td>R-G</td><td>Licence/assety originálu</td><td><span class="prio-h">Jistá / Vysoký</span></td><td>Scope OUT pro 1:1 převzetí; vlastní assety/jména/příběh v M8–M9; rozhodnutí uživatele před release.</td></tr>
+</table>
+
+<footer>
+  <p><strong>Zdroj pravdy:</strong> <code>.aiworkflow/agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md</code>
+  (plný návrh, 555 ř., sekce 0–14) · review: <code>…/reviewer/artifacts/final/review_iter-002_T-002.md</code> ·
+  vstupní rozcestník: <code>.aiworkflow/project/architecture/iter-02-input-rozcestnik.md</code>.</p>
+  <p>Tento one-pager je vizuální HLD shrnutí (iter-002). Nenahrazuje plný návrh — při neshodě platí plný dokument.
+  Pozn. k autorství: rebuild cizí hry (viz <code>doc/original_source/PROVENANCE.md</code>) — licence/assety řešit před veřejným vydáním.</p>
+</footer>
+
+</div>
+</body>
+</html>
