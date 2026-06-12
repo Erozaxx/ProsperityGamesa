@@ -18,7 +18,7 @@
 ## Účel
 Referenční materiál pro **věrný rebuild**. Toto je autoritativní „syrová data" – konkrétní
 čísla balancu (ceny, produkce, scaling) se těží odsud. Strukturovaný výtah viz
-`../extracted/`.
+`./extracted/`. Kompletní popis hry viz `../original_source_doc.md`.
 
 ## Pozn. k autorství
 Jde o data a kód **cizí hry** (autor originálu, komunita r/ProsperityGame). Slouží jako

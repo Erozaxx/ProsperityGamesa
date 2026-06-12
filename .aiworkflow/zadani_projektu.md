@@ -23,7 +23,7 @@ Hráč, kterého původní „Prosperity" baví, ale hra už se nevyvíjí a chy
 - Příběh / intro / dialogy / achievementy, ukládání + offline progres.
 - Mobile-first UI, PWA (manifest + service worker).
 
-Detailní rozpad mechanik a čísel: `project/research/prosperity-design.md`.
+Detailní rozpad mechanik a čísel: `doc/original_source_doc.md` (+ zdroj a data v `doc/original_source/`).
 
 ## Scope OUT (zatím)
 - Online multiplayer / serverový backend / účty (originál má náznaky – necháváme offline-first).
@@ -53,7 +53,7 @@ Detailní rozpad mechanik a čísel: `project/research/prosperity-design.md`.
 
 ## Aktuální stav
 - Hotová tech kostra: PWA, tap-to-earn skelet, 6 data-driven generátorů, offline progres, autosave.
-- Hotový research originálu: plný zdroj + design dokument + extrahovaná data (`project/research/`).
+- Hotový research originálu: plný zdroj + kompletní popis + extrahovaná data (`doc/`).
 - **Další krok:** architektonický návrh cílového rebuildu → iter-001 (jádro engine + čas + sezóny).
 
 ## Workflow reference
