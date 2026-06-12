@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T20:59:58Z",
+  "generated": "2026-06-12T21:16:06Z",
   "iteration": {
     "id": "iter-002",
     "goal": "Navrhnout projekt/architekturu na vytvoření hry – věrný rebuild Prosperity (mobile-first PWA, offline) – na základě materiálů z iter-01 (vstup = rozcestník).",
@@ -390,8 +390,8 @@ const DATA = {
     "tasks": [
       {
         "id": "T-001",
-        "text": "(in-flight): architect – Navrhnout architekturu projektu rebuildu (stack + zdůvodnění, struktura a vrstvení logika↔UI, herní engine & čas + offline catch-up, datový + save model, katalogy/balanc, rozpad systémů do iterací, rozhodnutí k R1–R4, rizika). POVINNÝ VSTUP: `.aiworkflow/project/architecture/iter-02-input-rozcestnik.md` (+ materiály z iter-01, na které odkazuje)",
-        "done": false
+        "text": "architect – Navrhnout architekturu projektu rebuildu (stack + zdůvodnění, struktura a vrstvení logika↔UI, herní engine & čas + offline catch-up, datový + save model, katalogy/balanc, rozpad systémů do iterací, rozhodnutí k R1–R4, rizika). POVINNÝ VSTUP: `.aiworkflow/project/architecture/iter-02-input-rozcestnik.md` (+ materiály z iter-01, na které odkazuje)",
+        "done": true
       },
       {
         "id": "T-002",
@@ -415,7 +415,7 @@ const DATA = {
       }
     ],
     "total": 5,
-    "done_count": 0
+    "done_count": 1
   },
   "closed_iterations": [
     "iter-001"
@@ -424,9 +424,9 @@ const DATA = {
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-004",
-      "brief": "context/inbox/brief_architect_T-004_iter-001.md (BRIEF-004)",
-      "iteration": "iter-001",
+      "task_id": "T-001 (iter-002)",
+      "brief": "context/inbox/brief_architect_T-001_iter-002.md (BRIEF-005)",
+      "iteration": "iter-002",
       "started": "2026-06-12",
       "completed": "2026-06-12"
     },
@@ -636,8 +636,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-12T18:50:58Z",
-      "description": "architektonická analýza klíčových mechanik originálu hotová"
+      "completed": "2026-06-12T21:15:25Z",
+      "description": "návrh architektury projektu rebuildu hotov"
     },
     {
       "agent": "architect",
@@ -656,6 +656,15 @@ const DATA = {
       "task": "T-002",
       "completed": "2026-06-12T20:55:56Z",
       "description": ""
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md",
+      "type": "final",
+      "name": "architecture_proposal_iter-002_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-12T21:15:25Z",
+      "description": "návrh architektury projektu rebuildu hotov"
     },
     {
       "agent": "architect",
@@ -681,7 +690,9 @@ const DATA = {
       "raw": "# Orchestration Metrics: iter-001\n\n- **Closed**: 2026-06-12\n\n## Per-Agent Metrics\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| architect | T-001 | fable (xhigh) | 193948 | 62 | 1057919 |\n| architect | T-002 (timeout) | fable (xhigh) | 12276 | 22 | 597776 |\n| architect | T-002a | fable (xhigh) | 148885 | 40 | 769637 |\n| architect | T-002b | fable (xhigh) | 101712 | 42 | 701409 |\n| reviewer | T-003 | opus | 112095 | 46 | 436473 |\n| architect | T-004 | fable | 92806 | 30 | 356853 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Poznámky\n- T-002 (široký task) padl na Fable stream idle timeout → rozdělen na T-002a + T-002b (úspěšné).\n- Fable: 5/6 architektonických běhů úspěšných, hluboké výstupy + nález reálných bugů; široké tasky lépe štěpit.\n"
     }
   },
-  "agent_tokens": {}
+  "agent_tokens": {
+    "architect": 151639
+  }
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
