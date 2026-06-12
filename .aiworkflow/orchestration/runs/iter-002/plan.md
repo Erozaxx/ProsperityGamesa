@@ -7,8 +7,8 @@
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
 - [x] T-001: architect – Navrhnout architekturu projektu rebuildu (stack + zdůvodnění, struktura a vrstvení logika↔UI, herní engine & čas + offline catch-up, datový + save model, katalogy/balanc, rozpad systémů do iterací, rozhodnutí k R1–R4, rizika). POVINNÝ VSTUP: `.aiworkflow/project/architecture/iter-02-input-rozcestnik.md` (+ materiály z iter-01, na které odkazuje)
-- [ ] T-002 (in-flight): reviewer – Review architektury (všechny nálezy, nejen blockery)
-- [ ] T-003: architect – Zapracovat nálezy z review (pokud reviewer něco našel)
+- [x] T-002: reviewer – Review architektury (všechny nálezy, nejen blockery)
+- [x] T-003: N/A – reviewer nenašel nic vyžadujícího rework (0 blockerů; S-01..S-06 a N-01..N-04 = redakce/vstupy do M0/M1/M9)
 - [ ] T-004: human – Review a schválení architektury uživatelem (blocker před implementací)
 - [ ] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 

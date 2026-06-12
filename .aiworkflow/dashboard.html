@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T22:21:05Z",
+  "generated": "2026-06-12T22:29:04Z",
   "iteration": {
     "id": "iter-002",
     "goal": "Navrhnout projekt/architekturu na vytvoření hry – věrný rebuild Prosperity (mobile-first PWA, offline) – na základě materiálů z iter-01 (vstup = rozcestník).",
@@ -395,13 +395,13 @@ const DATA = {
       },
       {
         "id": "T-002",
-        "text": "(in-flight): reviewer – Review architektury (všechny nálezy, nejen blockery)",
-        "done": false
+        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery)",
+        "done": true
       },
       {
         "id": "T-003",
-        "text": "architect – Zapracovat nálezy z review (pokud reviewer něco našel)",
-        "done": false
+        "text": "N/A – reviewer nenašel nic vyžadujícího rework (0 blockerů; S-01..S-06 a N-01..N-04 = redakce/vstupy do M0/M1/M9)",
+        "done": true
       },
       {
         "id": "T-004",
@@ -415,7 +415,7 @@ const DATA = {
       }
     ],
     "total": 5,
-    "done_count": 1
+    "done_count": 3
   },
   "closed_iterations": [
     "iter-001"
@@ -586,9 +586,9 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-003",
-      "brief": "BRIEF-003",
-      "iteration": "iter-001",
+      "task_id": "T-002",
+      "brief": "BRIEF-006",
+      "iteration": "iter-002",
       "started": "2026-06-12",
       "completed": "2026-06-12"
     },
@@ -686,12 +686,21 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-002_T-002.md",
+      "type": "final",
+      "name": "review_iter-002_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-12T22:28:21Z",
+      "description": "review návrhu architektury hotová"
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/drafts/review_iter-002_T-002_PARTIAL.md",
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-12T21:23:30Z",
-      "description": ""
+      "completed": "2026-06-12T22:28:21Z",
+      "description": "review návrhu architektury hotová"
     }
   ],
   "metrics": {
@@ -700,7 +709,8 @@ const DATA = {
     }
   },
   "agent_tokens": {
-    "architect": 151639
+    "architect": 151639,
+    "reviewer": 106591
   }
 };
 
