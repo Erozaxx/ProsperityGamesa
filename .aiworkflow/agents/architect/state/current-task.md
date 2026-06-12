@@ -3,7 +3,7 @@
 - **Task ID**: T-002
 - **Brief**: context/inbox/brief_architect_T-002_iter-001.md (BRIEF-002)
 - **Iteration**: iter-001
-- **Status**: in-progress  <!-- idle | in-progress | done | blocked -->
+- **Status**: idle  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-12
 - **Completed**: –
 
