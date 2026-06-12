@@ -9,13 +9,13 @@
 - [x] T-001: architect – Navrhnout architekturu projektu rebuildu (stack + zdůvodnění, struktura a vrstvení logika↔UI, herní engine & čas + offline catch-up, datový + save model, katalogy/balanc, rozpad systémů do iterací, rozhodnutí k R1–R4, rizika). POVINNÝ VSTUP: `.aiworkflow/project/architecture/iter-02-input-rozcestnik.md` (+ materiály z iter-01, na které odkazuje)
 - [x] T-002: reviewer – Review architektury (všechny nálezy, nejen blockery)
 - [x] T-003: architect – Zapracovat všechny nálezy z review (S-01..S-06 + N-01..N-04) do návrhu architektury + rework note. Model: Fable.
-- [ ] T-004: human – Review a schválení architektury uživatelem (blocker před implementací)
+- [x] T-004: human – Review a schválení architektury uživatelem (blocker před implementací)
 - [ ] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
 ## Quality Gates
-- [ ] Plan neobsahuje orchestratora jako agenta u žádného tasku
-- [ ] Architect návrh prošel reviewer review a případnou opravou (T-002, T-003)
-- [ ] Architect návrh schválen uživatelem (T-004)
+- [x] Plan neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architect návrh prošel reviewer review a případnou opravou (T-002, T-003)
+- [x] Architect návrh schválen uživatelem (T-004)
 - [ ] Code review (Reviewer)
 - [ ] QA validace (Tester)
 
