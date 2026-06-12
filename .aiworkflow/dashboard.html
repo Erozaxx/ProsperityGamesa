@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T19:06:36Z",
+  "generated": "2026-06-12T19:09:55Z",
   "iteration": {
     "id": "iter-001",
     "goal": "Architektonicky analyzovat původní hru Prosperity – vypíchnout klíčové mechaniky, identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring pro další vývoj.",
@@ -394,13 +394,18 @@ const DATA = {
         "done": true
       },
       {
-        "id": "T-002",
-        "text": "architect – Identifikovat neefektivní/problematické mechaniky a doporučit kandidáty na refactoring (odůvodnění, dopad, priorita, navrhované alternativy). Model: Fable (xhigh). [!] TIMED OUT (stream idle ~10 min, bez výstupu – k re-dispatchi)",
+        "id": "",
+        "text": "T-002a (in-flight): architect – Refactoring kandidáti: výkon & runtime + save/offline + serverové závislosti (pohledem mobile PWA/offline). Model: Fable (xhigh).",
+        "done": false
+      },
+      {
+        "id": "",
+        "text": "T-002b (in-flight): architect – Refactoring kandidáti: údržba & architektura (provázanost, string-callback křehkost, UI↔logika + DOM, balanc-as-code). Model: Fable (xhigh).",
         "done": false
       },
       {
         "id": "T-003",
-        "text": "reviewer – Review analýzy a doporučení (úplnost, technická správnost, proveditelnost; všechny nálezy)",
+        "text": "reviewer – Review analýz a doporučení (T-001 + T-002a + T-002b); úplnost, technická správnost, proveditelnost; konsolidace prioritizovaného seznamu",
         "done": false
       },
       {
@@ -419,7 +424,7 @@ const DATA = {
         "done": false
       }
     ],
-    "total": 6,
+    "total": 7,
     "done_count": 1
   },
   "closed_iterations": [],
