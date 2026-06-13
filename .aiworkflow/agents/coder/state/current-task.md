@@ -1,23 +1,18 @@
 # Current Task
 
-- **Task ID**: T-002
-- **Brief**: BRIEF-020b
-- **Iteration**: iter-006
+- **Task ID**: T-002a
+- **Brief**: BRIEF-024b
+- **Iteration**: iter-007
 - **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
-## Checklist (iter-006 T-002b)
-- [x] BUG-001: registry.js WeakSet cycle protection (byl přítomen, ověřen + 3 regresní testy)
-- [x] src/core/balance/balance.js (pojmenované konstanty s source refs)
-- [x] src/core/balance/formulas.js (čisté vzorce)
-- [x] test/formulas.test.js (25+ tabulkových testů s reálnými čísly z návrhu)
-- [x] tools/extract/ pipeline (extract.mjs + 16 extractors + lib/sources+provenance+writeCatalog)
-- [x] src/core/catalog/ (schemas.js, validate.js, loader.js, index.js) – opraveny TS chyby
-- [x] test/catalog-validate.test.js
-- [x] src/data/ 16 JSON katalogů (food, houseTypes, companies, achievements, military, population, resources, jobs, buildings, goods, techs, zones, skills, sectors, marketBaseline, balance)
-- [x] src/data/gap-report.json
-- [x] src/core/registry/effects.js (M1 kostry + 8 registry testů)
-- [x] doc/gap-report-iter-006.md (lidsky čitelný)
-- [x] tsc --noEmit: 0 chyb
-- [x] npm run ci: 172 pass, 0 fail
+## Checklist (iter-007 T-002a M2a-1)
+- [x] Krok 0: oprav padající test (gap-report _meta.iteration = "iter-007" → pass)
+- [x] Krok 1: catalog hardening – byId, K10 kolize, typová/min-max/enum validace, B4 cross-ref (food platný N-2), jobs.products→mapa, extract.mjs idempotentní
+- [x] Krok 2: T1 transakce – resourceHandlers, canAfford/pay/grant, atomicita, ne-pod-nulu, txEvent přes ctx.emitTx, NaN guard
+- [x] Krok 3: T2 persist – persistSchema.js, applyPersist, load.js (7-krokový loadAndReconstruct), migrations.js, createHomeState.js factory, round-trip testy
+- [x] Krok 4: pure formulas – consumeFood, foodVariety, diseaseChance, crimeCount, settlementLevel + tabulkové testy
+- [x] tsc: 0 chyb
+- [x] lint:core: 24 files OK
+- [x] node --test: 340 pass, 0 fail
