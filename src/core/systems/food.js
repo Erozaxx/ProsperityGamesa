@@ -11,6 +11,7 @@
 import { BALANCE } from '../balance/balance.js';
 import { foodDemand, consumeFood, spoilage } from '../balance/formulas.js';
 import { getCatalog } from '../catalog/index.js';
+import { pay } from '../resources/transactions.js';
 
 /**
  * Get food ids from catalog, falling back to default list.
@@ -96,9 +97,9 @@ export function meal2(state, _params, ctx) {
  * Monthly food spoilage - month edge, order 10.
  * @param {GameState} state
  * @param {object} _params
- * @param {TickContext} _ctx
+ * @param {TickContext} ctx
  */
-export function foodSpoilage(state, _params, _ctx) {
+export function foodSpoilage(state, _params, ctx) {
   const rates = getSpoilageRates();
   const store = state.home.food.store || {};
 
@@ -106,7 +107,10 @@ export function foodSpoilage(state, _params, _ctx) {
     const current = store[foodId] || 0;
     if (current > 0) {
       const lost = spoilage(rate, current);
-      state.home.food.store[foodId] = Math.max(0, current - lost);
+      if (lost > 0) {
+        // pay via food handler → emit txEvent
+        pay(state, { [foodId]: lost }, 'spoilage:food', ctx, state.engine.curStep);
+      }
     }
   }
 }

@@ -84,6 +84,14 @@ export const BALANCE = Object.freeze({
     centerBase: 22,
     /** Base gold per city guard level. Source: dump.CITYGUARDBASE = 56 */
     cityGuardBase: 56,
+    /** Local tax rate per worker per 5-day period. iter-010 M4a. */
+    localRate: 2,
+    /** Monthly tax rate multiplier. iter-010 M4a. */
+    monthlyRate: 1,
+    /** Minimum tax rate set by player. iter-010 M4a. */
+    rateMin: 0,
+    /** Maximum tax rate set by player. iter-010 M4a. */
+    rateMax: 5,
   },
 
   /** Caravan constants. Source: dump.BASECARAVANCAPACITY */

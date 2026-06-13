@@ -4,6 +4,7 @@
  */
 
 import { createHomeState, createPlayerState } from './createHomeState.js';
+import { createCouncilState } from './createCouncilState.js';
 import { BALANCE } from '../balance/balance.js';
 
 /**
@@ -38,7 +39,7 @@ function createWorldState() {
 // Defaults – MOVE TO balance.js @ M1 (source: design_iter-004_T-001 §2.2)
 const DEFAULT_SEED = 0x9E3779B9;
 const DEFAULT_GAME_VERSION = '0.0.0-m0a';
-const DEFAULT_SAVE_VERSION = 1;
+const DEFAULT_SAVE_VERSION = 2;
 const DEFAULT_LOG_CAPACITY = 200;
 const DEFAULT_FRAME_BUDGET = 8;
 
@@ -96,5 +97,6 @@ export function createInitialState(opts = {}) {
       head: 0,
     },
     achievements: { unlocked: {} },
+    council: createCouncilState(),
   };
 }

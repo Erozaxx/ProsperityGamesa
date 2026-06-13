@@ -1,9 +1,11 @@
 /**
  * Save file migration pipeline.
  * iter-007 M2a-1: initial empty migration table (v1 is baseline).
+ * iter-010 M4a: v1→v2 migration adds economics fields.
  */
 
 import { SAVE_VERSION } from './schema.js';
+import { createCouncilState } from '../core/state/createCouncilState.js';
 
 /**
  * @typedef {{ from: number, to: number, migrate: (payload: object) => object }} MigrationStep
@@ -16,8 +18,41 @@ import { SAVE_VERSION } from './schema.js';
  * @type {MigrationStep[]}
  */
 export const MIGRATIONS = [
-  // Example format for future migrations:
-  // { from: 1, to: 2, migrate: (payload) => ({ ...payload, newField: defaultValue }) }
+  {
+    from: 1,
+    to: 2,
+    /**
+     * v1→v2: adds economics fields (taxRate, totWarriors, totArchers, diseaseFromColdChance,
+     * notEnoughMilitaryFunding, council). iter-010 M4a.
+     * @param {Record<string, any>} payload
+     * @returns {Record<string, any>}
+     */
+    migrate: (payload) => {
+      const p = /** @type {Record<string, any>} */ ({ ...payload });
+      // player fields
+      if (p.player) {
+        p.player = { ...p.player };
+        if (p.player.taxRate === undefined) p.player.taxRate = 1;
+        if (p.player.totWarriors === undefined) p.player.totWarriors = 0;
+        if (p.player.totArchers === undefined) p.player.totArchers = 0;
+        if (p.player.diseaseFromColdChance === undefined) p.player.diseaseFromColdChance = 0;
+      }
+      // home fields
+      if (p.home) {
+        p.home = { ...p.home };
+        if (p.home.notEnoughMilitaryFunding === undefined) p.home.notEnoughMilitaryFunding = false;
+      }
+      // council
+      if (!p.council) {
+        p.council = createCouncilState();
+      }
+      // bump saveVersion
+      if (p.meta) {
+        p.meta = { ...p.meta, saveVersion: 2 };
+      }
+      return p;
+    },
+  },
 ];
 
 /**

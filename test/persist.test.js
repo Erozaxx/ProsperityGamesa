@@ -81,22 +81,31 @@ describe('applyPersist', () => {
 // 3. migrations
 // -----------------------------------------------------------------------
 describe('migrate', () => {
-  it('MIGRATIONS is an empty array (no migrations yet at v1)', () => {
+  it('MIGRATIONS has v1→v2 migration (iter-010 M4a)', () => {
     assert.ok(Array.isArray(MIGRATIONS));
-    // In M2a-1, v1 is baseline – no migrations needed
-    assert.strictEqual(MIGRATIONS.length, 0);
+    // M4a added v1→v2 migration for economics fields
+    assert.strictEqual(MIGRATIONS.length, 1);
+    assert.strictEqual(MIGRATIONS[0].from, 1);
+    assert.strictEqual(MIGRATIONS[0].to, 2);
   });
 
-  it('migrate returns payload unchanged at v1', () => {
-    const payload = { meta: { saveVersion: 1 }, engine: { curStep: 0 } };
-    const result = migrate(payload);
-    assert.deepEqual(result, payload);
+  it('migrate v1→v2: adds taxRate, totWarriors, council to payload', () => {
+    const payload = { meta: { saveVersion: 1 }, engine: { curStep: 0 }, player: { gold: 100 } };
+    const result = /** @type {any} */ (migrate(payload));
+    assert.strictEqual(result.player.taxRate, 1);
+    assert.strictEqual(result.player.totWarriors, 0);
+    assert.strictEqual(result.player.totArchers, 0);
+    assert.strictEqual(result.player.diseaseFromColdChance, 0);
+    assert.ok(result.council, 'council should be added by migration');
+    assert.strictEqual(result.meta.saveVersion, 2);
   });
 
-  it('migrate handles missing meta.saveVersion gracefully', () => {
-    const payload = { engine: { curStep: 0 } };
-    const result = migrate(payload);
-    assert.deepEqual(result, payload);
+  it('migrate handles missing meta.saveVersion gracefully (treated as v1, migrated to v2)', () => {
+    const payload = { engine: { curStep: 0 }, player: { gold: 50 } };
+    const result = /** @type {any} */ (migrate(payload));
+    // Missing saveVersion defaults to 1, so migration runs
+    assert.ok(result.council, 'council should be added when missing saveVersion');
+    assert.strictEqual(result.player.taxRate, 1);
   });
 });
 

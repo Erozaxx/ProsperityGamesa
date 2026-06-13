@@ -1,62 +1,62 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-009)
-- **Brief**: context/inbox/brief_architect_T-001_iter-009.md (BRIEF-032)
-- **Iteration**: iter-009 (M3 – produkce/joby/workerEfficiency/skilly + BL-3)
+- **Task ID**: T-001 (iter-010)
+- **Brief**: context/inbox/brief_architect_T-001_iter-010.md (BRIEF-036)
+- **Iteration**: iter-010 (M4a – gold/daně/upkeep/účetnictví observer + wiring + UI)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo – DETAILNÍ implementační spec (pro Sonnet codera) pro iter-009 (M3). NE implementace.
-Výstup: `artifacts/final/design_iter-009_T-001.md`.
+Hotovo – DETAILNÍ implementační spec (pro Sonnet codera) pro iter-010 (M4a). NE implementace.
+Výstup: `artifacts/final/design_iter-010_T-001.md`.
 
-Pokrytí (čerpáno z AUTORITATIVNÍCH zdrojových služeb forest/field/mine/skills/home/game/config.js
-+ reálných src/core/*, src/data/*, balance.js, architektura §4.3/§5/§7/§11):
-- T1 forest/field/mine: state pod state.world (start trees 27173/animals 3864/ores 20000/livestock 0
-  z config.js); forestRegen na 10days (saplings queue, animal regen, autumn fire), fieldDaily/mineDaily
-  na day; resource handler kind 'stock' (trees/animals/ores/livestock/farmland) + STOCK_PATH; area/used
-  jako čisté funkce (forestArea/fieldArea/mineArea, NEUKLÁDAT) přes settlementLevel proxy.
-- T2 joby: jobsProduction přepsat na PROGRESS model (home.js:1510-1547: curStep+=eff*number, completion
-  > maxStep*900*number → grant products); builder stub (M5); jobsAccidents (quarterDay order 20,
-  wolf/procAccident); autoAssignWorkers (order 30, round-robin deterministicky); assignJob command.
-- T3 workerEfficiency: workerEfficiencyDaily systém (day order 5, PŘED meal/produkce) zapisuje
-  state.home.workerEfficiency přes existující formulas.workerEfficiency (clamp [0.25,2]); morale složky
-  =0 v M3 → konst. 1 (gap G-MORALE-M5).
-- T4 skilly: skillsProgress (step order 20, 2× kompenzace effMaxStep=maxStep*0.5 dle K4/§4.3, completion
-  při curStep>maxStep/2 → grant products); startSkill command; skills.json 1-2 approximated skilly.
-- T5 UI: selektory selectResourceAreas/selectJobs/selectSkills/selectWorkforce; screens Forest/Field/
-  Mine/Jobs/Skills nad send(); navigace UI-only (neukládá se).
-- BL-3: var. A přednačtené ctx.catalog pro nové systémy + var. B hasCatalog místo try/catch v
-  population.js/food.js.
+Pokrytí (čerpáno z REÁLNÝCH src/core/* + AUTORITATIVNÍCH services home.js/player.js/config.js/techs.js
++ architektura §7.2/§5.5/§4.3/§3.3/§11, čísla potvrzena subagentem):
+- T1 daně + gold/techPt: gold/techPt handlery HOTOVÉ z M2a (jen použít, NEreimplementovat);
+  taxes.js (localTaxes 5days grant gold, monthlyTaxes month grant gold); formulas localTaxAmount/
+  monthlyTaxAmount (rate×curWorkers[×TAXCENTERBASE=22]); setTaxRate command REGISTROVAT v main.js
+  bootstrapEngine (vzor setSpeed); balance tax.localRate/monthlyRate/rateMin/rateMax (approximated).
+- T2 upkeep + burnWood + foodSpoilage: upkeep.js military month (w×108+a×162, insufficient→flag
+  notEnoughMilitaryFunding bez výjimky); burnWood.js day order 60 (Zima 0.5×, Jaro/Podzim 0.2×, Léto 0,
+  pay firewood); foodSpoilage refactor → pay s emitTx (consumed záznam); building upkeep = M5 gap.
+- T3 účetnictví OBSERVER (K5/§7.2): accounting.js recordTx (ŽÁDNÁ mutace v pay/grant) agreguje do
+  council.current {goldEarned,goldSpent,byCause,consumed,produced}; closeMonth month order 40 POSLEDNÍ
+  → history cap 12; KRITICKÝ WIRING: ctx.emitTx=tx=>recordTx(state,tx) v bootSequence (pokrývá live i
+  catchup). Účetní invariant Σ gold tx == Δ gold (test accounting-invariant).
+- T4 UI: selectFinance, CouncilScreen (tab Rada: zlato, daň. sazba se setTaxRate ovladačem, poslední
+  měsíční report příjmy/výdaje/čistý tok); App.js tab + import; send cesta jako setSpeed/assignJob.
 
-## Klíčové invarianty zdůrazněné coderovi
-tickOrder pořadí věrné zdroji (game.js Engine→World→Skills; efficiency→joby→jídlo; accidents PO produkci);
-catch-up-safe (rng jen makeRng(state,stream) – forest/mine/field streamy už v StreamName; žádný
-Date.now/Math.random); persist schéma psané SOUČASNĚ se systémem; reálná čísla do balance.js s odkazem;
-job.maxStep approximated (G-JOB-MAXSTEP, default 0.005, kalibrace M9 = největší balanční nejistota).
+## Klíčové wiring body (poučení M2b/M3 re-run)
+ctx.emitTx zapojen v bootSequence (jinak observer mrtvý – RA-1); setTaxRate REGISTROVANÝ v
+bootstrapEngine (jinak mrtvé UI tlačítko – RA-2); účetní invariant vynucen grep-gate „žádný player.gold
+mimo handlers.js"; všechny platby přes pay/grant (žádná druhá cesta K5). Migrace v1→v2 (taxRate/tot*/
+council/diseaseFromColdChance). tickOrder month: spoilage(10)→taxes(20)→upkeep(30)→closeMonth(40).
 
 ## Alternativy (zamítnuté)
-Alt A fixní per-tick produkce (nevěrné progress modelu + brání M5 multiplierům), Alt B stocky bez
-handleru 'stock' (druhá platební cesta = třída defektů K5), Alt C efficiency inline v quarterDay
-(jiný balanc + duplikace morale). Vše s důvody v §13.
+Alt A účetnictví inline v pay (anti-pattern originálu player.js:146), Alt B emitTx globální singleton
+(porušuje K0/determinismus), Alt C taxRate bez clamp (NaN ekonomika B4), Alt D burnWood/upkeep mimo
+resource vrstvu (porušuje invariant + K5). Vše s důvody v §13.
 
 ## Dílčí checklist
-- [x] Přečteno: AGENTS.md, brief BRIEF-032
-- [x] POVINNÉ vstupy: architektura §4.3/§5/§7/§11, doc/original_source_doc.md §2/§4/§6,
-      AUTORITATIVNÍ services forest/field/mine/skills/home/game/config.js, review_iter-008 (BL-3)
-- [x] Prozkoumány REÁLNÉ src/core/systems/*, resources/*, balance/*, state/*, commands/*, catalog/*,
-      src/data/* (jobs/skills/resources/buildings/houseTypes/food/population/balance.json), ui/*, tickOrder
-- [x] Spec T1-T5 + BL-3 (cesty, JSDoc signatury, datové tvary state, tickOrder pořadí, reálná čísla,
-      jak ověří test tabulkové + catch-up-safe)
-- [x] Persist schéma každé domény + migrace; catch-up-safe (S-05) explicitně
-- [x] Min. 1 alternativa (3 alternativy s důvody)
+- [x] Přečteno: AGENTS.md, brief BRIEF-036
+- [x] POVINNÉ vstupy: architecture_proposal_iter-002 §7.2/§5/§4.3/§11, doc/original_source_doc.md §4/§6,
+      AUTORITATIVNÍ services home.js (tax/upkeep/burnWood)/player.js (report observer)/config.js/techs.js
+- [x] Prozkoumány REÁLNÉ src/core/resources/*, engine/*, commands/*, state/*, balance/*, systems/food.js,
+      app/main.js (bootstrapEngine), ui/{App,selectors,screens,render}, save/persistSchema, src/data/*
+- [x] Spec T1-T4 (cesty, JSDoc signatury, vzorce s reálnými čísly, jak ověří test)
+- [x] End-to-end app integrace: command registrace v main.js + ctx.emitTx wiring + UI napojení
+- [x] Účetní invariant Σ txEvent == delta goldu (testovatelný)
+- [x] Persist schéma + migrace v1→v2; catch-up-safe (S-05)
+- [x] Min. 1 alternativa (4 alternativy s důvody)
 - [x] Výstup do artifacts/final + handoff
 
 ## Předpoklady
-- Žádné nové architektonické rozhodnutí (D1-D13 beze změny); scope OUT (žádný kód, žádný trh/ekonomika M4).
-- job.maxStep/products approximated (G-JOB-MAXSTEP); home.level→settlementLevel proxy (G-HOME-LEVEL);
-  population.total↔workerSlots sjednocení min() (G-POP-WORKFORCE); skilly discovered=true v M3.
+- Žádné nové architektonické rozhodnutí (D1-D13 beze změny). Scope OUT: trh/karavany/getGoldValue
+  dynamika (M4b/iter-011), taxCenter/cityGuardHQ/hospital/inn budovy (M5), techPt produkce (M6).
+- gold/techPt handlery hotové z M2a; localRate/monthlyRate/taxRate default approximated (gap M9);
+  curWorkers≈workforce.assigned (G-TAX-CURWORKERS); season index dle selectors pořadí (G-SEASON-START);
+  firewood bez producenta v M4a (G-FIREWOOD-SOURCE M5, alt wood).
 
 ## Blockery
 –

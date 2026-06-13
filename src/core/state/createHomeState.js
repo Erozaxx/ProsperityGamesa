@@ -33,6 +33,9 @@ export function createHomeState(catalog) {
     skills: {},         // per skillId: { progressing, curStep, progPct }
     workforce: { total: 0, assigned: 0 },
     workerEfficiency: 1, // computed daily by workerEfficiency.daily (day order 5)
+    // iter-010 M4a: economics
+    notEnoughMilitaryFunding: false,
+    store: {},
   };
 }
 
@@ -41,5 +44,5 @@ export function createHomeState(catalog) {
  * @returns {import('./types.js').PlayerState}
  */
 export function createPlayerState() {
-  return { gold: 0, techPt: 0, inventory: {} };
+  return { gold: 0, techPt: 0, inventory: {}, taxRate: 1, totWarriors: 0, totArchers: 0, diseaseFromColdChance: 0 };
 }

@@ -28,6 +28,10 @@ import { workerEfficiencyDaily } from '../systems/workerEfficiency.js';
 import { forestRegen } from '../systems/forest.js';
 import { fieldDaily } from '../systems/field.js';
 import { mineDaily } from '../systems/mine.js';
+import { localTaxes, monthlyTaxes } from '../systems/taxes.js';
+import { upkeepMilitary } from '../systems/upkeep.js';
+import { burnWood } from '../systems/burnWood.js';
+import { closeMonth } from '../resources/accounting.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).
@@ -156,6 +160,11 @@ export function registerCorePeriodics(registry) {
   register(registry, 'forest.regen', forestRegen);
   register(registry, 'field.daily', fieldDaily);
   register(registry, 'mine.daily', mineDaily);
+  register(registry, 'taxes.local', localTaxes);
+  register(registry, 'taxes.monthly', monthlyTaxes);
+  register(registry, 'upkeep.military', upkeepMilitary);
+  register(registry, 'home.burnWood', burnWood);
+  register(registry, 'council.closeMonth', closeMonth);
 
   /** @type {PeriodicTask[]} */
   const periodics = [
@@ -176,9 +185,12 @@ export function registerCorePeriodics(registry) {
     { id: 'field.daily',             every: 'day',        order: 40, systemFn: 'field.daily' },
     { id: 'mine.daily',              every: 'day',        order: 50, systemFn: 'mine.daily' },
     { id: 'forest.regen',            every: '10days',     order: 10, systemFn: 'forest.regen' },
-    { id: 'localTaxes',              every: '5days',      order: 10, systemFn: 'noop' },
+    { id: 'localTaxes',              every: '5days',      order: 10, systemFn: 'taxes.local' },
     { id: 'food.spoilage',           every: 'month',      order: 10, systemFn: 'food.spoilage' },
-    { id: 'taxes.monthly',           every: 'month',      order: 20, systemFn: 'noop' },
+    { id: 'taxes.monthly',           every: 'month',      order: 20, systemFn: 'taxes.monthly' },
+    { id: 'upkeep.military',         every: 'month',      order: 30, systemFn: 'upkeep.military' },
+    { id: 'council.closeMonth',      every: 'month',      order: 40, systemFn: 'council.closeMonth' },
+    { id: 'home.burnWood',           every: 'day',        order: 60, systemFn: 'home.burnWood' },
     { id: 'season.change',           every: 'season',     order: 10, systemFn: 'noop' },
     { id: 'battle.tick',             every: 'step',       order: 30, systemFn: 'battle.tick' },
   ];

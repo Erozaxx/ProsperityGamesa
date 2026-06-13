@@ -16,6 +16,8 @@ import { createCommandRegistry, dispatch } from '../core/commands/dispatch.js';
 import { registerSetSpeed } from '../core/commands/setSpeed.js';
 import { registerAssignJob } from '../core/commands/assignJob.js';
 import { registerStartSkill } from '../core/commands/startSkill.js';
+import { registerSetTaxRate } from '../core/commands/setTaxRate.js';
+import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
 import { requestPersistentStorage } from './persist.js';
 import { registerServiceWorker } from './sw-register.js';
@@ -83,6 +85,7 @@ function bootstrapEngine() {
   registerSetSpeed(creg);
   registerAssignJob(creg);
   registerStartSkill(creg);
+  registerSetTaxRate(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };
@@ -156,6 +159,10 @@ export async function bootSequence(env) {
   try {
     // 4. Bootstrap engine
     const { ctx, creg } = bootstrapEngine();
+
+    // M4a: Wire accounting observer – ctx.emitTx records all txEvents into council.
+    // Must be set AFTER state is known so the closure captures the correct state reference.
+    ctx.emitTx = (tx) => recordTx(state, tx);
 
     // B-3: Create autosave coordinator (periodic + hide bypass)
     const autosave = createAutosave({

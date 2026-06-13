@@ -10,5 +10,5 @@ export const STORE_SAVES = 'saves';
 export const SLOT_ID = 'main';
 /** Rotating generations kept per slot */
 export const GENERATIONS = 3;
-/** Save envelope version (bump for migrations – M2) */
-export const SAVE_VERSION = 1;
+/** Save envelope version (bump for migrations – M4a) */
+export const SAVE_VERSION = 2;
