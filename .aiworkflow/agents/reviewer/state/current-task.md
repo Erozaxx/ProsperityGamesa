@@ -1,29 +1,33 @@
 # Current Task
 
-- **Task ID**: T-004 (review gate, RE-REVIEW round 2)
-- **Brief**: BRIEF-035rr
-- **Iteration**: iter-009 (M3)
+- **Task ID**: T-004 (review gate iter-010, DoD M4a)
+- **Brief**: BRIEF-039
+- **Iteration**: iter-010 (M4a)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo: RE-REVIEW round 2 iter-009 (M3 = DoD M3) po opravě 2 blockerů + S-1.
-Výstup: agents/reviewer/artifacts/final/review_iter-009_T-004rr.md
+Hotovo: review gate iter-010 (DoD M4a) – ekonomika gold/daně/upkeep auditovatelná z událostí.
+Výstup: agents/reviewer/artifacts/final/review_iter-010_T-004.md
 
 ## Výsledek
-Verdikt: **GO**.
+Verdikt: **GO** (1 SUGGESTION follow-up do M4b, neblokuje M4a).
 
-Opraveno ověřeno:
-- B-1: assignJob/startSkill registrované v bootstrapEngine (main.js:83-85) + ctx.catalog naplněn v runtime přes buildCtxCatalog (jobs/skills/houseTypes/food). Systémy reálně čtou ctx.catalog (jobs.js:31/46, skills.js:29). Regresní testy v boot-integration.test.js (blok BLOCKER-1) – selhaly by jinak.
-- B-2: UI screens.js (Forest/Jobs/Skills) + selektory (selectJobs/selectSkills/selectWorkforce/selectWorld) + záložky v App.js napojené na send(assignJob/startSkill); produkční smyčka hratelná end-to-end. Žádný scope change nebyl potřeba.
-- S-1: forest fire jmenovatel = BALANCE.forest.maxTrees (328327) dle config.js:688 (forest.js:21,66).
+Ověřeno:
+- Účetnictví OBSERVER (accounting.js recordTx/closeMonth – žádná inline mutace v pay/grant).
+- WIRING reálně: ctx.emitTx (main.js:165), registerSetTaxRate (main.js:88),
+  tickOrder periodics (taxes/upkeep/burnWood/closeMonth order 40 poslední),
+  CouncilScreen + selectFinance + tab Rada v App.js.
+- Účetní invariant Σ gold tx == Δ gold zelený (live 27000 kroků + catch-up 54000 kroků/2 měsíce).
+- Reálná čísla: centerBase 22, upkeep 108/162, firewoodNeeds, spoilage – tabulkové testy PASS.
+- persist+migrace v1→v2 (SAVE_VERSION=2) round-trip zelené; core bez DOM (lint:core PASS).
+- npm run ci zelené: tsc 0, lint:core OK, 693 testů pass / 0 fail.
 
-DoD M3 reálně splněno; catch-up-safe nezhoršeno (stejný ctx v catchupBatch i live loop); core bez DOM (UI v src/ui/).
-CI ověřeno: `npm run ci` ZELENÉ (tsc 0, lint:core OK, node --test 633/633).
-
-## Zbylé (backlog, neblokují)
-- NITPICK-1 timeSinceLastFire inkrement; NITPICK-2 startSkill cost/discovery (M5+ gapy).
-- G-FOREST-TECHMODS (forester tech M5/M6). UI progress bar normalizace (kosmetické).
+## Nálezy
+- SUGGESTION-1 (M4b): crime.js:42-44 inline mutace player.gold mimo resource vrstvu (bez emitTx).
+  Preexistující z iter-007, mimo scope M4a, v M4a se nespouští (incidents=0) → invariant testy zelené.
+  Doporučení: přesměrovat přes pay(...,'crime:loss',ctx) + grep-gate test. NEblokuje M4a.
+- NITPICK-1: persistSchema.applyPersist zapisuje payload.council=undefined v else-větvi (neškodné).
 
 ## Kód neměněn (scope OUT).
