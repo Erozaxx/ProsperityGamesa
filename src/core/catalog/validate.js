@@ -5,9 +5,13 @@ import { SCHEMAS } from './schemas.js';
  */
 
 /**
+ * @typedef {Record<string, unknown> & { _meta?: unknown }} CatalogData
+ */
+
+/**
  * Validate a catalog object against its schema.
  * @param {string} name - catalog name (e.g. 'food', 'houseTypes')
- * @param {object} catalog - the parsed catalog JSON
+ * @param {CatalogData} catalog - the parsed catalog JSON
  * @returns {ValidationError[]} array of errors (empty = valid)
  */
 export function validateCatalog(name, catalog) {
@@ -19,7 +23,7 @@ export function validateCatalog(name, catalog) {
     return errors;
   }
 
-  if (!catalog._meta) {
+  if (!catalog['_meta']) {
     errors.push({ key: `${name}._meta`, issue: 'missing _meta block' });
   }
 
@@ -30,20 +34,21 @@ export function validateCatalog(name, catalog) {
   }
 
   // For catalogs with array items, check required fields on each item
-  const items = catalog[name];
+  const items = /** @type {Record<string, unknown>} */ (catalog)[name];
   if (Array.isArray(items)) {
     for (let i = 0; i < items.length; i++) {
-      const item = items[i];
+      const item = /** @type {Record<string, unknown>} */ (items[i]);
       for (const field of schema.required) {
         if (item[field] === undefined) {
           errors.push({ key: `${name}[${i}].${field}`, issue: 'missing required field' });
         }
       }
     }
-  } else if (items !== undefined && typeof items === 'object') {
+  } else if (items !== undefined && typeof items === 'object' && items !== null) {
     // For object-style catalogs (balance, population, etc.)
+    const itemObj = /** @type {Record<string, unknown>} */ (items);
     for (const field of schema.required) {
-      if (items[field] === undefined) {
+      if (itemObj[field] === undefined) {
         errors.push({ key: `${name}.${field}`, issue: 'missing required field' });
       }
     }
@@ -55,7 +60,7 @@ export function validateCatalog(name, catalog) {
 /**
  * Assert a catalog is valid, throwing on first violation.
  * @param {string} name
- * @param {object} catalog
+ * @param {CatalogData} catalog
  * @returns {void}
  */
 export function assertCatalogValid(name, catalog) {

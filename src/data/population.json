@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "provenance": "extracted",
+    "source": "doc/original_source/modules/prosperity/services/config.js"
+  },
+  "population": {
+    "baseSpoilage": {
+      "bread": 0.08,
+      "cheese": 0.1,
+      "fish": 0.23,
+      "fruit": 0.22,
+      "meat": 0.18,
+      "vegetable": 0.14
+    },
+    "causesOfDeath": [
+      "had a bad accident and died",
+      "ate some bad food and died of food poisoning",
+      "has died of dysentery",
+      "died peacefully of an unknown reason",
+      "got bored and did something stupid, then died",
+      "picked a fight with the wrong animal (bear)",
+      "picked a fight with the wrong animal (chicken)",
+      "picked a fight with the wrong animal (cow)",
+      "blacked out while horse riding and stunned to death by wasps",
+      "committed suicide after learning he had an uncurable illness",
+      "trampled by a herd of deer... so the story goes",
+      "assassinated by accident. You got lucky",
+      "died of boredom, literally",
+      "died from smoking weird herbs picked up in the forest"
+    ],
+    "consumeFoodRate": 2,
+    "maxFood": 500,
+    "natality": {
+      "matRate": 0.04,
+      "retRate": 0.02
+    },
+    "spoilage": {
+      "bread": 0.08,
+      "cheese": 0.08,
+      "fish": 0.23,
+      "fruit": 0.22,
+      "meat": 0.18,
+      "vegetable": 0.14
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "provenance": "extracted",
+    "source": "doc/original_source/extracted/config-extract.json"
+  },
+  "military": [
+    {
+      "goldCost": 1620,
+      "id": "archer",
+      "name": "Archer",
+      "upkeep": 162
+    },
+    {
+      "goldCost": 1080,
+      "id": "warrior",
+      "name": "Warrior",
+      "upkeep": 108
+    }
+  ]
+}

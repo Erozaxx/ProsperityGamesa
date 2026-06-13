@@ -3,7 +3,8 @@ import { makeMeta } from '../lib/provenance.mjs';
 
 export function extractHouseTypes() {
   const raw = readConfigExtract();
-  const items = Object.entries(raw.houseTypes).map(([id, ht]) => ({
+  const houseTypes = /** @type {Record<string, {effects:{attractiveness:number,workers:number,capacity?:number}}>} */ (raw['houseTypes']);
+  const items = Object.entries(houseTypes).map(([id, ht]) => ({
     id,
     attractiveness: ht.effects.attractiveness,
     capacity: ht.effects.capacity ?? null,

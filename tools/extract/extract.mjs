@@ -26,6 +26,7 @@ import { extractMarketBaseline } from './extractors/marketBaseline.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(__dirname, '..', '..', 'src', 'data');
 
+/** @type {Array<[string, () => object]>} */
 const tasks = [
   ['houseTypes.json', extractHouseTypes],
   ['companies.json', extractCompanies],
@@ -55,7 +56,7 @@ for (const [filename, extractor] of tasks) {
     console.log(`  OK  ${filename}`);
     ok++;
   } catch (e) {
-    console.error(`  FAIL ${filename}: ${e.message}`);
+    console.error(`  FAIL ${filename}: ${e instanceof Error ? e.message : String(e)}`);
     fail++;
   }
 }

@@ -6,15 +6,15 @@ export function extractMilitary() {
   const items = [
     {
       id: 'archer',
-      goldCost: raw.GOLDCOSTPERARCHER,
+      goldCost: /** @type {number} */ (raw['GOLDCOSTPERARCHER']),
       name: 'Archer',
-      upkeep: raw.ARCHERUPKEEP,
+      upkeep: /** @type {number} */ (raw['ARCHERUPKEEP']),
     },
     {
       id: 'warrior',
-      goldCost: raw.GOLDCOSTPERWARRIOR,
+      goldCost: /** @type {number} */ (raw['GOLDCOSTPERWARRIOR']),
       name: 'Warrior',
-      upkeep: raw.WARRIORUPKEEP,
+      upkeep: /** @type {number} */ (raw['WARRIORUPKEEP']),
     },
   ];
   return {

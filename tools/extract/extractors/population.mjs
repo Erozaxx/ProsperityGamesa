@@ -7,7 +7,7 @@ export function extractPopulation() {
     _meta: makeMeta('doc/original_source/modules/prosperity/services/config.js', 'extracted'),
     population: {
       baseSpoilage: { bread: 0.08, cheese: 0.10, fish: 0.23, fruit: 0.22, meat: 0.18, vegetable: 0.14 },
-      causesOfDeath: raw.CAUSESOFDEATH,
+      causesOfDeath: /** @type {string[]} */ (raw['CAUSESOFDEATH']),
       consumeFoodRate: 2,
       maxFood: 500,
       natality: { matRate: 0.04, retRate: 0.02 },

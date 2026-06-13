@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "notes": "Reconstructed from config.js building references; full list in G-LISTBUILDINGS",
+    "provenance": "derived",
+    "source": "doc/original_source/modules/prosperity/services/config.js"
+  },
+  "buildings": [
+    {
+      "baseCost": {
+        "wood": 30
+      },
+      "category": "production",
+      "id": "builderHut",
+      "name": "Builder Hut"
+    },
+    {
+      "baseCost": {
+        "wood": 50
+      },
+      "category": "storage",
+      "id": "granary",
+      "name": "Granary"
+    },
+    {
+      "baseCost": {
+        "gold": 500,
+        "wood": 200
+      },
+      "category": "service",
+      "id": "townCenter",
+      "name": "Town Center"
+    },
+    {
+      "baseCost": {
+        "ore": 20,
+        "wood": 100
+      },
+      "category": "storage",
+      "id": "warehouse",
+      "name": "Warehouse"
+    }
+  ]
+}

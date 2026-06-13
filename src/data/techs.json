@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "notes": "listTechs not found in extracted sources; gap G-LISTTECHS",
+    "provenance": "approximated",
+    "source": "doc/original_source"
+  },
+  "techs": {
+    "sectors": [],
+    "techBase": 100,
+    "techScale": 1.25,
+    "tree": []
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "_meta": {
+    "notes": "listGoods not found in extracted sources; gap G-LISTGOODS",
+    "provenance": "approximated",
+    "source": "doc/original_source"
+  },
+  "goods": []
+}

@@ -1,7 +1,7 @@
 /**
  * formulas.js – pure game computation functions.
  * All formulas verified against source: market.js, config.js, home.js (doc/original_source/).
- * Functions are pure: no state mutation, no Math.random(), no Date.now().
+ * Functions are pure: no state mutation, no randomness, no timestamps.
  * iteration: iter-006 M1
  */
 

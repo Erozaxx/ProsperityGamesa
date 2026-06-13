@@ -3,7 +3,9 @@ import { makeMeta } from '../lib/provenance.mjs';
 
 export function extractAchievements() {
   const raw = readConfigExtract();
-  const items = Object.values(raw.achievements).map(({ id, name, description, level }) => ({
+  /** @type {Record<string, {id:string,name:string,description:string,level:number}>} */
+  const achievements = /** @type {any} */ (raw['achievements']);
+  const items = Object.values(achievements).map(({ id, name, description, level }) => ({
     id,
     description,
     level,

@@ -1,0 +1,98 @@
+{
+  "_meta": {
+    "provenance": "extracted",
+    "source": "doc/original_source/extracted/config-extract.json"
+  },
+  "achievements": [
+    {
+      "description": "Your camp has become a settlement through the hard work of you and your people",
+      "id": "achieveSettlement",
+      "level": 0,
+      "name": "Settled Down"
+    },
+    {
+      "description": "Your settlement has become a village, complete with thriving economy and sturdy infrastructure",
+      "id": "achieveVillage",
+      "level": 1,
+      "name": "Village Life"
+    },
+    {
+      "description": "Your village has earned a spot on the map thanks to your hard work",
+      "id": "achieveTown",
+      "level": 2,
+      "name": "Town Status"
+    },
+    {
+      "description": "Not only have you thwarted threats, but have continually improved your town into a city",
+      "id": "achieveCity",
+      "level": 3,
+      "name": "City Builder"
+    },
+    {
+      "description": "You have amassed an army of 100 units",
+      "id": "achieveCenturion",
+      "level": 1,
+      "name": "Centurion"
+    },
+    {
+      "description": "You have amassed an army of 500 units",
+      "id": "achieveCohort",
+      "level": 2,
+      "name": "Cohort"
+    },
+    {
+      "description": "You have amassed an army of 5000 units, go forth and dominate!",
+      "id": "achieveLegion",
+      "level": 3,
+      "name": "Legion"
+    },
+    {
+      "description": "You have won the heart and minds of your enemies, acquiring them through non-lethal means",
+      "id": "achieveBenevolence",
+      "level": 2,
+      "name": "Benevolent Leader"
+    },
+    {
+      "description": "Your ruthlessness has opened the doors to many cities without struggle out of respect, or fear, of you",
+      "id": "achieveFeared",
+      "level": 2,
+      "name": "Feared Leader"
+    },
+    {
+      "description": "Your military prowess has forced your opponents into obedience, and with no alternatives, join your side",
+      "id": "achieveMight",
+      "level": 2,
+      "name": "Mighty Leader"
+    },
+    {
+      "description": "Careful economic management has amassed you a fortune over 1 million gold",
+      "id": "achieveGoldHoarder",
+      "level": 2,
+      "name": "Gold Hoarder"
+    },
+    {
+      "description": "Manors are for plebs, you moved into a chateau overlooking the city",
+      "id": "achieveLuxury",
+      "level": 3,
+      "name": "Luxury"
+    },
+    {
+      "description": "Being too good for the city, you moved out to the country in your very own Estate",
+      "id": "achieveExtravagance",
+      "level": 4,
+      "name": "Extravagance"
+    },
+    {
+      "description": "Well done, everyone is sick, even the cows",
+      "id": "achieveUnhygienic",
+      "level": 0,
+      "name": "Unhygienic"
+    },
+    {
+      "description": "A year has passed and you have not given up, kudos",
+      "id": "achievementSurvivedWinter",
+      "level": 0,
+      "name": "Survived Winter"
+    }
+  ]
+}
