@@ -6,8 +6,8 @@
 
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
-- [ ] T-001: architect – Navrhnout architekturu řešení playability hardeningu (start seed přes BALANCE.start, resolver gold/techPt, crime pay clamp, populace cap, market UI overflow); struktura, dotčené moduly, alternativy, rizika, dopad na determinismus/save-hash (in-flight)
-- [ ] T-002: reviewer – Review architektury (všechny nálezy, nejen blockery)
+- [x] T-001: architect – Navrhnout architekturu řešení playability hardeningu (start seed přes BALANCE.start, resolver gold/techPt, crime pay clamp, populace cap, market UI overflow); struktura, dotčené moduly, alternativy, rizika, dopad na determinismus/save-hash
+- [ ] T-002: reviewer – Review architektury (všechny nálezy, nejen blockery) (in-flight)
 - [ ] T-003: architect – Zapracovat nálezy z review (pokud reviewer něco našel)
 - [ ] T-004: human – Review a schválení architektury uživatelem (blocker před implementací)
 - [ ] T-005: coder – Start seed: createInitialState předá katalog do factory + createHomeState/createPlayerState čtou BALANCE.start (population/gold/food/housing); fresh hra startuje populovaná
