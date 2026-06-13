@@ -1,30 +1,28 @@
 # Current Task
 
 - **Task ID**: T-003
-- **Brief**: BRIEF-030
-- **Iteration**: iter-008
+- **Brief**: BRIEF-034
+- **Iteration**: iter-009
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Dokončeno. Nezávislý test loop M2b – catchup engine (T1/T2), export/import round-trip (T5), autosave triggery (T4), offline summary model (T3), save bootstrap round-trip (S-1). Vyřešena benchmark regrese.
+Dokončeno. Nezávislý test loop M3 – tabulkové testy produkce/efficiency/forest, catch-up-safe invariant všech M3 systémů, save round-trip, determinismus RNG streamů, edge cases.
 
 ## Předpoklady
-- Produkční kód implementován coderem T-002 (M2b: offline catch-up, export/import, autosave, UI).
-- Scope OUT: žádné změny produkčního kódu.
+- Produkční kód implementován coderem T-002 (M3: forest/field/mine/jobs/workerEfficiency/skills).
+- Scope OUT: žádné změny produkčního kódu – jen nové testy.
 
 ## Blockery
 –
 
-## Checklist (z briefu iter-008 BRIEF-030)
-- [x] Benchmark regrese prošetřena: příčina = getCatalog() throw/catch bez načtených katalogů (~3000 ns/throw vs 22 ns loaded)
-- [x] tools/bench-step.mjs upraven: načítá katalogy před měřením (produkční cesta)
-- [x] iter005-edge.test.js: threshold ponechán 10000 ns, přidán comment + nový test catch-up < 30 s
-- [x] npm run ci ZELENÉ: 529/529 PASS
-- [x] test/catchup.test.js nový: catchupStepCount, runCatchupBatch, G1 chunked==batch==live, cap, T2 interrupt/resume (22 testů)
-- [x] test/export-string.test.js nový: round-trip, komprese, error handling, allowlist parita (12 testů)
-- [x] test/autosave.test.js nový: throttle, hide-bypass, flush (11 testů)
-- [x] test/offline-summary.test.js nový: buildOfflineSummary model, formatOfflineSummary (15 testů)
-- [x] test/app-bootstrap.test.js nový: save→load via saveStore+catalog, payload allowlist, idempotence (8 testů)
-- [x] Verdikt zapsán do artifacts/final/testreport_iter-008_T-003.md
+## Checklist (z briefu iter-009 BRIEF-034)
+- [x] npm install && npm run ci ZELENÉ (577 pass před, 622 pass po přidání testů)
+- [x] Tabulkové testy: jobsProduction progress model (QD 5 completion, bread=20), workerEfficiency clamp [0.25,2], area vzorce (forest/field/mine), forest regen (10days, saplings, fire), skilly 2× kompenzace (maxStep·0.5 = effMaxStep=25, completion step 26)
+- [x] Catch-up-safe invariant: live N == batch N (hash), 5 dní, 30 dní (přes monthly+10days), per-systém world.forest/mine/field identické
+- [x] Save round-trip: progPct NOT v payloadu, dynamic fields YES, derived area/used NOT
+- [x] Determinismus RNG: streamy forest/mine/field nezávislé, same seed = same result
+- [x] Edge cases negativní: 0 workers = 0 produkce, mine curOres=0 (M3 no-op), field bez farem = no RNG
+- [x] Math.random NOT volán žádným M3 systémem (runtime patch test)
+- [x] Verdikt zapsán do artifacts/final/testreport_iter-009_T-003.md
