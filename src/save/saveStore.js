@@ -11,6 +11,7 @@ import {
 } from './schema.js';
 import { assertSerializable } from '../core/registry/registry.js';
 import { loadAndReconstruct } from './load.js';
+import { applyPersist } from './persistSchema.js';
 
 /**
  * @typedef {{ slotId: string, activeGen: number, updatedAt: number }} SlotRecord
@@ -100,7 +101,7 @@ export async function saveGame(state, opts = {}) {
     lastSimTimestamp: now,
     saveVersion: SAVE_VERSION,
     gameVersion: state.meta.gameVersion,
-    payload: structuredClone(state),
+    payload: applyPersist(state),
   };
 
   await tx(db, [STORE_SAVES, STORE_SLOTS], 'readwrite', (t) => {
