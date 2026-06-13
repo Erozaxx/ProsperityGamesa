@@ -10,7 +10,7 @@ import { App } from './App.js';
 /**
  * @param {Object} deps
  * @param {import('../core/state/types.js').GameState} deps.state
- * @param {(type: string, params?: object) => {ok: boolean, error?: string}} deps.send
+ * @param {(type: string, params?: Record<string, unknown>) => {ok: boolean, error?: string}} deps.send
  * @param {HTMLElement} deps.root
  * @param {(cb: FrameRequestCallback) => number} deps.raf
  * @returns {{ requestRender: () => void }}

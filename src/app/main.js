@@ -79,7 +79,7 @@ export async function boot() {
     const acc = createAccumulator(performance.now(), state.engine.frameBudget);
 
     // 6. Send function (UI → commands)
-    const send = (/** @type {string} */ type, /** @type {object|undefined} */ params) =>
+    const send = (/** @type {string} */ type, /** @type {Record<string, unknown>|undefined} */ params) =>
       dispatch(creg, state, { type, params });
 
     // 7. Mount UI

@@ -22,13 +22,13 @@
     "src/ui/**/*.js",
     "src/save/**/*.js",
     "src/vendor/preact.standalone.js",
-    "service-worker.js",
     "tools/**/*.mjs"
   ],
   "exclude": [
     "node_modules",
     "src/vendor/preact.module.js",
     "src/vendor/hooks.module.js",
-    "src/vendor/htm.module.js"
+    "src/vendor/htm.module.js",
+    "service-worker.js"
   ]
 }

@@ -71,7 +71,7 @@ export function runBench(opts = {}) {
   initRng(state2);
   const registry2 = createRegistry();
   const periodics2 = registerCorePeriodics(registry2);
-  const ctx2 = { registry2, periodics: periodics2 };
+  const ctx2 = { registry: registry2, periodics: periodics2 };
 
   // Pre-schedule 1000 no-op events spread across next 576k steps
   const curStep = state2.engine.curStep;
