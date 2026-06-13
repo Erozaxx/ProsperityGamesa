@@ -1,7 +1,7 @@
 {
   "name": "Prosperity",
   "short_name": "Prosperity",
-  "description": "Offline idle ekonomická hra o budování bohatství.",
+  "description": "Prosperity – offline idle ekonomická hra (rebuild).",
   "lang": "cs",
   "start_url": "./index.html",
   "scope": "./",
