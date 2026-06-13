@@ -4,6 +4,36 @@
  */
 
 import { createHomeState, createPlayerState } from './createHomeState.js';
+import { BALANCE } from '../balance/balance.js';
+
+/**
+ * Creates the initial world sub-domain state.
+ * Source: config.js:686-715 (start values). provenance: extracted.
+ * @returns {import('./types.js').GameState['world']}
+ */
+function createWorldState() {
+  const bal = BALANCE;
+  return {
+    forest: {
+      curTrees: bal.forestStocks.startTrees,           // config.js:687
+      curAnimals: bal.forestStocks.startAnimals,        // config.js:686
+      saplings: new Array(bal.forestStocks.saplingQueueLen).fill(0), // 10-element queue
+      health: 100,
+      timeSinceLastFire: 0,
+      lastFire: 0,
+      consecutiveNoAnimal: 0,
+    },
+    field: {
+      curLivestock: bal.field.startLivestock,  // config.js:708
+      rodentInfestation: 0,
+      usedFarmLand: 0,
+      inspectTime: 0,
+    },
+    mine: {
+      curOres: bal.mine.startOres, // config.js:715
+    },
+  };
+}
 
 // Defaults – MOVE TO balance.js @ M1 (source: design_iter-004_T-001 §2.2)
 const DEFAULT_SEED = 0x9E3779B9;
@@ -56,7 +86,7 @@ export function createInitialState(opts = {}) {
     },
     player: createPlayerState(),
     home: createHomeState(),
-    world: {},
+    world: createWorldState(),
     catalogState: { modifiers: [] },
     battle: null,
     story: {},

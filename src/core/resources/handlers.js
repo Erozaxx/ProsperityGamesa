@@ -2,9 +2,52 @@
  * Resource handlers per kind.
  * Each handler: get(state, key), add(state, key, n), remove(state, key, n, allowDeficit)
  * iter-007 M2a-1.
+ * iter-009 M3: added 'stock' handler for world stockpiles (trees/animals/ores/livestock/farmland).
  */
 
 import { byId } from '../catalog/loader.js';
+
+/**
+ * Path map for stock resources. Each value is a dot-separated path into state.
+ * Source: design §3.5.
+ */
+const STOCK_PATH = {
+  trees:     ['world', 'forest', 'curTrees'],
+  animals:   ['world', 'forest', 'curAnimals'],
+  ores:      ['world', 'mine', 'curOres'],
+  livestock: ['world', 'field', 'curLivestock'],
+  farmland:  ['world', 'field', 'usedFarmLand'],
+};
+
+/**
+ * Read a nested path from state.
+ * @param {any} obj
+ * @param {string[]} path
+ * @returns {number}
+ */
+function readPath(obj, path) {
+  let cur = obj;
+  for (const key of path) {
+    if (cur == null) return 0;
+    cur = cur[key];
+  }
+  return typeof cur === 'number' ? cur : 0;
+}
+
+/**
+ * Write a nested path in state.
+ * @param {any} obj
+ * @param {string[]} path
+ * @param {number} value
+ */
+function writePath(obj, path, value) {
+  let cur = obj;
+  for (let i = 0; i < path.length - 1; i++) {
+    if (cur[path[i]] == null) cur[path[i]] = {};
+    cur = cur[path[i]];
+  }
+  cur[path[path.length - 1]] = value;
+}
 
 /**
  * @typedef {{ get(state:any,key:string):number, add(state:any,key:string,n:number):void, remove(state:any,key:string,n:number,allowDeficit?:boolean):number }} ResourceHandler
@@ -91,6 +134,36 @@ export const resourceHandlers = {
       if (!allowDeficit && have - n < 0) throw new Error(`resources: insufficient resource/${key} (have ${have}, need ${n})`);
       if (!state.home.store) state.home.store = {};
       state.home.store[key] = Math.max(0, have - n);
+      return Math.min(n, have);
+    },
+  },
+
+  /**
+   * Stock handler for world stockpiles (trees/animals/ores/livestock/farmland).
+   * Source: design §3.5 – iter-009 M3.
+   * In M3 stocks are read-only from jobs (no job.cost yet, M5).
+   * Writes only from forest/field/mine systems.
+   */
+  stock: {
+    get(state, key) {
+      const path = STOCK_PATH[/** @type {keyof typeof STOCK_PATH} */ (key)];
+      if (!path) return 0;
+      return readPath(state, path);
+    },
+    add(state, key, n) {
+      if (!Number.isFinite(n)) throw new Error(`resources: NaN/Inf amount for stock/${key}`);
+      const path = STOCK_PATH[/** @type {keyof typeof STOCK_PATH} */ (key)];
+      if (!path) throw new Error(`resources: unknown stock key "${key}"`);
+      const cur = readPath(state, path);
+      writePath(state, path, cur + n);
+    },
+    remove(state, key, n, allowDeficit = false) {
+      if (!Number.isFinite(n)) throw new Error(`resources: NaN/Inf amount for stock/${key}`);
+      const path = STOCK_PATH[/** @type {keyof typeof STOCK_PATH} */ (key)];
+      if (!path) throw new Error(`resources: unknown stock key "${key}"`);
+      const have = readPath(state, path);
+      if (!allowDeficit && have - n < 0) throw new Error(`resources: insufficient stock/${key} (have ${have}, need ${n})`);
+      writePath(state, path, Math.max(0, have - n));
       return Math.min(n, have);
     },
   },

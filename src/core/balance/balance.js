@@ -2,6 +2,7 @@
  * balance.js – named game constants with source references.
  * All values extracted from rootscope-raw-dump.json and config.js (doc/original_source/).
  * iteration: iter-007 M2a-1: added start, food, health, crime, housing constants.
+ * iteration: iter-009 M3: added production, forestStocks, field, mine (extended), space, accidents, skills.
  */
 
 export const BALANCE = Object.freeze({
@@ -159,5 +160,95 @@ export const BALANCE = Object.freeze({
   housing: {
     /** Settlement level thresholds based on attractiveness sum. */
     levelThresholds: [0, 10, 50, 200, 500, 1000, 5000],
+  },
+
+  /**
+   * Production (jobs) constants. iter-009 M3.
+   * Default job maxStep calibration:
+   *   completionUnits = maxStep * stepsPerDay * number
+   *   At eff=1, number=10, 4 quarterDay/day: Σ curStep/day = 4*10 = 40
+   *   For ~1 completion/day: maxStep*900*10 ≈ 40 → maxStep ≈ 0.0044
+   *   Using 0.005 (slightly faster than ~1/day) as default.
+   *   provenance: approximated, gap G-JOB-MAXSTEP, source intent: home.js:1489.
+   */
+  production: {
+    /** Default job maxStep (time factor). provenance: approximated, gap G-JOB-MAXSTEP. */
+    defaultJobMaxStep: 0.005,
+    /** quarterDay ticks per day (production cadence). Source: home.js:608 STEPSPERDAY/4. */
+    quarterDaysPerDay: 4,
+  },
+
+  /**
+   * Forest start stocks. iter-009 M3.
+   * Source: config.js:686-687. provenance: extracted.
+   */
+  forestStocks: {
+    /** Start tree count. Source: config.js:687 curTrees=27173. */
+    startTrees: 27173,
+    /** Start animal count. Source: config.js:686 curAnimals=3864. */
+    startAnimals: 3864,
+    /** Sapling queue length (10-day shift queue). Source: forest.js:57. */
+    saplingQueueLen: 10,
+  },
+
+  /**
+   * Field constants. iter-009 M3.
+   */
+  field: {
+    /** Start livestock count. Source: config.js:708 curLivestock=0. */
+    startLivestock: 0,
+  },
+
+  /**
+   * Mine constants. iter-009 M3.
+   * Source: config.js:715 curOres, mine.js:8-17 expander.
+   */
+  mine: {
+    /** Start ore count. Source: config.js:715 curOres=20000. */
+    startOres: 20000,
+    /** Ore threshold for expander event. Source: mine.js:10. */
+    expanderThreshold: 300,
+    /** Chance of expander event per day when below threshold. Source: mine.js:12. */
+    expanderChance: 0.1,
+  },
+
+  /**
+   * Space / area formulas. iter-009 M3.
+   * Source: config.js:3711 (forest), config.js:3709 (field), config.js:3712 (mine).
+   */
+  space: {
+    /** Forest area formula: round(28000 + 1.6^level * 5000). Source: config.js:3711. */
+    forestBase: 28000, forestScale: 1.6, forestMul: 5000,
+    /** Field area formula: round(450 + 2^level * 1200). Source: config.js:3709. */
+    fieldBase: 450, fieldScale: 2, fieldMul: 1200,
+    /** Mine area formula: 1000 + level*800. Source: config.js:3712. */
+    mineBase: 1000, minePerLevel: 800,
+  },
+
+  /**
+   * Accident constants. iter-009 M3.
+   * Source: home.js:1291 wolfChance, home.js:1313 highLevelFactor, home.js:3926 killChance.
+   */
+  accidents: {
+    /** Wolf attack chance per quarterDay at settlement level<=1. Source: home.js:1291. */
+    wolfChance: 0.005,
+    /** High-level accident chance factor (× workers/3). Source: home.js:1313. */
+    highLevelChanceFactor: 0.0001,
+    /** procAccident kill chance (no hospital in M3). Source: home.js:3926 else-branch. */
+    procAccidentKillChance: 0.5,
+  },
+
+  /**
+   * Skills mechanic constants. iter-009 M3.
+   * 2× compensation (K4 / architecture §4.3): original Skills.step() ran once per engine step
+   * but effectively progressed 2× faster than intended. Rebuild halves threshold.
+   * Gap G-SKILL-COMPENSATION – M9 calibration finalizes whether maxStep or maxStep/2 is correct.
+   */
+  skills: {
+    /**
+     * 2× compensation multiplier: effective maxStep = maxStep * stepCompensation.
+     * Source: architecture §4.3 gap G-SKILL-COMPENSATION (M9 calibration), K4.
+     */
+    stepCompensation: 0.5,
   },
 });

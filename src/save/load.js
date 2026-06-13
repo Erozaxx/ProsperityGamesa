@@ -117,11 +117,54 @@ function applyPayload(state, payload) {
           state.home.crime[field] = payload.home.crime[field];
       }
     }
+
+    // workerEfficiency (iter-009 M3)
+    if (payload.home.workerEfficiency !== undefined) {
+      state.home.workerEfficiency = payload.home.workerEfficiency;
+    }
+
+    // workforce (iter-009 M3) – only assigned; total is derived
+    if (payload.home.workforce) {
+      state.home.workforce = state.home.workforce || { total: 0, assigned: 0 };
+      if (payload.home.workforce.assigned !== undefined)
+        state.home.workforce.assigned = payload.home.workforce.assigned;
+    }
+
+    // jobs: per id { number, curStep } (iter-009 M3)
+    if (payload.home.jobs) {
+      state.home.jobs = state.home.jobs || {};
+      for (const [jobId, jobData] of Object.entries(payload.home.jobs)) {
+        const jd = /** @type {any} */ (jobData);
+        state.home.jobs[jobId] = { number: jd.number || 0, curStep: jd.curStep || 0 };
+      }
+    }
+
+    // skills: per id { progressing, curStep } – progPct is derived, not persisted (iter-009 M3)
+    if (payload.home.skills) {
+      state.home.skills = state.home.skills || {};
+      for (const [skillId, skillData] of Object.entries(payload.home.skills)) {
+        const sd = /** @type {any} */ (skillData);
+        state.home.skills[skillId] = {
+          progressing: sd.progressing || false,
+          curStep: sd.curStep || 0,
+          progPct: 0, // re-derived after load
+        };
+      }
+    }
   }
 
   if (payload.world) {
+    // world.forest / world.field / world.mine (iter-009 M3)
+    // Use merge: take saved values but ensure initial state provides defaults for missing fields
     for (const field of PERSIST_SCHEMA.world) {
-      if (payload.world[field] !== undefined) state.world[field] = payload.world[field];
+      if (payload.world[field] !== undefined) {
+        // Deep merge: initial state has default values; saved values overwrite
+        if (state.world[field] && typeof state.world[field] === 'object' && typeof payload.world[field] === 'object') {
+          Object.assign(state.world[field], payload.world[field]);
+        } else {
+          state.world[field] = payload.world[field];
+        }
+      }
     }
   }
 

@@ -221,6 +221,49 @@ export function crimeCount(population, crimeLevel, balanceCrime) {
 }
 
 /**
+ * Forest area capacity based on settlement level.
+ * Source: config.js:3711. Formula: round(28000 + 1.6^level * 5000).
+ * Note: M3 maps home.level to settlementLevel proxy (gap G-HOME-LEVEL M5).
+ * @param {number} level - Settlement level (0-based proxy for home.level)
+ * @returns {number} max tree area units
+ */
+export function forestArea(level) {
+  return Math.round(28000 + Math.pow(1.6, level) * 5000);
+}
+
+/**
+ * Field area capacity based on settlement level.
+ * Source: config.js:3709. Formula: round(450 + 2^level * 1200).
+ * @param {number} level - Settlement level
+ * @returns {number}
+ */
+export function fieldArea(level) {
+  return Math.round(450 + Math.pow(2, level) * 1200);
+}
+
+/**
+ * Mine area capacity based on settlement level.
+ * Source: config.js:3712. Formula: 1000 + level*800 (if mine unlocked).
+ * mineUnlocked = true in M3 (explorer unlock is M5, gap G-HOME-LEVEL).
+ * @param {number} level - Settlement level
+ * @param {boolean} [mineUnlocked] - Whether mine is unlocked (default true in M3)
+ * @returns {number}
+ */
+export function mineArea(level, mineUnlocked = true) {
+  return mineUnlocked ? (1000 + level * 800) : 0;
+}
+
+/**
+ * Forest area used by current trees.
+ * Source: config.js:3769-3770: building forestSpace + curTrees. M3: only curTrees (no buildings).
+ * @param {number} curTrees
+ * @returns {number}
+ */
+export function forestUsed(curTrees) {
+  return Math.round(curTrees);
+}
+
+/**
  * Settlement level from population + attractiveness.
  * @param {number} population
  * @param {number} housingAttractiveness

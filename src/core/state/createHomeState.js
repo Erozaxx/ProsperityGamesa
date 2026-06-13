@@ -1,6 +1,7 @@
 /**
  * Factory functions for HomeState and PlayerState.
  * iter-007 M2a-1: initial state factories.
+ * iter-009 M3: added jobs/skills/workforce/workerEfficiency fields.
  */
 
 /**
@@ -27,6 +28,11 @@ export function createHomeState(catalog) {
     health: { diseaseActive: false, diseaseDaysLeft: 0 },
     crime: { level: 0 },
     settlementLevel: 0,
+    // iter-009 M3: production sub-domains
+    jobs: {},           // per jobId: { number, curStep } – populated on first assignment
+    skills: {},         // per skillId: { progressing, curStep, progPct }
+    workforce: { total: 0, assigned: 0 },
+    workerEfficiency: 1, // computed daily by workerEfficiency.daily (day order 5)
   };
 }
 

@@ -1,8 +1,31 @@
 {
   "_meta": {
-    "notes": "listSkill not found in extracted sources; gap G-LISTSKILL",
+    "notes": "listSkill not found in extracted sources; gap G-LISTSKILL. Two approximated example skills added in iter-009 M3 for system testing. Skills produce existing resource kinds (wood/techPt) to avoid introducing fictitious goods (gap G-LISTGOODS). maxStep=50 with stepCompensation=0.5 gives effMaxStep=25; completion on step 26. provenance: approximated.",
     "provenance": "approximated",
     "source": "doc/original_source"
   },
-  "skills": []
+  "skills": [
+    {
+      "_note": "Approximated skill – real skill list missing (G-LISTSKILL). Produces wood (existing resource kind).",
+      "cost": {},
+      "discovered": true,
+      "id": "woodworking",
+      "maxStep": 50,
+      "name": "Woodworking",
+      "products": {
+        "wood": 5
+      }
+    },
+    {
+      "_note": "Approximated skill – real skill list missing (G-LISTSKILL). Produces techPt (existing resource kind).",
+      "cost": {},
+      "discovered": true,
+      "id": "scholarship",
+      "maxStep": 100,
+      "name": "Scholarship",
+      "products": {
+        "techPt": 1
+      }
+    }
+  ]
 }

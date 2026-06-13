@@ -1,21 +1,22 @@
 {
   "_meta": {
-    "iteration": "iter-007",
-    "milestone": "M2a",
-    "notes": "Gap analysis for catalogs not fully extractable from original sources. Updated in iter-007 M2a-1: added blocksMvp, provenance per gap, summary block (S-2).",
+    "iteration": "iter-009",
+    "milestone": "M3",
+    "notes": "Updated in iter-009 M3: added M3 gaps for production/jobs/skills/forest/field/mine. G-LISTJOB and G-LISTSKILL updated.",
     "provenance": "derived"
   },
   "summary": {
-    "total": 8,
+    "total": 20,
     "blocksMvp": 4,
     "byMilestone": {
       "M2": 0,
       "M3": 1,
       "M4": 2,
-      "M5": 1,
-      "M6": 1,
+      "M5": 6,
+      "M6": 4,
       "M7": 1,
-      "M9": 2
+      "M8": 2,
+      "M9": 4
     }
   },
   "gaps": [
@@ -49,8 +50,8 @@
     {
       "id": "G-LISTJOB",
       "catalog": "jobs",
-      "description": "listJob.json not found; 7 jobs reconstructed from home.js/config.js; exact production numbers are estimates",
-      "milestone": "M3",
+      "description": "listJob.json not found; 7 jobs + builder stub reconstructed from home.js/config.js; exact maxStep/products are approximated (default maxStep=0.005, gap G-JOB-MAXSTEP). Real calibration M9.",
+      "milestone": "M3/M9",
       "severity": "high",
       "blocksMvp": true,
       "provenance": "approximated"
@@ -76,11 +77,11 @@
     {
       "id": "G-LISTSKILL",
       "catalog": "skills",
-      "description": "listSkill.json and listSectors.json not found; both catalogs are empty skeletons",
+      "description": "listSkill.json not found; 2 approximated example skills added (woodworking, scholarship) for M3 system testing. Real skill list is M6.",
       "milestone": "M3/M6",
       "severity": "medium",
       "blocksMvp": false,
-      "provenance": "missing"
+      "provenance": "approximated"
     },
     {
       "id": "D-CHEESE-SPOILAGE",
@@ -90,6 +91,114 @@
       "severity": "low",
       "blocksMvp": false,
       "provenance": "derived"
+    },
+    {
+      "id": "G-JOB-MAXSTEP",
+      "catalog": "jobs",
+      "description": "Exact job.maxStep and job.products quantities not extractable from listJob.json (missing). Default 0.005 approximated: completionUnits=maxStep*900*number; at eff=1 number=10 → 4 quarterDay/day × 10 = 40 curStep/day; completion in ~1.1 days. Real calibration M9.",
+      "milestone": "M3/M9",
+      "severity": "high",
+      "blocksMvp": false,
+      "provenance": "approximated"
+    },
+    {
+      "id": "G-FOREST-TECHMODS",
+      "catalog": "forest",
+      "description": "Forester building, pollination service, animalGrowth tech bonuses omitted from forestRegen (forest.js:69,92,144). These modify tree/animal growth rates.",
+      "milestone": "M6",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-FIELD-FARMS",
+      "catalog": "field",
+      "description": "vegetableFarm.created=0 (no buildings in M3) → chanceOfRodents=0 → rodent mechanika fakticky vypnuta. Mechanika připravena, aktivuje se přidáním budov v M5.",
+      "milestone": "M5",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-MINE-EXPANDER",
+      "catalog": "mine",
+      "description": "eventMineExpander (mine.js) is a content event (M8). In M3 the trigger fires (RNG consumed) but the effect is a no-op with log entry.",
+      "milestone": "M8",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-BUILDER-M5",
+      "catalog": "jobs",
+      "description": "builder job slot is a stub (noProduction=true). Building construction mechanics are M5.",
+      "milestone": "M5",
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-JOB-TASKS",
+      "catalog": "jobs",
+      "description": "Original home.js distributes work into sub-tasks randomly. M3 uses worker number directly (no sub-task distribution). Gap: G-JOB-TASKS M5.",
+      "milestone": "M5",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-POP-WORKFORCE",
+      "catalog": "population",
+      "description": "population.total vs workerSlots sjednocení: M3 uses min(population.total, workerSlots) as available workers. Exact mapping (M5 labor market) deferred.",
+      "milestone": "M5",
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "approximated"
+    },
+    {
+      "id": "G-HOME-LEVEL",
+      "catalog": "home",
+      "description": "Original home.level (0..6 progression) mapped to settlementLevel proxy in M3. Area formulas (forest/field/mine) use settlementLevel as proxy. Precise mapping in M5.",
+      "milestone": "M5",
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "approximated"
+    },
+    {
+      "id": "G-MORALE-M5",
+      "catalog": "home",
+      "description": "workerEfficiency morale components (minWorkerPenalty, leaderMorality, entertainmentOffset, goodSpiritsBonus, workerMorale) all = 0 in M3 → workerEfficiency = constant 1. Full morale system M5.",
+      "milestone": "M5",
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-SKILL-COMPENSATION",
+      "catalog": "skills",
+      "description": "2× step compensation for skills (stepCompensation=0.5, effMaxStep=maxStep/2). Architecture §4.3/§5.5 (K4) documents this. M9 calibration will finalize whether maxStep or maxStep/2 is the correct balance.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated"
+    },
+    {
+      "id": "G-SKILL-EFFECTS",
+      "catalog": "skills",
+      "description": "Skill onFull/onStart effects registry (skills.js:18) not implemented in M3. Only products are granted on completion. Full effects system M6.",
+      "milestone": "M6",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-SKILL-DISCOVERY",
+      "catalog": "skills",
+      "description": "Skill discovery (sector/tech prerequisites) not implemented in M3. All skills in catalog are discoverable by default. Full discovery system M6.",
+      "milestone": "M6",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
     }
   ]
 }

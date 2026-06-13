@@ -1,26 +1,35 @@
 {
   "_meta": {
-    "notes": "Reconstructed from home.js job loops; products changed to map {resourceId:amount} per S-3 iter-007 M2a-1. Production amounts are estimated; real calibration in M3.",
+    "notes": "Reconstructed from home.js job loops; products changed to map {resourceId:amount} per S-3 iter-007 M2a-1. maxStep and max added in iter-009 M3. Production amounts are estimated; real calibration in M3. maxStep provenance: approximated, gap G-JOB-MAXSTEP.",
     "provenance": "derived",
     "source": "doc/original_source/modules/prosperity/services/home.js"
   },
   "jobs": [
     {
+      "autoAssignable": true,
       "id": "baker",
+      "max": 50,
+      "maxStep": 0.005,
       "name": "Baker",
       "products": {
         "bread": 2
       }
     },
     {
+      "autoAssignable": true,
       "id": "cheesefarmer",
+      "max": 50,
+      "maxStep": 0.005,
       "name": "Cheese Farmer",
       "products": {
         "cheese": 1
       }
     },
     {
+      "autoAssignable": true,
       "id": "farmer",
+      "max": 50,
+      "maxStep": 0.005,
       "name": "Farmer",
       "products": {
         "fruit": 1,
@@ -28,21 +37,30 @@
       }
     },
     {
+      "autoAssignable": true,
       "id": "fisher",
+      "max": 50,
+      "maxStep": 0.005,
       "name": "Fisher",
       "products": {
         "fish": 2
       }
     },
     {
+      "autoAssignable": true,
       "id": "hunter",
+      "max": 50,
+      "maxStep": 0.005,
       "name": "Hunter",
       "products": {
         "meat": 1
       }
     },
     {
+      "autoAssignable": true,
       "id": "miner",
+      "max": 50,
+      "maxStep": 0.005,
       "name": "Miner",
       "products": {
         "ore": 2,
@@ -50,11 +68,25 @@
       }
     },
     {
+      "autoAssignable": true,
       "id": "woodcutter",
+      "max": 50,
+      "maxStep": 0.005,
       "name": "Woodcutter",
       "products": {
         "wood": 3
       }
+    },
+    {
+      "_note": "Stub for M5 building construction (gap G-BUILDER-M5)",
+      "autoAssignable": false,
+      "category": "builder",
+      "id": "builder",
+      "max": 100,
+      "maxStep": 0,
+      "name": "Builder",
+      "noProduction": true,
+      "products": {}
     }
   ]
 }

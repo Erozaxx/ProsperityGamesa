@@ -112,6 +112,49 @@ export interface CrimeState {
   level: number;
 }
 
+/** Per-job dynamic state */
+export interface JobState {
+  number: number;   // assigned workers
+  curStep: number;  // production progress accumulator
+}
+
+/** Per-skill dynamic state */
+export interface SkillState {
+  progressing: boolean;
+  curStep: number;
+  progPct: number;  // 0..100 (derived, not persisted)
+}
+
+/** Workforce summary */
+export interface WorkforceState {
+  total: number;    // derived from housing workerSlots (not persisted directly)
+  assigned: number; // Σ jobs[*].number
+}
+
+/** Forest sub-domain state (under state.world) */
+export interface ForestState {
+  curTrees: number;
+  curAnimals: number;
+  saplings: number[];         // 10-element sapling queue
+  health: number;             // 0..100
+  timeSinceLastFire: number;
+  lastFire: number;           // step of last fire (0=never)
+  consecutiveNoAnimal: number;
+}
+
+/** Field sub-domain state (under state.world) */
+export interface FieldState {
+  curLivestock: number;
+  rodentInfestation: number;
+  usedFarmLand: number;
+  inspectTime: number;
+}
+
+/** Mine sub-domain state (under state.world) */
+export interface MineState {
+  curOres: number;
+}
+
 /** Home settlement state */
 export interface HomeState {
   population: PopulationState;
@@ -120,6 +163,16 @@ export interface HomeState {
   health: HealthState;
   crime: CrimeState;
   settlementLevel: number;
+  /** Jobs dynamic state – per jobId { number, curStep }. iter-009 M3. */
+  jobs: Record<string, JobState>;
+  /** Skills dynamic state – per skillId { progressing, curStep, progPct }. iter-009 M3. */
+  skills: Record<string, SkillState>;
+  /** Workforce summary. iter-009 M3. */
+  workforce: WorkforceState;
+  /** Worker efficiency (0.25..2). Computed daily by workerEfficiency.daily. iter-009 M3. */
+  workerEfficiency: number;
+  /** Auto-assign policy (default true). iter-009 M3. */
+  autoAssign?: boolean;
 }
 
 /** Player resource state */
@@ -152,8 +205,13 @@ export interface GameState {
   player: PlayerState;
   /** Home settlement state */
   home: HomeState;
-  /** Slot: filled in M2/M7 */
-  world: Record<string, unknown>;
+  /** World sub-domains: forest, field, mine. iter-009 M3. */
+  world: {
+    forest?: ForestState;
+    field?: FieldState;
+    mine?: MineState;
+    [key: string]: unknown;
+  };
   /** Slot: filled in M5/M6 */
   catalogState: { modifiers: unknown[] };
   /** Slot: filled in M7 */
@@ -205,11 +263,21 @@ export type EdgeName =
   | 'season'
   | 'year';
 
+/** Pre-loaded catalog cache for hot-path systems (BL-3). iter-009 M3. */
+export interface CatalogCache {
+  jobs?: Array<Record<string, any>>;
+  houseTypes?: Array<Record<string, any>>;
+  food?: Array<Record<string, any>>;
+  skills?: Array<Record<string, any>>;
+}
+
 /** Tick execution context passed to handlers */
 export interface TickContext {
   registry: import('../registry/registry.js').Registry;
   periodics: PeriodicTask[];
   emitTx?: (tx: TxEvent) => void;
+  /** Pre-loaded catalog arrays for BL-3 hot-path (optional). iter-009 M3. */
+  catalog?: CatalogCache;
 }
 
 /** RNG interface returned by makeRng */

@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "notes": "Reconstructed from config.js references",
+    "notes": "Reconstructed from config.js references. iter-009 M3: added stock kind for world stockpiles (trees/animals/ores/livestock/farmland). Stock resources live in state.world sub-domains, not in home.store.",
     "provenance": "derived",
     "source": "doc/original_source/modules/prosperity/services/config.js"
   },
@@ -29,6 +29,31 @@
       "id": "wood",
       "kind": "resource",
       "name": "Wood"
+    },
+    {
+      "id": "trees",
+      "kind": "stock",
+      "name": "Trees"
+    },
+    {
+      "id": "animals",
+      "kind": "stock",
+      "name": "Animals"
+    },
+    {
+      "id": "ores",
+      "kind": "stock",
+      "name": "Ore Deposits"
+    },
+    {
+      "id": "livestock",
+      "kind": "stock",
+      "name": "Livestock"
+    },
+    {
+      "id": "farmland",
+      "kind": "stock",
+      "name": "Farmland"
     }
   ]
 }
