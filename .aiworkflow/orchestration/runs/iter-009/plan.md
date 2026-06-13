@@ -5,7 +5,7 @@
 - **Status**: active
 
 ## Master Checklist
-- [ ] T-001: architect – Detailní návrh (Opus) tasků iter-009: T1 systémy forest/field/mine (stocky trees/animals/ores/livestock/farmland jako resource handlery, regenerace lesa 10 dní, mine/field periodika, area/used plocha), T2 joby+produkce (quarterDay: jobsProduction vč. builder slotu, autoAssignWorkers, accidents; assignJob command), T3 workerEfficiency (day, čistá formula + napojení na produkci), T4 skilly (skillsProgress per step, 2× kompenzace maxStep/2 dle K4, startSkill command, UI), T5 UI obrazovky forest/field/mine/jobs. Plus BL-3 (getCatalog cache mimo hot-path). Model: Opus.
+- [x] T-001: architect – Detailní návrh (Opus) tasků iter-009: T1 systémy forest/field/mine (stocky trees/animals/ores/livestock/farmland jako resource handlery, regenerace lesa 10 dní, mine/field periodika, area/used plocha), T2 joby+produkce (quarterDay: jobsProduction vč. builder slotu, autoAssignWorkers, accidents; assignJob command), T3 workerEfficiency (day, čistá formula + napojení na produkci), T4 skilly (skillsProgress per step, 2× kompenzace maxStep/2 dle K4, startSkill command, UI), T5 UI obrazovky forest/field/mine/jobs. Plus BL-3 (getCatalog cache mimo hot-path). Model: Opus.
 - [ ] T-002: coder – Implementace (Sonnet) dle návrhu; tsc/test/grep + catch-up-safe. Model: Sonnet.
 - [ ] T-003: tester – Test loop (Sonnet): tabulkové testy produkce/efficiency proti referencím, catch-up-safe invariant nových systémů, save round-trip, PWA smoke. Model: Sonnet.
 - [ ] T-004: reviewer – Review gate (Opus, právo re-run): pořadí uvnitř dne ověřeno proti zdroji a zapsáno do tickOrder (věrnost §4.3). Model: Opus.

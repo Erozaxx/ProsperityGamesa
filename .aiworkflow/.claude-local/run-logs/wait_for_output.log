@@ -54,3 +54,10 @@
 09:16:19 [WAIT] 
 09:16:19 [WAIT] READY ALL 1/1 files ready after 0s
 09:16:19 [WAIT]   ✓ agents/architect/artifacts/final/design_iter-008_T-001.md (ready at 0s)
+11:31:58 [WAIT] Starting. Waiting for 1 file(s). Timeout: 10s, interval: 5s
+11:31:58 [WAIT] WAITING for 1 file(s) (timeout: 10s):
+11:31:58 [WAIT]   - agents/architect/artifacts/final/design_iter-009_T-001.md
+11:31:58 [WAIT]   READY agents/architect/artifacts/final/design_iter-009_T-001.md (0s, 51065 bytes) — 0 remaining
+11:31:58 [WAIT] 
+11:31:58 [WAIT] READY ALL 1/1 files ready after 0s
+11:31:58 [WAIT]   ✓ agents/architect/artifacts/final/design_iter-009_T-001.md (ready at 0s)
