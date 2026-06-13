@@ -5,3 +5,10 @@
 00:28:27 [WAIT] 
 00:28:27 [WAIT] READY ALL 1/1 files ready after 0s
 00:28:27 [WAIT]   ✓ agents/project-manager/artifacts/final/iteration_master_plan_iter-003_T-001.md (ready at 0s)
+00:35:16 [WAIT] Starting. Waiting for 1 file(s). Timeout: 15s, interval: 5s
+00:35:16 [WAIT] WAITING for 1 file(s) (timeout: 15s):
+00:35:16 [WAIT]   - agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md
+00:35:16 [WAIT]   READY agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md (0s, 17060 bytes) — 0 remaining
+00:35:16 [WAIT] 
+00:35:16 [WAIT] READY ALL 1/1 files ready after 0s
+00:35:16 [WAIT]   ✓ agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md (ready at 0s)

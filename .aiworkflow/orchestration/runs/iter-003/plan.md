@@ -7,7 +7,7 @@
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
 - [x] T-001: project-manager – Z architektury (`agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md`) a milníků M0–M9 vytvořit kompletní end-to-end plán VŠECH iterací do cíle. Milník ≠ nutně 1 iterace; řez podle komplexity. Pro každou iteraci: tasky s odhadem komplexity + doporučeným modelem (Opus návrh tasku / Sonnet provedení), závislosti, DoD a povinný závěrečný test loop (Sonnet/Haiku tester) + review gate (Opus reviewer s pravomocí re-run). Model: Fable.
-- [ ] T-002: reviewer – Review plánu (úplnost cesty M0→cíl, správnost řezu tasků na Opus-návrh+Sonnet-provedení, závislosti/kritická cesta, konzistence test loop + review gate u každé iterace). Všechny nálezy, nejen blockery. Model: Opus.
+- [x] T-002: reviewer – Review plánu (úplnost cesty M0→cíl, správnost řezu tasků na Opus-návrh+Sonnet-provedení, závislosti/kritická cesta, konzistence test loop + review gate u každé iterace). Všechny nálezy, nejen blockery. Model: Opus.
 - [ ] T-003: project-manager – Zapracovat všechny nálezy z review do plánu + rework note. Model: Fable.
 - [ ] T-004: human – Review a schválení kompletního plánu uživatelem (blocker před zahájením implementačních iterací)
 - [ ] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)

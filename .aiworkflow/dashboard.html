@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T00:28:41Z",
+  "generated": "2026-06-13T00:35:16Z",
   "iteration": {
     "id": "iter-003",
     "goal": "Cizelovat plán – ze schválené architektury a milníků (M0–M9) vytvořit kompletní end-to-end plán všech iterací, nařezaný tak, aby tasky šly detailně navrhnout Opus agentem a provést Sonnet agentem, s povinným test loop (Sonnet/Haiku tester) + review gate (Opus reviewer, právo re-run) na konci každé iterace.",
@@ -396,7 +396,7 @@ const DATA = {
       {
         "id": "T-002",
         "text": "reviewer – Review plánu (úplnost cesty M0→cíl, správnost řezu tasků na Opus-návrh+Sonnet-provedení, závislosti/kritická cesta, konzistence test loop + review gate u každé iterace). Všechny nálezy, nejen blockery. Model: Opus.",
-        "done": false
+        "done": true
       },
       {
         "id": "T-003",
@@ -415,7 +415,7 @@ const DATA = {
       }
     ],
     "total": 5,
-    "done_count": 1
+    "done_count": 2
   },
   "closed_iterations": [
     "iter-001",
@@ -597,10 +597,10 @@ const DATA = {
       "slug": "reviewer",
       "status": "done",
       "task_id": "T-002",
-      "brief": "BRIEF-006",
-      "iteration": "iter-002",
-      "started": "2026-06-12",
-      "completed": "2026-06-12"
+      "brief": "BRIEF-009",
+      "iteration": "iter-003",
+      "started": "2026-06-13",
+      "completed": "2026-06-13"
     },
     {
       "slug": "security",
@@ -718,8 +718,17 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-12T22:28:21Z",
-      "description": "review návrhu architektury hotová"
+      "completed": "2026-06-13T00:34:45Z",
+      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md",
+      "type": "final",
+      "name": "review_iteration_master_plan_iter-003_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T00:34:45Z",
+      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
     },
     {
       "agent": "reviewer",
@@ -727,8 +736,8 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-12T22:28:21Z",
-      "description": "review návrhu architektury hotová"
+      "completed": "2026-06-13T00:34:45Z",
+      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
     }
   ],
   "metrics": {
@@ -740,7 +749,8 @@ const DATA = {
     }
   },
   "agent_tokens": {
-    "project-manager": 83591
+    "project-manager": 83591,
+    "reviewer": 94224
   }
 };
 
