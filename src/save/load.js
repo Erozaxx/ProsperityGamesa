@@ -169,6 +169,16 @@ function applyPayload(state, payload) {
   }
 
   state.battle = payload.battle ?? null;
+
+  // council: accounting state (iter-010 M4a)
+  if (payload.council) {
+    state.council = { current: payload.council.current, history: payload.council.history || [] };
+  }
+
+  // home.notEnoughMilitaryFunding (iter-010 M4a)
+  if (payload.home && payload.home.notEnoughMilitaryFunding !== undefined) {
+    state.home.notEnoughMilitaryFunding = payload.home.notEnoughMilitaryFunding;
+  }
 }
 
 /**

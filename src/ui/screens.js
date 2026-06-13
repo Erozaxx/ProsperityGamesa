@@ -5,7 +5,41 @@
  * Each screen is a pure component: receives snapshot + send, reads via selectors.
  */
 import { html } from '../vendor/preact.standalone.js';
-import { selectWorld, selectJobs, selectSkills, selectWorkforce } from './selectors.js';
+import { selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance } from './selectors.js';
+
+// ---------------------------------------------------------------------------
+// CouncilScreen
+// ---------------------------------------------------------------------------
+
+/**
+ * Council/finance screen: shows gold, tax rate, last monthly report.
+ * @param {{ snapshot: import('../core/state/types.js').GameState, send: (type: string, params?: object) => {ok: boolean, error?: string} }} props
+ */
+export function CouncilScreen({ snapshot, send }) {
+  const finance = selectFinance(snapshot);
+  const r = finance.lastReport;
+
+  return html`
+    <div class="screen screen-council">
+      <h2>Rada – Finance</h2>
+      <dl>
+        <dt>Zlato</dt><dd>${finance.gold}</dd>
+        <dt>Daňová sazba</dt><dd>${finance.taxRate}×
+          <button onClick=${() => send('setTaxRate', { rate: finance.taxRate - 1 })}>−</button>
+          <button onClick=${() => send('setTaxRate', { rate: finance.taxRate + 1 })}>+</button>
+        </dd>
+        ${finance.notEnoughMilitaryFunding ? html`<dt>Upozornění</dt><dd class="warning">Nedostatek financí na vojsko!</dd>` : null}
+      </dl>
+      ${r ? html`
+        <h3>Minulý měsíc (${r.month}/${r.year})</h3>
+        <dl>
+          <dt>Příjmy</dt><dd>${r.goldEarned} zlata</dd>
+          <dt>Výdaje</dt><dd>${r.goldSpent} zlata</dd>
+          <dt>Bilance</dt><dd>${r.goldEarned - r.goldSpent} zlata</dd>
+        </dl>
+      ` : html`<p class="empty-state">Žádná uzavřená účetní zpráva zatím.</p>`}
+    </div>`;
+}
 
 // ---------------------------------------------------------------------------
 // ForestScreen

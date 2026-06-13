@@ -2,13 +2,20 @@
  * setTaxRate command – sets player tax rate (clamped to [rateMin, rateMax]).
  * iter-010 M4a.
  */
+
+/**
+ * @typedef {import('../state/types.js').GameState} GameState
+ * @typedef {import('./dispatch.js').CommandRegistry} CommandRegistry
+ * @typedef {import('./dispatch.js').CommandResult} CommandResult
+ */
+
 import { registerCommand } from './dispatch.js';
 import { BALANCE } from '../balance/balance.js';
 
 /**
- * @param {object} state
+ * @param {GameState} state
  * @param {{ rate?: unknown }} params
- * @returns {{ ok: boolean, error?: string }}
+ * @returns {CommandResult}
  */
 export function setTaxRate(state, params) {
   const rate = params.rate;
@@ -22,7 +29,7 @@ export function setTaxRate(state, params) {
 }
 
 /**
- * @param {object} creg
+ * @param {CommandRegistry} creg
  */
 export function registerSetTaxRate(creg) {
   registerCommand(creg, 'setTaxRate', setTaxRate);

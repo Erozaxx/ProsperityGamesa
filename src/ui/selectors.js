@@ -92,6 +92,21 @@ export function selectWorkforce(s) {
 }
 
 /**
+ * Selects finance/council state for display.
+ * @param {GameState} s
+ * @returns {{ gold: number, taxRate: number, lastReport: import('../core/state/types.js').MonthlyReport | null, notEnoughMilitaryFunding: boolean }}
+ */
+export function selectFinance(s) {
+  const last = (s.council && s.council.history[0]) || null;
+  return {
+    gold: s.player.gold,
+    taxRate: s.player.taxRate ?? 1,
+    lastReport: last,
+    notEnoughMilitaryFunding: !!(s.home && s.home.notEnoughMilitaryFunding),
+  };
+}
+
+/**
  * Selects world resource areas (forest/field/mine) for display.
  * @param {GameState} s
  * @returns {{

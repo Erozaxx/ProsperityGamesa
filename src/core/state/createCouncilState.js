@@ -3,6 +3,8 @@
  */
 
 /**
+ * @param {number} month
+ * @param {number} year
  * @returns {{ month: number, year: number, goldEarned: number, goldSpent: number, byCause: Record<string,number>, consumed: Record<string,number>, produced: Record<string,number> }}
  */
 export function emptyReport(month, year) {

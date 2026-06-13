@@ -3,6 +3,12 @@
  * Source: home.js:767-782. iter-010 M4a.
  * gap G-BUILDING-UPKEEP (M5): building upkeep (taxCenter/cityGuardHQ/hospital/inn) not yet implemented.
  */
+
+/**
+ * @typedef {import('../state/types.js').GameState} GameState
+ * @typedef {import('../state/types.js').TickContext} TickContext
+ */
+
 import { pay, canAfford } from '../resources/transactions.js';
 import { BALANCE } from '../balance/balance.js';
 import { militaryUpkeep } from '../balance/formulas.js';
@@ -10,9 +16,9 @@ import { logEntry } from '../engine/log.js';
 
 /**
  * upkeep.military – month edge, order 30. Source: home.js:770-782.
- * @param {object} state
+ * @param {GameState} state
  * @param {object} _params
- * @param {object} ctx
+ * @param {TickContext} ctx
  */
 export function upkeepMilitary(state, _params, ctx) {
   const w = state.player.totWarriors || 0;

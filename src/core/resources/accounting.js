@@ -3,12 +3,18 @@
  * Does NOT mutate payment logic – called from ctx.emitTx which pay/grant emit.
  * iter-010 M4a.
  */
+
+/**
+ * @typedef {import('../state/types.js').GameState} GameState
+ * @typedef {import('../state/types.js').TxEvent} TxEvent
+ */
+
 import { emptyReport } from '../state/createCouncilState.js';
 
 /**
  * Record a single txEvent into the current monthly report.
- * @param {object} state
- * @param {{ key: string, amount: number, cause: string, step: number }} tx
+ * @param {GameState} state
+ * @param {TxEvent} tx
  */
 export function recordTx(state, tx) {
   if (!state.council) return; // defensive (old save without council → migration will add it)
@@ -25,7 +31,7 @@ export function recordTx(state, tx) {
 
 /**
  * Close current month (month edge, LAST order=40). Push current into history, open new.
- * @param {object} state
+ * @param {GameState} state
  * @param {object} _params
  * @param {object} _ctx
  */

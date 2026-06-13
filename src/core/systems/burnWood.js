@@ -3,14 +3,20 @@
  * Source: home.js:470-498. iter-010 M4a.
  * gap G-FIREWOOD-SOURCE (M5): no firewood producer in M4a; canAfford will mostly be false.
  */
+
+/**
+ * @typedef {import('../state/types.js').GameState} GameState
+ * @typedef {import('../state/types.js').TickContext} TickContext
+ */
+
 import { pay, canAfford } from '../resources/transactions.js';
 import { firewoodNeeds } from '../balance/formulas.js';
 
 /**
  * burnWood – day edge, order 60 (after meal1).
- * @param {object} state
+ * @param {GameState} state
  * @param {object} _params
- * @param {object} ctx
+ * @param {TickContext} ctx
  */
 export function burnWood(state, _params, ctx) {
   const cw = (state.home.workforce && state.home.workforce.assigned) || state.home.population.total;

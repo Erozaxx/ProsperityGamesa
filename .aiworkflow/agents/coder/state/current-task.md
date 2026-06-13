@@ -1,21 +1,20 @@
 # Current Task
 
-- **Task ID**: T-002 (RE-RUN 1)
-- **Brief**: BRIEF-033rr (iter-009 M3 RE-RUN: BLOCKER-1 commands+catalog, BLOCKER-2 UI, SUGGESTION-1 forest fire)
-- **Iteration**: iter-009
+- **Task ID**: T-002 (iter-010 M4a CONTINUATION)
+- **Brief**: BRIEF-037b (iter-010 M4a continuation – fix 6 tsc errors + wiring)
+- **Iteration**: iter-010
 - **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
-## Checklist (iter-009 T-002 RE-RUN 1)
-- [x] BLOCKER-1: Verify registerAssignJob + registerStartSkill + ctx.catalog in bootstrapEngine (main.js)
-- [x] BLOCKER-1: Bootstrap/registration test (test/boot-integration.test.js – 4 new tests)
-- [x] BLOCKER-2: selectJobs/selectSkills/selectWorkforce/selectWorld selectors (src/ui/selectors.js)
-- [x] BLOCKER-2: ForestScreen/JobsScreen/SkillsScreen (src/ui/screens.js)
-- [x] BLOCKER-2: App.js tabbed navigation wiring (Přehled/Příroda/Práce/Dovednosti)
-- [x] BLOCKER-2: UI selector tests (test/ui-selectors.test.js – 7 new tests)
-- [x] SUGGESTION-1: forest fire denominator → BALANCE.forest.maxTrees (328327) in forest.js
-- [x] SUGGESTION-1: Fix extended tests curTrees setup (maxTrees-100)
+## Checklist (iter-010 T-002 M4a)
+- [x] Krok 0: Fix tsc errors – add @typedef GameState/TickContext/CommandRegistry/TxEvent to setTaxRate.js, accounting.js, taxes.js, burnWood.js, upkeep.js; fix emptyReport param types in createCouncilState.js
+- [x] Krok 1: WIRING – ctx.emitTx = tx => recordTx(state, tx) in bootSequence (main.js) – already done
+- [x] Krok 1: WIRING – registerSetTaxRate in bootstrapEngine (main.js) – already done
+- [x] Krok 1: WIRING – closeMonth in tickOrder (month order 40, last) – already done
+- [x] Krok 1: load.js applyPayload – add council + home.notEnoughMilitaryFunding restoration
+- [x] Krok 2: UI – CouncilScreen, selectFinance, App.js tab Rada – already done
+- [x] Fix stale tests in persist.test.js (MIGRATIONS.length now 1, not 0)
 - [x] tsc: 0 errors
-- [x] lint:core: OK (41 files)
-- [x] node --test: 633 pass, 0 fail
+- [x] lint:core: OK (47 files)
+- [x] node --test: 668 pass, 0 fail

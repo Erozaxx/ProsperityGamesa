@@ -2,6 +2,12 @@
  * Tax collection systems: localTaxes (5days) and monthlyTaxes (month).
  * Source intent: home.js:825-831 (local), home.js:678-694 (monthly). iter-010 M4a.
  */
+
+/**
+ * @typedef {import('../state/types.js').GameState} GameState
+ * @typedef {import('../state/types.js').TickContext} TickContext
+ */
+
 import { grant } from '../resources/transactions.js';
 import { BALANCE } from '../balance/balance.js';
 import { localTaxAmount, monthlyTaxAmount } from '../balance/formulas.js';
@@ -9,7 +15,7 @@ import { logEntry } from '../engine/log.js';
 
 /**
  * curWorkers proxy: workforce.assigned (gap G-TAX-CURWORKERS).
- * @param {object} state
+ * @param {GameState} state
  * @returns {number}
  */
 function curWorkers(state) {
@@ -19,9 +25,9 @@ function curWorkers(state) {
 
 /**
  * localTaxes – 5days edge, order 10. Source: home.js:825-831.
- * @param {object} state
+ * @param {GameState} state
  * @param {object} _params
- * @param {object} ctx
+ * @param {TickContext} ctx
  */
 export function localTaxes(state, _params, ctx) {
   const cw = curWorkers(state);
@@ -32,9 +38,9 @@ export function localTaxes(state, _params, ctx) {
 
 /**
  * monthlyTaxes – month edge, order 20. Source: home.js:678-694,843-848.
- * @param {object} state
+ * @param {GameState} state
  * @param {object} _params
- * @param {object} ctx
+ * @param {TickContext} ctx
  */
 export function monthlyTaxes(state, _params, ctx) {
   const cw = curWorkers(state);
