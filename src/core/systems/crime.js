@@ -11,15 +11,17 @@
 import { BALANCE } from '../balance/balance.js';
 import { crimeCount } from '../balance/formulas.js';
 import { makeRng } from '../engine/rng.js';
+import { pay } from '../resources/transactions.js';
 
 /**
  * Crime daily - noon edge, order 40.
  * Adjusts crime level and applies gold loss from incidents.
+ * CF fix (iter-011 M4b): gold loss now via pay() → emitTx (DA5 grep-gate clean).
  * @param {GameState} state
  * @param {object} _params
- * @param {TickContext} _ctx
+ * @param {TickContext} ctx
  */
-export function crimeDaily(state, _params, _ctx) {
+export function crimeDaily(state, _params, ctx) {
   // Consume RNG to advance stream (keeps determinism even if no crime yet)
   makeRng(state, 'population');
 
@@ -37,10 +39,13 @@ export function crimeDaily(state, _params, _ctx) {
   const delta = basePerDay - guardDampening;
   crime.level = Math.min(1, Math.max(0, crime.level + delta));
 
-  // Gold loss from crime incidents
+  // Gold loss from crime incidents (CF fix: use pay() resource layer, no direct mutation)
   const incidents = crimeCount(pop, crime.level, BALANCE.crime);
   if (incidents > 0 && state.player && state.player.gold > 0) {
     const goldLoss = Math.min(Math.floor(incidents * 0.5), state.player.gold);
-    state.player.gold = Math.max(0, state.player.gold - goldLoss);
+    if (goldLoss > 0) {
+      // pay() is atomic and emits txEvent so crime:loss appears in council accounting
+      pay(state, { gold: goldLoss }, 'crime:loss', ctx, state.engine.curStep);
+    }
   }
 }

@@ -18,11 +18,13 @@ export const PERSIST_SCHEMA = {
   // home.jobs: per id { number, curStep }
   // home.workforce: { assigned } (total is derived from housing)
   // home.skills: per id { progressing, curStep } (progPct is DERIVED – not saved)
-  world:      ['zones', 'factions', 'forest', 'field', 'mine'],
+  world:      ['zones', 'factions', 'forest', 'field', 'mine', 'marketState', 'caravan'],
   // world.forest: { curTrees, curAnimals, saplings, health, timeSinceLastFire, lastFire, consecutiveNoAnimal }
   // world.field:  { curLivestock, rodentInfestation, usedFarmLand, inspectTime }
   // world.mine:   { curOres }
   // world.zones, world.factions: legacy M7 placeholders preserved
+  // world.marketState: per goodsId {available, max, baseline}  iter-011 M4b
+  // world.caravan: {capacity, speed, sentOut, recGoods}  iter-011 M4b
   battle:     null,  // null = save entire or keep null
 };
 

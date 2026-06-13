@@ -125,6 +125,21 @@ export interface SkillState {
   progPct: number;  // 0..100 (derived, not persisted)
 }
 
+/** Market entry for one good: available supply, max, and mean-reversion baseline. iter-011 M4b. */
+export interface MarketEntry {
+  available: number;
+  max: number;
+  baseline: number;
+}
+
+/** Caravan state (under state.world). iter-011 M4b. */
+export interface CaravanState {
+  capacity: number;
+  speed: number;
+  sentOut: number;
+  recGoods: Record<string, number>;
+}
+
 /** Workforce summary */
 export interface WorkforceState {
   total: number;    // derived from housing workerSlots (not persisted directly)
@@ -234,11 +249,15 @@ export interface GameState {
   player: PlayerState;
   /** Home settlement state */
   home: HomeState;
-  /** World sub-domains: forest, field, mine. iter-009 M3. */
+  /** World sub-domains: forest, field, mine, market, caravan. iter-009 M3, iter-011 M4b. */
   world: {
     forest?: ForestState;
     field?: FieldState;
     mine?: MineState;
+    /** Client-side market supply per good. iter-011 M4b. */
+    marketState?: Record<string, MarketEntry>;
+    /** Caravan trade state. iter-011 M4b. */
+    caravan?: CaravanState;
     [key: string]: unknown;
   };
   /** Slot: filled in M5/M6 */
@@ -300,6 +319,8 @@ export interface CatalogCache {
   houseTypes?: Array<Record<string, any>>;
   food?: Array<Record<string, any>>;
   skills?: Array<Record<string, any>>;
+  /** Goods catalog for market init. iter-011 M4b. */
+  goods?: Array<Record<string, any>>;
 }
 
 /** Tick execution context passed to handlers */

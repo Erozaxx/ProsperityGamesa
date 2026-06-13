@@ -53,6 +53,35 @@ export const MIGRATIONS = [
       return p;
     },
   },
+  {
+    from: 2,
+    to: 3,
+    /**
+     * v2→v3: adds world.marketState and world.caravan for M4b market+caravan. iter-011 M4b.
+     * marketState is set to {} – marketInit fills it from goods catalog on next boot (idempotent).
+     * @param {Record<string, any>} payload
+     * @returns {Record<string, any>}
+     */
+    migrate: (payload) => {
+      const p = /** @type {Record<string, any>} */ ({ ...payload });
+      p.world = { ...p.world };
+      if (!p.world.marketState) {
+        p.world.marketState = {}; // marketInit fills from catalog on boot
+      }
+      if (!p.world.caravan) {
+        p.world.caravan = {
+          capacity: 10000,
+          speed: 0,
+          sentOut: 0,
+          recGoods: {},
+        };
+      }
+      if (p.meta) {
+        p.meta = { ...p.meta, saveVersion: 3 };
+      }
+      return p;
+    },
+  },
 ];
 
 /**

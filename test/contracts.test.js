@@ -25,6 +25,7 @@ import { applyPersist } from '../src/save/persistSchema.js';
 import { loadAndReconstruct } from '../src/save/load.js';
 import { battleStep } from '../src/core/systems/battle.js';
 import { worldTick } from '../src/core/systems/world.js';
+import { getGoldValue, marketInject, marketInit } from '../src/core/systems/market.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -49,7 +50,7 @@ function createCtx() {
 
 before(() => {
   clearCatalogs();
-  for (const name of ['resources', 'food', 'houseTypes', 'jobs', 'military', 'achievements']) {
+  for (const name of ['resources', 'food', 'houseTypes', 'jobs', 'military', 'achievements', 'goods']) {
     loadCatalog(name, loadJson(name));
   }
   loadCatalog('population', loadJson('population'));
@@ -229,29 +230,59 @@ describe('scheduled event survives save/load', () => {
 });
 
 // -----------------------------------------------------------------------
-// 4. S-06 NEGATIVE: world.js must not reference goldValue or market.inject
+// 4. S-06 POSITIVE: getGoldValue and marketInject are exported and functional (M4b+)
+// Previously negative (world.js must not call goldValue/market.inject before M4).
+// From M4b, the market exists and these APIs are live – contract flipped to positive.
 // -----------------------------------------------------------------------
-describe('S-06 contract: world.js must not call goldValue or market.inject', () => {
-  it('world.js source does not reference goldValue', () => {
-    const worldSrc = readFileSync(
-      new URL('../src/core/systems/world.js', import.meta.url),
-      'utf8'
-    );
-    assert.ok(
-      !worldSrc.includes('goldValue'),
-      'world.js must not reference goldValue before M4'
-    );
+describe('S-06 contract: getGoldValue and marketInject are exported and functional', () => {
+  /** Helper: build a state with initialized marketState */
+  function createMarketState() {
+    const state = createState();
+    const goodsData = loadJson('goods');
+    marketInit(state, goodsData.goods);
+    return state;
+  }
+
+  it('getGoldValue is exported from core/systems/market.js', () => {
+    assert.strictEqual(typeof getGoldValue, 'function', 'getGoldValue must be a function');
   });
 
-  it('world.js source does not reference market.inject', () => {
-    const worldSrc = readFileSync(
-      new URL('../src/core/systems/world.js', import.meta.url),
-      'utf8'
-    );
-    assert.ok(
-      !worldSrc.includes('market.inject'),
-      'world.js must not reference market.inject before M4'
-    );
+  it('marketInject is exported from core/systems/market.js', () => {
+    assert.strictEqual(typeof marketInject, 'function', 'marketInject must be a function');
+  });
+
+  it('getGoldValue values a basket of tools at current market price', () => {
+    const state = createMarketState();
+    const value = getGoldValue(state, { tools: 10 });
+    assert.ok(typeof value === 'number' && value > 0, `getGoldValue({tools:10}) must be > 0, got ${value}`);
+    // At baseline (available=1000, max=2000, basePrice=25): priceOf=25.0, value=10×25=250
+    assert.ok(value > 0, 'value should be positive');
+  });
+
+  it('getGoldValue counts gold 1:1', () => {
+    const state = createMarketState();
+    const value = getGoldValue(state, { gold: 100 });
+    assert.strictEqual(value, 100, 'gold must be counted 1:1 in getGoldValue');
+  });
+
+  it('marketInject increases available (clamped to max)', () => {
+    const state = createMarketState();
+    const before = /** @type {any} */ (state.world.marketState).tools.available;
+    marketInject(state, 'tools', 500);
+    const after = /** @type {any} */ (state.world.marketState).tools.available;
+    assert.strictEqual(after, Math.min(before + 500, /** @type {any} */ (state.world.marketState).tools.max));
+  });
+
+  it('marketInject clamps to [0, max]', () => {
+    const state = createMarketState();
+    const m = /** @type {any} */ (state.world.marketState).tools;
+    marketInject(state, 'tools', m.max * 10); // hugely inject
+    assert.strictEqual(/** @type {any} */ (state.world.marketState).tools.available, m.max, 'clamp to max');
+  });
+
+  it('marketInject no-op for unknown good', () => {
+    const state = createMarketState();
+    assert.doesNotThrow(() => marketInject(state, 'unknown_good', 100));
   });
 
   it('worldTick does not mutate state (behavioral spy)', () => {

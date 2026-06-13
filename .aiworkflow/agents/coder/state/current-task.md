@@ -1,20 +1,22 @@
 # Current Task
 
-- **Task ID**: T-002 (iter-010 M4a CONTINUATION)
-- **Brief**: BRIEF-037b (iter-010 M4a continuation – fix 6 tsc errors + wiring)
-- **Iteration**: iter-010
+- **Task ID**: T-002 (iter-011 M4b market/caravans MVP)
+- **Brief**: brief_coder_T-002_iter-011.md
+- **Iteration**: iter-011
 - **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
-## Checklist (iter-010 T-002 M4a)
-- [x] Krok 0: Fix tsc errors – add @typedef GameState/TickContext/CommandRegistry/TxEvent to setTaxRate.js, accounting.js, taxes.js, burnWood.js, upkeep.js; fix emptyReport param types in createCouncilState.js
-- [x] Krok 1: WIRING – ctx.emitTx = tx => recordTx(state, tx) in bootSequence (main.js) – already done
-- [x] Krok 1: WIRING – registerSetTaxRate in bootstrapEngine (main.js) – already done
-- [x] Krok 1: WIRING – closeMonth in tickOrder (month order 40, last) – already done
-- [x] Krok 1: load.js applyPayload – add council + home.notEnoughMilitaryFunding restoration
-- [x] Krok 2: UI – CouncilScreen, selectFinance, App.js tab Rada – already done
-- [x] Fix stale tests in persist.test.js (MIGRATIONS.length now 1, not 0)
+## Checklist (iter-011 T-002 M4b)
+- [x] T1: marketState{available,max,baseline}, buyGoods, sellGoods (clamp, spread 1.35/0.6, pay/grant via goods handler)
+- [x] T2: marketDailyDrift (day, order 35, available+=0.2×(baseline−available))
+- [x] T3: getGoldValue wrapper + marketInject contract; S-06 negative test → positive (8 assertions)
+- [x] T4: sendCaravan + caravanReturns schedule (maxSteps=900×(30−speed))
+- [x] T5: selectMarket + MarketScreen + tab Trh in App.js
+- [x] Crime fix: pay(state,{gold},'crime:loss',ctx,step) instead of direct mutation (DA5 grep-gate)
+- [x] Persist v2→v3 migration, SAVE_VERSION=3
+- [x] goods.json: 5 seed commodities (tools/cloth/gems/spice/silk), K10-safe IDs
+- [x] iter006-catalog-schema.test.js: SEEDED_CATALOG_CONTENT constant to survive extract.mjs runs
 - [x] tsc: 0 errors
-- [x] lint:core: OK (47 files)
-- [x] node --test: 668 pass, 0 fail
+- [x] lint:core: OK
+- [x] node --test: 700 pass, 0 fail

@@ -25,10 +25,11 @@ import { byId } from '../catalog/loader.js';
  */
 export function marketInit(state, goods) {
   if (!state.world.marketState) state.world.marketState = {};
+  const ms = /** @type {Record<string, {available:number,max:number,baseline:number}>} */ (state.world.marketState);
   for (const good of goods) {
-    if (state.world.marketState[good.id]) continue; // idempotent: skip existing
+    if (ms[good.id]) continue; // idempotent: skip existing
     const baseline = Math.round(good.max * good.baselineFraction);
-    state.world.marketState[good.id] = {
+    ms[good.id] = {
       available: baseline,
       max: good.max,
       baseline,
@@ -48,7 +49,8 @@ export function marketInit(state, goods) {
  * @returns {number}
  */
 export function priceOf(state, goodsId) {
-  const m = state.world.marketState && state.world.marketState[goodsId];
+  const ms = /** @type {Record<string, {available:number,max:number,baseline:number}> | undefined} */ (state.world.marketState);
+  const m = ms && ms[goodsId];
   if (!m) return 0;
   const entry = /** @type {any} */ (byId(goodsId).entry);
   return marketPrice(entry.basePrice, m.available, m.max);
@@ -99,7 +101,8 @@ export function getGoldValue(state, basket) {
  * @param {number} qty  // positive = inject supply, negative = withdraw
  */
 export function marketInject(state, goodsId, qty) {
-  const m = state.world.marketState && state.world.marketState[goodsId];
+  const ms = /** @type {Record<string, {available:number,max:number,baseline:number}> | undefined} */ (state.world.marketState);
+  const m = ms && ms[goodsId];
   if (!m) return; // unknown good – no-op
   m.available = Math.min(Math.max(m.available + qty, 0), m.max);
 }
@@ -119,7 +122,7 @@ export function marketInject(state, goodsId, qty) {
  */
 export function marketDailyDrift(state, _params, _ctx) {
   const k = BALANCE.market.driftK;
-  const ms = state.world.marketState;
+  const ms = /** @type {Record<string, {available:number,max:number,baseline:number}> | undefined} */ (state.world.marketState);
   if (!ms) return;
   for (const id in ms) {
     const m = ms[id];

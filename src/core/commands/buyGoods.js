@@ -34,7 +34,7 @@ export function buyGoods(state, params) {
     return { ok: false, error: 'buyGoods: goodsId must be a non-empty string' };
   }
 
-  const ms = state.world.marketState;
+  const ms = /** @type {Record<string, {available:number,max:number,baseline:number}> | undefined} */ (state.world.marketState);
   if (!ms || !ms[goodsId]) {
     return { ok: false, error: `buyGoods: unknown goods "${goodsId}" (not in marketState)` };
   }
