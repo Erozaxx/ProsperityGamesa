@@ -27,6 +27,10 @@ import { createRegistry } from '../src/core/registry/registry.js';
 import { registerCorePeriodics } from '../src/core/engine/tickOrder.js';
 import { step } from '../src/core/engine/clock.js';
 import { bootSequence } from '../src/app/main.js';
+import { createCommandRegistry, dispatch } from '../src/core/commands/dispatch.js';
+import { registerSetSpeed } from '../src/core/commands/setSpeed.js';
+import { registerAssignJob } from '../src/core/commands/assignJob.js';
+import { registerStartSkill } from '../src/core/commands/startSkill.js';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -495,5 +499,97 @@ describe('full boot path: catalogs→save→catch-up→autosave→summary', () =
       'B-3: setInterval must be called for periodic autosave');
     assert.ok(wiringEvents.mountUICalledWithExtraProps,
       'B-4: mountUI must receive getExtraProps (for OfflineSummary/CatchupProgress/export/import)');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BLOCKER-1: Command registration bootstrap test
+// These tests fail if bootstrapEngine does NOT register assignJob/startSkill.
+// ---------------------------------------------------------------------------
+describe('BLOCKER-1: command registration bootstrap (assignJob + startSkill + ctx.catalog)', () => {
+  it('assignJob and startSkill are registered in creg after bootSequence', async () => {
+    let capturedSend = null;
+    const env = makeFakeEnv({
+      mountUI: (deps) => {
+        // bootSequence wires send = dispatch(creg, state, ...) – but we need to test creg directly.
+        // We cannot access creg from outside, so we test via send() dispatch: dispatch returns
+        // ok:false with error "unknown command" if the command is NOT registered.
+        capturedSend = deps.send ?? null;
+        return { requestRender: () => {} };
+      },
+    });
+
+    const result = await bootSequence(env);
+    assert.ok(result !== null, 'bootSequence should succeed');
+    assert.ok(typeof capturedSend === 'function', 'send must be provided to mountUI');
+
+    // assignJob: if not registered, dispatch returns {ok:false, error:"unknown command: assignJob"}
+    const assignJobResult = capturedSend('assignJob', { jobId: 'baker', delta: 0 });
+    assert.ok(
+      !assignJobResult.error?.includes('unknown command'),
+      `assignJob must be registered in creg (got: ${assignJobResult.error ?? 'ok'})`
+    );
+
+    // startSkill: if not registered, dispatch returns {ok:false, error:"unknown command: startSkill"}
+    const startSkillResult = capturedSend('startSkill', { skillId: 'woodworking' });
+    assert.ok(
+      !startSkillResult.error?.includes('unknown command'),
+      `startSkill must be registered in creg (got: ${startSkillResult.error ?? 'ok'})`
+    );
+  });
+
+  it('assignJob with delta=0 returns ok (no-op, proves registration works)', async () => {
+    let capturedSend = null;
+    const env = makeFakeEnv({
+      mountUI: (deps) => {
+        capturedSend = deps.send ?? null;
+        return { requestRender: () => {} };
+      },
+    });
+
+    const result = await bootSequence(env);
+    assert.ok(result !== null, 'bootSequence should succeed');
+
+    // delta=0 is a no-op in assignJob and always returns ok:true if command IS registered
+    const r = capturedSend('assignJob', { jobId: 'baker', delta: 0 });
+    assert.ok(r.ok, `assignJob delta=0 no-op should return ok:true (command registered). Got: ${JSON.stringify(r)}`);
+  });
+
+  it('regression: if creg only has setSpeed, assignJob dispatch returns unknown-command error', () => {
+    // This test directly verifies the regression scenario (what the bug looked like before the fix).
+    // If someone accidentally removes registerAssignJob from bootstrapEngine, this test catches it.
+    const creg = createCommandRegistry();
+    registerSetSpeed(creg); // only setSpeed, NOT assignJob/startSkill
+
+    const state = createInitialState();
+
+    const r1 = dispatch(creg, state, { type: 'assignJob', params: { jobId: 'baker', delta: 0 } });
+    assert.ok(!r1.ok, 'without registerAssignJob, dispatch must return ok:false');
+    assert.ok(r1.error?.includes('unknown command'), 'error must say "unknown command"');
+
+    const r2 = dispatch(creg, state, { type: 'startSkill', params: { skillId: 'woodworking' } });
+    assert.ok(!r2.ok, 'without registerStartSkill, dispatch must return ok:false');
+    assert.ok(r2.error?.includes('unknown command'), 'error must say "unknown command"');
+  });
+
+  it('regression: with all three registered, all commands are reachable', () => {
+    const creg = createCommandRegistry();
+    registerSetSpeed(creg);
+    registerAssignJob(creg);
+    registerStartSkill(creg);
+
+    const state = createInitialState();
+
+    // setSpeed
+    const r0 = dispatch(creg, state, { type: 'setSpeed', params: { speed: 1 } });
+    assert.ok(!r0.error?.includes('unknown command'), 'setSpeed must be reachable');
+
+    // assignJob delta=0 no-op
+    const r1 = dispatch(creg, state, { type: 'assignJob', params: { jobId: 'baker', delta: 0 } });
+    assert.ok(!r1.error?.includes('unknown command'), 'assignJob must be reachable after registration');
+
+    // startSkill (catalog not loaded → graceful degradation: unknown skillId still not "unknown command")
+    const r2 = dispatch(creg, state, { type: 'startSkill', params: { skillId: 'woodworking' } });
+    assert.ok(!r2.error?.includes('unknown command'), 'startSkill must be reachable after registration');
   });
 });

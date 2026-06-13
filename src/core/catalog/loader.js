@@ -21,7 +21,7 @@ let _byIdCache = null;
 
 /** Catalogs whose items have an "id" field (indexed by byId). */
 const ID_CATALOGS = new Set([
-  'achievements', 'buildings', 'food', 'houseTypes', 'jobs', 'military', 'resources',
+  'achievements', 'buildings', 'food', 'houseTypes', 'jobs', 'military', 'resources', 'skills',
 ]);
 
 /** Catalogs with named sections whose sub-items have an "id" field. */

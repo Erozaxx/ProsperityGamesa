@@ -19,10 +19,15 @@ import { populationMigration, populationRetirement } from '../systems/population
 import { healthBirths, healthDisease } from '../systems/health.js';
 import { crimeDaily } from '../systems/crime.js';
 import { meal1, meal2, foodSpoilage } from '../systems/food.js';
-import { jobsProduction } from '../systems/jobs.js';
+import { jobsProduction, jobsAccidents, autoAssignWorkers } from '../systems/jobs.js';
 import { housingSettlementLevel } from '../systems/housing.js';
 import { worldTick } from '../systems/world.js';
 import { battleTick } from '../systems/battle.js';
+import { skillsProgress } from '../systems/skills.js';
+import { workerEfficiencyDaily } from '../systems/workerEfficiency.js';
+import { forestRegen } from '../systems/forest.js';
+import { fieldDaily } from '../systems/field.js';
+import { mineDaily } from '../systems/mine.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).
@@ -141,28 +146,40 @@ export function registerCorePeriodics(registry) {
   register(registry, 'food.meal2', meal2);
   register(registry, 'food.spoilage', foodSpoilage);
   register(registry, 'jobs.production', jobsProduction);
+  register(registry, 'jobs.accidents', jobsAccidents);
+  register(registry, 'jobs.autoAssign', autoAssignWorkers);
   register(registry, 'housing.settlementLevel', housingSettlementLevel);
   register(registry, 'world.tick', worldTick);
   register(registry, 'battle.tick', battleTick);
+  register(registry, 'skills.progress', skillsProgress);
+  register(registry, 'workerEfficiency.daily', workerEfficiencyDaily);
+  register(registry, 'forest.regen', forestRegen);
+  register(registry, 'field.daily', fieldDaily);
+  register(registry, 'mine.daily', mineDaily);
 
   /** @type {PeriodicTask[]} */
   const periodics = [
     { id: 'population.migration',    every: 'step',       order: 10, systemFn: 'population.migration' },
-    { id: 'skills.progress',         every: 'step',       order: 20, systemFn: 'noop' },
+    { id: 'skills.progress',         every: 'step',       order: 20, systemFn: 'skills.progress' },
     { id: 'jobs.production',         every: 'quarterDay', order: 10, systemFn: 'jobs.production' },
+    { id: 'jobs.accidents',          every: 'quarterDay', order: 20, systemFn: 'jobs.accidents' },
+    { id: 'jobs.autoAssign',         every: 'quarterDay', order: 30, systemFn: 'jobs.autoAssign' },
     { id: 'health.births',           every: 'noon',       order: 10, systemFn: 'health.births' },
     { id: 'population.retirement',   every: 'noon',       order: 20, systemFn: 'population.retirement' },
     { id: 'health.disease',          every: 'noon',       order: 30, systemFn: 'health.disease' },
     { id: 'crime.daily',             every: 'noon',       order: 40, systemFn: 'crime.daily' },
     { id: 'food.meal2',              every: 'noon',       order: 50, systemFn: 'food.meal2' },
+    { id: 'workerEfficiency.daily',   every: 'day',        order: 5,  systemFn: 'workerEfficiency.daily' },
     { id: 'food.meal1',              every: 'day',        order: 10, systemFn: 'food.meal1' },
     { id: 'housing.settlementLevel', every: 'day',        order: 20, systemFn: 'housing.settlementLevel' },
-    { id: 'forest.regen',            every: '10days',     order: 10, systemFn: 'noop' },
+    { id: 'world.tick',              every: 'day',        order: 30, systemFn: 'world.tick' },
+    { id: 'field.daily',             every: 'day',        order: 40, systemFn: 'field.daily' },
+    { id: 'mine.daily',              every: 'day',        order: 50, systemFn: 'mine.daily' },
+    { id: 'forest.regen',            every: '10days',     order: 10, systemFn: 'forest.regen' },
     { id: 'localTaxes',              every: '5days',      order: 10, systemFn: 'noop' },
     { id: 'food.spoilage',           every: 'month',      order: 10, systemFn: 'food.spoilage' },
     { id: 'taxes.monthly',           every: 'month',      order: 20, systemFn: 'noop' },
     { id: 'season.change',           every: 'season',     order: 10, systemFn: 'noop' },
-    { id: 'world.tick',              every: 'day',        order: 30, systemFn: 'world.tick' },
     { id: 'battle.tick',             every: 'step',       order: 30, systemFn: 'battle.tick' },
   ];
 

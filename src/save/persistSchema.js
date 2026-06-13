@@ -2,6 +2,9 @@
  * Declarative persist allowlist. Only listed fields are saved.
  * Derived fields (capacity, etc.) are NEVER saved.
  * iter-007 M2a-1.
+ * iter-009 M3: added jobs, skills, workforce, workerEfficiency, world.forest/field/mine.
+ * Architecture §9.1 (K11): persist schema written simultaneously with systems.
+ * NEVER SAVE: progPct (derived), workforce.total (derived), area/used (derived).
  */
 
 export const PERSIST_SCHEMA = {
@@ -11,8 +14,15 @@ export const PERSIST_SCHEMA = {
   food:       ['store'],
   health:     ['diseaseActive', 'diseaseDaysLeft'],
   crime:      ['level'],
-  home:       ['settlementLevel'],  // + sub-domains
-  world:      ['zones', 'factions'],
+  home:       ['settlementLevel', 'workerEfficiency'],  // + sub-domains
+  // home.jobs: per id { number, curStep }
+  // home.workforce: { assigned } (total is derived from housing)
+  // home.skills: per id { progressing, curStep } (progPct is DERIVED – not saved)
+  world:      ['zones', 'factions', 'forest', 'field', 'mine'],
+  // world.forest: { curTrees, curAnimals, saplings, health, timeSinceLastFire, lastFire, consecutiveNoAnimal }
+  // world.field:  { curLivestock, rodentInfestation, usedFarmLand, inspectTime }
+  // world.mine:   { curOres }
+  // world.zones, world.factions: legacy M7 placeholders preserved
   battle:     null,  // null = save entire or keep null
 };
 
@@ -119,10 +129,42 @@ export function applyPersist(state) {
       home.crime = crime;
     }
 
+    // workerEfficiency (scalar)
+    if (s.home.workerEfficiency !== undefined) {
+      home.workerEfficiency = s.home.workerEfficiency;
+    }
+
+    // workforce (only assigned – total is derived)
+    if (s.home.workforce) {
+      home.workforce = { assigned: s.home.workforce.assigned || 0 };
+    }
+
+    // jobs: per id { number, curStep } (iter-009 M3)
+    if (s.home.jobs) {
+      /** @type {Record<string, unknown>} */
+      const jobs = {};
+      for (const [jobId, jobState] of Object.entries(s.home.jobs)) {
+        const j = /** @type {any} */ (jobState);
+        jobs[jobId] = { number: j.number || 0, curStep: j.curStep || 0 };
+      }
+      home.jobs = jobs;
+    }
+
+    // skills: per id { progressing, curStep } (progPct is DERIVED, not saved; iter-009 M3)
+    if (s.home.skills) {
+      /** @type {Record<string, unknown>} */
+      const skills = {};
+      for (const [skillId, skillState] of Object.entries(s.home.skills)) {
+        const sk = /** @type {any} */ (skillState);
+        skills[skillId] = { progressing: sk.progressing || false, curStep: sk.curStep || 0 };
+      }
+      home.skills = skills;
+    }
+
     payload.home = home;
   }
 
-  // world
+  // world: forest/field/mine sub-domains (iter-009 M3)
   if (s.world) {
     /** @type {Record<string, unknown>} */
     const world = {};

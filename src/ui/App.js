@@ -1,13 +1,25 @@
 /**
- * Root UI component: time/season readout + speed controls (pause / 1× / 2×).
- * Also displays population, food totals, and health status.
+ * Root UI component: HUD (time/season/speed/stats) + tabbed screens.
+ * BLOCKER-2 fix: adds Forest/Field/Mine (via ForestScreen), Jobs (JobsScreen), Skills (SkillsScreen).
+ *
+ * Tabs: Přehled (summary) | Příroda (forest/field/mine) | Práce (jobs) | Dovednosti (skills)
+ *
  * Reads a read-only snapshot; mutates ONLY via the injected send callback (command/intent API).
  * B-4: wires OfflineSummary, CatchupProgress, export/import.
  */
 import { html } from '../vendor/preact.standalone.js';
+import { useState } from '../vendor/preact.standalone.js';
 import { selectClock, selectSeason, selectSpeed } from './selectors.js';
 import { OfflineSummary } from './OfflineSummary.js';
 import { CatchupProgress } from './CatchupProgress.js';
+import { ForestScreen, JobsScreen, SkillsScreen } from './screens.js';
+
+const TABS = [
+  { id: 'overview', label: 'Přehled' },
+  { id: 'world', label: 'Příroda' },
+  { id: 'jobs', label: 'Práce' },
+  { id: 'skills', label: 'Dovednosti' },
+];
 
 /**
  * @param {Object} props
@@ -23,6 +35,7 @@ export function App({ snapshot, send, offlineSummary, catchupProgress, onDismiss
   const clock = selectClock(snapshot);
   const season = selectSeason(snapshot);
   const speed = selectSpeed(snapshot);
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Population display
   const pop = snapshot.home.population.total;
@@ -64,5 +77,33 @@ export function App({ snapshot, send, offlineSummary, catchupProgress, onDismiss
       ` : null}
       ${catchupProgress ? html`<${CatchupProgress} done=${catchupProgress.done} total=${catchupProgress.total} />` : null}
       ${offlineSummary && !catchupProgress ? html`<${OfflineSummary} model=${offlineSummary} onDismiss=${onDismissOfflineSummary ?? (() => {})} />` : null}
+
+      <nav class="tabs">
+        ${TABS.map(tab => html`
+          <button
+            key=${tab.id}
+            class=${'tab-btn' + (activeTab === tab.id ? ' active' : '')}
+            onClick=${() => setActiveTab(tab.id)}
+          >${tab.label}</button>
+        `)}
+      </nav>
+
+      <div class="tab-content">
+        ${activeTab === 'overview' ? html`
+          <div class="screen screen-overview">
+            <h2>Přehled</h2>
+            <dl>
+              <dt>Populace</dt><dd>${pop} (+${bornTotal}/-${diedTotal})</dd>
+              <dt>Jídlo</dt><dd>${totalFood}</dd>
+              <dt>Zdraví</dt><dd>${diseaseActive ? `Nemoc (${diseaseDaysLeft}d)` : 'OK'}</dd>
+              <dt>Zločin</dt><dd>${(crimeLevel * 100).toFixed(1)} %</dd>
+              <dt>Zlato</dt><dd>${snapshot.player.gold}</dd>
+            </dl>
+          </div>
+        ` : null}
+        ${activeTab === 'world' ? html`<${ForestScreen} snapshot=${snapshot} />` : null}
+        ${activeTab === 'jobs' ? html`<${JobsScreen} snapshot=${snapshot} send=${send} />` : null}
+        ${activeTab === 'skills' ? html`<${SkillsScreen} snapshot=${snapshot} send=${send} />` : null}
+      </div>
     </div>`;
 }

@@ -85,7 +85,7 @@ export const SCHEMAS = {
     itemShape: {
       id:   { type: 'string', required: true },
       name: { type: 'string', required: true },
-      kind: { type: 'string', required: true, enum: ['gold', 'techPt', 'goods', 'food', 'resource'] },
+      kind: { type: 'string', required: true, enum: ['gold', 'techPt', 'goods', 'food', 'resource', 'stock'] },
     },
   },
   sectors: {

@@ -1,21 +1,21 @@
 # Current Task
 
-- **Task ID**: T-002
-- **Brief**: BRIEF-029rr (iter-008 M2b RE-RUN 1)
-- **Iteration**: iter-008
+- **Task ID**: T-002 (RE-RUN 1)
+- **Brief**: BRIEF-033rr (iter-009 M3 RE-RUN: BLOCKER-1 commands+catalog, BLOCKER-2 UI, SUGGESTION-1 forest fire)
+- **Iteration**: iter-009
 - **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
-## Checklist (iter-008 T-002 RE-RUN 1 – B-1..B-4 + integrace)
-- [x] B-1: main.js volá loadAllCatalogs() → loadGame(SLOT_ID, catalog) → loadAndReconstruct
-- [x] B-2: po loadu spočítá missedMs → runCatchupBatch (chunky+yield+cap) → offlineSummary
-- [x] B-3: createAutosave napojen (periodic setInterval + lifecycle hide bypass), odstraněn raw saveGame v onHide
-- [x] B-4: exportToString/importFromString + OfflineSummary/CatchupProgress wire do App.js přes getExtraProps
-- [x] bootSequence(env) extrahována jako testovatelná čistá funkce (všechny browser deps injektovány)
-- [x] Integrační test boot-integration.test.js (12 testů, 5 suitů – B-1..B-4 + full path)
-- [x] Opraveny export-string.test.js (S-6 envelope: importFromString vrací {state, lastSimTimestamp})
-- [x] render.js: getExtraProps podpora pro extra App props
+## Checklist (iter-009 T-002 RE-RUN 1)
+- [x] BLOCKER-1: Verify registerAssignJob + registerStartSkill + ctx.catalog in bootstrapEngine (main.js)
+- [x] BLOCKER-1: Bootstrap/registration test (test/boot-integration.test.js – 4 new tests)
+- [x] BLOCKER-2: selectJobs/selectSkills/selectWorkforce/selectWorld selectors (src/ui/selectors.js)
+- [x] BLOCKER-2: ForestScreen/JobsScreen/SkillsScreen (src/ui/screens.js)
+- [x] BLOCKER-2: App.js tabbed navigation wiring (Přehled/Příroda/Práce/Dovednosti)
+- [x] BLOCKER-2: UI selector tests (test/ui-selectors.test.js – 7 new tests)
+- [x] SUGGESTION-1: forest fire denominator → BALANCE.forest.maxTrees (328327) in forest.js
+- [x] SUGGESTION-1: Fix extended tests curTrees setup (maxTrees-100)
 - [x] tsc: 0 errors
-- [x] lint:core: 33 files OK
-- [x] node --test: 541 pass, 0 fail
+- [x] lint:core: OK (41 files)
+- [x] node --test: 633 pass, 0 fail

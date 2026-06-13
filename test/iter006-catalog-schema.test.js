@@ -129,12 +129,15 @@ describe('catalog item counts match design spec', () => {
     );
   });
 
-  it('resources.json has exactly 5 items (gold, ore, stone, techPt, wood)', () => {
+  it('resources.json has base 5 items (gold, ore, stone, techPt, wood) plus M3 stock resources', () => {
     const cat = loadJson('resources');
     const items = /** @type {Array<{id: string}>} */(/** @type {Record<string, unknown>} */(cat)['resources']);
-    assert.strictEqual(items.length, 5);
-    const ids = items.map(r => r.id).sort();
-    assert.deepEqual(ids, ['gold', 'ore', 'stone', 'techPt', 'wood']);
+    // iter-009 M3: added stock resources (trees, animals, ores, livestock, farmland)
+    assert.ok(items.length >= 5, 'should have at least 5 resource items');
+    const ids = items.map(r => r.id);
+    for (const id of ['gold', 'ore', 'stone', 'techPt', 'wood']) {
+      assert.ok(ids.includes(id), `resources.json should contain "${id}"`);
+    }
   });
 
   it('population.json causesOfDeath has 14 entries', () => {
