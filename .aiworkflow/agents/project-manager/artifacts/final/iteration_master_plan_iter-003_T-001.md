@@ -76,14 +76,15 @@ Pokrytí: **M0 → iter-004+005 · M1 → iter-006 · M2 → iter-007+008 (povol
 ### 2.2 Kritická cesta a závislosti iterací
 
 ```
-iter-004 (M0a) → iter-005 (M0b) → iter-007 (M2a) → iter-008 (M2b) → iter-009 (M3)
-                       ▲                                                   │
-iter-006 (M1) ─────────┘ (M2a potřebuje katalogy: joby/jídlo/budovy)       ▼
-                                              iter-010 (M4a) → iter-011 (M4b) ══ MVP
-                                                                           │
-                              iter-012 (M5) → iter-013 (M6) → iter-014 (M7a) → iter-015 (M7b)
-                                                                           │
-                                              iter-016 (M8) → iter-017 (M9a) → iter-018 (M9b) ══ RELEASE
+iter-004 (M0a) ─→ iter-005 (M0b) ──┐
+      │                            ├─→ iter-007 (M2a) → iter-008 (M2b) → iter-009 (M3)
+      └─────────→ iter-006 (M1) ───┘                                          │
+   (obě hrany do iter-007 jsou TVRDÉ závislosti:                              ▼
+    M0b dává PWA/save, M1 katalogy – „M1 blokuje M2+")       iter-010 (M4a) → iter-011 (M4b) ══ MVP
+                                                                              │
+                                iter-012 (M5) → iter-013 (M6) → iter-014 (M7a) → iter-015 (M7b)
+                                                                              │
+                                                 iter-016 (M8) → iter-017 (M9a) → iter-018 (M9b) ══ RELEASE
 ```
 
 - **Kritická cesta**: iter-004 → 005 → 006 → 007 → 008 → 009 → 010 → 011 → 012 → 013 → 014 → 015 → 016 → 017 → 018 (řetěz je v podstatě lineární – každá iterace staví na předchozí).
