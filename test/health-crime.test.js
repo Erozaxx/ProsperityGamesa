@@ -229,3 +229,39 @@ describe('crimeDaily', () => {
     }
   });
 });
+
+// -----------------------------------------------------------------------
+// A3 (iter-012 T-007): crime pay clamp regression — crimeDaily never throws,
+// even on a broke settlement (gold < crime cost). Gold floors at 0 (no deficit).
+// No code change in crime.js; this guards the existing clamp + guards.
+// -----------------------------------------------------------------------
+describe('A3 crime no-throw invariant', () => {
+  it('does not throw across pop/gold combinations (broke settlements included)', () => {
+    for (const pop of [0, 1, 50, 1000, 10000]) {
+      for (const gold of [0, 1, 5, 100]) {
+        const state = createState();
+        state.home.population.total = pop;
+        state.home.crime.level = 1.0; // max crime → max incidents
+        state.player.gold = gold;
+
+        assert.doesNotThrow(
+          () => crimeDaily(state, {}, MOCK_CTX),
+          `crimeDaily must not throw (pop=${pop}, gold=${gold})`
+        );
+        assert.ok(state.player.gold >= 0, 'gold must never go negative (clamped at floor)');
+      }
+    }
+  });
+
+  it('clamps gold loss to available gold on a broke settlement', () => {
+    const state = createState();
+    state.home.population.total = 10000;
+    state.home.crime.level = 1.0;
+    state.player.gold = 2; // less than potential incident cost
+
+    crimeDaily(state, {}, MOCK_CTX);
+
+    // Never negative; at most all available gold is taken.
+    assert.ok(state.player.gold >= 0 && state.player.gold <= 2);
+  });
+});

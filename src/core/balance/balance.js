@@ -126,6 +126,12 @@ export const BALANCE = Object.freeze({
     workerEffMin: 0.25,
     /** Maximum worker efficiency clamp. Source: home.js:1909-1910 */
     workerEffMax: 2,
+    /**
+     * Global sanity hard-cap on total population (MVP safety, not balance tuning).
+     * iter-012 A4 (T-008): prevents runaway growth in tent-only (null-capacity) settlements.
+     * Housing capacity takes precedence when higher. provenance: approximated.
+     */
+    sanityMaxPop: 10000,
   },
 
   /** World/game mechanic activation thresholds. Source: dump constants */

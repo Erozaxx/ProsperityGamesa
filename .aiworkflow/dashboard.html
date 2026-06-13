@@ -382,49 +382,126 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T06:26:25Z",
+  "generated": "2026-06-13T22:54:10Z",
   "iteration": {
-    "id": "iter-005",
-    "goal": "M0b – PWA shell + save minimal + benchmark → M0 hotov: „prázdná\" hra instalovatelná offline PWA, save/load funguje, cena kroku změřena (synteticky, Q2/A2) a technický strop capu potvrzen/eskalován. Dle master plánu §3/iter-005 (T1–T5).",
+    "id": "iter-012",
+    "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Detailní návrh (Opus) tasků iter-005: T1 PWA shell (index.html + app/ bootstrap, rAF, visibilitychange/pagehide, vendorovaný preact+htm, minimální UI čas/sezóna/pauza přes commands), T2 manifest+SW (cache-first, verzovaný precache) + tools/ generátor precache manifestu, T3 IndexedDB save minimal (K1: promise wrapper, stores slots/saves, 1 slot + N=3 generace, lastSimTimestamp, fallback), T4 benchmark ceny kroku (synteticky Node + prohlížeč, report → potvrzení/eskalace capu 8h + D13), T5 navigator.storage.persist() + chybová obrazovka loaderu. Plus .github/workflows CI gate (carry-over SUGGESTION-1) a BUG-001 fix (assertSerializable WeakSet) odložen na M1. Model: Opus.",
-        "done": false
+        "text": "architect – Navrhnout architekturu řešení playability hardeningu (start seed přes BALANCE.start, resolver gold/techPt, crime pay clamp, populace cap, market UI overflow); struktura, dotčené moduly, alternativy, rizika, dopad na determinismus/save-hash",
+        "done": true
       },
       {
         "id": "T-002",
-        "text": "coder – Implementace (Sonnet) dle návrhu; tsc/test/grep + PWA artefakty. Model: Sonnet.",
-        "done": false
+        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery) → GO s podmínkami: 1 blocker (mylná A2 premisa), 3 major, 5 minor, 3 nit; viz DR-012-01",
+        "done": true
       },
       {
         "id": "T-003",
-        "text": "tester – Test loop (Sonnet): save round-trip, PWA smoke (install + offline start), determinismus po loadu, benchmark report. Model: Sonnet.",
-        "done": false
+        "text": "architect – Zapracovat nálezy z review (přepsáno §2/§3/§7/§9, re-diagnóza, pořadí A1→A4→A3→A5→A2(Option A), DAYS_PER_YEAR=364) → architecture_playability_iter-012_T-003.md (supersedes T-001)",
+        "done": true
       },
       {
         "id": "T-004",
-        "text": "reviewer – Review gate (Opus, právo re-run): DoD M0 komplet vč. benchmarku; nevyhovující benchmark → eskalace (Worker/cap), ne pokračování. Model: Opus.",
+        "text": "human – Review a schválení architektury uživatelem (blocker před implementací) → SCHVÁLENO (varianta „Schvaluji, implementuj\"; architektovo doporučení vč. A2 Option A)",
+        "done": true
+      },
+      {
+        "id": "T-005",
+        "text": "coder – Start seed: createInitialState předá katalog do factory + createHomeState/createPlayerState čtou BALANCE.start (population/gold/food/housing); fresh hra startuje populovaná (pop 50, gold 500) → CI zelená, smoke „Populace 50\". POZN: A1 seed odhalil reload-determinismus regres → DR-012-02, řeší T-013/T-014",
+        "done": true
+      },
+      {
+        "id": "T-006",
+        "text": "coder – Fix resolveru zdrojů (A2 Option A): resourceKindOf vrací pro 'gold'/'techPt' dedikovaný handler před byId lookupem; +test invariance s katalogem i bez",
+        "done": true
+      },
+      {
+        "id": "T-007",
+        "text": "coder – Crime pay robustnost (A3): crime.js beze změny logiky; +regresní no-throw testy (broke osada, pop/gold grid)",
+        "done": true
+      },
+      {
+        "id": "T-008",
+        "text": "coder – Sanity-cap populace (A4): denní sazba annualRate/DAYS_PER_YEAR (=364) v births/retirement + globální hard-cap sanityMaxPop=10000; deterministické, calcHousingDerivedFromCatalog nezměněna",
+        "done": true
+      },
+      {
+        "id": "T-009",
+        "text": "coder – Market UI overflow (A5): .table-scroll wrapper + responsivní CSS pro 6sl. market tabulku; bez přepisu komponenty",
+        "done": true
+      },
+      {
+        "id": "T-013",
+        "text": "architect – Rozhodnutí fixu reload-determinismu → Option A (rebuild-on-load): deriveWorkforceTotal helper + přepočet v load.js Step 5; B/C zamítnuty; DR-012-02 decided; design pro codera hotový",
+        "done": true
+      },
+      {
+        "id": "T-014",
+        "text": "coder – Option A (rebuild-on-load) aplikován a korektní (G1 plný hashState 16/16) + REVERT oslabeného G1 testu hotový. Odhalil hlubší preexist. díru (stale workforce.total=0 na 1. ticku spojitého simu) → eskalováno (NEMASKOVÁNO) → vyřešeno v T-016",
+        "done": true
+      },
+      {
+        "id": "T-015",
+        "text": "architect – Rozhodnutí dotažení → Derive-on-init (přepočet workforce.total v createInitialState přes deriveWorkforceTotal, jeden řádek). Varianta 2 (uznat testy křehké) zamítnuta jako maskování. Fixtures k regeneraci pro CI: ŽÁDNÉ (v repu nejsou stored golden hashe). DR-012-02 decided-extended. POZN: architekt DOPORUČUJE user-gate (behavior-change spojitého simu) → T-015a",
+        "done": true
+      },
+      {
+        "id": "",
+        "text": "T-015a: human – Gate SCHVÁLENO: uživatel zvolil „Derive-on-init\" (přepočet workforce.total v createInitialState; akceptována změna RNG-průběhu fresh-simu jako korektní)",
+        "done": true
+      },
+      {
+        "id": "T-016",
+        "text": "coder – Derive-on-init aplikován (createInitialState dopočte workforce.total přes deriveWorkforceTotal, single source of truth na 3 místech); precache regenerován (čistý diff, jen PRECACHE_VERSION). Plné `npm run ci` ZELENÉ (778/778), smoke OK, app-bootstrap 8/8 + export-string 12/12 + G1 16/16 + playability 9/9 zelené; tvar save v3 nezměněn",
+        "done": true
+      },
+      {
+        "id": "T-010",
+        "text": "tester – QA GO: npm run ci 778/778, smoke OK (pop=50), dlouhý sim 655200 kroků=2 roky bez crashe (pop 50→36, žádný kolaps), cap-stress overshoot=0, accounting Σtx==Δgold diff=0 (81k kroků), G1 plný hashState bit-shoda na 10 save-pointech (vč. krok 0/1/hran), save v3 bez workforce.total. Všech 6 AC PASS empiricky",
+        "done": true
+      },
+      {
+        "id": "T-011",
+        "text": "reviewer – Code review GO (0 blocker, 0 major, 3 minor, 4 nit). Determinismus core invariant potvrzen (deriveWorkforceTotal single source of truth na 3 místech, RNG/save tvar OK). Minor/nit → backlog (viz Retrospective). Reviewer: reopen není nutný",
+        "done": true
+      },
+      {
+        "id": "T-017",
+        "text": "coder – Oprava F-1 + F-2 (schváleno uživatelem po T-011). F-1: healthBirths (health.js) + populationMigration (population.js) nesmí REDUKOVAT už-over-cap loaded total (guard `pop>=sanityCap ? pop : min(...)`) dle R-A4-3 (koherentně v OBOU systémech). F-2: použít exportovaný `populationSanityCap()` helper i v health.js (žádná inline duplikace). + regress test (loaded over-cap save: porod/migrace total neshrinkne). Gate: plné `npm run ci` zelené, smoke OK, determinismus G1 nedotčen",
+        "done": false
+      },
+      {
+        "id": "T-012",
+        "text": "human – Schválení uzavření iterace (review výsledků před /close-iteration)",
         "done": false
       }
     ],
-    "total": 4,
-    "done_count": 0
+    "total": 18,
+    "done_count": 16
   },
   "closed_iterations": [
     "iter-001",
     "iter-002",
     "iter-003",
-    "iter-004"
+    "iter-004",
+    "iter-005",
+    "iter-006",
+    "iter-007",
+    "iter-008",
+    "iter-009",
+    "iter-010",
+    "iter-011"
   ],
   "agents": [
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-001 (iter-004)",
-      "brief": "context/inbox/brief_architect_T-001_iter-004.md (BRIEF-011)",
-      "iteration": "iter-004 (M0a)",
+      "task_id": "T-015 (iter-012)",
+      "brief": "context/inbox/brief_architect_T-015_iter-012.md (BRIEF-012-015)",
+      "iteration": "iter-012 (Playability & onboarding hardening)",
       "started": "2026-06-13",
       "completed": "2026-06-13"
     },
@@ -476,11 +553,11 @@ const DATA = {
     {
       "slug": "coder",
       "status": "done",
-      "task_id": "T-002",
-      "brief": "BRIEF-012",
-      "iteration": "iter-004",
+      "task_id": "T-016 (iter-012 reload-determinismus fix dotažení, Derive-on-init)",
+      "brief": "brief_coder_T-016_iter-012.md",
+      "iteration": "iter-012",
       "started": "2026-06-13",
-      "completed": "2026-06-13"
+      "completed": ""
     },
     {
       "slug": "content-writer",
@@ -593,9 +670,9 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-004",
-      "brief": "BRIEF-014",
-      "iteration": "iter-004",
+      "task_id": "T-011 (Code review celé implementace iter-012, playability A1-A5 + reload-determinismus fix)",
+      "brief": "BRIEF-012-011",
+      "iteration": "iter-012",
       "started": "2026-06-13",
       "completed": "2026-06-13"
     },
@@ -620,9 +697,9 @@ const DATA = {
     {
       "slug": "tester",
       "status": "done",
-      "task_id": "T-003",
-      "brief": "BRIEF-013",
-      "iteration": "iter-004",
+      "task_id": "T-010",
+      "brief": "BRIEF-012-010",
+      "iteration": "iter-012",
       "started": "2026-06-13",
       "completed": "2026-06-13"
     },
@@ -652,8 +729,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T05:54:07Z",
-      "description": "detailni navrh iter-004 (T1-T6 spec pro Sonnet)"
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
     },
     {
       "agent": "architect",
@@ -675,12 +752,30 @@ const DATA = {
     },
     {
       "agent": "architect",
+      "file": "agents/architect/artifacts/final/architecture_playability_iter-012_T-001.md",
+      "type": "final",
+      "name": "architecture_playability_iter-012_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/architecture_playability_iter-012_T-003.md",
+      "type": "final",
+      "name": "architecture_playability_iter-012_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T17:13:35Z",
+      "description": "revize architektury dle review hotová"
+    },
+    {
+      "agent": "architect",
       "file": "agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md",
       "type": "final",
       "name": "architecture_proposal_iter-002_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T05:54:07Z",
-      "description": "detailni navrh iter-004 (T1-T6 spec pro Sonnet)"
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
     },
     {
       "agent": "architect",
@@ -688,8 +783,89 @@ const DATA = {
       "type": "final",
       "name": "design_iter-004_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T05:54:07Z",
-      "description": "detailni navrh iter-004 (T1-T6 spec pro Sonnet)"
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-005_T-001.md",
+      "type": "final",
+      "name": "design_iter-005_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-006_T-001.md",
+      "type": "final",
+      "name": "design_iter-006_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-007_T-001.md",
+      "type": "final",
+      "name": "design_iter-007_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-008_T-001.md",
+      "type": "final",
+      "name": "design_iter-008_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-009_T-001.md",
+      "type": "final",
+      "name": "design_iter-009_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-010_T-001.md",
+      "type": "final",
+      "name": "design_iter-010_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-011_T-001.md",
+      "type": "final",
+      "name": "design_iter-011_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T16:53:21Z",
+      "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/fix_reload_determinism_complete_iter-012_T-015.md",
+      "type": "final",
+      "name": "fix_reload_determinism_complete_iter-012_T-015.md",
+      "task": "T-015",
+      "completed": "2026-06-13T20:13:57Z",
+      "description": "dotažení fixu reload-determinismu rozhodnuto"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/fix_reload_determinism_iter-012_T-013.md",
+      "type": "final",
+      "name": "fix_reload_determinism_iter-012_T-013.md",
+      "task": "T-013",
+      "completed": "2026-06-13T19:52:32Z",
+      "description": "fix decision pro reload-determinismus hotová"
     },
     {
       "agent": "architect",
@@ -706,8 +882,8 @@ const DATA = {
       "type": "final",
       "name": "rework_iter-002_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-12T22:40:03Z",
-      "description": "zapracování všech nálezů z review hotovo"
+      "completed": "2026-06-13T17:13:35Z",
+      "description": "revize architektury dle review hotová"
     },
     {
       "agent": "coder",
@@ -715,8 +891,107 @@ const DATA = {
       "type": "final",
       "name": "impl_iter-004_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T06:10:41Z",
-      "description": "implementace M0a engine core dle navrhu; tsc/test/grep vysledky v impl note"
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-005_T-002.md",
+      "type": "final",
+      "name": "impl_iter-005_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-006_T-002.md",
+      "type": "final",
+      "name": "impl_iter-006_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-007_T-002a.md",
+      "type": "final",
+      "name": "impl_iter-007_T-002a.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-007_T-002b.md",
+      "type": "final",
+      "name": "impl_iter-007_T-002b.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-008_T-002.md",
+      "type": "final",
+      "name": "impl_iter-008_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-009_T-002.md",
+      "type": "final",
+      "name": "impl_iter-009_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-010_T-002.md",
+      "type": "final",
+      "name": "impl_iter-010_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-011_T-002.md",
+      "type": "final",
+      "name": "impl_iter-011_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T14:08:00Z",
+      "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-012_T-005-009.md",
+      "type": "final",
+      "name": "impl_summary_iter-012_T-005-009.md",
+      "task": "T-005",
+      "completed": "2026-06-13T18:46:57Z",
+      "description": "implementace A1-A5 hotová, ci+smoke zelené (778 testů pass, smoke OK); deviace: balance.json sanityMaxPop nezrcadleno (gen. soubor), smoke.mjs type-only unblock (pre-existing red), latent jobsAccidents workforce.total nález pro architekta"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-012_T-014.md",
+      "type": "final",
+      "name": "impl_summary_iter-012_T-014.md",
+      "task": "T-014",
+      "completed": "2026-06-13T20:03:36Z",
+      "description": "BLOCKED/ESKALACE: Option A scope-fix hotový (deriveWorkforceTotal v jobs.js, rebuild-on-load v load.js, G1 iter005-edge zpět na PLNÉM hashState a ZELENÝ; typecheck+lint+smoke OK). Plné npm run ci ale ČERVENÉ: 2 preexistující determinismus testy mimo scope T-014 (test/app-bootstrap.test.js a test/export-string.test.js) fix odhalil. Root cause ověřen experimentem: savnou na curStep=0; jobsAccidents (order 20) běží před autoAssign (order 30), quarterDay edge už na kroku 1 → Path A má stale workforce.total=0 (přeskočí RNG), Path B po load=9 (čerpá RNG) → desync streamu population. Před fixem obě cesty bugově přeskočily (falešná shoda). Oprava vyžaduje zásah mimo scope (derive-on-init / reorder=zamítnutá Option C / posun save-pointu v cizích testech) → rozhodnutí architekta. NEMASKOVÁNO. Detaily: artifacts/final/impl_summary_iter-012_T-014.md"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-012_T-016.md",
+      "type": "final",
+      "name": "impl_summary_iter-012_T-016.md",
+      "task": "T-016",
+      "completed": "2026-06-13T21:34:40Z",
+      "description": "derive-on-init hotový, plné npm run ci zelené"
     },
     {
       "agent": "project-manager",
@@ -738,6 +1013,24 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/code_review_iter-012_T-011.md",
+      "type": "final",
+      "name": "code_review_iter-012_T-011.md",
+      "task": "T-011",
+      "completed": "2026-06-13T21:52:05Z",
+      "description": "GO (code review iter-012). Nálezy: 0 blocker, 0 major, 3 minor, 4 nit. Determinismus invariant dodržen (deriveWorkforceTotal single source na 3 místech, G1 plný hashState). A1/A2/A3/A4/A5 v souladu s architekturou T-003 a DR-012-01/02. Žádný reopen nutný; minor/nit do backlogu (top: F-1 healthBirths shrinkuje over-cap loaded pop vs R-A4-3). Výstup: artifacts/final/code_review_iter-012_T-011.md"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_architecture_iter-012_T-002.md",
+      "type": "final",
+      "name": "review_architecture_iter-012_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iter-001_T-003.md",
       "type": "final",
       "name": "review_iter-001_T-003.md",
@@ -751,8 +1044,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T00:34:45Z",
-      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
     },
     {
       "agent": "reviewer",
@@ -760,8 +1053,89 @@ const DATA = {
       "type": "final",
       "name": "review_iter-004_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-13T06:24:49Z",
-      "description": "review gate iter-004: GO"
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-005_T-004.md",
+      "type": "final",
+      "name": "review_iter-005_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-006_T-004.md",
+      "type": "final",
+      "name": "review_iter-006_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-007_T-004.md",
+      "type": "final",
+      "name": "review_iter-007_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-008_T-004.md",
+      "type": "final",
+      "name": "review_iter-008_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-008_T-004rr.md",
+      "type": "final",
+      "name": "review_iter-008_T-004rr.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-009_T-004.md",
+      "type": "final",
+      "name": "review_iter-009_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-009_T-004rr.md",
+      "type": "final",
+      "name": "review_iter-009_T-004rr.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-010_T-004.md",
+      "type": "final",
+      "name": "review_iter-010_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-011_T-004_MVPgate.md",
+      "type": "final",
+      "name": "review_iter-011_T-004_MVPgate.md",
+      "task": "T-004",
+      "completed": "2026-06-13T14:46:41Z",
+      "description": "MVP GATE iter-011: GO – MVP hotové (762 pass, body 1-7 potvrzeny v reálném kódu, žádný BLOCKER)"
     },
     {
       "agent": "reviewer",
@@ -769,8 +1143,8 @@ const DATA = {
       "type": "final",
       "name": "review_iteration_master_plan_iter-003_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T00:34:45Z",
-      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
     },
     {
       "agent": "reviewer",
@@ -778,8 +1152,17 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-13T00:34:45Z",
-      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-012_T-010.md",
+      "type": "final",
+      "name": "qa_report_iter-012_T-010.md",
+      "task": "T-010",
+      "completed": "2026-06-13T21:44:20Z",
+      "description": "GO — všech 6 AC iter-012 PASS empiricky (CI 778/778, smoke OK, 2roky sim bez crashe+cap drží, accounting Σtx==Δgold diff=0, G1 plný hashState bit-shoda na 10 save-pointech vč. krok0/1, save v3 bez workforce.total)"
     },
     {
       "agent": "tester",
@@ -787,8 +1170,71 @@ const DATA = {
       "type": "final",
       "name": "testreport_iter-004_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-13T06:18:27Z",
-      "description": "test loop iter-004: PASS – 63 testů (27 původních + 36 nových edge), grep gate negativní ověřen, BUG-001 annotován (low severity)"
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-005_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-005_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-006_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-006_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-007_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-007_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-008_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-008_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-009_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-009_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-010_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-010_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-011_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-011_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T14:19:16Z",
+      "description": "test loop iter-011 M4b/MVP: PASS"
     }
   ],
   "metrics": {
@@ -803,9 +1249,35 @@ const DATA = {
     },
     "iter-004_summary": {
       "raw": "# Orchestration Metrics: iter-004 (M0a)\n\n- **Closed**: 2026-06-13\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| architect | T-001 design | opus | 105462 | 17 | 568320 |\n| coder | T-002 impl | sonnet | 103565 | 83 | 925207 |\n| tester | T-003 test loop | sonnet | 92616 | 67 | 383765 |\n| reviewer | T-004 review | opus | 122152 | 73 | 314653 |\n\n## Výsledek\n- M0a engine core hotov: state, clock+akumulátor, scheduler (heap+_seq), RNG (8 streamů), calendar (91d/364d), tickOrder (9 slotů), commands.\n- CI: tsc --checkJs 0 · grep gate OK · node --test 63/63. Determinism hash stabilní.\n- Review GO (0 blockerů). BUG-001 (assertSerializable cyklus) → M1; SUGGESTION-1 (GH workflow) → iter-005.\n"
+    },
+    "iter-005_summary": {
+      "raw": "# Orchestration Metrics: iter-005 (M0b) — DoD M0 hotovo\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | 145634 tok / 59 tool / 634s |\n| coder | T-002 impl | sonnet | ~3 běhy (přerušení+dokončení); CI 107/107 |\n| tester | T-003 test loop | sonnet | PASS 122/122; +15 edge |\n| reviewer | T-004 review | opus | GO; cap 8h potvrzen |\n\n## Výsledek (M0 hotovo)\n- PWA shell (preact+htm ESM), SW cache-first + precache, IndexedDB save (kill-safe, N=3 rotace, fallback)\n- Syntetický benchmark ~66–78 ns/krok → cap 8h potvrzen; .github/workflows/ci.yml\n- CI 122/122. Review GO. Carry-over: A2 reálné HW, htm licence, BUG-001 → M1.\n"
+    },
+    "iter-006_summary": {
+      "raw": "# Orchestration Metrics: iter-006 (M1) — DoD M1 hotovo\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | 127878 tok; klíč: dump prázdný → derived/approximated |\n| coder | T-002 impl | sonnet | více běhů; 17 katalogů, BUG-001 fix |\n| tester | T-003 test loop | sonnet | PASS 238/238 (+66) |\n| reviewer | T-004 review | opus | GO; S-1..S-3 → M2 backlog |\n\n## Výsledek (M1)\n- Extrakční pipeline (16 extractorů, reprodukovatelná) → 17 katalogů (6 extracted/4 derived/6 approximated)\n- balance.js + formulas.js (reálná referenční čísla); fail-fast validátor; effects kostra; BUG-001 fix\n- Gap report (strojový + lidský). Re-planning checkpoint M2+ PASS (DR-003) – plán beze změny.\n"
+    },
+    "iter-007_summary": {
+      "raw": "# Orchestration Metrics: iter-007 (M2a) — DoD M2a hotovo\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | split M2a-1/M2a-2 doporučen |\n| coder | T-002a M2a-1 | sonnet | catalog hardening+transakce+persist+formulas; více běhů |\n| coder | T-002b M2a-2 | sonnet | population/housing/health/food/jobs/crime + stuby + §8 |\n| tester | T-003 test loop | sonnet | PASS 460/460; catch-up-safe 13/13 |\n| reviewer | T-004 review | opus | GO; S-1 HIGH → M2b první úkol |\n\n## Výsledek (M2a)\n- Transakční vrstva + persist (allowlist, 7-krokový load, migrace v1) + catalog hardening\n- Živé systémy populace/jídlo/zdraví/krimi (catch-up-safe), stuby world/battle + kontrakty §8 (S-06)\n- CI 460/460. Carry-over S-1 (persist napojit na save/load cestu) = první úkol M2b.\n"
+    },
+    "iter-008_summary": {
+      "raw": "# Orchestration Metrics: iter-008 (M2b) — DoD M2 hotovo\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | S-1 persist napojení + catch-up + autosave + export |\n| coder | T-002 impl + re-run 1 | sonnet | catch-up/autosave/export; re-run: main.js boot wiring B-1..B-4 |\n| tester | T-003 test loop | sonnet | PASS 529→541; bench root-cause (getCatalog per-step) vyřešen |\n| reviewer | T-004 (2 kola) | opus | round1 RE-RUN (4 blockery wiring) → round2 GO |\n\n## Výsledek (M2 hotovo)\n- Offline catch-up end-to-end (bootSequence: katalogy→loadAndReconstruct→catch-up→summary), autosave (4 triggery), export/import (lz-string, envelope)\n- CI 541/541; catch-up=týž kód jako live (G1); ~470 ns/krok s katalogy\n- Re-run smyčka §1.4 ověřena v praxi (review zachytil chybějící integraci). Backlog BL-1..BL-5 → M3.\n"
+    },
+    "iter-009_summary": {
+      "raw": "# Orchestration Metrics: iter-009 (M3) — DoD M3 hotovo\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | čerpáno z reálných zdrojových modulů |\n| coder | T-002 + re-run 1 | sonnet | systémy; re-run: commandy+ctx.catalog+UI+forest fix |\n| tester | T-003 test loop | sonnet | PASS 622; catch-up-safe ✓ |\n| reviewer | T-004 (2 kola) | opus | round1 RE-RUN (B-1 commandy, B-2 UI) → round2 GO |\n\n## Výsledek (M3)\n- forest/field/mine systémy, jobs progress model (věrný zdroji), workerEfficiency, skilly (2× kompenzace)\n- Commandy assignJob/startSkill v runtime + ctx.catalog; T5 UI obrazovky (hratelná smyčka)\n- CI 633/633; catch-up-safe ✓. Re-run smyčka opět zachytila chybějící app integraci.\n"
+    },
+    "iter-010_summary": {
+      "raw": "# Orchestration Metrics: iter-010 (M4a) — DoD M4a hotovo\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | research subagent na ekonomiku; odhalil emitTx gap |\n| coder | T-002 impl + continuation | sonnet | taxes/upkeep/burnWood/účetnictví + wiring |\n| tester | T-003 test loop | sonnet | PASS 693; účetní invariant ✓ |\n| reviewer | T-004 review | opus | GO (0 blockerů; crime.js → M4b) |\n\n## Výsledek (M4a)\n- Daně (monthlyTax curRate×curWorkers×22, localTaxes), upkeep (108/162), burnWood (sezónní)\n- Účetnictví OBSERVER (recordTx, žádná mutace v platbě); ctx.emitTx zapojen; CouncilScreen UI\n- CI 693/693; účetní invariant Σ tx == Δ gold (live i catch-up). Design preempce wiring = bez re-runu.\n"
+    },
+    "iter-011_summary": {
+      "raw": "# Orchestration Metrics: iter-011 (M4b) — MVP HOTOVÉ 🎉\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | odhalil prázdný goods.json; arbitráž sanity |\n| coder | T-002 impl | sonnet | trh/karavany/getGoldValue + wiring + crime fix |\n| tester | T-003 test loop | sonnet | PASS 762; MVP e2e ✓; arbitráž ztrátová |\n| reviewer | T-004 MVP GATE | opus | GO – všech 7 AC splněno; 0 blockerů |\n\n## Výsledek (M4b = MVP)\n- Klientský trh (dynamické ceny kubika, spread, clamp), drift, getGoldValue/marketInject (S-06→pozitivní), karavany\n- Idle smyčka uzavřená: výdělek→nákup→pasivní příjem→offline progres. MarketScreen napojený.\n- CI 762/762. MVP acceptance criteria splněna. Backlog S-5/M5–M9.\n"
     }
   },
-  "agent_tokens": {}
+  "agent_tokens": {
+    "architect": 391496,
+    "coder": 334274,
+    "reviewer": 238056,
+    "tester": 115119
+  }
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

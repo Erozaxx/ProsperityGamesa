@@ -1,35 +1,36 @@
 # Current Task
 
-- **Task ID**: T-004 (MVP GATE iter-011, DoD M4 = MVP)
-- **Brief**: BRIEF-043
-- **Iteration**: iter-011 (M4b → MVP)
+- **Task ID**: T-011 (Code review celé implementace iter-012, playability A1-A5 + reload-determinismus fix)
+- **Brief**: BRIEF-012-011
+- **Iteration**: iter-012
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo: MVP GATE iter-011 (DoD M4 = MVP). Ověřeno reálné splnění bodů 1–7 v běžící aplikaci.
-Výstup: agents/reviewer/artifacts/final/review_iter-011_T-004_MVPgate.md
+Hotovo: Code review produkčního diffu `1418072..HEAD` (src/ tools/ test/) — A1 seed,
+A2 resolver, A3 crime no-throw, A4 sanity-cap + denní sazba, A5 market CSS, reload-determinismus
+fix (deriveWorkforceTotal single source of truth). Ověřeno proti architektuře T-003, DR-012-01/02,
+impl summaries (T-005-009/T-014/T-016) a QA reportu T-010.
+Výstup: agents/reviewer/artifacts/final/code_review_iter-012_T-011.md
 
 ## Výsledek
-Verdikt: **GO – MVP HOTOVÉ**. Žádný BLOCKER. Žádný re-run.
+Verdikt: **GO** (žádný blocker ani major → orchestrátor nereopne).
 
-Ověřeno:
-- npm run ci ZELENÉ: tsc 0 err, lint:core OK (52), node --test 762 pass / 0 fail.
-- Body 1–7 potvrzeny v reálném kódu (ne jen unit):
-  1. PWA: manifest.webmanifest + service-worker.js (cache-first precache) + sw-register.
-  2. Engine: SPEED_FACTOR {0,1,2}, DAYS_PER_SEASON=91 (4×91).
-  3. M2 populace/housing/food regrese zelená.
-  4. M3 forest/field/mine + jobs/skills/workerEfficiency.
-  5. Trh: priceOf (marketPrice kubika) + spread 1.35/0.6; buyGoods/sellGoods/sendCaravan
-     + caravanReturns; drift k=0.2. Vše registrované v bootstrapEngine + tickOrder.
-  6. Idle smyčka uzavřená; MarketScreen napojený (App.js tab 'market', send→dispatch).
-  7. Save: catchup + autosave + export/import + persist v2→v3 (marketState+caravan).
-- Arbitráž ztrátová (0.444 spread). S-06 flipnuto na pozitivní. crime fix → pay(); grep-gate DA5 ČISTÝ.
+Klíčová zjištění:
+- Determinismus invariant DODRŽEN: deriveWorkforceTotal je single source of truth na 3 kanonických
+  místech (init/load/autoAssign), žádná 4. kopie, žádná změna RNG cesty, save tvar v3 zachován,
+  G1 plný hashState zelený.
+- A1 seed čistý (single source v createInitialState, žádný dvojí seed), A2 Option A early-return
+  přesně dle DR-012-01 (no-op s katalogem), A3 jen regress test, A4 ÷364 + symetrický hard-cap.
+- F-1 (minor): healthBirths clamp shrinkuje již-nad-cap loaded populaci → formálně odporuje R-A4-3
+  ("existující explodované savy zůstanou"). Nízký dopad (default seed sem nedojde).
 
-## Nálezy
-- BLOCKER: žádný.
-- SUGGESTION (backlog, neblokuje GO): S-1 qty input + karavana editor (M5),
-  S-2 balance kalibrace basePrice/max/driftK (M9), S-3 goods IDs vs design tabulka (K10, zdokumentováno).
+## Nálezy (severity)
+- BLOCKER: 0
+- MAJOR: 0
+- MINOR: 3 (F-1 births shrink over-cap; F-2 duplikace sanity-cap výrazu vs populationSanityCap;
+  F-3 mrtvý _catalog param v load.js)
+- NIT: 4 (F-4 inline ÷DAYS_PER_YEAR; F-5 balance.json mirror; F-6 A3 test assert; F-7 hashA komentář)
 
-## Kód neměněn (scope OUT).
+## Kód neměněn (scope OUT). Negitcommitnuto.

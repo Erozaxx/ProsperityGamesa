@@ -4,10 +4,10 @@
  */
 
 import { createInitialState } from '../core/state/createInitialState.js';
-import { createHomeState, createPlayerState } from '../core/state/createHomeState.js';
 import { PERSIST_SCHEMA } from './persistSchema.js';
 import { migrate } from './migrations.js';
 import { SAVE_VERSION } from './schema.js';
+import { deriveWorkforceTotal } from '../core/systems/jobs.js';
 
 /**
  * @typedef {import('../core/state/types.js').GameState} GameState
@@ -185,10 +185,10 @@ function applyPayload(state, payload) {
  * Load and reconstruct a game state from a raw save payload.
  * Applies migrations, then merges into a fresh initial state to fill missing fields.
  * @param {Record<string, any>} rawPayload - The raw saved payload (may be outdated version)
- * @param {object} [catalog] - Catalog (for createHomeState)
+ * @param {object} [_catalog] - Catalog (retained for signature compatibility; state is seeded by createInitialState)
  * @returns {GameState}
  */
-export function loadAndReconstruct(rawPayload, catalog) {
+export function loadAndReconstruct(rawPayload, _catalog) {
   // Wrap as rec for validateEnvelope (it expects {saveVersion, payload})
   // If rawPayload already has saveVersion at top level, wrap it; otherwise assume it IS the payload
   const rec = /** @type {{ saveVersion: number, payload: Record<string, any> }} */ (
@@ -208,13 +208,21 @@ export function loadAndReconstruct(rawPayload, catalog) {
     seed: payload.meta && payload.meta.seed,
     gameVersion: payload.meta && payload.meta.gameVersion,
   }));
-  state.home = createHomeState(catalog);
-  state.player = createPlayerState();
+  // A1 (iter-012 T-005): keep the seeded state from createInitialState (single seed path);
+  // applyPayload (allowlist) overwrites persisted fields below, so old saves load correctly.
 
   // Step 4: apply payload via allowlist
   applyPayload(state, payload);
 
-  // Step 5: recalculate derivates (no-op for M2a-1)
+  // Step 5: recalculate derived fields (architecture §9.1 K11 — derived, NEVER persisted).
+  // workforce.total is derived from population + housing.counts + houseTypes catalog.
+  // It is NOT persisted (persistSchema.js); applyPayload restores only workforce.assigned.
+  // Without this rebuild the first post-load quarterDay tick reads a stale workforce.total=0,
+  // making jobsAccidents skip its 'population' RNG draw → desync vs the continuous sim
+  // (DR-012-02). Rebuild here so the first post-load tick matches the uninterrupted run.
+  if (state.home && state.home.workforce) {
+    state.home.workforce.total = deriveWorkforceTotal(/** @type {any} */ (state));
+  }
 
   // Step 6: validate invariants
   validateInvariants(state);
