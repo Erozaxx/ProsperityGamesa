@@ -20,7 +20,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(__dirname, '..');
 
 // ---------------------------------------------------------------
-// Helpers
+// Top-level imports (module-level await is OK in ESM)
 // ---------------------------------------------------------------
 import { createInitialState } from '../src/core/state/createInitialState.js';
 import { initRng, hashState } from '../src/core/engine/rng.js';
@@ -30,6 +30,8 @@ import { registerCorePeriodics } from '../src/core/engine/tickOrder.js';
 import { saveGame, loadGame, _resetDB } from '../src/save/saveStore.js';
 import { openDB, get, put } from '../src/save/idb.js';
 import { DB_NAME, DB_VERSION, STORE_SAVES, STORE_SLOTS, GENERATIONS, SAVE_VERSION } from '../src/save/schema.js';
+import { generatePrecache } from '../tools/gen-precache.mjs';
+import { runBench } from '../tools/bench-step.mjs';
 
 let _slotCounter = 100; // start offset to avoid collision with save-store.test.js
 function freshSlot() {
@@ -90,8 +92,6 @@ describe('iter-005: determinism after load (G1)', () => {
 // ---------------------------------------------------------------
 describe('iter-005: PWA smoke – manifest.webmanifest', () => {
   const MANIFEST_PATH = join(ROOT, 'manifest.webmanifest');
-  /** @type {Record<string, unknown>} */
-  let manifest;
 
   test('manifest.webmanifest exists and is valid JSON', () => {
     assert.ok(existsSync(MANIFEST_PATH), 'manifest.webmanifest must exist');
@@ -101,7 +101,7 @@ describe('iter-005: PWA smoke – manifest.webmanifest', () => {
     } catch (e) {
       assert.fail(`cannot read manifest.webmanifest: ${e}`);
     }
-    // Must not throw
+    let manifest;
     try {
       manifest = JSON.parse(raw);
     } catch (e) {
@@ -145,20 +145,18 @@ describe('iter-005: PWA smoke – manifest.webmanifest', () => {
 // ---------------------------------------------------------------
 describe('iter-005: PWA smoke – precache freshness', () => {
   test('src/precache.js content matches freshly generated output (not stale)', () => {
-    const { generatePrecache } = await import('../tools/gen-precache.mjs');
     const tmpOut = '/tmp/precache-freshness-check.js';
-    const fresh = generatePrecache({ outFile: tmpOut });
+    generatePrecache({ outFile: tmpOut });
 
     const committedRaw = readFileSync(join(ROOT, 'src', 'precache.js'), 'utf8');
     const freshRaw = readFileSync(tmpOut, 'utf8');
 
     assert.equal(committedRaw, freshRaw,
       `committed src/precache.js is stale: run "node tools/gen-precache.mjs" to refresh. ` +
-      `Committed version: ${committedRaw.split('\n')[1]}, Fresh version: ${freshRaw.split('\n')[1]}`);
+      `Committed version line: ${committedRaw.split('\n')[1]}, Fresh version line: ${freshRaw.split('\n')[1]}`);
   });
 
-  test('precache list contains core engine files', async () => {
-    const { generatePrecache } = await import('../tools/gen-precache.mjs?chk=' + Date.now());
+  test('precache list contains core engine files', () => {
     const result = generatePrecache({ outFile: '/tmp/precache-core-check.js' });
     const urls = new Set(result.files);
     assert.ok(urls.has('./src/core/engine/index.js'), 'precache must include src/core/engine/index.js');
@@ -166,8 +164,7 @@ describe('iter-005: PWA smoke – precache freshness', () => {
     assert.ok(urls.has('./src/app/main.js'), 'precache must include src/app/main.js');
   });
 
-  test('precache files all exist on disk', async () => {
-    const { generatePrecache } = await import('../tools/gen-precache.mjs?disk=' + Date.now());
+  test('precache files all exist on disk', () => {
     const result = generatePrecache({ outFile: '/tmp/precache-disk-check.js' });
     const missing = [];
     for (const rel of result.files) {
@@ -179,6 +176,13 @@ describe('iter-005: PWA smoke – precache freshness', () => {
     assert.equal(missing.length, 0,
       `precache list references files that do not exist on disk: ${missing.join(', ')}`);
   });
+
+  test('gen-precache is deterministic (two runs = same version)', () => {
+    const r1 = generatePrecache({ outFile: '/tmp/precache-det-1.js' });
+    const r2 = generatePrecache({ outFile: '/tmp/precache-det-2.js' });
+    assert.equal(r1.version, r2.version, 'version must be identical across two runs (deterministic)');
+    assert.deepEqual(r1.files, r2.files, 'file list must be identical across two runs');
+  });
 });
 
 // ---------------------------------------------------------------
@@ -186,7 +190,6 @@ describe('iter-005: PWA smoke – precache freshness', () => {
 // ---------------------------------------------------------------
 describe('iter-005: benchmark sanity', () => {
   test('bench-step nsPerStep < 10000 ns (scope requirement)', () => {
-    const { runBench } = await import('../tools/bench-step.mjs?sanity=' + Date.now());
     // Use modest step count for CI speed; enough for meaningful average
     const result = runBench({ steps: 100_000, warmup: 10_000 });
     assert.ok(result.nsPerStep > 0, 'nsPerStep must be positive');
@@ -197,7 +200,6 @@ describe('iter-005: benchmark sanity', () => {
   });
 
   test('bench-step loadedHeap nsPerStep < 10000 ns', () => {
-    const { runBench } = await import('../tools/bench-step.mjs?sanity2=' + Date.now());
     const result = runBench({ steps: 100_000, warmup: 10_000 });
     assert.ok(result.loadedHeap !== undefined, 'loadedHeap result must be present');
     assert.ok(
