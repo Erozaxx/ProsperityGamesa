@@ -68,7 +68,7 @@ describe('export/import round-trip', () => {
     for (let i = 0; i < 100; i++) step(state, ctx);
 
     const str = exportToString(state);
-    const imported = importFromString(str, CATALOG);
+    const { state: imported } = importFromString(str, CATALOG);
 
     // Compare allowlisted fields only (import goes through loadAndReconstruct which may recalc derivates)
     const origPayload = applyPersist(state);
@@ -84,23 +84,25 @@ describe('export/import round-trip', () => {
     for (let i = 0; i < 200; i++) step(state, ctx);
 
     const str = exportToString(state);
-    const imported = importFromString(str, CATALOG);
+    const { state: imported } = importFromString(str, CATALOG);
 
     // After loadAndReconstruct, re-apply persist to both and compare hashes
     // (loadAndReconstruct uses same allowlist, so hashes of reconstructed states should be equal)
-    const reimported = importFromString(exportToString(imported), CATALOG);
+    const { state: reimported } = importFromString(exportToString(imported), CATALOG);
     assert.equal(hashState(imported), hashState(reimported),
       'Import is idempotent: exporting and importing again produces same hash');
   });
 
-  it('lastSimTimestamp is not part of state payload (exportString does not use it)', () => {
-    // exportToString only uses applyPersist(state), not a timestamp
+  it('lastSimTimestamp is preserved in envelope (S-6: importFromString returns {state, lastSimTimestamp})', () => {
     const state = makeFreshState();
-    const str = exportToString(state);
-    // Verify we can import without timestamp
-    const imported = importFromString(str, CATALOG);
-    assert.ok(imported, 'importFromString should succeed');
-    assert.ok(Number.isFinite(imported.engine.curStep), 'curStep should be finite after import');
+    const testTimestamp = 1700000000000;
+    const str = exportToString(state, { lastSimTimestamp: testTimestamp });
+    // importFromString now returns { state, lastSimTimestamp }
+    const result = importFromString(str, CATALOG);
+    assert.ok(result, 'importFromString should succeed');
+    assert.ok(result.state, 'result.state should exist');
+    assert.ok(Number.isFinite(result.state.engine.curStep), 'curStep should be finite after import');
+    assert.equal(result.lastSimTimestamp, testTimestamp, 'lastSimTimestamp should be preserved in envelope');
   });
 
   it('export then run N steps on original; import then run same N steps → same hash', () => {
@@ -115,7 +117,7 @@ describe('export/import round-trip', () => {
     for (let i = 0; i < N; i++) step(stateA, ctxA);
 
     // Import and run same N steps
-    const stateB = importFromString(str, CATALOG);
+    const { state: stateB } = importFromString(str, CATALOG);
     const ctxB = makeCtx();
     for (let i = 0; i < N; i++) step(stateB, ctxB);
 
@@ -185,10 +187,10 @@ describe('importFromString error handling', () => {
 describe('allowlist parity', () => {
   it('exported payload contains same keys as applyPersist(state)', () => {
     // Since exportToString calls applyPersist internally, we verify idempotency:
-    // applyPersist(importFromString(exportToString(state))) should have same top-level keys
+    // applyPersist(importFromString(exportToString(state)).state) should have same top-level keys
     const state = makeFreshState();
     const str = exportToString(state);
-    const imported = importFromString(str, CATALOG);
+    const { state: imported } = importFromString(str, CATALOG);
 
     const origKeys = Object.keys(applyPersist(state)).sort();
     const importKeys = Object.keys(applyPersist(imported)).sort();
