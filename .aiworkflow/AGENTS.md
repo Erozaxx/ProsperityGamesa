@@ -55,6 +55,7 @@ Orchestrátor udržuje master checklist v `orchestration/runs/<iter>/plan.md`.
 |---|---|---|
 | Orchestrator | orchestrator | Koordinátor agentů, iterací a quality gates. |
 | Project Manager | project-manager | Project manager – převádí schválenou architekturu a milníky do kompletního end-to-end plánu iterací a tasků. |
+| Tom Proxy | tom-proxy | Human proxy – zastupuje uživatele (Tom) v rozhodnutích, která by jinak vyžadovala human-in-the-loop schválení nebo volbu. |
 | Requirements | requirements | Business analytik – co uživatel skutečně chce a potřebuje. |
 | Product Strategist | product-strategist | Product strategist – definuje produktovou pozici, value proposition a komercni ramec MVP. |
 | CTO | cto | Chief Technology Officer - urcuje technologickou strategii, smer platformy a dlouhodobou technickou konkurenceschopnost. |

@@ -1,0 +1,16 @@
+{
+  "name": "prosperity-rebuild",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Prosperity v0.9.5 faithful rebuild – headless ES-module simulation core (M0a).",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint:core": "node tools/check-core-imports.mjs",
+    "test": "node --test",
+    "ci": "npm run typecheck && npm run lint:core && npm run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
