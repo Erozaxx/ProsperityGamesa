@@ -10,7 +10,7 @@
 - [x] T-002: reviewer – Review plánu (úplnost cesty M0→cíl, správnost řezu tasků na Opus-návrh+Sonnet-provedení, závislosti/kritická cesta, konzistence test loop + review gate u každé iterace). Všechny nálezy, nejen blockery. Model: Opus.
 - [x] T-003: project-manager – Zapracovat všechny nálezy z review do plánu + rework note. Model: Fable.
 - [x] T-004: human – Review a schválení kompletního plánu uživatelem (blocker před zahájením implementačních iterací)
-- [ ] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)
+- [x] T-005: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
 ## Quality Gates
 - [x] Plan neobsahuje orchestratora jako agenta u žádného tasku
