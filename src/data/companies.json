@@ -1,0 +1,66 @@
+{
+  "_meta": {
+    "provenance": "extracted",
+    "source": "doc/original_source/extracted/config-extract.json"
+  },
+  "companies": {
+    "explorer": [
+      {
+        "id": "Explorers",
+        "mapsAvailable": [
+          "field",
+          "market",
+          "academy",
+          "tinkery",
+          "council"
+        ],
+        "name": "The Explorers",
+        "type": "explorer"
+      }
+    ],
+    "houseBuilder": [
+      {
+        "cost": {
+          "gold": 2000
+        },
+        "id": "KuttingKorners",
+        "name": "Kutting Korners",
+        "type": "hovel"
+      },
+      {
+        "cost": {
+          "gold": 9000
+        },
+        "id": "BrickingBad",
+        "name": "Bricking Bad",
+        "type": "house"
+      },
+      {
+        "cost": {
+          "gold": 30000
+        },
+        "id": "HonestlyGood",
+        "name": "Honestly Good",
+        "type": "mansion"
+      },
+      {
+        "cost": {
+          "gold": 200000
+        },
+        "id": "LawyeredUp",
+        "name": "Lawyered Up Conglomeration",
+        "type": "manor"
+      }
+    ],
+    "mineBuilder": [
+      {
+        "cost": {
+          "gold": 10000,
+          "wood": 2400
+        },
+        "id": "StrikeGoldInc",
+        "name": "Strike Gold Inc."
+      }
+    ]
+  }
+}

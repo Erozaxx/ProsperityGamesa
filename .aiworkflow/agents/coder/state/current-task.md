@@ -1,25 +1,23 @@
 # Current Task
 
 - **Task ID**: T-002
-- **Brief**: BRIEF-016
-- **Iteration**: iter-005
+- **Brief**: BRIEF-020b
+- **Iteration**: iter-006
 - **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
-## Co teď dělám
-Implementace M0b PWA shell + save + benchmark dle návrhu architekta (design_iter-005_T-001.md). Hotovo.
-
-## Checklist
-- [x] T1: PWA shell – src/vendor, index.html, src/app/*, src/ui/*
-- [x] T2: manifest, service-worker.js, tools/gen-precache.mjs, src/precache.js
-- [x] T3: IndexedDB save (idb.js, saveStore.js, schema.js) + fake-indexeddb testy
-- [x] T4: tools/bench-step.mjs + docs/benchmark_iter-005.md
-- [x] T5: src/app/persist.js + src/ui/ErrorScreen.js
-- [x] CI: .github/workflows/ci.yml
-- [x] tsconfig.json: DOM lib, vendor excluded, SW excluded
-- [x] Smazání legacy src/js/* + src/css/style.css
-- [x] tsc --noEmit zelené
-- [x] grep gate zelené (12 souborů)
-- [x] node --test 107/107 zelené
-- [x] bench report commitnutý
+## Checklist (iter-006 T-002b)
+- [x] BUG-001: registry.js WeakSet cycle protection (byl přítomen, ověřen + 3 regresní testy)
+- [x] src/core/balance/balance.js (pojmenované konstanty s source refs)
+- [x] src/core/balance/formulas.js (čisté vzorce)
+- [x] test/formulas.test.js (25+ tabulkových testů s reálnými čísly z návrhu)
+- [x] tools/extract/ pipeline (extract.mjs + 16 extractors + lib/sources+provenance+writeCatalog)
+- [x] src/core/catalog/ (schemas.js, validate.js, loader.js, index.js) – opraveny TS chyby
+- [x] test/catalog-validate.test.js
+- [x] src/data/ 16 JSON katalogů (food, houseTypes, companies, achievements, military, population, resources, jobs, buildings, goods, techs, zones, skills, sectors, marketBaseline, balance)
+- [x] src/data/gap-report.json
+- [x] src/core/registry/effects.js (M1 kostry + 8 registry testů)
+- [x] doc/gap-report-iter-006.md (lidsky čitelný)
+- [x] tsc --noEmit: 0 chyb
+- [x] npm run ci: 172 pass, 0 fail

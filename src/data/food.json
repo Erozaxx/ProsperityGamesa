@@ -1,0 +1,44 @@
+{
+  "_meta": {
+    "provenance": "extracted",
+    "source": "doc/original_source/modules/prosperity/lists/listfood.js"
+  },
+  "food": [
+    {
+      "description": "Baked, warm, and delicious goods",
+      "id": "bread",
+      "name": "Bread",
+      "type": "food"
+    },
+    {
+      "description": "Who knew aging milk can have such delightful consequences?",
+      "id": "cheese",
+      "name": "Cheese",
+      "type": "food"
+    },
+    {
+      "description": "Tasty fishies, kitties like",
+      "id": "fish",
+      "name": "Fish",
+      "type": "food"
+    },
+    {
+      "description": "Tasty food from trees, vines, and bushes",
+      "id": "fruit",
+      "name": "Fruit",
+      "type": "food"
+    },
+    {
+      "description": "Animals can be so tasty",
+      "id": "meat",
+      "name": "Meat",
+      "type": "food"
+    },
+    {
+      "description": "Nutritious, often tasty, but pretty important source of sustenance",
+      "id": "vegetable",
+      "name": "Vegetable",
+      "type": "food"
+    }
+  ]
+}

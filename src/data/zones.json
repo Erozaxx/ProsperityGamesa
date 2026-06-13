@@ -1,0 +1,22 @@
+{
+  "_meta": {
+    "notes": "listZone not fully extracted; gap G-LISTZONE",
+    "provenance": "approximated",
+    "source": "doc/original_source"
+  },
+  "zones": {
+    "aiStates": [],
+    "factions": [
+      "player",
+      "thePrincess",
+      "thePsychopath",
+      "theWarlord"
+    ],
+    "policies": [
+      "Growth",
+      "Military",
+      "Resource"
+    ],
+    "zones": []
+  }
+}

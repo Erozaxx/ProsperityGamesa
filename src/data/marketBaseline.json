@@ -1,0 +1,8 @@
+{
+  "_meta": {
+    "notes": "basePrice is random at runtime; gap G-MARKETBASELINE",
+    "provenance": "approximated",
+    "source": "doc/original_source"
+  },
+  "marketBaseline": {}
+}

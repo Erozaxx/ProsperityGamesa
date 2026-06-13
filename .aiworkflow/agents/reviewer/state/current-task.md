@@ -1,26 +1,38 @@
 # Current Task
 
 - **Task ID**: T-004
-- **Brief**: BRIEF-018
-- **Iteration**: iter-005
+- **Brief**: BRIEF-022
+- **Iteration**: iter-006
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo: review gate iter-005 (M0b = DoD M0 komplet), pravomoc re-run.
-Výstup: agents/reviewer/artifacts/final/review_iter-005_T-004.md
+Hotovo: review gate iter-006 (M1 = DoD M1 katalogy & balanc data), pravomoc re-run.
+Výstup: agents/reviewer/artifacts/final/review_iter-006_T-004.md
 
 ## Výsledek
 Verdikt: **GO**. 0 BLOCKER.
-DoD M0 splněno bod po bodu (PWA install + offline SW cache-first, čas/sezóny přes rAF nad advance(), save/load IndexedDB kill-safe round-trip, pauza/rychlosti přes commands, benchmark PŘED potvrzením capu, CI gate .github/workflows/ci.yml). M0a invarianty drží (core bez DOM, grep gate 12 souborů).
-Benchmark: POTVRZUJI cap 8h (empty 77,7 ns/krok → catch-up 44,8 ms << 5760 ms; ~2 řády margin). D13 main thread OK synteticky. A2 (syntetická povaha) korektně uvedena → carry-over reálné HW.
-Vlastní ověření: `npm run ci` → exit 0 (tsc 0, grep gate OK, node:test 122/122). Precache freshness ověřena (identický). Working tree čistý — kód neměněn.
-Nálezy: 3 SUGGESTION (SW self-precache pozn./tester smoke, save read-modify-write, rastrové ikony) + 4 NITPICK (htm licence v impl note, JSDoc typ send, fire-and-forget autosave, _resetDB test-only export). Vše M1 backlog, neblokuje.
+DoD M1 splněno bod po bodu (extrakce reprodukovatelná, 16/16 katalogů validní fail-fast,
+formulas testy s referenčními čísly zelené, referenční čísla z katalogů potvrzena testem,
+balance s odkazem na zdroj, BUG-001 fix WeakSet správný, gap report strojový+lidský s MVP-blokujícími
+dírami a plánem dotěžení). Provenance flagy korektní (6 extracted/4 derived/6 approximated).
+Autonomní eskalace DR-001/Q3 dodržena. Re-planning checkpoint M2+ MŮŽE proběhnout – gap report dostatečný.
+
+Vlastní ověření: `npm run ci` → exit 0 (tsc 0, grep gate OK, node:test 238/238). Extrakce idempotentní
+(re-run extract.mjs → 0 diff src/data/). Working tree čistý — kód neměněn.
+
+Nálezy (vše non-blocking, M2 backlog): 3 SUGGESTION
+(S-1 loader tenčí než návrh §3.3: chybí byId registr + ID-kolize napříč typy + B4 cross-ref – doplnit na začátku M2;
+S-2 gap-report.json bez per-gap blocksMvp/provenance + summary;
+S-3 jobs.products pole místo mapy {resourceId:amount} – M3 přejít na mapu)
++ 2 NITPICK (N-1 resources.kind mimo navržený enum; N-2 food jako platný B4 cross-ref cíl).
 
 ## Předpoklady
-- Architektura §6/§9.2a/§11/§14 schválená — ověřoval jsem soulad implementace.
-- Závazné potvrzení capu/D13 vyžaduje reálné low-end HW (A2) — tracked carry-over, ne uzavřeno definitivně.
+- Architektura §5.2/§9.3/§11 a detailní návrh design_iter-006_T-001.md schválené – ověřoval jsem soulad.
+- byId/B4 aparát (§5.2) nemá v M1 konzumenta (engine krmí katalogy až M2) → odchylka klasifikována jako
+  SUGGESTION, ne BLOCKER. Reálné riziko NaN-ekonomiky z překlepu nastává v M2 → tam doplnit.
 
 ## Blockery
-Žádné. Doporučení: GO → orchestrátor může uzavřít iter-005. SUGGESTION/NITPICK + A2 reálné HW přenést do M1 backlogu.
+Žádné. Doporučení: GO → orchestrátor může uzavřít iter-006 / pustit re-planning M2+.
+SUGGESTION/NITPICK přenést do M2 backlogu.

@@ -1,0 +1,66 @@
+{
+  "_meta": {
+    "provenance": "extracted",
+    "source": "doc/original_source/extracted/config-extract.json"
+  },
+  "balance": {
+    "army": {
+      "archerCost": 1620,
+      "archerUpkeep": 162,
+      "warriorCost": 1080,
+      "warriorUpkeep": 108
+    },
+    "caravan": {
+      "baseCapacity": 10000
+    },
+    "engine": {
+      "maxStep": 500000000,
+      "slowRate": 2.8,
+      "stepSeconds": 0.05,
+      "stepsPerDay": 900,
+      "stepsPerSeason": 81900
+    },
+    "forest": {
+      "treeMatureTime": 36
+    },
+    "market": {
+      "haggleBuy": 1.35,
+      "haggleSell": 0.6,
+      "priceExponent": 3,
+      "priceFactor": 1.5
+    },
+    "offline": {
+      "capTechRealHours": 8
+    },
+    "population": {
+      "consumeFoodRate": 2,
+      "matRate": 0.04,
+      "retRate": 0.02,
+      "workerEffMax": 2,
+      "workerEffMin": 0.25
+    },
+    "scholar": {
+      "capBase": 300,
+      "capScale": 1.25
+    },
+    "season": {
+      "seasonDays": 91,
+      "startDay": 16,
+      "startMonth": 12,
+      "startSeason": "Winter",
+      "startYear": 922
+    },
+    "tax": {
+      "centerBase": 22,
+      "cityGuardBase": 56
+    },
+    "tech": {
+      "base": 100,
+      "scale": 1.25
+    },
+    "world": {
+      "aiMechanicStart": 567000,
+      "revoltMechanicStart": 630000
+    }
+  }
+}

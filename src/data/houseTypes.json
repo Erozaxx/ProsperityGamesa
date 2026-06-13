@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "provenance": "extracted",
+    "source": "doc/original_source/extracted/config-extract.json"
+  },
+  "houseTypes": [
+    {
+      "attractiveness": 0,
+      "capacity": null,
+      "id": "tent",
+      "workers": 3
+    },
+    {
+      "attractiveness": -1,
+      "capacity": 200,
+      "id": "hovel",
+      "workers": 3
+    },
+    {
+      "attractiveness": 0,
+      "capacity": 600,
+      "id": "house",
+      "workers": 5
+    },
+    {
+      "attractiveness": 4,
+      "capacity": 1000,
+      "id": "mansion",
+      "workers": 6
+    },
+    {
+      "attractiveness": 8,
+      "capacity": 1400,
+      "id": "manor",
+      "workers": 10
+    },
+    {
+      "attractiveness": 25,
+      "capacity": 3000,
+      "id": "chateau",
+      "workers": 20
+    },
+    {
+      "attractiveness": 100,
+      "capacity": 10000,
+      "id": "estate",
+      "workers": 20
+    },
+    {
+      "attractiveness": -10,
+      "capacity": 3000,
+      "id": "publichouse",
+      "workers": 25
+    }
+  ]
+}

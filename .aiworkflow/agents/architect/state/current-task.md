@@ -1,49 +1,51 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-005)
-- **Brief**: context/inbox/brief_architect_T-001_iter-005.md (BRIEF-015)
-- **Iteration**: iter-005 (M0b)
+- **Task ID**: T-001 (iter-006)
+- **Brief**: context/inbox/brief_architect_T-001_iter-006.md (BRIEF-019)
+- **Iteration**: iter-006 (M1 – katalogy & balanc data)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo – detailní implementační návrh (spec pro Sonnet codera, T-002) pro všech 5 tasků
-iter-005 (M0b) + CI workflow. NE implementace – soubory, signatury (JSDoc), datové tvary,
-algoritmy/pseudo, jak to ověří test. Výstup: `artifacts/final/design_iter-005_T-001.md`.
+Hotovo – detailní implementační návrh (spec pro Sonnet codera) pro všech 6 tasků iter-006
+(M1) + fix BUG-001. NE implementace – soubory, signatury (JSDoc), schémata, extrakční
+mapování, referenční čísla, jak to ověří test. Výstup: `artifacts/final/design_iter-006_T-001.md`.
 
 Pokrytí:
-- T1: PWA shell – index.html (přepis legacy click-game), src/app/ bootstrap, rAF smyčka nad
-  advance(), visibilitychange/pagehide autosave hook, vendorovaný preact+htm (src/vendor/),
-  minimální UI (čas/sezóna/pauza/1×/2× přes commands dispatch), env.js DEV flag.
-- T2: manifest.webmanifest (přepis), src/sw.js ručně psaný (cache-first, verzovaný precache),
-  tools/gen-precache.mjs (generuje precache.js, výstup commitnutý), odstranění legacy SW.
-- T3: src/save/ IndexedDB minimal – idb.js promise wrapper, saveStore.js (stores slots/saves,
-  1 slot + N=3 rotující generace, lastSimTimestamp, load fallback na předchozí generaci),
-  assertSerializable využití, persist allowlist celého GameState.
-- T4: tools/bench-step.mjs syntetický benchmark (Node, prázdný tick+scheduler, X tisíc kroků,
-  ns/krok) + report → potvrzení/eskalace technického stropu capu 8h (S-02/D10a) + D13 doporučení.
-- T5: storage.persist() při startu (app/) + chybová obrazovka loaderu (fail katalogů/savu §5.1).
-- CI: .github/workflows/ci.yml (npm ci + npm run ci).
+- T1: tools/extract/ Node pipeline – per-katalog extraktory, _meta+provenance, idempotentní
+  výstup do src/data/. Reálné mapování dump/zdroj → katalog (food, houseTypes, companies,
+  achievements, military, population doložitelné; jobs/buildings/goods/resources derived;
+  techs/zones/skills/sectors approximated).
+- T2: src/core/catalog/ schemas.js + validate.js (fail-fast s cestou) + loader.js
+  (string-ID registr, kolize ID, byId index, cross-ref cost/products proti registru zdrojů B4).
+- T3: balance.js (pojmenované konstanty + zdroj) + formulas.js (marketPrice, techCap,
+  scholarLevelCap, scaleCost, workerEfficiency, spoilage, natality, goldValue).
+- T4: formulas.test.js tabulkové testy s REÁLNÝMI referenčními čísly (techCap 100/125/156/244,
+  marketPrice, scaleCost, workerEfficiency clamp 0.25-2, spoilage trunc, natality).
+- T5: src/core/registry/effects.js kostra (string-ID efekty, idempotentní registrace, no-op MVP).
+- T6: gap-report.json + doc/gap-report-iter-006.md – DR-001 autonomní eskalace, MVP-blokující
+  díry (listBuildings/Goods/Job chybí v repu), provenance flagy.
+- BUG-001: assertSerializable WeakSet ochrana proti stack overflow na cyklu.
 
 ## Dílčí checklist
-- [x] T-001: Detailní návrh všech 5 tasků iter-005 (M0b) + CI workflow.
+- [x] T-001: Detailní návrh všech 6 tasků iter-006 (M1) + BUG-001.
 
 ### Pracovní rozpad (interní)
-- [x] Přečteno: AGENTS.md, brief BRIEF-015, architektura §2.1/§5.1/§6/§14.1 + §9.2/§11,
-      design iter-004, reálný core src/core/* (public API, state, commands, registry, clock)
-- [x] Zjištěno: src/js/* + index.html + manifest + service-worker.js jsou LEGACY placeholder
-      (click-game), nenapojené na core → spec instruuje přepis/odstranění
-- [x] T1–T5 spec + CI (soubory, signatury JSDoc, datové tvary, algoritmy, testy)
-- [x] Souhrn souborů + pořadí implementace + ROZHODNUTÍ NÁVRHU + alternativy
+- [x] Přečteno: AGENTS.md, brief BRIEF-019, architektura §5/§5.2/§5.5/§5.6/§9.3/§11/§12
+- [x] Prozkoumána REÁLNÁ data: rootscope-raw-dump.json (itemList/techTree/world PRÁZDNÉ!),
+      config-extract.json, listfood.js, config.js (scaleCost, world.home defaults, techBase),
+      home.js (workerEfficiency, spoilage, nat), market.js (marketPrice vzorec)
+- [x] Klíčové zjištění: 16 list-JSONů se fetchovalo za běhu, v repu jen listfood.js → hlavní gap
+- [x] src/core/state (createInitialState, types.d.ts) + registry.js (BUG-001 příčina)
+- [x] Spec T1-T6 + BUG-001 fix (soubory, signatury JSDoc, schémata, mapování, referenční čísla, testy)
 - [x] Výstup do artifacts/final + handoff
 
 ## Předpoklady
-- Žádné nové architektonické rozhodnutí; volnost vyplněna značeno „ROZHODNUTÍ NÁVRHU":
-  vendor preact+htm ESM bez buildu, IndexedDB wrapper bez závislostí, benchmark synteticky
-  v Node (Q2/A2), precache manifest jako commitnutý ESM modul, save = celý GameState přes
-  assertSerializable (M0b nemá ještě persist schémata per doména – ta jsou M2).
-- Implementaci provede Sonnet v T-002.
+- Žádné nové architektonické rozhodnutí; gap eskalace AUTONOMNÍ (DR-001/Q3).
+- MVP katalogy (jobs/buildings/goods) se rekonstruují ze zdrojového kódu (derived), ne z dumpu
+  → vyšší riziko nepřesnosti produkčních čísel, vědomě označeno provenance, kalibrace M9.
+- Implementaci provede Sonnet (coder).
 
 ## Blockery
 –
