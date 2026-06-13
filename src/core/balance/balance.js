@@ -76,6 +76,8 @@ export const BALANCE = Object.freeze({
     haggleBuy: 1.35,
     /** Haggle multiplier for selling. Source: config.js:417 */
     haggleSell: 0.6,
+    /** Daily mean-reversion drift rate toward baseline. provenance: approximated, gap G-MARKET-DRIFT (M9). */
+    driftK: 0.2,
   },
 
   /** Tax building constants. Source: dump.TAXCENTERBASE, dump.CITYGUARDBASE */

@@ -46,7 +46,14 @@ export const SCHEMAS = {
     },
   },
   goods: {
-    required: [],
+    required: ['id', 'kind', 'basePrice', 'max', 'baselineFraction'],
+    itemShape: {
+      id:               { type: 'string',  required: true },
+      kind:             { type: 'string',  required: true, enum: ['goods'] },
+      basePrice:        { type: 'number',  required: true, min: 0.001 },
+      max:              { type: 'number',  required: true, min: 1 },
+      baselineFraction: { type: 'number',  required: true, min: 0, max: 1 },
+    },
   },
   houseTypes: {
     required: ['id', 'workers', 'attractiveness'],

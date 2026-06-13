@@ -1,8 +1,14 @@
 {
   "_meta": {
-    "notes": "listGoods not found in extracted sources; gap G-LISTGOODS",
+    "notes": "Seed goods for M4b market MVP. listGoods not in extracted sources (gap G-LISTGOODS). basePrice/max approximated, calibrated in M9.",
     "provenance": "approximated",
-    "source": "doc/original_source"
+    "source": "doc/original_source/modules/prosperity/lists (listGoods missing)"
   },
-  "goods": []
+  "goods": [
+    { "id": "wood",  "kind": "goods", "basePrice": 2,   "max": 10000, "baselineFraction": 0.5 },
+    { "id": "ore",   "kind": "goods", "basePrice": 5,   "max": 8000,  "baselineFraction": 0.5 },
+    { "id": "tools", "kind": "goods", "basePrice": 25,  "max": 2000,  "baselineFraction": 0.5 },
+    { "id": "cloth", "kind": "goods", "basePrice": 15,  "max": 3000,  "baselineFraction": 0.5 },
+    { "id": "gems",  "kind": "goods", "basePrice": 120, "max": 500,   "baselineFraction": 0.5 }
+  ]
 }

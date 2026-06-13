@@ -11,6 +11,7 @@ const CATALOG_NAMES = [
   'achievements',
   'buildings',
   'food',
+  'goods',
   'houseTypes',
   'jobs',
   'military',
