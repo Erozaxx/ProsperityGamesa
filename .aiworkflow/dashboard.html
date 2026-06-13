@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T19:47:27Z",
+  "generated": "2026-06-13T19:53:39Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -435,8 +435,8 @@ const DATA = {
       },
       {
         "id": "T-013",
-        "text": "architect – Rozhodnutí fixu reload-determinismu (workforce.total): Option A rebuild-on-load vs B jobsAccidents reload-independent vs C reorder; zapsat do DR-012-02 (blocker před opravou)",
-        "done": false
+        "text": "architect – Rozhodnutí fixu reload-determinismu → Option A (rebuild-on-load): deriveWorkforceTotal helper + přepočet v load.js Step 5; B/C zamítnuty; DR-012-02 decided; design pro codera hotový",
+        "done": true
       },
       {
         "id": "T-014",
@@ -460,7 +460,7 @@ const DATA = {
       }
     ],
     "total": 14,
-    "done_count": 9
+    "done_count": 10
   },
   "closed_iterations": [
     "iter-001",
@@ -479,8 +479,8 @@ const DATA = {
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-003 (iter-012)",
-      "brief": "context/inbox/brief_architect_T-003_iter-012.md (BRIEF-012-003)",
+      "task_id": "T-013 (iter-012)",
+      "brief": "context/inbox/brief_architect_T-013_iter-012.md (BRIEF-012-013)",
       "iteration": "iter-012 (Playability & onboarding hardening)",
       "started": "2026-06-13",
       "completed": "2026-06-13"
@@ -828,6 +828,15 @@ const DATA = {
       "task": "T-001",
       "completed": "2026-06-13T16:53:21Z",
       "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/fix_reload_determinism_iter-012_T-013.md",
+      "type": "final",
+      "name": "fix_reload_determinism_iter-012_T-013.md",
+      "task": "T-013",
+      "completed": "2026-06-13T19:52:32Z",
+      "description": "fix decision pro reload-determinismus hotová"
     },
     {
       "agent": "architect",
@@ -1199,7 +1208,7 @@ const DATA = {
     }
   },
   "agent_tokens": {
-    "architect": 207830,
+    "architect": 284097,
     "coder": 192176,
     "reviewer": 123402
   }

@@ -15,7 +15,7 @@
 - [x] T-007: coder – Crime pay robustnost (A3): crime.js beze změny logiky; +regresní no-throw testy (broke osada, pop/gold grid)
 - [x] T-008: coder – Sanity-cap populace (A4): denní sazba annualRate/DAYS_PER_YEAR (=364) v births/retirement + globální hard-cap sanityMaxPop=10000; deterministické, calcHousingDerivedFromCatalog nezměněna
 - [x] T-009: coder – Market UI overflow (A5): .table-scroll wrapper + responsivní CSS pro 6sl. market tabulku; bez přepisu komponenty
-- [ ] T-013: architect – Rozhodnutí fixu reload-determinismu (workforce.total): Option A rebuild-on-load vs B jobsAccidents reload-independent vs C reorder; zapsat do DR-012-02 (blocker před opravou)
+- [x] T-013: architect – Rozhodnutí fixu reload-determinismu → Option A (rebuild-on-load): deriveWorkforceTotal helper + přepočet v load.js Step 5; B/C zamítnuty; DR-012-02 decided; design pro codera hotový
 - [ ] T-014: coder – Aplikovat schválený fix dle DR-012-02 + REVERT oslabení G1 testu (iter005-edge.test.js zpět na plný hashState); npm run ci + smoke zelené
 - [ ] T-010: tester – QA: npm run ci zelené (+ aktualizace testů na seedovaný start), npm run smoke OK, dlouhý seedovaný sim (≥2 herní roky) bez crashe; ověřit accounting invariant u gold po fixu resolveru; ověřit G1 determinismus po load drží na plném hashState
 - [ ] T-011: reviewer – Code review celé implementace (correctness + reuse/simplify)

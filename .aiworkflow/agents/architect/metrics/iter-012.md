@@ -11,3 +11,9 @@
 - **total_tokens**: 106388
 - **tool_uses**: 53
 - **duration_ms**: 473974
+
+## T-013 (reload-determinismus fix decision)
+- **Timestamp**: 2026-06-13T19:00Z
+- **total_tokens**: 76267
+- **tool_uses**: 35
+- **duration_ms**: 306572

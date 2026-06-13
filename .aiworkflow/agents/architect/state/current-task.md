@@ -1,13 +1,37 @@
 # Current Task
 
-- **Task ID**: T-003 (iter-012)
-- **Brief**: context/inbox/brief_architect_T-003_iter-012.md (BRIEF-012-003)
+- **Task ID**: T-013 (iter-012)
+- **Brief**: context/inbox/brief_architect_T-013_iter-012.md (BRIEF-012-013)
 - **Iteration**: iter-012 (Playability & onboarding hardening)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
+Hotovo – ROZHODNUTÍ k opravě reload-determinismus regresu `workforce.total` (NE implementace; tu dělá coder v T-014).
+
+Zvolená varianta: **Option A — rebuild-on-load**. Po načtení (`load.js` Step 5) se přepočítá
+`state.home.workforce.total = min(population.total, workerSlots)` přes sdílenou kanonickou derivaci.
+Tím první post-load tick čte čerstvou (ne stale-0) hodnotu → `jobsAccidents` čerpá RNG stream
+`'population'` ve stejném okamžiku jako spojitý sim → žádný desync.
+
+Výstupy:
+- DR doplněn + Status decided: `orchestration/decisions/DR-012-02_reload-determinism-workforce-total.md`
+- Design pro codera (T-014): `artifacts/final/fix_reload_determinism_iter-012_T-013.md`
+- Potvrzeno: G1 test (`test/iter005-edge.test.js`) se vrací na plný `hashState` a po fixu MUSÍ projít.
+
+Zamítnuto: Option B (jobsAccidents přes workerSlots → riziko změny frekvence nehod, duplikace derivace),
+Option C (reorder autoAssign před accidents → širší zásah do determinismu spojitého simu, přepsání fixtures).
+
+### Klíčová ověření z kódu (T-013)
+- `jobsAccidents` jobs.js:152-158: `workers=min(pop, workforce.total||0)`, `<=0` → early-return → nečerpá rng.
+- `workforce.total` NEperzistuje (persistSchema.js:7); load.js:126-130 obnoví jen `assigned`; default 0.
+- Refresh až v `autoAssignWorkers` jobs.js:204-206; tickOrder quarterDay order 30 (assign) vs 20 (accidents).
+- `workerSlots` jobs.js:44-58 funguje BEZ ctx přes globální katalog fallback → load cesta (bez ctx) ho použije.
+- load.js Step 5 (ř.216) je dnes prázdný no-op „recalculate derivates" → přesné místo přepočtu.
+
+<details><summary>Předchozí (T-003) – archiv</summary>
+
 Hotovo – REVIZE návrhu dle review T-002 + DR-012-01 (NE implementace).
 Výstup: `artifacts/final/architecture_playability_iter-012_T-003.md` (supersedes T-001).
 
@@ -63,3 +87,5 @@ Pokrytí (čerpáno z REÁLNÝCH src/core/* + src/save/* + src/ui/*):
 
 ## Blockery
 –
+
+</details>
