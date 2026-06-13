@@ -48,7 +48,7 @@ test('save: round-trip preserves hashState', async () => {
   const hashBefore = hashState(state);
 
   await saveGame(state, { slotId: slot, now: 1000 });
-  const loaded = await loadGame(slot);
+  const loaded = await loadGame(slot, {});
 
   assert.ok(loaded !== null, 'loadGame should return a result');
   assert.equal(hashState(loaded.state), hashBefore);

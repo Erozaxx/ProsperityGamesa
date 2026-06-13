@@ -73,7 +73,7 @@ describe('iter-005: determinism after load (G1)', () => {
     const stateB = makeState(BREAK);
     await saveGame(stateB, { slotId: slot, now: 1000 });
 
-    const loaded = await loadGame(slot);
+    const loaded = await loadGame(slot, {});
     assert.ok(loaded !== null, 'loaded state should not be null');
 
     // Continue from loaded state – must use identical ctx construction
