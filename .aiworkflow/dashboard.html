@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T17:05:41Z",
+  "generated": "2026-06-13T17:14:43Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -400,8 +400,8 @@ const DATA = {
       },
       {
         "id": "T-003",
-        "text": "architect – Zapracovat nálezy z review (přepsat §2/§3/§7/§9, re-diagnóza, pořadí A1→A4→A3→A5, DAYS_PER_YEAR=364, volba A/B robustnosti) (in-flight)",
-        "done": false
+        "text": "architect – Zapracovat nálezy z review (přepsáno §2/§3/§7/§9, re-diagnóza, pořadí A1→A4→A3→A5→A2(Option A), DAYS_PER_YEAR=364) → architecture_playability_iter-012_T-003.md (supersedes T-001)",
+        "done": true
       },
       {
         "id": "T-004",
@@ -450,7 +450,7 @@ const DATA = {
       }
     ],
     "total": 12,
-    "done_count": 2
+    "done_count": 3
   },
   "closed_iterations": [
     "iter-001",
@@ -469,8 +469,8 @@ const DATA = {
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-001 (iter-012)",
-      "brief": "context/inbox/brief_architect_T-001_iter-012.md (BRIEF-012-001)",
+      "task_id": "T-003 (iter-012)",
+      "brief": "context/inbox/brief_architect_T-003_iter-012.md (BRIEF-012-003)",
       "iteration": "iter-012 (Playability & onboarding hardening)",
       "started": "2026-06-13",
       "completed": "2026-06-13"
@@ -731,6 +731,15 @@ const DATA = {
     },
     {
       "agent": "architect",
+      "file": "agents/architect/artifacts/final/architecture_playability_iter-012_T-003.md",
+      "type": "final",
+      "name": "architecture_playability_iter-012_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T17:13:35Z",
+      "description": "revize architektury dle review hotová"
+    },
+    {
+      "agent": "architect",
       "file": "agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md",
       "type": "final",
       "name": "architecture_proposal_iter-002_T-001.md",
@@ -825,8 +834,8 @@ const DATA = {
       "type": "final",
       "name": "rework_iter-002_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-12T22:40:03Z",
-      "description": "zapracování všech nálezů z review hotovo"
+      "completed": "2026-06-13T17:13:35Z",
+      "description": "revize architektury dle review hotová"
     },
     {
       "agent": "coder",
@@ -1171,7 +1180,7 @@ const DATA = {
     }
   },
   "agent_tokens": {
-    "architect": 101442,
+    "architect": 207830,
     "reviewer": 123402
   }
 };

@@ -8,7 +8,7 @@
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
 - [x] T-001: architect – Navrhnout architekturu řešení playability hardeningu (start seed přes BALANCE.start, resolver gold/techPt, crime pay clamp, populace cap, market UI overflow); struktura, dotčené moduly, alternativy, rizika, dopad na determinismus/save-hash
 - [x] T-002: reviewer – Review architektury (všechny nálezy, nejen blockery) → GO s podmínkami: 1 blocker (mylná A2 premisa), 3 major, 5 minor, 3 nit; viz DR-012-01
-- [ ] T-003: architect – Zapracovat nálezy z review (přepsat §2/§3/§7/§9, re-diagnóza, pořadí A1→A4→A3→A5, DAYS_PER_YEAR=364, volba A/B robustnosti) (in-flight)
+- [x] T-003: architect – Zapracovat nálezy z review (přepsáno §2/§3/§7/§9, re-diagnóza, pořadí A1→A4→A3→A5→A2(Option A), DAYS_PER_YEAR=364) → architecture_playability_iter-012_T-003.md (supersedes T-001)
 - [ ] T-004: human – Review a schválení architektury uživatelem (blocker před implementací)
 - [ ] T-005: coder – Start seed: createInitialState předá katalog do factory + createHomeState/createPlayerState čtou BALANCE.start (population/gold/food/housing); fresh hra startuje populovaná
 - [ ] T-006: coder – Fix resolveru zdrojů: resourceKindOf vrací pro 'gold'/'techPt' dedikovaný handler (ne 'resource'); pay/grant/canAfford konzistentní se state.player.gold

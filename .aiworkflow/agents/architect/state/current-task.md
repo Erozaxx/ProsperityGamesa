@@ -1,15 +1,29 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-012)
-- **Brief**: context/inbox/brief_architect_T-001_iter-012.md (BRIEF-012-001)
+- **Task ID**: T-003 (iter-012)
+- **Brief**: context/inbox/brief_architect_T-003_iter-012.md (BRIEF-012-003)
 - **Iteration**: iter-012 (Playability & onboarding hardening)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo – architektonický návrh (NE implementace) pro 5 oblastí playability hardeningu.
-Výstup: `artifacts/final/architecture_playability_iter-012_T-001.md`.
+Hotovo – REVIZE návrhu dle review T-002 + DR-012-01 (NE implementace).
+Výstup: `artifacts/final/architecture_playability_iter-012_T-003.md` (supersedes T-001).
+
+Zapracováno (vše ověřeno proti reálnému kódu + empirický node probe):
+- A2: mylný BLOCKER narrativ odstraněn. gold/techPt JSOU v resources.json (kind), resources v
+  ID_CATALOGS → s katalogem resolver vrací 'gold'/'techPt', handler čte player.gold=500 (no-op fix).
+  Catalog-less mezera (resourceKindOf('gold')==='resource' → pay throw) potvrzena probe.
+- VOLBA: Option A (defensivní early-return v resourceKindOf pro gold/techPt) — robustnost > křehkost
+  testů; s katalogem no-op, chráněno testem invariance. (shoda s preferencí orchestrátora DR-012-01)
+- §7 accounting: invariant NEBYL porušen v běhu (gold teče do player.gold už dnes) – přepsáno.
+- §3 crime: clamp+guards správné samy o sobě (ne „po A2"); throw byl jen catalog-less – jen regress test.
+- §9 diagram: přepracován (s katalogem 'gold'→'gold'; bug větev jen catalog-less).
+- Playtest #2 „Zlato 0" re-diagnostikováno = A1 (fresh pop=0 → crime early-return, taxes 0), ne A2.
+- Fakta opravena: DAYS_PER_YEAR=364 (4×seasonDays 91); market 6 sloupců; load.js smazat ř.211-212;
+  sanity-cap i v migraci; rename test population.test.js:254 „allows unlimited growth…(tent)".
+- Pořadí: A1 → A4 → A3(jen test) → A5 → A2(Option A hardening).
 
 Pokrytí (čerpáno z REÁLNÝCH src/core/* + src/save/* + src/ui/*):
 - A1 Start seed: createInitialState seeduje z BALANCE.start (population/gold/food/housing);
