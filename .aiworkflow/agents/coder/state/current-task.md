@@ -1,30 +1,25 @@
 # Current Task
 
 - **Task ID**: T-002
-- **Brief**: BRIEF-012
-- **Iteration**: iter-004
-- **Status**: done  <!-- idle | in-progress | done | blocked -->
+- **Brief**: BRIEF-016
+- **Iteration**: iter-005
+- **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Implementace M0a engine core dle návrhu architekta (design_iter-004_T-001.md). Hotovo.
-
-## Předpoklady
-- Návrh architekta je závazný (design_iter-004_T-001.md)
-- Zero-build ESM runtime, Node 22
-
-## Blockery
-–
+Implementace M0b PWA shell + save + benchmark dle návrhu architekta (design_iter-005_T-001.md). Hotovo.
 
 ## Checklist
-- [x] T1: struktura repa + package.json + tsconfig.json + grep gate + index.html
-- [x] T2: state container (createInitialState, freeze, types.d.ts) – bylo hotové
-- [x] T3: clock (clock.js, accumulator, advance)
-- [x] T4: scheduler (scheduler.js, timeEdges.js)
-- [x] T5: RNG (rng.js, mulberry32, hashState)
-- [x] T6: registry + calendar + tickOrder + commands (dispatch, setSpeed)
-- [x] Testy: clock/scheduler/RNG/calendar (27 testů, všechny zelené)
-- [x] tsc --noEmit → zelené
-- [x] grep gate → zelené
-- [x] impl note zapsán
+- [x] T1: PWA shell – src/vendor, index.html, src/app/*, src/ui/*
+- [x] T2: manifest, service-worker.js, tools/gen-precache.mjs, src/precache.js
+- [x] T3: IndexedDB save (idb.js, saveStore.js, schema.js) + fake-indexeddb testy
+- [x] T4: tools/bench-step.mjs + docs/benchmark_iter-005.md
+- [x] T5: src/app/persist.js + src/ui/ErrorScreen.js
+- [x] CI: .github/workflows/ci.yml
+- [x] tsconfig.json: DOM lib, vendor excluded, SW excluded
+- [x] Smazání legacy src/js/* + src/css/style.css
+- [x] tsc --noEmit zelené
+- [x] grep gate zelené (12 souborů)
+- [x] node --test 107/107 zelené
+- [x] bench report commitnutý
