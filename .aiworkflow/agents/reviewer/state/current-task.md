@@ -1,38 +1,42 @@
 # Current Task
 
 - **Task ID**: T-004
-- **Brief**: BRIEF-022
-- **Iteration**: iter-006
+- **Brief**: BRIEF-027
+- **Iteration**: iter-007
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo: review gate iter-006 (M1 = DoD M1 katalogy & balanc data), pravomoc re-run.
-Výstup: agents/reviewer/artifacts/final/review_iter-006_T-004.md
+Hotovo: review gate iter-007 (M2a = DoD M2a), pravomoc re-run.
+Výstup: agents/reviewer/artifacts/final/review_iter-007_T-004.md
 
 ## Výsledek
 Verdikt: **GO**. 0 BLOCKER.
-DoD M1 splněno bod po bodu (extrakce reprodukovatelná, 16/16 katalogů validní fail-fast,
-formulas testy s referenčními čísly zelené, referenční čísla z katalogů potvrzena testem,
-balance s odkazem na zdroj, BUG-001 fix WeakSet správný, gap report strojový+lidský s MVP-blokujícími
-dírami a plánem dotěžení). Provenance flagy korektní (6 extracted/4 derived/6 approximated).
-Autonomní eskalace DR-001/Q3 dodržena. Re-planning checkpoint M2+ MŮŽE proběhnout – gap report dostatečný.
+DoD M2a splněno: populace/jídlo/zdraví/krimi deterministicky live i v dávce (catch-up-safe
+ověřen i v KÓDU – žádné skryté ne-determinismy/alokace v hot-path), save round-trip nových domén
+na úrovni pipeline (applyPersist allowlist + loadAndReconstruct 7 kroků), stuby world/battle +
+kontraktní testy §8 vč. negativního S-06 (world.js nevolá goldValue/market.inject – staticky i behaviorálně).
+Soulad s návrhem (split, transakce atomické, persist 7 kroků, catalog hardening S-1/S-2/S-3/N-1/N-2).
+tickOrder pořadí věrné, docs/tickOrder.md aktualizován ve stejné iteraci. core bez DOM.
 
-Vlastní ověření: `npm run ci` → exit 0 (tsc 0, grep gate OK, node:test 238/238). Extrakce idempotentní
-(re-run extract.mjs → 0 diff src/data/). Working tree čistý — kód neměněn.
+Vlastní ověření: `npm run ci` → tsc 0, lint:core grep gate OK (32 souborů), node --test 460/460.
+Working tree čistý — kód neměněn.
 
-Nálezy (vše non-blocking, M2 backlog): 3 SUGGESTION
-(S-1 loader tenčí než návrh §3.3: chybí byId registr + ID-kolize napříč typy + B4 cross-ref – doplnit na začátku M2;
-S-2 gap-report.json bez per-gap blocksMvp/provenance + summary;
-S-3 jobs.products pole místo mapy {resourceId:amount} – M3 přejít na mapu)
-+ 2 NITPICK (N-1 resources.kind mimo navržený enum; N-2 food jako platný B4 cross-ref cíl).
+Nálezy (vše non-blocking):
+- S-1 (HIGH, první v M2b): persist pipeline (applyPersist/loadAndReconstruct) NENÍ napojen na reálnou
+  saveStore/load cestu; main.js volá loadGame bez katalogu a nenačítá katalogy → produkční save ukládá
+  celý stav, load obchází 7 kroků. Design řadí bootstrap/catch-up do M2b → ne BLOCKER.
+- S-2: createInitialState volá createHomeState přímo + nepoužité BALANCE.start (mrtvý startovní balanc).
+- S-3: food handler capuje per-druh na 500 místo agregátu; foodAggregate handler chybí.
+- N-1: crime.js "advance RNG" komentář zavádějící (makeRng je lazy, stream se neposune).
+- N-2: sdílený 'population' RNG stream (disease+crime) bez dokumentace.
+- N-3: migrate() čte verzi z payload.meta místo top-level obálky (bez dopadu při prázdném řetězu).
 
 ## Předpoklady
-- Architektura §5.2/§9.3/§11 a detailní návrh design_iter-006_T-001.md schválené – ověřoval jsem soulad.
-- byId/B4 aparát (§5.2) nemá v M1 konzumenta (engine krmí katalogy až M2) → odchylka klasifikována jako
-  SUGGESTION, ne BLOCKER. Reálné riziko NaN-ekonomiky z překlepu nastává v M2 → tam doplnit.
+- Catch-up MVP / end-to-end bootstrap (S-1) je dle design §0 explicitně M2b → odchylka klasifikována
+  jako SUGGESTION, ne BLOCKER. DoD M2a-1 vyžadoval pipeline + round-trip testy zelené, to splněno.
 
 ## Blockery
-Žádné. Doporučení: GO → orchestrátor může uzavřít iter-006 / pustit re-planning M2+.
-SUGGESTION/NITPICK přenést do M2 backlogu.
+Žádné. Doporučení: GO → orchestrátor může uzavřít iter-007 / pustit M2b.
+S-1 přenést jako prioritní první úkol M2b; S-2/S-3/N-* do M3/M9 backlogu.

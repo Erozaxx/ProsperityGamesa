@@ -2,7 +2,8 @@
  * formulas.js – pure game computation functions.
  * All formulas verified against source: market.js, config.js, home.js (doc/original_source/).
  * Functions are pure: no state mutation, no randomness, no timestamps.
- * iteration: iter-006 M1
+ * iteration: iter-007 M2a-1: added foodDemand, consumeFood, foodVariety, diseaseChance,
+ *   crimeCount, settlementLevel.
  */
 
 /**
@@ -123,4 +124,116 @@ export function goldValue(basket, priceOf) {
     total += qty * priceOf(id);
   }
   return total;
+}
+
+/**
+ * Food demand per meal: population × consumeFoodRate.
+ * @param {number} population
+ * @param {number} consumeFoodRate
+ * @returns {number}
+ */
+export function foodDemand(population, consumeFoodRate) {
+  return population * consumeFoodRate;
+}
+
+/**
+ * Fair-share food consumption. PURE - does not mutate store.
+ * @param {Record<string, number>} store - {foodId: amount}
+ * @param {number} demand - total food demanded (persons × rate)
+ * @param {string[]} foods - list of food ids
+ * @returns {{ consumed: Record<string, number>, fed: number, starved: number }}
+ */
+export function consumeFood(store, demand, foods) {
+  // Find available food types
+  const available = foods.filter(id => (store[id] || 0) > 0);
+  const total = available.reduce((s, id) => s + (store[id] || 0), 0);
+
+  if (total === 0 || demand === 0) {
+    /** @type {Record<string, number>} */
+    const consumed = {};
+    for (const id of foods) consumed[id] = 0;
+    return { consumed, fed: 0, starved: demand };
+  }
+
+  // Fair-share: take proportionally from each available type
+  /** @type {Record<string, number>} */
+  const consumed = {};
+  for (const id of foods) consumed[id] = 0;
+
+  const actuallyConsumed = Math.min(demand, total);
+
+  if (total >= demand) {
+    // Enough food - distribute demand proportionally
+    for (const id of available) {
+      const share = (store[id] / total) * demand;
+      consumed[id] = Math.floor(share);
+    }
+    // Assign remainder to first available food type
+    const assigned = Object.values(consumed).reduce((s, v) => s + v, 0);
+    if (assigned < actuallyConsumed && available.length > 0) {
+      consumed[available[0]] += actuallyConsumed - assigned;
+    }
+    return { consumed, fed: actuallyConsumed, starved: 0 };
+  } else {
+    // Not enough food - consume everything available proportionally
+    for (const id of available) {
+      consumed[id] = store[id];
+    }
+    return { consumed, fed: total, starved: demand - total };
+  }
+}
+
+/**
+ * Food variety bonus (0..1 bonus to efficiency/satisfaction).
+ * Based on number of non-zero food types.
+ * @param {Record<string, number>} store
+ * @param {number[]} [varietyTiers]
+ * @returns {number}
+ */
+export function foodVariety(store, varietyTiers) {
+  const nonZeroCount = Object.values(store).filter(v => v > 0).length;
+  const tiers = varietyTiers || [0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30];
+  const idx = Math.min(nonZeroCount, tiers.length - 1);
+  return tiers[idx];
+}
+
+/**
+ * Disease chance per day based on population.
+ * @param {number} population
+ * @param {{ diseaseBaseChancePer20kPop?: number }} balanceHealth
+ * @returns {number}
+ */
+export function diseaseChance(population, balanceHealth) {
+  const { diseaseBaseChancePer20kPop = 0.01 } = balanceHealth;
+  return (population / 20000) * diseaseBaseChancePer20kPop;
+}
+
+/**
+ * Crime incidents per day.
+ * @param {number} population
+ * @param {number} crimeLevel
+ * @param {{ basePerDay?: number, povertyFactor?: number }} balanceCrime
+ * @returns {number}
+ */
+export function crimeCount(population, crimeLevel, balanceCrime) {
+  const { basePerDay = 0.001, povertyFactor = 0.5 } = balanceCrime;
+  return Math.floor(population * crimeLevel * basePerDay * (1 + povertyFactor));
+}
+
+/**
+ * Settlement level from population + attractiveness.
+ * @param {number} population
+ * @param {number} housingAttractiveness
+ * @param {{ levelThresholds?: number[] }} balanceHousing
+ * @returns {number}
+ */
+export function settlementLevel(population, housingAttractiveness, balanceHousing) {
+  const thresholds = balanceHousing.levelThresholds || [0, 10, 50, 200, 500, 1000, 5000];
+  // Simple score = attractiveness (population affects future expansion)
+  const score = housingAttractiveness;
+  let level = 0;
+  for (let i = 0; i < thresholds.length; i++) {
+    if (score >= thresholds[i]) level = i;
+  }
+  return level;
 }

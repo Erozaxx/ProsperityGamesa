@@ -1,7 +1,7 @@
 /**
  * balance.js – named game constants with source references.
  * All values extracted from rootscope-raw-dump.json and config.js (doc/original_source/).
- * iteration: iter-006 M1
+ * iteration: iter-007 M2a-1: added start, food, health, crime, housing constants.
  */
 
 export const BALANCE = Object.freeze({
@@ -121,5 +121,43 @@ export const BALANCE = Object.freeze({
   offline: {
     /** Max real hours of offline progress to simulate. */
     capTechRealHours: 8,
+  },
+
+  /** Starting values for a new game. provenance: approximated */
+  start: {
+    population: 50,
+    gold: 500,
+    food: { bread: 20, cheese: 0, fish: 0, fruit: 0, meat: 0, vegetable: 0 },
+    housing: { tent: 5 },
+  },
+
+  /** Food mechanic constants. provenance: approximated / population.json */
+  food: {
+    /** Same as population.consumeFoodRate (unified source). */
+    consumeFoodRate: 2,
+    mealsPerDay: 2,
+    /** Bonus per number of food types (0..6 types → 0..0.30). provenance: approximated */
+    varietyTiers: [0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30],
+    /** From population.json maxFood. */
+    maxFood: 500,
+  },
+
+  /** Health mechanic constants. provenance: approximated */
+  health: {
+    diseaseBaseChancePer20kPop: 0.01,
+    diseaseDurationDays: 14,
+    diseaseDeathFraction: 0.05,
+  },
+
+  /** Crime mechanic constants. provenance: approximated */
+  crime: {
+    basePerDay: 0.001,
+    povertyFactor: 0.5,
+  },
+
+  /** Housing mechanic constants. provenance: approximated */
+  housing: {
+    /** Settlement level thresholds based on attractiveness sum. */
+    levelThresholds: [0, 10, 50, 200, 500, 1000, 5000],
   },
 });

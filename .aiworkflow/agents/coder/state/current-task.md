@@ -1,23 +1,28 @@
 # Current Task
 
-- **Task ID**: T-002
-- **Brief**: BRIEF-020b
-- **Iteration**: iter-006
+- **Task ID**: T-002b
+- **Brief**: BRIEF-025 (M2a-2)
+- **Iteration**: iter-007
 - **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
-## Checklist (iter-006 T-002b)
-- [x] BUG-001: registry.js WeakSet cycle protection (byl přítomen, ověřen + 3 regresní testy)
-- [x] src/core/balance/balance.js (pojmenované konstanty s source refs)
-- [x] src/core/balance/formulas.js (čisté vzorce)
-- [x] test/formulas.test.js (25+ tabulkových testů s reálnými čísly z návrhu)
-- [x] tools/extract/ pipeline (extract.mjs + 16 extractors + lib/sources+provenance+writeCatalog)
-- [x] src/core/catalog/ (schemas.js, validate.js, loader.js, index.js) – opraveny TS chyby
-- [x] test/catalog-validate.test.js
-- [x] src/data/ 16 JSON katalogů (food, houseTypes, companies, achievements, military, population, resources, jobs, buildings, goods, techs, zones, skills, sectors, marketBaseline, balance)
-- [x] src/data/gap-report.json
-- [x] src/core/registry/effects.js (M1 kostry + 8 registry testů)
-- [x] doc/gap-report-iter-006.md (lidsky čitelný)
-- [x] tsc --noEmit: 0 chyb
-- [x] npm run ci: 172 pass, 0 fail
+## Checklist (iter-007 T-002b M2a-2)
+- [x] T3 population system: populationMigration (step/10), calcHousingDerivedFromCatalog
+- [x] T3 retirement: populationRetirement (noon/20)
+- [x] T3 births: healthBirths (noon/10)
+- [x] T3 housing: housingSettlementLevel (day/20)
+- [x] T4 jobs: jobsProduction (quarterDay/10) – food jobs only, fixed 5 workers (M3 pending)
+- [x] T4 food: meal1 (day/10), meal2 (noon/50), foodSpoilage (month/10)
+- [x] T4 health disease: healthDisease (noon/30) lifecycle
+- [x] T4 crime: crimeDaily (noon/40)
+- [x] T5 world stub: worldTick (day/30) – no-op, S-06 compliant
+- [x] T5 battle stub: battleTick (step/30) + battleStep pure function
+- [x] tickOrder.js: all systems registered with correct edges+order
+- [x] docs/tickOrder.md: updated with all new slots
+- [x] Tests: population.test.js, food.test.js, health-crime.test.js, contracts.test.js
+- [x] S-06 contract test: static import check + behavioral spy
+- [x] UI: minimal population/food/health/crime display in App.js
+- [x] tsc: 0 errors
+- [x] lint:core: 32 files OK
+- [x] node --test: 411 pass, 0 fail

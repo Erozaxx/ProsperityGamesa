@@ -1,6 +1,7 @@
 /**
  * Shared type declarations for the Prosperity rebuild engine core (M0a).
  * All types are plain-data / serializable unless noted otherwise.
+ * iter-007 M2a-1: added PlayerState, HomeState, sub-domain states, TxEvent, emitTx.
  */
 
 /** Speed level: 0=paused, 1=normal, 2=fast */
@@ -82,6 +83,60 @@ export interface LogState {
   head: number;
 }
 
+/** Population sub-domain state */
+export interface PopulationState {
+  total: number;
+  migrationAcc: number;
+  bornTotal: number;
+  diedTotal: number;
+}
+
+/** Housing sub-domain state */
+export interface HousingState {
+  counts: Record<string, number>;
+}
+
+/** Food sub-domain state */
+export interface FoodState {
+  store: Record<string, number>;
+}
+
+/** Health sub-domain state */
+export interface HealthState {
+  diseaseActive: boolean;
+  diseaseDaysLeft: number;
+}
+
+/** Crime sub-domain state */
+export interface CrimeState {
+  level: number;
+}
+
+/** Home settlement state */
+export interface HomeState {
+  population: PopulationState;
+  housing: HousingState;
+  food: FoodState;
+  health: HealthState;
+  crime: CrimeState;
+  settlementLevel: number;
+}
+
+/** Player resource state */
+export interface PlayerState {
+  gold: number;
+  techPt: number;
+  inventory: Record<string, number>;
+}
+
+/** Transaction event emitted by resource handlers */
+export interface TxEvent {
+  key: string;
+  amount: number;
+  cause: string;
+  step: number;
+}
+
 /** Full game state tree – plain-data, serializable, single source of truth */
 export interface GameState {
   meta: {
@@ -93,10 +148,10 @@ export interface GameState {
   engine: EngineState;
   rng: RngState;
   season: SeasonState;
-  /** Slot: filled in M2+ */
-  player: Record<string, unknown>;
-  /** Slot: filled in M2+ */
-  home: Record<string, unknown>;
+  /** Player resource state */
+  player: PlayerState;
+  /** Home settlement state */
+  home: HomeState;
   /** Slot: filled in M2/M7 */
   world: Record<string, unknown>;
   /** Slot: filled in M5/M6 */
@@ -154,6 +209,7 @@ export type EdgeName =
 export interface TickContext {
   registry: import('../registry/registry.js').Registry;
   periodics: PeriodicTask[];
+  emitTx?: (tx: TxEvent) => void;
 }
 
 /** RNG interface returned by makeRng */

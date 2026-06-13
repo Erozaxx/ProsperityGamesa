@@ -15,6 +15,14 @@
 import { advanceCalendar } from '../systems/calendar.js';
 import { scheduleDue } from './scheduler.js';
 import { register, resolve } from '../registry/registry.js';
+import { populationMigration, populationRetirement } from '../systems/population.js';
+import { healthBirths, healthDisease } from '../systems/health.js';
+import { crimeDaily } from '../systems/crime.js';
+import { meal1, meal2, foodSpoilage } from '../systems/food.js';
+import { jobsProduction } from '../systems/jobs.js';
+import { housingSettlementLevel } from '../systems/housing.js';
+import { worldTick } from '../systems/world.js';
+import { battleTick } from '../systems/battle.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).
@@ -111,27 +119,51 @@ export function runTick(state, ctx) {
   devInvariants(state);
 }
 
+/** Shared no-op function (module-level constant for idempotent registry). */
+const _noop = () => {};
+
 /**
- * Idempotently registers core periodic tasks (iter-004 = no-op slots, real logic in M2+).
+ * Idempotently registers core periodic tasks.
+ * Uses module-level function references so re-registration is idempotent.
  * Returns sorted periodics array for ctx.periodics.
  * @param {Registry} registry
  * @returns {PeriodicTask[]}
  */
 export function registerCorePeriodics(registry) {
-  // Register shared no-op handler (idempotent: same function reference)
-  register(registry, 'noop', () => {});
+  // Register all system functions (idempotent: same function reference per module)
+  register(registry, 'noop', _noop);
+  register(registry, 'population.migration', populationMigration);
+  register(registry, 'population.retirement', populationRetirement);
+  register(registry, 'health.births', healthBirths);
+  register(registry, 'health.disease', healthDisease);
+  register(registry, 'crime.daily', crimeDaily);
+  register(registry, 'food.meal1', meal1);
+  register(registry, 'food.meal2', meal2);
+  register(registry, 'food.spoilage', foodSpoilage);
+  register(registry, 'jobs.production', jobsProduction);
+  register(registry, 'housing.settlementLevel', housingSettlementLevel);
+  register(registry, 'world.tick', worldTick);
+  register(registry, 'battle.tick', battleTick);
 
   /** @type {PeriodicTask[]} */
   const periodics = [
-    { id: 'population.migration', every: 'step',       order: 10, systemFn: 'noop' },
-    { id: 'skills.progress',      every: 'step',       order: 20, systemFn: 'noop' },
-    { id: 'jobs.production',      every: 'quarterDay', order: 10, systemFn: 'noop' },
-    { id: 'health.births',        every: 'noon',       order: 10, systemFn: 'noop' },
-    { id: 'meal.daily',           every: 'day',        order: 10, systemFn: 'noop' },
-    { id: 'forest.regen',         every: '10days',     order: 10, systemFn: 'noop' },
-    { id: 'localTaxes',           every: '5days',      order: 10, systemFn: 'noop' },
-    { id: 'taxes.monthly',        every: 'month',      order: 10, systemFn: 'noop' },
-    { id: 'season.change',        every: 'season',     order: 10, systemFn: 'noop' },
+    { id: 'population.migration',    every: 'step',       order: 10, systemFn: 'population.migration' },
+    { id: 'skills.progress',         every: 'step',       order: 20, systemFn: 'noop' },
+    { id: 'jobs.production',         every: 'quarterDay', order: 10, systemFn: 'jobs.production' },
+    { id: 'health.births',           every: 'noon',       order: 10, systemFn: 'health.births' },
+    { id: 'population.retirement',   every: 'noon',       order: 20, systemFn: 'population.retirement' },
+    { id: 'health.disease',          every: 'noon',       order: 30, systemFn: 'health.disease' },
+    { id: 'crime.daily',             every: 'noon',       order: 40, systemFn: 'crime.daily' },
+    { id: 'food.meal2',              every: 'noon',       order: 50, systemFn: 'food.meal2' },
+    { id: 'food.meal1',              every: 'day',        order: 10, systemFn: 'food.meal1' },
+    { id: 'housing.settlementLevel', every: 'day',        order: 20, systemFn: 'housing.settlementLevel' },
+    { id: 'forest.regen',            every: '10days',     order: 10, systemFn: 'noop' },
+    { id: 'localTaxes',              every: '5days',      order: 10, systemFn: 'noop' },
+    { id: 'food.spoilage',           every: 'month',      order: 10, systemFn: 'food.spoilage' },
+    { id: 'taxes.monthly',           every: 'month',      order: 20, systemFn: 'noop' },
+    { id: 'season.change',           every: 'season',     order: 10, systemFn: 'noop' },
+    { id: 'world.tick',              every: 'day',        order: 30, systemFn: 'world.tick' },
+    { id: 'battle.tick',             every: 'step',       order: 30, systemFn: 'battle.tick' },
   ];
 
   return periodics.sort((a, b) => {

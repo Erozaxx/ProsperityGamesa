@@ -1,4 +1,4 @@
-# Tick Order – Living Artefact (iter-004, M0a)
+# Tick Order – Living Artefact (iter-007 M2a-2)
 
 Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `registerCorePeriodics`).
 
@@ -11,19 +11,27 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | 3 | periodics | Runs periodic tasks in declared order, filtered by active edge |
 | 4 | eventFlush | Dev invariant checks (NaN guard on curStep; full invariants in M2+) |
 
-## Core Periodics (iter-004 – all no-op until M2+)
+## Core Periodics (iter-007 M2a-2 – live systems)
 
-| ID | Edge | Order | SystemFn |
-|----|------|-------|---------|
-| population.migration | step | 10 | noop |
-| skills.progress | step | 20 | noop |
-| jobs.production | quarterDay | 10 | noop |
-| health.births | noon | 10 | noop |
-| meal.daily | day | 10 | noop |
-| forest.regen | 10days | 10 | noop |
-| localTaxes | 5days | 10 | noop |
-| taxes.monthly | month | 10 | noop |
-| season.change | season | 10 | noop |
+| ID | Edge | Order | SystemFn | Status |
+|----|------|-------|----------|--------|
+| population.migration | step | 10 | population.migration | LIVE |
+| skills.progress | step | 20 | noop | M3 |
+| jobs.production | quarterDay | 10 | jobs.production | LIVE |
+| health.births | noon | 10 | health.births | LIVE |
+| population.retirement | noon | 20 | population.retirement | LIVE |
+| health.disease | noon | 30 | health.disease | LIVE |
+| crime.daily | noon | 40 | crime.daily | LIVE |
+| food.meal2 | noon | 50 | food.meal2 | LIVE |
+| food.meal1 | day | 10 | food.meal1 | LIVE |
+| housing.settlementLevel | day | 20 | housing.settlementLevel | LIVE |
+| world.tick | day | 30 | world.tick | STUB |
+| forest.regen | 10days | 10 | noop | M3 |
+| localTaxes | 5days | 10 | noop | M4 |
+| food.spoilage | month | 10 | food.spoilage | LIVE |
+| taxes.monthly | month | 20 | noop | M4 |
+| season.change | season | 10 | noop | M3 |
+| battle.tick | step | 30 | battle.tick | STUB |
 
 ## Edge Definitions
 

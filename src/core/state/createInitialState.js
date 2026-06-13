@@ -3,6 +3,8 @@
  * @typedef {import('./types.js').InitOptions} InitOptions
  */
 
+import { createHomeState, createPlayerState } from './createHomeState.js';
+
 // Defaults – MOVE TO balance.js @ M1 (source: design_iter-004_T-001 §2.2)
 const DEFAULT_SEED = 0x9E3779B9;
 const DEFAULT_GAME_VERSION = '0.0.0-m0a';
@@ -52,8 +54,8 @@ export function createInitialState(opts = {}) {
       dayInSeason: 1,
       _absDay: 1,
     },
-    player: {},
-    home: {},
+    player: createPlayerState(),
+    home: createHomeState(),
     world: {},
     catalogState: { modifiers: [] },
     battle: null,
