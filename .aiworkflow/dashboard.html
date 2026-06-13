@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T21:54:18Z",
+  "generated": "2026-06-13T22:54:10Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -469,12 +469,17 @@ const DATA = {
         "done": true
       },
       {
+        "id": "T-017",
+        "text": "coder – Oprava F-1 + F-2 (schváleno uživatelem po T-011). F-1: healthBirths (health.js) + populationMigration (population.js) nesmí REDUKOVAT už-over-cap loaded total (guard `pop>=sanityCap ? pop : min(...)`) dle R-A4-3 (koherentně v OBOU systémech). F-2: použít exportovaný `populationSanityCap()` helper i v health.js (žádná inline duplikace). + regress test (loaded over-cap save: porod/migrace total neshrinkne). Gate: plné `npm run ci` zelené, smoke OK, determinismus G1 nedotčen",
+        "done": false
+      },
+      {
         "id": "T-012",
         "text": "human – Schválení uzavření iterace (review výsledků před /close-iteration)",
         "done": false
       }
     ],
-    "total": 17,
+    "total": 18,
     "done_count": 16
   },
   "closed_iterations": [
