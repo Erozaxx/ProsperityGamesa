@@ -26,11 +26,11 @@
 - [ ] T-012: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
 ## Quality Gates
-- [ ] Plan neobsahuje orchestratora jako agenta u žádného tasku
-- [ ] Architect návrh prošel reviewer review a případnou opravou (T-002, T-003)
-- [ ] Architect návrh schválen uživatelem (T-004)
-- [ ] Code review (Reviewer)
-- [ ] QA validace (Tester)
+- [x] Plan neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architect návrh prošel reviewer review a případnou opravou (T-002, T-003)
+- [x] Architect návrh schválen uživatelem (T-004)
+- [x] Code review (Reviewer) – T-011 GO (0 blocker/major)
+- [x] QA validace (Tester) – T-010 GO (6/6 AC empiricky)
 
 ## Exit Criteria
 - Fresh hra startuje populovaná (populace/zlato/jídlo > 0) a v UI se zlato reálně hýbe (taxes/grant → state.player.gold).
