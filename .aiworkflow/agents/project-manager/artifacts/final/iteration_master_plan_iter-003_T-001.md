@@ -76,6 +76,8 @@ Pokrytí: **M0 → iter-004+005 · M1 → iter-006 · M2 → iter-007+008 (povol
 ### 2.1 MVP hranice
 **MVP jádro = M0–M4 = iter-004 … iter-011** (§11 architektury). Po iter-011 jsou splnitelná acceptance criteria zadání: instalace na mobil, offline hraní, idle smyčka výdělek→nákup→pasivní příjem→offline progres, spolehlivý save vč. offline výpočtu. M5–M8 = věrnost plného rebuildu, M9 = ladění a release.
 
+**MVP playtest checkpoint (rozhodnuto uživatelem, Q1/T-004):** po dokončení iter-011 se NEpokračuje rovnou na iter-012 – zařazuje se **povinný playtest checkpoint**: hratelný MVP se předá uživateli k hraní/vyhodnocení a uživatel smí **repriorizovat M5–M9** (pořadí milníků, případně přidat/odebrat rozsah) přes decision record. Teprve po tomto checkpointu orchestrátor zahájí iter-012 (nebo repriorizovanou variantu). Checkpoint je rozhodovací pauza, ne další implementační iterace.
+
 ### 2.2 Kritická cesta a závislosti iterací
 
 ```
@@ -397,11 +399,13 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 4. **A4 – Rizika architektury** (§12) mapována do plánu: R-A → iter-006 T6; R-B → iter-005 T4; R-C → iter-017 T1–T2; R-D → iter-015 T5; R-E → iter-007 T5 + iter-014/015; R-F → iter-018 T2; R-G → iter-016 T2 + iter-018 T3; R-H → tabulkové testy průběžně; R-I → iter-004 T1 + každý review gate; R-J → měření velikosti savu od iter-007 (tester).
 5. **Žádný rozpor s D1–D13/R1–R4 nenalezen** – plán architekturu pouze sekvencuje.
 
-## 5. Otázky na orchestrátora/uživatele (plán platí i bez odpovědí, s předpoklady výše)
+## 5. Otázky na uživatele — ZODPOVĚZENO (T-004, schválení uživatelem 2026-06-13)
 
-1. **Q1**: Po MVP (iter-011) – pokračovat rovnou M5–M9, nebo chce uživatel MVP playtest checkpoint s možností repriorizace? *(Předpoklad: pokračujeme dle plánu, MVP gate v iter-011 T-REV je jediná pauza.)*
-2. **Q2**: Je k dispozici reálné low-end mobilní zařízení pro benchmark M0 a PWA smoke testy, nebo platí syntetická náhrada dle A2? *(Předpoklad: syntetická náhrada + potvrzení uživatelem.)*
-3. **Q3**: Kdo a kdy rozhoduje eskalace gap reportu (iter-006 T6 – dotěžit z runtime vs. aproximace)? *(Předpoklad: uživatel na konci iter-006; do rozhodnutí se díry označí `provenance: 'approximated'` a jede se dál.)*
+1. **Q1 → ROZHODNUTO: MVP playtest checkpoint.** Po iter-011 (MVP jádro) se zařadí **povinný playtest checkpoint s možností repriorizace M5–M9** PŘED zahájením iter-012 (viz §2.1, §2.2). iter-011 T-REV (MVP gate) je tedy i rozhodovací bod uživatele o pořadí/rozsahu pozdních milníků.
+2. **Q2 → ROZHODNUTO: syntetická náhrada.** Benchmark M0 a PWA smoke se měří synteticky (Node + dostupný prohlížeč); reálné zařízení potvrdí uživatel později. Benchmark report (iter-005 DoD) to uvede explicitně (A2).
+3. **Q3 → ROZHODNUTO: PM/orchestrátor autonomně.** Eskalaci gap reportu (iter-006 T6) řeší workflow autonomně dle pravidla: chybějící data → `provenance: 'approximated'` a pokračuje se; uživatel je jen informován (ne blocker). Decision record při materiální díře.
+
+> Záznam: `orchestration/decisions/DR-001_iter-003-plan-approval.md`.
 
 ---
 
