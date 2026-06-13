@@ -382,30 +382,30 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-12T22:48:45Z",
+  "generated": "2026-06-13T05:29:10Z",
   "iteration": {
-    "id": "iter-002",
-    "goal": "Navrhnout projekt/architekturu na vytvoření hry – věrný rebuild Prosperity (mobile-first PWA, offline) – na základě materiálů z iter-01 (vstup = rozcestník).",
+    "id": "iter-003",
+    "goal": "Cizelovat plán – ze schválené architektury a milníků (M0–M9) vytvořit kompletní end-to-end plán všech iterací, nařezaný tak, aby tasky šly detailně navrhnout Opus agentem a provést Sonnet agentem, s povinným test loop (Sonnet/Haiku tester) + review gate (Opus reviewer, právo re-run) na konci každé iterace.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Navrhnout architekturu projektu rebuildu (stack + zdůvodnění, struktura a vrstvení logika↔UI, herní engine & čas + offline catch-up, datový + save model, katalogy/balanc, rozpad systémů do iterací, rozhodnutí k R1–R4, rizika). POVINNÝ VSTUP: `.aiworkflow/project/architecture/iter-02-input-rozcestnik.md` (+ materiály z iter-01, na které odkazuje)",
+        "text": "project-manager – Z architektury (`agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md`) a milníků M0–M9 vytvořit kompletní end-to-end plán VŠECH iterací do cíle. Milník ≠ nutně 1 iterace; řez podle komplexity. Pro každou iteraci: tasky s odhadem komplexity + doporučeným modelem (Opus návrh tasku / Sonnet provedení), závislosti, DoD a povinný závěrečný test loop (Sonnet/Haiku tester) + review gate (Opus reviewer s pravomocí re-run). Model: Fable.",
         "done": true
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery)",
+        "text": "reviewer – Review plánu (úplnost cesty M0→cíl, správnost řezu tasků na Opus-návrh+Sonnet-provedení, závislosti/kritická cesta, konzistence test loop + review gate u každé iterace). Všechny nálezy, nejen blockery. Model: Opus.",
         "done": true
       },
       {
         "id": "T-003",
-        "text": "architect – Zapracovat všechny nálezy z review (S-01..S-06 + N-01..N-04) do návrhu architektury + rework note. Model: Fable.",
+        "text": "project-manager – Zapracovat všechny nálezy z review do plánu + rework note. Model: Fable.",
         "done": true
       },
       {
         "id": "T-004",
-        "text": "human – Review a schválení architektury uživatelem (blocker před implementací)",
+        "text": "human – Review a schválení kompletního plánu uživatelem (blocker před zahájením implementačních iterací)",
         "done": true
       },
       {
@@ -418,7 +418,8 @@ const DATA = {
     "done_count": 4
   },
   "closed_iterations": [
-    "iter-001"
+    "iter-001",
+    "iter-002"
   ],
   "agents": [
     {
@@ -566,6 +567,15 @@ const DATA = {
       "completed": ""
     },
     {
+      "slug": "project-manager",
+      "status": "done",
+      "task_id": "T-003",
+      "brief": "BRIEF-010 (brief_project-manager_T-003_iter-003.md)",
+      "iteration": "iter-003",
+      "started": "2026-06-13",
+      "completed": "2026-06-13"
+    },
+    {
       "slug": "prototype",
       "status": "idle",
       "task_id": "",
@@ -587,10 +597,10 @@ const DATA = {
       "slug": "reviewer",
       "status": "done",
       "task_id": "T-002",
-      "brief": "BRIEF-006",
-      "iteration": "iter-002",
-      "started": "2026-06-12",
-      "completed": "2026-06-12"
+      "brief": "BRIEF-009",
+      "iteration": "iter-003",
+      "started": "2026-06-13",
+      "completed": "2026-06-13"
     },
     {
       "slug": "security",
@@ -685,6 +695,24 @@ const DATA = {
       "description": "zapracování všech nálezů z review hotovo"
     },
     {
+      "agent": "project-manager",
+      "file": "agents/project-manager/artifacts/final/iteration_master_plan_iter-003_T-001.md",
+      "type": "final",
+      "name": "iteration_master_plan_iter-003_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T00:27:56Z",
+      "description": "kompletni end-to-end plan iteraci M0-M9 s tasky, modely, DoD a test/review gates"
+    },
+    {
+      "agent": "project-manager",
+      "file": "agents/project-manager/artifacts/final/rework_iter-003_T-003.md",
+      "type": "final",
+      "name": "rework_iter-003_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T00:42:35Z",
+      "description": "zapracovani S-1..S-5 + N-1/N-3 do master planu + rework note"
+    },
+    {
       "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iter-001_T-003.md",
       "type": "final",
@@ -699,8 +727,17 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-12T22:28:21Z",
-      "description": "review návrhu architektury hotová"
+      "completed": "2026-06-13T00:34:45Z",
+      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md",
+      "type": "final",
+      "name": "review_iteration_master_plan_iter-003_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T00:34:45Z",
+      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
     },
     {
       "agent": "reviewer",
@@ -708,18 +745,21 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-12T22:28:21Z",
-      "description": "review návrhu architektury hotová"
+      "completed": "2026-06-13T00:34:45Z",
+      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
     }
   ],
   "metrics": {
     "iter-001_summary": {
       "raw": "# Orchestration Metrics: iter-001\n\n- **Closed**: 2026-06-12\n\n## Per-Agent Metrics\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| architect | T-001 | fable (xhigh) | 193948 | 62 | 1057919 |\n| architect | T-002 (timeout) | fable (xhigh) | 12276 | 22 | 597776 |\n| architect | T-002a | fable (xhigh) | 148885 | 40 | 769637 |\n| architect | T-002b | fable (xhigh) | 101712 | 42 | 701409 |\n| reviewer | T-003 | opus | 112095 | 46 | 436473 |\n| architect | T-004 | fable | 92806 | 30 | 356853 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Poznámky\n- T-002 (široký task) padl na Fable stream idle timeout → rozdělen na T-002a + T-002b (úspěšné).\n- Fable: 5/6 architektonických běhů úspěšných, hluboké výstupy + nález reálných bugů; široké tasky lépe štěpit.\n"
+    },
+    "iter-002_summary": {
+      "raw": "# Orchestration Metrics: iter-002\n\n- **Closed**: 2026-06-12\n\n## Per-Agent Metrics\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| architect | T-001 | fable (xhigh) | 151639 | 38 | 925114 |\n| reviewer | T-002 (pokus 1, socket err) | opus | 5276 | 19 | 272313 |\n| reviewer | T-002 (pokus 2, session limit) | opus | 9359 | 25 | 366286 |\n| reviewer | T-002 (úspěšný) | opus | 106591 | 29 | 433220 |\n| architect | T-003 (rework) | fable | 105528 | 35 | 475150 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Poznámky\n- Návrh architektury (T-001) na Fable bez timeoutu (~15 min).\n- Reviewer (T-002) dvakrát přerušen infra (socket error, session limit), třetí běh úspěšný po resetu limitu.\n- T-003 = zapracování všech nálezů review (S-01..S-06, N-01..N-04) na žádost uživatele (i když review byla 0-blocker).\n- Bonus deliverable: doc/HLD/architecture-overview.html (HTML one-pager s blokovými diagramy).\n"
     }
   },
   "agent_tokens": {
-    "architect": 257167,
-    "reviewer": 106591
+    "project-manager": 172161,
+    "reviewer": 94224
   }
 };
 
