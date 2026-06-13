@@ -1,0 +1,77 @@
+# Exit Summary: iter-008
+
+- **Closed**: 2026-06-13T11:17:42Z
+- **Open tasks at close**: 0
+
+## Collected Outputs
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/analysis_keymechanics_iter-001_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/analysis_refactoring_maintainability_iter-001_T-002b.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/analysis_refactoring_perf-offline_iter-001_T-002a.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/architecture_proposal_iter-002_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/design_iter-004_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/design_iter-005_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/design_iter-006_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/design_iter-007_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/design_iter-008_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/rework_iter-001_T-004.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/artifacts/rework_iter-002_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-001_2026-06-12T185058Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-001_2026-06-12T211525Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-001_2026-06-13T055407Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-001_2026-06-13T063712Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-001_2026-06-13T071636Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-001_2026-06-13T080243Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-001_2026-06-13T091530Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-002a_2026-06-12T192234Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-002b_2026-06-12T192148Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-003_2026-06-12T224003Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/architect/handoffs/done_T-004_2026-06-12T202406Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/artifacts/impl_iter-004_T-002.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/artifacts/impl_iter-005_T-002.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/artifacts/impl_iter-006_T-002.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/artifacts/impl_iter-007_T-002a.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/artifacts/impl_iter-007_T-002b.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/artifacts/impl_iter-008_T-002.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002_2026-06-13T061041Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002_2026-06-13T065322Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002_2026-06-13T065331Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002_2026-06-13T073425Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002_2026-06-13T073703Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002_2026-06-13T110946Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002a_2026-06-13T082244Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/coder/handoffs/done_T-002b_2026-06-13T084147Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/project-manager/artifacts/iteration_master_plan_iter-003_T-001.md
+- .aiworkflow/orchestration/runs/iter-008/collected/project-manager/artifacts/rework_iter-003_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/project-manager/handoffs/done_T-001_2026-06-13T002756Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/project-manager/handoffs/done_T-003_2026-06-13T004235Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-001_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-002_T-002.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-004_T-004.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-005_T-004.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-006_T-004.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-007_T-004.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-008_T-004.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iter-008_T-004rr.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/artifacts/review_iteration_master_plan_iter-003_T-002.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-002_2026-06-12T222821Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-002_2026-06-13T003445Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-003_2026-06-12T201153Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-004_2026-06-13T062449Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-004_2026-06-13T070626Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-004_2026-06-13T074822Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-004_2026-06-13T090347Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-004_2026-06-13T105221Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/reviewer/handoffs/done_T-004_2026-06-13T111703Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/artifacts/testreport_iter-004_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/artifacts/testreport_iter-005_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/artifacts/testreport_iter-006_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/artifacts/testreport_iter-007_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/artifacts/testreport_iter-008_T-003.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/handoffs/done_T-003_2026-06-13T061827Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/handoffs/done_T-003_2026-06-13T070025Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/handoffs/done_T-003_2026-06-13T074154Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/handoffs/done_T-003_2026-06-13T085353Z.md
+- .aiworkflow/orchestration/runs/iter-008/collected/tester/handoffs/done_T-003_2026-06-13T104434Z.md
+
+## Notes
+–
