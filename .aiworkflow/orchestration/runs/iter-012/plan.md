@@ -16,7 +16,9 @@
 - [x] T-008: coder – Sanity-cap populace (A4): denní sazba annualRate/DAYS_PER_YEAR (=364) v births/retirement + globální hard-cap sanityMaxPop=10000; deterministické, calcHousingDerivedFromCatalog nezměněna
 - [x] T-009: coder – Market UI overflow (A5): .table-scroll wrapper + responsivní CSS pro 6sl. market tabulku; bez přepisu komponenty
 - [x] T-013: architect – Rozhodnutí fixu reload-determinismu → Option A (rebuild-on-load): deriveWorkforceTotal helper + přepočet v load.js Step 5; B/C zamítnuty; DR-012-02 decided; design pro codera hotový
-- [ ] T-014: coder – Aplikovat schválený fix dle DR-012-02 + REVERT oslabení G1 testu (iter005-edge.test.js zpět na plný hashState); npm run ci + smoke zelené
+- [~] T-014: coder – BLOCKED: Option A fix aplikován a korektní (G1 plný hashState zelený 16/16, smoke OK, typecheck+lint zelené); REVERT G1 testu hotový. ALE plné `npm run ci` červené — fix odhalil hlubší preexistující díru: stale workforce.total=0 i na 1. ticku SPOJITÉHO simu → 2 preexist. testy (app-bootstrap, export-string, savnou na curStep=0) selhávají. NEMASKOVÁNO, eskalováno → T-015
+- [ ] T-015: architect – Rozhodnout dotažení fixu: derive-on-init (přepočet workforce.total v createInitialState == load; mění hash fresh-simu, vyžaduje refresh fixtures) vs uznat 2 testy jako křehké (posun save-pointu za 1. quarterDay edge); reorder (C) už zamítnut. Zapsat do DR-012-02 (extend), identifikovat dotčené fixtures
+- [ ] T-016: coder – Aplikovat schválené dotažení dle T-015 + regenerovat dotčené fixtures; plné `npm run ci` zelené, `npm run smoke` OK, G1 + app-bootstrap + export-string zelené
 - [ ] T-010: tester – QA: npm run ci zelené (+ aktualizace testů na seedovaný start), npm run smoke OK, dlouhý seedovaný sim (≥2 herní roky) bez crashe; ověřit accounting invariant u gold po fixu resolveru; ověřit G1 determinismus po load drží na plném hashState
 - [ ] T-011: reviewer – Code review celé implementace (correctness + reuse/simplify)
 - [ ] T-012: human – Schválení uzavření iterace (review výsledků před /close-iteration)

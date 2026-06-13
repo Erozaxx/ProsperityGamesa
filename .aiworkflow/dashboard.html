@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T19:53:39Z",
+  "generated": "2026-06-13T20:06:54Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -439,8 +439,13 @@ const DATA = {
         "done": true
       },
       {
-        "id": "T-014",
-        "text": "coder – Aplikovat schválený fix dle DR-012-02 + REVERT oslabení G1 testu (iter005-edge.test.js zpět na plný hashState); npm run ci + smoke zelené",
+        "id": "T-015",
+        "text": "architect – Rozhodnout dotažení fixu: derive-on-init (přepočet workforce.total v createInitialState == load; mění hash fresh-simu, vyžaduje refresh fixtures) vs uznat 2 testy jako křehké (posun save-pointu za 1. quarterDay edge); reorder (C) už zamítnut. Zapsat do DR-012-02 (extend), identifikovat dotčené fixtures",
+        "done": false
+      },
+      {
+        "id": "T-016",
+        "text": "coder – Aplikovat schválené dotažení dle T-015 + regenerovat dotčené fixtures; plné `npm run ci` zelené, `npm run smoke` OK, G1 + app-bootstrap + export-string zelené",
         "done": false
       },
       {
@@ -459,7 +464,7 @@ const DATA = {
         "done": false
       }
     ],
-    "total": 14,
+    "total": 15,
     "done_count": 10
   },
   "closed_iterations": [
@@ -532,12 +537,12 @@ const DATA = {
     },
     {
       "slug": "coder",
-      "status": "done",
-      "task_id": "T-005..T-009 (iter-012 playability hardening A1-A5)",
-      "brief": "brief_coder_T-005-009_iter-012.md",
+      "status": "blocked",
+      "task_id": "T-014 (iter-012 reload-determinismus fix, Option A)",
+      "brief": "brief_coder_T-014_iter-012.md",
       "iteration": "iter-012",
       "started": "2026-06-13",
-      "completed": "2026-06-13"
+      "completed": ""
     },
     {
       "slug": "content-writer",
@@ -947,6 +952,15 @@ const DATA = {
       "description": "implementace A1-A5 hotová, ci+smoke zelené (778 testů pass, smoke OK); deviace: balance.json sanityMaxPop nezrcadleno (gen. soubor), smoke.mjs type-only unblock (pre-existing red), latent jobsAccidents workforce.total nález pro architekta"
     },
     {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-012_T-014.md",
+      "type": "final",
+      "name": "impl_summary_iter-012_T-014.md",
+      "task": "T-014",
+      "completed": "2026-06-13T20:03:36Z",
+      "description": "BLOCKED/ESKALACE: Option A scope-fix hotový (deriveWorkforceTotal v jobs.js, rebuild-on-load v load.js, G1 iter005-edge zpět na PLNÉM hashState a ZELENÝ; typecheck+lint+smoke OK). Plné npm run ci ale ČERVENÉ: 2 preexistující determinismus testy mimo scope T-014 (test/app-bootstrap.test.js a test/export-string.test.js) fix odhalil. Root cause ověřen experimentem: savnou na curStep=0; jobsAccidents (order 20) běží před autoAssign (order 30), quarterDay edge už na kroku 1 → Path A má stale workforce.total=0 (přeskočí RNG), Path B po load=9 (čerpá RNG) → desync streamu population. Před fixem obě cesty bugově přeskočily (falešná shoda). Oprava vyžaduje zásah mimo scope (derive-on-init / reorder=zamítnutá Option C / posun save-pointu v cizích testech) → rozhodnutí architekta. NEMASKOVÁNO. Detaily: artifacts/final/impl_summary_iter-012_T-014.md"
+    },
+    {
       "agent": "project-manager",
       "file": "agents/project-manager/artifacts/final/iteration_master_plan_iter-003_T-001.md",
       "type": "final",
@@ -1209,7 +1223,7 @@ const DATA = {
   },
   "agent_tokens": {
     "architect": 284097,
-    "coder": 192176,
+    "coder": 280318,
     "reviewer": 123402
   }
 };
