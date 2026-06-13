@@ -135,17 +135,18 @@ describe('TC-001: forestRegen tabular – exact expected values (spring, health=
 
   it('fire risk triggers at timeSinceLastFire > 23 in autumn (deterministic)', () => {
     // Use seed that forces fire (high tree density → high risk close to 1)
-    // Create state with max trees (fills area) to make risk ≈ 1
+    // SUGGESTION-1 fix: fire risk denominator is BALANCE.forest.maxTrees (328327), not forestArea.
+    // Set trees near maxTrees to make risk ≈ 1.
     const state = createInitialState({ seed: 0xDEAD0001 });
     initRng(state);
     state.season.curSeason = 2; // autumn
     state.world.forest.timeSinceLastFire = 25; // > 23 → fire check active
 
-    const level = state.home.settlementLevel || 0;
-    const area = forestArea(level);
-    // Set trees to fill area → risk = (curTrees/area)^2 → near 1
-    state.world.forest.curTrees = area - 100;
-    state.world.forest.curAnimals = Math.floor((area - 100) / 5) - 1; // avoid cull
+    // Use maxTrees as denominator (SUGGESTION-1 fix matches source config.js:688)
+    const maxTrees = BALANCE.forest.maxTrees; // 328327
+    // Set trees near maxTrees → risk = (curTrees/maxTrees)^2 ≈ 1
+    state.world.forest.curTrees = maxTrees - 100;
+    state.world.forest.curAnimals = 100; // keep animals small to avoid cull issues
 
     const treesBefore = state.world.forest.curTrees;
     forestRegen(state, {}, {});
@@ -154,7 +155,7 @@ describe('TC-001: forestRegen tabular – exact expected values (spring, health=
     assert.strictEqual(state.world.forest.timeSinceLastFire, 0,
       'timeSinceLastFire should reset to 0 after fire check');
 
-    // With trees near area, risk=(area-100)/area)^2 ≈ 1 so fire is very likely
+    // With trees near maxTrees, risk=((maxTrees-100)/maxTrees)^2 ≈ 1 so fire is very likely
     // If fire happened: curTrees = round(original * 0.5)
     const fireHappened = state.world.forest.curTrees < treesBefore * 0.9;
     if (fireHappened) {
@@ -540,7 +541,8 @@ describe('TC-008: RNG stream determinism – streams are independent', () => {
       initRng(s);
       s.season.curSeason = 2; // autumn with fire chance
       s.world.forest.timeSinceLastFire = 25;
-      s.world.forest.curTrees = forestArea(0) - 100; // near capacity → high fire risk
+      // SUGGESTION-1 fix: fire risk denominator is maxTrees (328327); set near maxTrees for high risk
+      s.world.forest.curTrees = BALANCE.forest.maxTrees - 100;
       s.world.forest.curAnimals = 100;
       forestRegen(s, {}, {});
       return { curTrees: s.world.forest.curTrees, curAnimals: s.world.forest.curAnimals, lastFire: s.world.forest.lastFire };

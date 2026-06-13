@@ -13,6 +13,14 @@ import { forestArea, forestUsed } from '../balance/formulas.js';
 import { logEntry } from '../engine/log.js';
 
 /**
+ * Max trees denominator for fire risk calculation.
+ * Source: config.js:688 maxTrees=328327.
+ * SUGGESTION-1: Using maxTrees (not forestArea) matches source fire risk probability.
+ * forestArea(0) ≈ 33000 gives ~100× higher risk than using maxTrees=328327.
+ */
+const MAX_TREES = BALANCE.forest.maxTrees;
+
+/**
  * Forest regeneration – 10days edge, order 10.
  * @param {GameState} state
  * @param {object} _params
@@ -55,7 +63,7 @@ export function forestRegen(state, _params, _ctx) {
     f.timeSinceLastFire++;
     if (f.timeSinceLastFire > 23) {
       const rng = makeRng(state, 'forest');
-      const risk = Math.pow(f.curTrees / area, 2);
+      const risk = Math.pow(f.curTrees / MAX_TREES, 2);
       if (rng.next() < risk) {
         f.curTrees = Math.round(f.curTrees * 0.5);
         f.lastFire = state.engine.curStep;

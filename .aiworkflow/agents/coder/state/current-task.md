@@ -1,22 +1,21 @@
 # Current Task
 
-- **Task ID**: T-002
-- **Brief**: BRIEF-030 (iter-009 M3 produkce/joby/skilly)
+- **Task ID**: T-002 (RE-RUN 1)
+- **Brief**: BRIEF-033rr (iter-009 M3 RE-RUN: BLOCKER-1 commands+catalog, BLOCKER-2 UI, SUGGESTION-1 forest fire)
 - **Iteration**: iter-009
 - **Status**: done
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
-## Checklist (iter-009 T-002 – M3 Production)
-- [x] T1: forest/field/mine world stocks (handlers, regen systems, area formulas, start values)
-- [x] T2: jobs progress model (curStep += eff*number, completion, autoAssign, accidents, assignJob command)
-- [x] T3: workerEfficiency (day system, clamp [0.25,2], M3 baseline=1.0)
-- [x] T4: skills (skillsProgress per step, 2× compensation, startSkill command)
-- [x] BL-3: ctx.catalog pre-load + hasCatalog helper
-- [x] persist schema (world.forest/field/mine, home.workerEfficiency/workforce/jobs/skills)
-- [x] gap-report.json (12 new M3 gaps)
-- [x] docs/tickOrder.md updated to M3
-- [x] test/m3-production.test.js (36 tests)
+## Checklist (iter-009 T-002 RE-RUN 1)
+- [x] BLOCKER-1: Verify registerAssignJob + registerStartSkill + ctx.catalog in bootstrapEngine (main.js)
+- [x] BLOCKER-1: Bootstrap/registration test (test/boot-integration.test.js – 4 new tests)
+- [x] BLOCKER-2: selectJobs/selectSkills/selectWorkforce/selectWorld selectors (src/ui/selectors.js)
+- [x] BLOCKER-2: ForestScreen/JobsScreen/SkillsScreen (src/ui/screens.js)
+- [x] BLOCKER-2: App.js tabbed navigation wiring (Přehled/Příroda/Práce/Dovednosti)
+- [x] BLOCKER-2: UI selector tests (test/ui-selectors.test.js – 7 new tests)
+- [x] SUGGESTION-1: forest fire denominator → BALANCE.forest.maxTrees (328327) in forest.js
+- [x] SUGGESTION-1: Fix extended tests curTrees setup (maxTrees-100)
 - [x] tsc: 0 errors
 - [x] lint:core: OK (41 files)
-- [x] node --test: 577 pass, 0 fail
+- [x] node --test: 633 pass, 0 fail
