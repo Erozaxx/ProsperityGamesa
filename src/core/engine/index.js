@@ -7,3 +7,4 @@ export { scheduleInsert, scheduleDue, scheduleCancel, scheduleCountOf } from './
 export { stepInDay, isDayBoundary } from './timeEdges.js';
 export { initRng, makeRng, hashState } from './rng.js';
 export { runTick, registerCorePeriodics, TICK_ORDER } from './tickOrder.js';
+export { catchupStepCount, runCatchupBatch, CATCHUP_CHUNK_STEPS, CATCHUP_PROGRESS_THRESHOLD_STEPS } from './catchup.js';

@@ -19,7 +19,7 @@ export const PERSIST_SCHEMA = {
 /**
  * Extract only allowlisted fields from state for persistence.
  * @param {object} state
- * @returns {object}
+ * @returns {Record<string, unknown>}
  */
 export function applyPersist(state) {
   /** @type {Record<string, unknown>} */
