@@ -1,42 +1,45 @@
 # Current Task
 
-- **Task ID**: T-004
-- **Brief**: BRIEF-027
-- **Iteration**: iter-007
+- **Task ID**: T-004 (RE-REVIEW round 2)
+- **Brief**: BRIEF-031rr
+- **Iteration**: iter-008
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo: review gate iter-007 (M2a = DoD M2a), pravomoc re-run.
-Výstup: agents/reviewer/artifacts/final/review_iter-007_T-004.md
+Hotovo: RE-REVIEW round 2 gate iter-008 (M2b = DoD M2) po opravě B-1..B-4.
+Výstup: agents/reviewer/artifacts/final/review_iter-008_T-004rr.md
 
 ## Výsledek
-Verdikt: **GO**. 0 BLOCKER.
-DoD M2a splněno: populace/jídlo/zdraví/krimi deterministicky live i v dávce (catch-up-safe
-ověřen i v KÓDU – žádné skryté ne-determinismy/alokace v hot-path), save round-trip nových domén
-na úrovni pipeline (applyPersist allowlist + loadAndReconstruct 7 kroků), stuby world/battle +
-kontraktní testy §8 vč. negativního S-06 (world.js nevolá goldValue/market.inject – staticky i behaviorálně).
-Soulad s návrhem (split, transakce atomické, persist 7 kroků, catalog hardening S-1/S-2/S-3/N-1/N-2).
-tickOrder pořadí věrné, docs/tickOrder.md aktualizován ve stejné iteraci. core bez DOM.
+Verdikt: **GO**. Všechny 4 blockery REÁLNĚ vyřešené v bootSequence(env).
 
-Vlastní ověření: `npm run ci` → tsc 0, lint:core grep gate OK (32 souborů), node --test 460/460.
-Working tree čistý — kód neměněn.
+CI ověřeno: `npm run ci` ZELENÉ (tsc 0, lint:core OK, node --test 541/541 = 529 + 12 nových integračních).
 
-Nálezy (vše non-blocking):
-- S-1 (HIGH, první v M2b): persist pipeline (applyPersist/loadAndReconstruct) NENÍ napojen na reálnou
-  saveStore/load cestu; main.js volá loadGame bez katalogu a nenačítá katalogy → produkční save ukládá
-  celý stav, load obchází 7 kroků. Design řadí bootstrap/catch-up do M2b → ne BLOCKER.
-- S-2: createInitialState volá createHomeState přímo + nepoužité BALANCE.start (mrtvý startovní balanc).
-- S-3: food handler capuje per-druh na 500 místo agregátu; foodAggregate handler chybí.
-- N-1: crime.js "advance RNG" komentář zavádějící (makeRng je lazy, stream se neposune).
-- N-2: sdílený 'population' RNG stream (disease+crime) bez dokumentace.
-- N-3: migrate() čte verzi z payload.meta místo top-level obálky (bez dopadu při prázdném řetězu).
+## Ověření blockerů (v reálné bootSequence, ne jen unit)
+- B-1 VYŘEŠENO: loadCatalogs() první → loadGame(SLOT_ID, {}) truthy → loadAndReconstruct path
+  (saveStore.js větev catalog?). Runtime katalogy z globálního store → throw-path pryč.
+- B-2 VYŘEŠENO: missedMs → catchupStepCount(cap 8h) → runCatchupBatch (chunk/yield) → buildOfflineSummary,
+  PŘED loop.start(). catch-up = týž step() = G1.
+- B-3 VYŘEŠENO: createAutosave (60s default) + setInterval('periodic') + lifecycle onHide('hide' bypass)
+  + 'event' po doběhnutí catch-upu. Raw saveGame odstraněn.
+- B-4 VYŘEŠENO: render.js spread ...extraProps → App.js renderuje Export/Import + OfflineSummary/CatchupProgress.
 
-## Předpoklady
-- Catch-up MVP / end-to-end bootstrap (S-1) je dle design §0 explicitně M2b → odchylka klasifikována
-  jako SUGGESTION, ne BLOCKER. DoD M2a-1 vyžadoval pipeline + round-trip testy zelené, to splněno.
+## Integrační test
+test/boot-integration.test.js (12 testů) exercituje bootSequence(env) přes reálné katalogy + reálný step();
+full-path test ověří všech 5 wiring eventů najednou. Selže, kdyby kterékoliv wiring chybělo.
 
-## Blockery
-Žádné. Doporučení: GO → orchestrátor může uzavřít iter-007 / pustit M2b.
-S-1 přenést jako prioritní první úkol M2b; S-2/S-3/N-* do M3/M9 backlogu.
+## DoD M2: SPLNĚNO
+Offline progres v reálné boot cestě (cap/summary), autosave, export/import z UI, catch-up=live, G1.
+
+## Backlog (non-blocking, kód NEMĚNĚN)
+- BL-1: loadGame/importFromString dostávají {} místo reálného catalog handle → balance.start overrides
+  se neaplikují (graceful fallback na defaulty). Funkčně OK.
+- BL-2: onImport tiše spolkne chybu importu → zobrazit showError.
+- BL-3: per-step getCatalog('houseTypes') try/catch (z round 1) – mimo hot-path / hasCatalog.
+- BL-4: mrtvý kód ve fake exportToString v boot-integration.test.js.
+- BL-5: legacy bare-payload větev v importFromString – zvážit deprecate.
+
+## Doporučení
+GO. Iteraci iter-008 lze z pohledu reviewera uzavřít. Backlog BL-1..BL-5 do příští iterace.
+Kód neměněn (scope OUT).

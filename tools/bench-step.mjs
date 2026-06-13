@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 /**
  * Synthetic step-cost benchmark (§14.1 / §9.2a).
- * Measures ns/step for the empty-tick + scheduler core,
- * over X thousand steps, using the real engine bootstrap (no DOM). Node-only.
+ * Measures ns/step for the production code path (catalogs loaded, DEV-off equivalent):
+ * calendar + schedule + M2 periodics + devInvariants, over X thousand steps.
+ * Node-only.
  *   node tools/bench-step.mjs [--steps=2000000] [--warmup=200000] [--json]
  * Prints a human report (or JSON with --json) used to confirm/escalate the 8h cap (S-02/D10a) and D13.
+ *
+ * NOTE (iter-008 T-003): Catalogs are loaded from src/data/ before measuring to represent the
+ * PRODUCTION code path. Without catalogs, systems like populationMigration throw/catch on every
+ * getCatalog call (~3000 ns/throw vs ~22 ns when loaded). DEV devInvariants run (cheap NaN guard);
+ * assertSerializable is NOT called every step (only in saveGame). Threshold is set accordingly.
  */
 
 import { createInitialState } from '../src/core/state/createInitialState.js';
@@ -12,13 +18,24 @@ import { initRng } from '../src/core/engine/rng.js';
 import { createRegistry } from '../src/core/registry/registry.js';
 import { registerCorePeriodics } from '../src/core/engine/tickOrder.js';
 import { step, scheduleInsert, STEP_MS } from '../src/core/engine/index.js';
-import { writeFileSync } from 'node:fs';
+import { loadCatalog } from '../src/core/catalog/index.js';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const ROOT = join(__dirname, '..');
+const DATA_DIR = join(ROOT, 'src', 'data');
+
+/** Load catalogs from disk – represents the production boot path (catalogs always loaded). */
+function loadBenchCatalogs() {
+  const names = ['resources', 'food', 'houseTypes', 'jobs', 'military', 'achievements', 'population'];
+  for (const name of names) {
+    const data = JSON.parse(readFileSync(join(DATA_DIR, `${name}.json`), 'utf8'));
+    loadCatalog(name, data);
+  }
+}
 
 /**
  * Cap aritmetika (§9.2a):
@@ -41,6 +58,10 @@ const STEPS_FOR_CAP = Math.round((CAP_HOURS * 3600) / STEP_SECONDS); // 576_000
 export function runBench(opts = {}) {
   const STEPS = opts.steps ?? 2_000_000;
   const WARMUP = opts.warmup ?? 200_000;
+
+  // 0. Load catalogs (production path) – prevents getCatalog throw/catch overhead (~3000 ns/call)
+  //    In production, boot() always loads catalogs before any step(). This bench must match that.
+  loadBenchCatalogs();
 
   // 1. Bootstrap real core
   const state = createInitialState({ seed: 0x12345 });
@@ -135,15 +156,19 @@ export function formatReport(result) {
   const catchUp2 = loadedHeap?.catchUpMs8h ?? 0;
 
   // Determine verdict
-  const TARGET_NS = 10_000;
-  const WARN_NS = 50_000;
+  // Thresholds (iter-008 T-003, catalogs-loaded production path):
+  //   Target: ≤ 1500 ns/krok → catch-up 8h ≈ ≤ 864 ms (well within 5760 ms)
+  //   Warning: 1500–10000 ns/krok → borderline; still < 5760 ms at 10000 ns
+  //   Escalate: > 10000 ns/krok → catch-up 8h > 5760 ms; investigate or add Worker
+  const TARGET_NS = 1_500;
+  const WARN_NS = 10_000;
   let verdict;
   if (nsPerStep <= TARGET_NS) {
-    verdict = `POTVRDIT cap 8h ✓ (empty heap pod cílem ${TARGET_NS.toLocaleString()} ns/krok; catch-up ${catchUpMs8h.toFixed(1)} ms << 5760 ms)`;
+    verdict = `POTVRDIT cap 8h ✓ (prod. cesta pod cílem ${TARGET_NS.toLocaleString()} ns/krok; catch-up ${catchUpMs8h.toFixed(1)} ms << 5760 ms)`;
   } else if (nsPerStep <= WARN_NS) {
-    verdict = `VAROVÁNÍ – empty heap ${nsPerStep.toFixed(0)} ns/krok (cíl ${TARGET_NS.toLocaleString()}); catch-up ${catchUpMs8h.toFixed(1)} ms; zvážit nižší cap nebo Worker.`;
+    verdict = `VAROVÁNÍ – prod. cesta ${nsPerStep.toFixed(0)} ns/krok (cíl ${TARGET_NS.toLocaleString()}); catch-up ${catchUpMs8h.toFixed(1)} ms; prověřit regresi.`;
   } else {
-    verdict = `ESKALOVAT – empty heap ${nsPerStep.toFixed(0)} ns/krok >> ${WARN_NS.toLocaleString()} ns; catch-up 8h ${catchUpMs8h.toFixed(1)} ms > ~29 000 ms; D13 Worker NEBO snížit cap.`;
+    verdict = `ESKALOVAT – prod. cesta ${nsPerStep.toFixed(0)} ns/krok >> ${WARN_NS.toLocaleString()} ns; catch-up 8h ${catchUpMs8h.toFixed(1)} ms > 5760 ms; D13 Worker NEBO snížit cap.`;
   }
 
   const date = new Date().toISOString().slice(0, 19).replace('T', ' ');

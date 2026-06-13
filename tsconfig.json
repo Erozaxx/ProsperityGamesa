@@ -29,6 +29,7 @@
     "src/vendor/preact.module.js",
     "src/vendor/hooks.module.js",
     "src/vendor/htm.module.js",
-    "service-worker.js"
+    "service-worker.js",
+    "src/ui/offlineSummary.js"
   ]
 }
