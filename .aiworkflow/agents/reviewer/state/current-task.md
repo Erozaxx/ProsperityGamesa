@@ -1,33 +1,35 @@
 # Current Task
 
-- **Task ID**: T-004 (review gate iter-010, DoD M4a)
-- **Brief**: BRIEF-039
-- **Iteration**: iter-010 (M4a)
+- **Task ID**: T-004 (MVP GATE iter-011, DoD M4 = MVP)
+- **Brief**: BRIEF-043
+- **Iteration**: iter-011 (M4b → MVP)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo: review gate iter-010 (DoD M4a) – ekonomika gold/daně/upkeep auditovatelná z událostí.
-Výstup: agents/reviewer/artifacts/final/review_iter-010_T-004.md
+Hotovo: MVP GATE iter-011 (DoD M4 = MVP). Ověřeno reálné splnění bodů 1–7 v běžící aplikaci.
+Výstup: agents/reviewer/artifacts/final/review_iter-011_T-004_MVPgate.md
 
 ## Výsledek
-Verdikt: **GO** (1 SUGGESTION follow-up do M4b, neblokuje M4a).
+Verdikt: **GO – MVP HOTOVÉ**. Žádný BLOCKER. Žádný re-run.
 
 Ověřeno:
-- Účetnictví OBSERVER (accounting.js recordTx/closeMonth – žádná inline mutace v pay/grant).
-- WIRING reálně: ctx.emitTx (main.js:165), registerSetTaxRate (main.js:88),
-  tickOrder periodics (taxes/upkeep/burnWood/closeMonth order 40 poslední),
-  CouncilScreen + selectFinance + tab Rada v App.js.
-- Účetní invariant Σ gold tx == Δ gold zelený (live 27000 kroků + catch-up 54000 kroků/2 měsíce).
-- Reálná čísla: centerBase 22, upkeep 108/162, firewoodNeeds, spoilage – tabulkové testy PASS.
-- persist+migrace v1→v2 (SAVE_VERSION=2) round-trip zelené; core bez DOM (lint:core PASS).
-- npm run ci zelené: tsc 0, lint:core OK, 693 testů pass / 0 fail.
+- npm run ci ZELENÉ: tsc 0 err, lint:core OK (52), node --test 762 pass / 0 fail.
+- Body 1–7 potvrzeny v reálném kódu (ne jen unit):
+  1. PWA: manifest.webmanifest + service-worker.js (cache-first precache) + sw-register.
+  2. Engine: SPEED_FACTOR {0,1,2}, DAYS_PER_SEASON=91 (4×91).
+  3. M2 populace/housing/food regrese zelená.
+  4. M3 forest/field/mine + jobs/skills/workerEfficiency.
+  5. Trh: priceOf (marketPrice kubika) + spread 1.35/0.6; buyGoods/sellGoods/sendCaravan
+     + caravanReturns; drift k=0.2. Vše registrované v bootstrapEngine + tickOrder.
+  6. Idle smyčka uzavřená; MarketScreen napojený (App.js tab 'market', send→dispatch).
+  7. Save: catchup + autosave + export/import + persist v2→v3 (marketState+caravan).
+- Arbitráž ztrátová (0.444 spread). S-06 flipnuto na pozitivní. crime fix → pay(); grep-gate DA5 ČISTÝ.
 
 ## Nálezy
-- SUGGESTION-1 (M4b): crime.js:42-44 inline mutace player.gold mimo resource vrstvu (bez emitTx).
-  Preexistující z iter-007, mimo scope M4a, v M4a se nespouští (incidents=0) → invariant testy zelené.
-  Doporučení: přesměrovat přes pay(...,'crime:loss',ctx) + grep-gate test. NEblokuje M4a.
-- NITPICK-1: persistSchema.applyPersist zapisuje payload.council=undefined v else-větvi (neškodné).
+- BLOCKER: žádný.
+- SUGGESTION (backlog, neblokuje GO): S-1 qty input + karavana editor (M5),
+  S-2 balance kalibrace basePrice/max/driftK (M9), S-3 goods IDs vs design tabulka (K10, zdokumentováno).
 
 ## Kód neměněn (scope OUT).
