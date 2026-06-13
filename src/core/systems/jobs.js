@@ -37,13 +37,14 @@ function getJobsCatalog(ctx) {
 
 /**
  * Compute total worker slots from housing catalog.
+ * ctx is optional: when absent (load path), falls back to the module-global catalog.
  * @param {GameState} state
- * @param {TickContext} ctx
+ * @param {TickContext} [ctx]
  * @returns {number}
  */
 function workerSlots(state, ctx) {
   // Use ctx.catalog.houseTypes if available, else fallback
-  const houseTypes = (ctx.catalog && ctx.catalog.houseTypes) ? ctx.catalog.houseTypes : (() => {
+  const houseTypes = (ctx && ctx.catalog && ctx.catalog.houseTypes) ? ctx.catalog.houseTypes : (() => {
     if (!hasCatalog('houseTypes')) return [];
     const cat = /** @type {any} */ (getCatalog('houseTypes'));
     return Array.isArray(cat.houseTypes) ? cat.houseTypes : [];
@@ -55,6 +56,19 @@ function workerSlots(state, ctx) {
     slots += (ht.workers || 0) * (counts[ht.id] || 0);
   }
   return slots;
+}
+
+/**
+ * Canonical derivation of workforce.total (derived field, NEVER persisted).
+ * Single source of truth shared by autoAssignWorkers (tick) and load.js (rebuild-on-load).
+ * ctx is optional: workerSlots falls back to the module-global catalog when ctx is absent.
+ * @param {GameState} state
+ * @param {TickContext} [ctx]
+ * @returns {number}
+ */
+export function deriveWorkforceTotal(state, ctx) {
+  const slots = workerSlots(state, ctx);
+  return Math.min(state.home.population.total, slots);
 }
 
 /**
@@ -194,9 +208,9 @@ export function autoAssignWorkers(state, _params, ctx) {
   const jobs = getJobsCatalog(ctx);
   if (jobs.length === 0) return;
 
-  const slots = workerSlots(state, ctx);
-  // Available workers = min(population, workerSlots) (gap G-POP-WORKFORCE M5)
-  const availableWorkers = Math.min(state.home.population.total, slots);
+  // Available workers = min(population, workerSlots) (gap G-POP-WORKFORCE M5).
+  // deriveWorkforceTotal is the single source of truth (shared with load.js rebuild-on-load).
+  const availableWorkers = deriveWorkforceTotal(state, ctx);
   const assigned = totalAssigned(state);
   let free = availableWorkers - assigned;
 

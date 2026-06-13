@@ -33,7 +33,6 @@ import { DB_NAME, DB_VERSION, STORE_SAVES, STORE_SLOTS, GENERATIONS, SAVE_VERSIO
 import { generatePrecache } from '../tools/gen-precache.mjs';
 import { runBench } from '../tools/bench-step.mjs';
 import { loadCatalog, clearCatalogs } from '../src/core/catalog/index.js';
-import { applyPersist } from '../src/save/persistSchema.js';
 import { before } from 'node:test';
 
 // iter-012 A1 (T-005): fresh start now seeds population/food, so the real tick systems
@@ -98,16 +97,11 @@ describe('iter-005: determinism after load (G1)', () => {
     const ctxC = makeCtx();
     for (let i = BREAK; i < TOTAL; i++) step(stateC, ctxC);
 
-    // iter-012 A1 (T-005): the seeded start now has population > 0, so the derived (non-persisted)
-    // field home.workforce.total becomes non-zero. It is refreshed only on the quarterDay edge
-    // (architecture §9.1 K11 — derived, NEVER saved), so immediately after a mid-cycle reload it
-    // lags until the next edge. The G1 guarantee covers PERSISTED state, so compare the persisted
-    // projections (applyPersist) rather than the full hash that includes derived fields.
-    const hashA = hashState(/** @type {any} */ (applyPersist(stateA)));
-    const hashC = hashState(/** @type {any} */ (applyPersist(stateC)));
+    const hashA = hashState(stateA);
+    const hashC = hashState(stateC);
 
     assert.equal(hashC, hashA,
-      `determinism broken: persisted state after interrupted+resumed (${hashC}) ≠ uninterrupted (${hashA})`);
+      `determinism broken: interrupted+resumed (${hashC}) ≠ uninterrupted (${hashA})`);
   });
 });
 

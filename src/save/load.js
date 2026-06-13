@@ -7,6 +7,7 @@ import { createInitialState } from '../core/state/createInitialState.js';
 import { PERSIST_SCHEMA } from './persistSchema.js';
 import { migrate } from './migrations.js';
 import { SAVE_VERSION } from './schema.js';
+import { deriveWorkforceTotal } from '../core/systems/jobs.js';
 
 /**
  * @typedef {import('../core/state/types.js').GameState} GameState
@@ -213,7 +214,15 @@ export function loadAndReconstruct(rawPayload, _catalog) {
   // Step 4: apply payload via allowlist
   applyPayload(state, payload);
 
-  // Step 5: recalculate derivates (no-op for M2a-1)
+  // Step 5: recalculate derived fields (architecture §9.1 K11 — derived, NEVER persisted).
+  // workforce.total is derived from population + housing.counts + houseTypes catalog.
+  // It is NOT persisted (persistSchema.js); applyPayload restores only workforce.assigned.
+  // Without this rebuild the first post-load quarterDay tick reads a stale workforce.total=0,
+  // making jobsAccidents skip its 'population' RNG draw → desync vs the continuous sim
+  // (DR-012-02). Rebuild here so the first post-load tick matches the uninterrupted run.
+  if (state.home && state.home.workforce) {
+    state.home.workforce.total = deriveWorkforceTotal(/** @type {any} */ (state));
+  }
 
   // Step 6: validate invariants
   validateInvariants(state);
