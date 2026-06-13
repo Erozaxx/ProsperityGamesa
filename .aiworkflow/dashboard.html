@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T16:54:53Z",
+  "generated": "2026-06-13T17:05:41Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -395,12 +395,12 @@ const DATA = {
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery) (in-flight)",
-        "done": false
+        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery) → GO s podmínkami: 1 blocker (mylná A2 premisa), 3 major, 5 minor, 3 nit; viz DR-012-01",
+        "done": true
       },
       {
         "id": "T-003",
-        "text": "architect – Zapracovat nálezy z review (pokud reviewer něco našel)",
+        "text": "architect – Zapracovat nálezy z review (přepsat §2/§3/§7/§9, re-diagnóza, pořadí A1→A4→A3→A5, DAYS_PER_YEAR=364, volba A/B robustnosti) (in-flight)",
         "done": false
       },
       {
@@ -450,7 +450,7 @@ const DATA = {
       }
     ],
     "total": 12,
-    "done_count": 1
+    "done_count": 2
   },
   "closed_iterations": [
     "iter-001",
@@ -640,9 +640,9 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-004 (MVP GATE iter-011, DoD M4 = MVP)",
-      "brief": "BRIEF-043",
-      "iteration": "iter-011 (M4b → MVP)",
+      "task_id": "T-002 (Review architektury Playability hardening, iter-012)",
+      "brief": "BRIEF-012-002",
+      "iteration": "iter-012",
       "started": "2026-06-13",
       "completed": "2026-06-13"
     },
@@ -929,6 +929,15 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_architecture_iter-012_T-002.md",
+      "type": "final",
+      "name": "review_architecture_iter-012_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iter-001_T-003.md",
       "type": "final",
       "name": "review_iter-001_T-003.md",
@@ -942,8 +951,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T00:34:45Z",
-      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
     },
     {
       "agent": "reviewer",
@@ -1041,8 +1050,8 @@ const DATA = {
       "type": "final",
       "name": "review_iteration_master_plan_iter-003_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T00:34:45Z",
-      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
     },
     {
       "agent": "reviewer",
@@ -1050,8 +1059,8 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-13T00:34:45Z",
-      "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+      "completed": "2026-06-13T17:02:36Z",
+      "description": "review architektury hotové"
     },
     {
       "agent": "tester",
@@ -1162,7 +1171,8 @@ const DATA = {
     }
   },
   "agent_tokens": {
-    "architect": 101442
+    "architect": 101442,
+    "reviewer": 123402
   }
 };
 
