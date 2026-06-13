@@ -14,5 +14,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.js", "src/**/*.d.ts", "tools/**/*.mjs"]
+  "include": ["src/core/**/*.js", "src/core/**/*.d.ts", "src/core/globals.d.ts"],
+  "exclude": ["node_modules"]
 }

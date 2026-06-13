@@ -11,6 +11,6 @@
     "ci": "npm run typecheck && npm run lint:core && npm run test"
   },
   "devDependencies": {
-    "typescript": "^5.6.0"
+    "typescript": "^5.9.3"
   }
 }

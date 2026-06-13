@@ -1,6 +1,6 @@
 /**
- * @typedef {import('./types.d.ts').GameState} GameState
- * @typedef {import('./types.d.ts').InitOptions} InitOptions
+ * @typedef {import('./types.js').GameState} GameState
+ * @typedef {import('./types.js').InitOptions} InitOptions
  */
 
 // Defaults – MOVE TO balance.js @ M1 (source: design_iter-004_T-001 §2.2)
