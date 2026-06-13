@@ -19,3 +19,10 @@
 - **tool_uses**: 41
 - **duration_ms**: 286209
 - **outcome**: plné npm run ci ZELENÉ (778/778), 2 dříve red testy zelené, G1 16/16, smoke OK; determinismus díra uzavřena
+
+## T-017 (review F-1+F-2 oprava)
+- **Timestamp**: 2026-06-13T22:45Z
+- **total_tokens**: 56655
+- **tool_uses**: 42
+- **duration_ms**: 286545
+- **outcome**: ci 780/780 zelené, smoke OK, determinismus G1+playability 25/25 nedotčen; R-A4-3 over-cap guard + sanityCap helper reuse + regress test
