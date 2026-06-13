@@ -5,7 +5,7 @@
 - **Status**: active
 
 ## Master Checklist
-- [ ] T-001: architect – Detailní návrh (Opus) tasků iter-008: S-1 napojení persistu (saveStore.saveGame přes applyPersist allowlist; main.js bootstrap: načíst katalogy → loadGame s katalogem → loadAndReconstruct), T1 catch-up smyčka end-to-end (§4.1 režim 3: load → missedMs → dávka chunky ~25k + yield → cap min(technický,balanční) → dohání jen systémy M2), T2 přerušitelnost dávky (stopPending), T3 offline summary UI (textový výčet), T4 autosave triggery komplet (§6.2), T5 export/import savu (komprese+base64). Model: Opus.
+- [x] T-001: architect – Detailní návrh (Opus) tasků iter-008: S-1 napojení persistu (saveStore.saveGame přes applyPersist allowlist; main.js bootstrap: načíst katalogy → loadGame s katalogem → loadAndReconstruct), T1 catch-up smyčka end-to-end (§4.1 režim 3: load → missedMs → dávka chunky ~25k + yield → cap min(technický,balanční) → dohání jen systémy M2), T2 přerušitelnost dávky (stopPending), T3 offline summary UI (textový výčet), T4 autosave triggery komplet (§6.2), T5 export/import savu (komprese+base64). Model: Opus.
 - [ ] T-002: coder – Implementace (Sonnet) dle návrhu; tsc/test/grep + catch-up-safe. Model: Sonnet.
 - [ ] T-003: tester – Test loop (Sonnet): e2e catch-up scénáře (krátký výpadek/nad cap/event uprostřed dávky), determinismus catch-upu (G1), export/import round-trip, PWA smoke. Model: Sonnet.
 - [ ] T-004: reviewer – Review gate (Opus, právo re-run): acceptance „offline progres" splněno; catch-up MVP vědomě minimální = OK, ale invariant pro M3+ vyhlášen. Model: Opus.
