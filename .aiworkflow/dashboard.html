@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T21:37:02Z",
+  "generated": "2026-06-13T21:45:43Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -460,8 +460,8 @@ const DATA = {
       },
       {
         "id": "T-010",
-        "text": "tester – QA: npm run ci zelené (+ aktualizace testů na seedovaný start), npm run smoke OK, dlouhý seedovaný sim (≥2 herní roky) bez crashe; ověřit accounting invariant u gold po fixu resolveru; ověřit G1 determinismus po load drží na plném hashState",
-        "done": false
+        "text": "tester – QA GO: npm run ci 778/778, smoke OK (pop=50), dlouhý sim 655200 kroků=2 roky bez crashe (pop 50→36, žádný kolaps), cap-stress overshoot=0, accounting Σtx==Δgold diff=0 (81k kroků), G1 plný hashState bit-shoda na 10 save-pointech (vč. krok 0/1/hran), save v3 bez workforce.total. Všech 6 AC PASS empiricky",
+        "done": true
       },
       {
         "id": "T-011",
@@ -475,7 +475,7 @@ const DATA = {
       }
     ],
     "total": 17,
-    "done_count": 14
+    "done_count": 15
   },
   "closed_iterations": [
     "iter-001",
@@ -692,9 +692,9 @@ const DATA = {
     {
       "slug": "tester",
       "status": "done",
-      "task_id": "T-003",
-      "brief": "BRIEF-042",
-      "iteration": "iter-011",
+      "task_id": "T-010",
+      "brief": "BRIEF-012-010",
+      "iteration": "iter-012",
       "started": "2026-06-13",
       "completed": "2026-06-13"
     },
@@ -1143,6 +1143,15 @@ const DATA = {
     },
     {
       "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-012_T-010.md",
+      "type": "final",
+      "name": "qa_report_iter-012_T-010.md",
+      "task": "T-010",
+      "completed": "2026-06-13T21:44:20Z",
+      "description": "GO — všech 6 AC iter-012 PASS empiricky (CI 778/778, smoke OK, 2roky sim bez crashe+cap drží, accounting Σtx==Δgold diff=0, G1 plný hashState bit-shoda na 10 save-pointech vč. krok0/1, save v3 bez workforce.total)"
+    },
+    {
+      "agent": "tester",
       "file": "agents/tester/artifacts/final/testreport_iter-004_T-003.md",
       "type": "final",
       "name": "testreport_iter-004_T-003.md",
@@ -1252,7 +1261,8 @@ const DATA = {
   "agent_tokens": {
     "architect": 391496,
     "coder": 334274,
-    "reviewer": 123402
+    "reviewer": 123402,
+    "tester": 115119
   }
 };
 

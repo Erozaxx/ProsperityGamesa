@@ -20,7 +20,7 @@
 - [x] T-015: architect – Rozhodnutí dotažení → Derive-on-init (přepočet workforce.total v createInitialState přes deriveWorkforceTotal, jeden řádek). Varianta 2 (uznat testy křehké) zamítnuta jako maskování. Fixtures k regeneraci pro CI: ŽÁDNÉ (v repu nejsou stored golden hashe). DR-012-02 decided-extended. POZN: architekt DOPORUČUJE user-gate (behavior-change spojitého simu) → T-015a
 - [x] T-015a: human – Gate SCHVÁLENO: uživatel zvolil „Derive-on-init" (přepočet workforce.total v createInitialState; akceptována změna RNG-průběhu fresh-simu jako korektní)
 - [x] T-016: coder – Derive-on-init aplikován (createInitialState dopočte workforce.total přes deriveWorkforceTotal, single source of truth na 3 místech); precache regenerován (čistý diff, jen PRECACHE_VERSION). Plné `npm run ci` ZELENÉ (778/778), smoke OK, app-bootstrap 8/8 + export-string 12/12 + G1 16/16 + playability 9/9 zelené; tvar save v3 nezměněn
-- [ ] T-010: tester – QA: npm run ci zelené (+ aktualizace testů na seedovaný start), npm run smoke OK, dlouhý seedovaný sim (≥2 herní roky) bez crashe; ověřit accounting invariant u gold po fixu resolveru; ověřit G1 determinismus po load drží na plném hashState
+- [x] T-010: tester – QA GO: npm run ci 778/778, smoke OK (pop=50), dlouhý sim 655200 kroků=2 roky bez crashe (pop 50→36, žádný kolaps), cap-stress overshoot=0, accounting Σtx==Δgold diff=0 (81k kroků), G1 plný hashState bit-shoda na 10 save-pointech (vč. krok 0/1/hran), save v3 bez workforce.total. Všech 6 AC PASS empiricky
 - [ ] T-011: reviewer – Code review celé implementace (correctness + reuse/simplify)
 - [ ] T-012: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
