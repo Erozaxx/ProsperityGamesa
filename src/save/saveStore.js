@@ -10,6 +10,7 @@ import {
   SLOT_ID, GENERATIONS, SAVE_VERSION
 } from './schema.js';
 import { assertSerializable } from '../core/registry/registry.js';
+import { loadAndReconstruct } from './load.js';
 
 /**
  * @typedef {{ slotId: string, activeGen: number, updatedAt: number }} SlotRecord
@@ -113,9 +114,10 @@ export async function saveGame(state, opts = {}) {
 /**
  * Loads the active generation for a slot. Falls back to previous generations on corruption.
  * @param {string} [slotId]
+ * @param {object} [catalog]
  * @returns {Promise<{ state: GameState, record: SaveRecord } | null>}
  */
-export async function loadGame(slotId = SLOT_ID) {
+export async function loadGame(slotId = SLOT_ID, catalog) {
   const db = await getDB();
 
   const slotStore = db.transaction(STORE_SLOTS, 'readonly').objectStore(STORE_SLOTS);
@@ -136,7 +138,9 @@ export async function loadGame(slotId = SLOT_ID) {
     if (!rec) continue;
     try {
       validateEnvelope(rec);
-      return { state: rec.payload, record: rec };
+      // Use 7-step pipeline if catalog available
+      const state = catalog ? loadAndReconstruct(rec.payload, catalog) : rec.payload;
+      return { state, record: rec };
     } catch {
       // Corrupted generation – try next
       continue;

@@ -62,7 +62,7 @@ export const SCHEMAS = {
     itemShape: {
       id:       { type: 'string', required: true },
       name:     { type: 'string', required: true },
-      products: { type: 'productList', required: true },
+      products: { type: 'productMap', required: true },  // S-3: map {resourceId: amount}
     },
   },
   marketBaseline: {

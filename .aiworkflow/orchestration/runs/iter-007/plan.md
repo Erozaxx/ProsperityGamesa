@@ -6,7 +6,7 @@
 
 ## Master Checklist
 - [x] T-001: architect – Detailní návrh (Opus) tasků iter-007: T1 transakční vrstva (K5/D7, resourceHandlers, canAfford/pay/grant, txEvent, ne-pod-nulu), T2 deklarativní persist schémata (K11, allowlist, load=čistá konstrukce 7 kroků, migrace v1), T3 population+housing systémy, T4 food+health+crime systémy, T5 stub world/battle + kontraktní testy §8 (vč. negativní S-06). NAVÍC catalog hardening (S-1: byId registr, K10 kolize, B4 cross-ref, typová validace; S-2 gap metadata; S-3 jobs.products mapa). Posuď split M2a-1/M2a-2. Model: Opus.
-- [ ] T-002a: coder – Implementace M2a-1 (Sonnet): catalog hardening + T1 transakce + T2 persist + pure formulas. Model: Sonnet.
+- [x] T-002a: coder – Implementace M2a-1 (Sonnet): catalog hardening + T1 transakce + T2 persist + pure formulas. Model: Sonnet.
 - [ ] T-002b: coder – Implementace M2a-2 (Sonnet): T3 population/housing + T4 food/health/crime + T5 stuby/kontrakty §8. Model: Sonnet.
 - [ ] T-003: tester – Test loop (Sonnet): catch-up-safe invariant nových systémů, persist round-trip per doména, tx invarianty (žádné NaN/záporné), kontraktní testy §8, PWA smoke. Model: Sonnet.
 - [ ] T-004: reviewer – Review gate (Opus, právo re-run): persist schéma se systémem, tickOrder aktualizován, kontrakty §8. Model: Opus.
