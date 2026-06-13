@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T21:45:43Z",
+  "generated": "2026-06-13T21:54:18Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -465,8 +465,8 @@ const DATA = {
       },
       {
         "id": "T-011",
-        "text": "reviewer – Code review celé implementace (correctness + reuse/simplify)",
-        "done": false
+        "text": "reviewer – Code review GO (0 blocker, 0 major, 3 minor, 4 nit). Determinismus core invariant potvrzen (deriveWorkforceTotal single source of truth na 3 místech, RNG/save tvar OK). Minor/nit → backlog (viz Retrospective). Reviewer: reopen není nutný",
+        "done": true
       },
       {
         "id": "T-012",
@@ -475,7 +475,7 @@ const DATA = {
       }
     ],
     "total": 17,
-    "done_count": 15
+    "done_count": 16
   },
   "closed_iterations": [
     "iter-001",
@@ -665,8 +665,8 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-002 (Review architektury Playability hardening, iter-012)",
-      "brief": "BRIEF-012-002",
+      "task_id": "T-011 (Code review celé implementace iter-012, playability A1-A5 + reload-determinismus fix)",
+      "brief": "BRIEF-012-011",
       "iteration": "iter-012",
       "started": "2026-06-13",
       "completed": "2026-06-13"
@@ -1008,6 +1008,15 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/code_review_iter-012_T-011.md",
+      "type": "final",
+      "name": "code_review_iter-012_T-011.md",
+      "task": "T-011",
+      "completed": "2026-06-13T21:52:05Z",
+      "description": "GO (code review iter-012). Nálezy: 0 blocker, 0 major, 3 minor, 4 nit. Determinismus invariant dodržen (deriveWorkforceTotal single source na 3 místech, G1 plný hashState). A1/A2/A3/A4/A5 v souladu s architekturou T-003 a DR-012-01/02. Žádný reopen nutný; minor/nit do backlogu (top: F-1 healthBirths shrinkuje over-cap loaded pop vs R-A4-3). Výstup: artifacts/final/code_review_iter-012_T-011.md"
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_architecture_iter-012_T-002.md",
       "type": "final",
       "name": "review_architecture_iter-012_T-002.md",
@@ -1261,7 +1270,7 @@ const DATA = {
   "agent_tokens": {
     "architect": 391496,
     "coder": 334274,
-    "reviewer": 123402,
+    "reviewer": 238056,
     "tester": 115119
   }
 };

@@ -21,7 +21,7 @@
 - [x] T-015a: human – Gate SCHVÁLENO: uživatel zvolil „Derive-on-init" (přepočet workforce.total v createInitialState; akceptována změna RNG-průběhu fresh-simu jako korektní)
 - [x] T-016: coder – Derive-on-init aplikován (createInitialState dopočte workforce.total přes deriveWorkforceTotal, single source of truth na 3 místech); precache regenerován (čistý diff, jen PRECACHE_VERSION). Plné `npm run ci` ZELENÉ (778/778), smoke OK, app-bootstrap 8/8 + export-string 12/12 + G1 16/16 + playability 9/9 zelené; tvar save v3 nezměněn
 - [x] T-010: tester – QA GO: npm run ci 778/778, smoke OK (pop=50), dlouhý sim 655200 kroků=2 roky bez crashe (pop 50→36, žádný kolaps), cap-stress overshoot=0, accounting Σtx==Δgold diff=0 (81k kroků), G1 plný hashState bit-shoda na 10 save-pointech (vč. krok 0/1/hran), save v3 bez workforce.total. Všech 6 AC PASS empiricky
-- [ ] T-011: reviewer – Code review celé implementace (correctness + reuse/simplify)
+- [x] T-011: reviewer – Code review GO (0 blocker, 0 major, 3 minor, 4 nit). Determinismus core invariant potvrzen (deriveWorkforceTotal single source of truth na 3 místech, RNG/save tvar OK). Minor/nit → backlog (viz Retrospective). Reviewer: reopen není nutný
 - [ ] T-012: human – Schválení uzavření iterace (review výsledků před /close-iteration)
 
 ## Quality Gates
@@ -42,3 +42,5 @@
 
 ## Retrospective Notes
 - Vstup: doc/playtest-findings-mvp.md (nálezy z reálného browser playtestu po M0–M4).
+- Determinismus sága: A1 seed odhalil 3 vrstvy téhož bugu (derivace workforce.total). Workflow ho odkryl disciplinovaně bez maskování (coder oslabil G1 test → reviewer/orchestrátor zachytili → vráceno na plný hashState). Poučení: odvozené pole čtené RNG-čerpajícím systémem MUSÍ být rebuildováno na všech konstrukčních cestách (init i load), ne až na ticku.
+- Reviewer backlog (iter-013+): F-1 (minor) health.js:51-57 healthBirths clampuje TOTAL na sanityCap → loaded over-cap save se při porodu stáhne k capu (formálně vs R-A4-3; pozn. migrace se chová stejně, takže konzistentní); F-2 (minor) health.js:52 duplikuje populationSanityCap() helper → použít helper; F-3 (minor) mrtvý _catalog param; F-4..F-7 (nit). Detail: agents/reviewer/artifacts/final/code_review_iter-012_T-011.md.
