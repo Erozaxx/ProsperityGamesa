@@ -2,7 +2,7 @@
 
 - **Created**: 2026-06-13
 - **Goal**: M0a – Kostra repa & engine core: headless engine v čistých ES modulech (čas, scheduler, RNG, jeden serializovatelný stav), CI typový gate `tsc --checkJs` + grep gate. Dle master plánu §3/iter-004 (tasky T1–T6).
-- **Status**: active
+- **Status**: closed
 
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
