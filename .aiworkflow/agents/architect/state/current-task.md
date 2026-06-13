@@ -1,50 +1,50 @@
 # Current Task
 
-- **Task ID**: T-003 (iter-002)
-- **Brief**: context/inbox/brief_architect_T-003_iter-002.md (BRIEF-007)
-- **Iteration**: iter-002
+- **Task ID**: T-001 (iter-004)
+- **Brief**: context/inbox/brief_architect_T-001_iter-004.md (BRIEF-011)
+- **Iteration**: iter-004 (M0a)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-12
-- **Completed**: 2026-06-12
+- **Started**: 2026-06-13
+- **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo – zapracování všech nálezů z review T-002 (S-01..S-06, N-01..N-04 + povýšení R-I)
-do `artifacts/final/architecture_proposal_iter-002_T-001.md` (light redakce, podstata
-rozhodnutí D1–D13 beze změny). Mapa „nález → kde a jak zapracován" v rework note:
-`artifacts/final/rework_iter-002_T-003.md`.
+Hotovo – detailní implementační návrh (spec pro Sonnet codera) pro všech 6 tasků
+iter-004 (M0a). Výstup: `artifacts/final/design_iter-004_T-001.md`. NE implementace –
+soubory, signatury (JSDoc), datové tvary, algoritmy/pseudo, jak to ověří test.
 
-Shrnutí zásahů:
-- **S-01**: §2.2 nový odstavec runtime zero-build vs. dev/CI Node toolchain; DoD M0 =
-  funkční `tsc --checkJs` CI gate (§11/M0); úprava D1 řádku a §2.1.
-- **S-02**: §9.2 cap rozdělen na technický strop (`capTechRealHours: 8`, potvrzení po
-  benchmarku M0) a balanční hodnotu (`capRealHours`, ladí M9); engine uplatňuje min;
-  D10 řádek + §14.1 aktualizovány.
-- **S-03**: §9.1 kalibrace = hratelnostní cíle (ne serverové křivky); upřesněn DoD M9 + §13.3.
-- **S-04**: §11 M2 zmenšen na catch-up MVP + nový odstavec se zdůvodněním a povoleným
-  splitem M2a/M2b.
-- **S-05**: §4.1 catch-up-safe invariant; zařazen do DoD všech milníků od M2 (§11).
-- **S-06**: negativní kontraktní test – stub world neoceňuje před M4 (§8.2, §9.4, §9.1).
-- **N-01**: §9.2 = kanonická formulace capu; pozn. pod §12 jen odkazuje.
-- **N-02**: §9.1 explicitní clamp `available ∈ [0, max]`.
-- **N-03**: PWA smoke check průběžně od M0 (§11 úvod + M0 + M9).
-- **N-04**: ASCII diagram §3.5 a tickOrder §4.3 označeny jako živé artefakty, kontrola
-  v reviewer gate (§11).
-- **R-I**: dopad povýšen na Vysoký + označen jako největší reálné riziko dle review.
+Pokrytí:
+- T1: struktura repa (§3.1), package.json (type:module, ci skript), tsconfig (checkJs,
+  lib bez DOM), grep gate `tools/check-core-imports.mjs` (zakázané vzory + algoritmus),
+  index.html placeholder, pravidla vrstvení, živé artefakty do /docs.
+- T2: GameState tvar (§3.2), createInitialState() + InitOptions, freeze.js (devFreeze/DEV),
+  types.d.ts základ; sloty pro pozdní domény.
+- T3: clock.js – STEP_MS/STEPS_PER_DAY/SPEED_FACTOR, step(), createAccumulator/advance()
+  dle §4.1 pseudo (frame budget, pauza zahazuje dluh, stopPending slot).
+- T4: scheduler.js – binární min-heap ScheduleEntry[] + scheduleCount index (K17),
+  tie-breaker _seq (determinismus), insert/due/cancel; timeEdges.js + PeriodicTask tvar.
+- T5: rng.js – mulberry32, 8 pojmenovaných streamů (uint32 v state.rng.streams),
+  makeRng/initRng/hashState, determinism hash.
+- T6: registry.js (fail-fast, kolize ID, assertSerializable), calendar.js (autorita
+  kalendáře, 91d sezóna/364d rok, produkuje TimeEdges), tickOrder.js (TICK_ORDER data +
+  runTick + registerCorePeriodics no-op sloty), commands dispatch.js + setSpeed.js.
 
 ## Dílčí checklist
-- [x] T-003: Zapracovat S-01..S-06 + N-01..N-04 do návrhu; zapsat rework note.
+- [x] T-001: Detailní návrh všech 6 tasků iter-004 + package.json/tsconfig/grep-gate.
 
 ### Pracovní rozpad (interní)
-- [x] Přečteno: AGENTS.md, brief BRIEF-007, review T-002 (§6 tabulka, §7)
-- [x] S-01, S-02 (M0 DoD, cap split), S-03 (M9 DoD)
-- [x] S-04 (M2), S-05 (invariant), S-06 (kontraktní test)
-- [x] N-01..N-04 + povýšení R-I
-- [x] Rework note + aktualizace hlavičky návrhu
-- [x] Validace + handoff
+- [x] Přečteno: AGENTS.md, brief BRIEF-011, architektura §3.1/3.2/3.3/4.1-4.4/5.6,
+      master plán §3 iter-004 + §1.3
+- [x] T1–T6 spec (soubory, signatury, datové tvary, algoritmy, testy)
+- [x] package.json + tsconfig.json + grep-gate skript konkrétně
+- [x] Souhrn souborů/závislostí + pořadí implementace + ROZHODNUTÍ NÁVRHU
+- [x] Výstup do artifacts/final + handoff
 
 ## Předpoklady
-- Light zásah dle Scope IN briefu – žádné nové architektonické rozhodnutí; struktura
-  návrhu (§0–§14) zachována; review artefakt reviewera nedotčen.
+- Žádné nové architektonické rozhodnutí; tam, kde architektura nechávala volnost,
+  zvoleno a zdůvodněno (značeno „ROZHODNUTÍ NÁVRHU"): flat heap, mulberry32, 8 streamů,
+  pauza zahazuje dluh, calendar=autorita, měsíc 30d/rok 364d provizorně, periodika jako
+  no-op sloty, command registr oddělený, tsconfig lib bez DOM.
+- Implementaci provede Sonnet v T-002.
 
 ## Blockery
 –
