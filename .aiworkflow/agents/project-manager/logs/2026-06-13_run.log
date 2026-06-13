@@ -1,0 +1,9 @@
+[2026-06-13] T-001 iter-003 (BRIEF-008) – project-manager run
+- Přečteny vstupy: AGENTS.md, brief, architecture_proposal_iter-002_T-001.md (§0/§10/§11/§12 celý vč. druhé poloviny), zadani_projektu.md, project/done-criteria.md.
+- Vytvořen master plán: artifacts/final/iteration_master_plan_iter-003_T-001.md
+  - M0–M9 → iter-004…iter-018 (15 iterací; splity M0a/b, M2a/b dle §11/S-04, M4a/b, M7a/b, M9a/b).
+  - Každá iterace: cíl, K mapování, tasky (S/M/L, Opus návrh / Sonnet provedení, závislosti), DoD, T-TEST (Sonnet/Haiku), T-REV (Opus, právo re-run dokola, eskalace po 3. kole).
+  - MVP hranice = M0–M4 = iter-004…011; kritická cesta lineární, jediný paralelismus iter-005 ∥ iter-006; re-planning checkpoint po M1 gap reportu.
+  - Předpoklady A1–A4, otázky Q1–Q3 (plán platí i bez odpovědí).
+- Validace grepem: 15 iterací, M0–M9 pokryto ≥1 iterací, 15× T-TEST, 15× T-REV, re-run explicitně.
+- state/current-task.md → done; handoff-out.sh volán.
