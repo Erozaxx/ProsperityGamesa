@@ -382,105 +382,75 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T22:54:10Z",
+  "generated": "2026-06-13T23:52:31Z",
   "iteration": {
-    "id": "iter-012",
-    "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
+    "id": "iter-013",
+    "goal": "M5 – Budovy, stavba, kontrakty: město roste – building instances + opotřebení/opravy, projectQueue/builder (quarterDay slot z M3), scaleCost, builder companies, vrstva modifikátorů z budov (K13), kontraktové eventy. Dle master plánu §3/iter-012(M5). Posun číslování viz DR-013-00.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Navrhnout architekturu řešení playability hardeningu (start seed přes BALANCE.start, resolver gold/techPt, crime pay clamp, populace cap, market UI overflow); struktura, dotčené moduly, alternativy, rizika, dopad na determinismus/save-hash",
-        "done": true
+        "text": "architect – Detailní design M5 dle master plánu §3/iter-012(M5) + architektury §5.3 (modifier vrstva K13), §5.4 (registr efektů K14): (1) building instances created/totalMade + opotřebení (ageBuildings, day) + opravy (oceňování getGoldValue) + persist schéma; (2) projectQueue + builder systém (quarterDay slot) + `build(itemId)` command + `scaleCost(base, created)` čistá fn; (3) builder companies (katalog + logika výběru/kapacit); (4) modifier vrstva plně pro budovy: `effective(itemId, attr)`, fold add→mul→set, memoizace + event-driven agregáty, save = jen seznam modifikátorů; (5) kontrakty: contractQueue, onComplete/onExpire/onReject přes registr efektů, eventy přes schedule. Rozhodnout split M5-1(T1–T4)/M5-2(T5–T6). Výstup: design doc + tickOrder/diagram dopady",
+        "done": false
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review architektury (všechny nálezy, nejen blockery) → GO s podmínkami: 1 blocker (mylná A2 premisa), 3 major, 5 minor, 3 nit; viz DR-012-01",
-        "done": true
+        "text": "reviewer – Review designu M5 (correctness, soulad s architekturou D/K, kontrakty §8, žádné in-place applyUpgrade mutace, derivovaná data se neukládají) + challenger oponentura rizik",
+        "done": false
       },
       {
         "id": "T-003",
-        "text": "architect – Zapracovat nálezy z review (přepsáno §2/§3/§7/§9, re-diagnóza, pořadí A1→A4→A3→A5→A2(Option A), DAYS_PER_YEAR=364) → architecture_playability_iter-012_T-003.md (supersedes T-001)",
-        "done": true
+        "text": "tom-proxy – Human gate: schválení architektury M5 (zastupuje uživatele dle DR-013-00)",
+        "done": false
       },
       {
         "id": "T-004",
-        "text": "human – Review a schválení architektury uživatelem (blocker před implementací) → SCHVÁLENO (varianta „Schvaluji, implementuj\"; architektovo doporučení vč. A2 Option A)",
-        "done": true
+        "text": "coder – T1: building instances (created/totalMade), ageBuildings (day) opotřebení + opravy (getGoldValue), persist schéma budov; balanc čísla do balance.js",
+        "done": false
       },
       {
         "id": "T-005",
-        "text": "coder – Start seed: createInitialState předá katalog do factory + createHomeState/createPlayerState čtou BALANCE.start (population/gold/food/housing); fresh hra startuje populovaná (pop 50, gold 500) → CI zelená, smoke „Populace 50\". POZN: A1 seed odhalil reload-determinismus regres → DR-012-02, řeší T-013/T-014",
-        "done": true
+        "text": "coder – T2: projectQueue + builder systém (quarterDay) + `build(itemId)` command + `scaleCost(base, created)` čistá fn (formulas.js) + tabulkové testy scaleCost",
+        "done": false
       },
       {
         "id": "T-006",
-        "text": "coder – Fix resolveru zdrojů (A2 Option A): resourceKindOf vrací pro 'gold'/'techPt' dedikovaný handler před byId lookupem; +test invariance s katalogem i bez",
-        "done": true
+        "text": "coder – T3: builder companies (katalogová data + logika výběru/kapacit)",
+        "done": false
       },
       {
         "id": "T-007",
-        "text": "coder – Crime pay robustnost (A3): crime.js beze změny logiky; +regresní no-throw testy (broke osada, pop/gold grid)",
-        "done": true
+        "text": "coder – T4 (L): modifier vrstva plně pro budovy (K13): `effective(itemId, attr)`, fold add→mul→set, memoizace + event-driven agregáty (maxWorkers, kapacity, attractiveness), save = jen seznam modifikátorů, re-aplikace po loadu",
+        "done": false
       },
       {
         "id": "T-008",
-        "text": "coder – Sanity-cap populace (A4): denní sazba annualRate/DAYS_PER_YEAR (=364) v births/retirement + globální hard-cap sanityMaxPop=10000; deterministické, calcHousingDerivedFromCatalog nezměněna",
-        "done": true
+        "text": "coder – T5: kontrakty – contractQueue, onComplete/onExpire/onReject přes registr efektů (K14), kontraktové eventy přes schedule + persist",
+        "done": false
       },
       {
         "id": "T-009",
-        "text": "coder – Market UI overflow (A5): .table-scroll wrapper + responsivní CSS pro 6sl. market tabulku; bez přepisu komponenty",
-        "done": true
-      },
-      {
-        "id": "T-013",
-        "text": "architect – Rozhodnutí fixu reload-determinismu → Option A (rebuild-on-load): deriveWorkforceTotal helper + přepočet v load.js Step 5; B/C zamítnuty; DR-012-02 decided; design pro codera hotový",
-        "done": true
-      },
-      {
-        "id": "T-014",
-        "text": "coder – Option A (rebuild-on-load) aplikován a korektní (G1 plný hashState 16/16) + REVERT oslabeného G1 testu hotový. Odhalil hlubší preexist. díru (stale workforce.total=0 na 1. ticku spojitého simu) → eskalováno (NEMASKOVÁNO) → vyřešeno v T-016",
-        "done": true
-      },
-      {
-        "id": "T-015",
-        "text": "architect – Rozhodnutí dotažení → Derive-on-init (přepočet workforce.total v createInitialState přes deriveWorkforceTotal, jeden řádek). Varianta 2 (uznat testy křehké) zamítnuta jako maskování. Fixtures k regeneraci pro CI: ŽÁDNÉ (v repu nejsou stored golden hashe). DR-012-02 decided-extended. POZN: architekt DOPORUČUJE user-gate (behavior-change spojitého simu) → T-015a",
-        "done": true
-      },
-      {
-        "id": "",
-        "text": "T-015a: human – Gate SCHVÁLENO: uživatel zvolil „Derive-on-init\" (přepočet workforce.total v createInitialState; akceptována změna RNG-průběhu fresh-simu jako korektní)",
-        "done": true
-      },
-      {
-        "id": "T-016",
-        "text": "coder – Derive-on-init aplikován (createInitialState dopočte workforce.total přes deriveWorkforceTotal, single source of truth na 3 místech); precache regenerován (čistý diff, jen PRECACHE_VERSION). Plné `npm run ci` ZELENÉ (778/778), smoke OK, app-bootstrap 8/8 + export-string 12/12 + G1 16/16 + playability 9/9 zelené; tvar save v3 nezměněn",
-        "done": true
+        "text": "coder – T6: UI build screen (karty budov, ceny se scalingem, fronta) + kontrakty panel",
+        "done": false
       },
       {
         "id": "T-010",
-        "text": "tester – QA GO: npm run ci 778/778, smoke OK (pop=50), dlouhý sim 655200 kroků=2 roky bez crashe (pop 50→36, žádný kolaps), cap-stress overshoot=0, accounting Σtx==Δgold diff=0 (81k kroků), G1 plný hashState bit-shoda na 10 save-pointech (vč. krok 0/1/hran), save v3 bez workforce.total. Všech 6 AC PASS empiricky",
-        "done": true
+        "text": "tester – Test loop (sada §1.3): scaleCost/effective tabulkové testy, modifikátory round-trip (save jen modifikátory → load → přepočet), catch-up-safe invariant nových systémů, persist round-trip, PWA smoke, plné `npm run ci` + `npm run smoke`",
+        "done": false
       },
       {
         "id": "T-011",
-        "text": "reviewer – Code review GO (0 blocker, 0 major, 3 minor, 4 nit). Determinismus core invariant potvrzen (deriveWorkforceTotal single source of truth na 3 místech, RNG/save tvar OK). Minor/nit → backlog (viz Retrospective). Reviewer: reopen není nutný",
-        "done": true
-      },
-      {
-        "id": "T-017",
-        "text": "coder – Oprava F-1 + F-2 (schváleno uživatelem po T-011). F-1: healthBirths (health.js) + populationMigration (population.js) nesmí REDUKOVAT už-over-cap loaded total (guard `pop>=sanityCap ? pop : min(...)`) dle R-A4-3 (koherentně v OBOU systémech). F-2: použít exportovaný `populationSanityCap()` helper i v health.js (žádná inline duplikace). + regress test (loaded over-cap save: porod/migrace total neshrinkne). Gate: plné `npm run ci` zelené, smoke OK, determinismus G1 nedotčen",
+        "text": "reviewer – Review gate M5: DoD bod po bodu, žádné `applyUpgrade` in-place mutace, derivovaná data se neukládají, tickOrder+diagram aktuální ve stejných commitech (právo re-run)",
         "done": false
       },
       {
         "id": "T-012",
-        "text": "human – Schválení uzavření iterace (review výsledků před /close-iteration)",
+        "text": "human – Schválení uzavření iterace (zastupuje tom-proxy dle DR-013-00) → /close-iteration + PR + merge",
         "done": false
       }
     ],
-    "total": 18,
-    "done_count": 16
+    "total": 12,
+    "done_count": 0
   },
   "closed_iterations": [
     "iter-001",
@@ -493,7 +463,8 @@ const DATA = {
     "iter-008",
     "iter-009",
     "iter-010",
-    "iter-011"
+    "iter-011",
+    "iter-012"
   ],
   "agents": [
     {
@@ -553,8 +524,8 @@ const DATA = {
     {
       "slug": "coder",
       "status": "done",
-      "task_id": "T-016 (iter-012 reload-determinismus fix dotažení, Derive-on-init)",
-      "brief": "brief_coder_T-016_iter-012.md",
+      "task_id": "T-017 (iter-012 oprava review F-1 + F-2)",
+      "brief": "brief_coder_T-017_iter-012.md",
       "iteration": "iter-012",
       "started": "2026-06-13",
       "completed": ""
@@ -994,6 +965,15 @@ const DATA = {
       "description": "derive-on-init hotový, plné npm run ci zelené"
     },
     {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-012_T-017.md",
+      "type": "final",
+      "name": "impl_summary_iter-012_T-017.md",
+      "task": "T-017",
+      "completed": "2026-06-13T22:59:01Z",
+      "description": "F-1+F-2 opraveny: guard proti shrinku over-cap loaded total v healthBirths i populationMigration (R-A4-3, symetricky), health.js reuse populationSanityCap helperu. Regress test (2/2). Gate: ci 780/0 fail, smoke exit 0, determinismus iter005-edge G1 + iter012-playability 25/25, precache regen (jen PRECACHE_VERSION). Necommitováno."
+    },
+    {
       "agent": "project-manager",
       "file": "agents/project-manager/artifacts/final/iteration_master_plan_iter-003_T-001.md",
       "type": "final",
@@ -1270,14 +1250,12 @@ const DATA = {
     },
     "iter-011_summary": {
       "raw": "# Orchestration Metrics: iter-011 (M4b) — MVP HOTOVÉ 🎉\n\n| Agent | Task | Model | poznámka |\n|---|---|---|---|\n| architect | T-001 design | opus | odhalil prázdný goods.json; arbitráž sanity |\n| coder | T-002 impl | sonnet | trh/karavany/getGoldValue + wiring + crime fix |\n| tester | T-003 test loop | sonnet | PASS 762; MVP e2e ✓; arbitráž ztrátová |\n| reviewer | T-004 MVP GATE | opus | GO – všech 7 AC splněno; 0 blockerů |\n\n## Výsledek (M4b = MVP)\n- Klientský trh (dynamické ceny kubika, spread, clamp), drift, getGoldValue/marketInject (S-06→pozitivní), karavany\n- Idle smyčka uzavřená: výdělek→nákup→pasivní příjem→offline progres. MarketScreen napojený.\n- CI 762/762. MVP acceptance criteria splněna. Backlog S-5/M5–M9.\n"
+    },
+    "iter-012_summary": {
+      "raw": "# Orchestration Metrics: iter-012\n\n- **Closed**: 2026-06-13\n- **Goal**: Playability hardening (A1–A5) + reload-determinismus fix\n- **Outcome**: MERGED do main (PR #15, 2baffaa); ci 780/780, smoke OK\n\n## Per-Agent Metrics\n\n| Agent | Task | total_tokens | tool_uses | duration_ms |\n|-------|------|-------------|-----------|-------------|\n| coder | T-005..T-009 (A1-A5) | (viz coder/metrics) | – | – |\n| coder | T-014 (Option A) | – | – | – |\n| coder | T-016 (derive-on-init) | 53956 | 41 | 286209 |\n| coder | T-017 (F-1+F-2) | 56655 | 42 | 286545 |\n| tester | T-010 (plná QA) | 115119 | 62 | 433657 |\n| reviewer | T-011 (code review) | 114654 | 53 | 382217 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A). Architekt T-013/T-015 a A1-A5 coder metriky viz agents/*/metrics/iter-012.md.\n"
     }
   },
-  "agent_tokens": {
-    "architect": 391496,
-    "coder": 334274,
-    "reviewer": 238056,
-    "tester": 115119
-  }
+  "agent_tokens": {}
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
