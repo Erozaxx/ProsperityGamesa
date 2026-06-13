@@ -12,7 +12,7 @@ import { BALANCE } from '../balance/balance.js';
 import { natality, diseaseChance } from '../balance/formulas.js';
 import { makeRng } from '../engine/rng.js';
 import { getCatalog } from '../catalog/index.js';
-import { calcHousingDerivedFromCatalog } from './population.js';
+import { calcHousingDerivedFromCatalog, DAYS_PER_YEAR } from './population.js';
 
 /**
  * Get housing capacity (for birth cap).
@@ -32,13 +32,15 @@ function getHousingCapacity(state) {
 
 /**
  * Health births - noon edge, order 10.
- * Births from annual birth rate (applied daily at noon).
+ * Births from the annual birth rate converted to a daily rate (applied daily at noon).
+ * iter-012 A4 (T-008): annual matRate ÷ DAYS_PER_YEAR; result clamped by housing capacity
+ * and by a global sanity hard-cap. No RNG → deterministic.
  * @param {GameState} state
  * @param {object} _params
  * @param {TickContext} _ctx
  */
 export function healthBirths(state, _params, _ctx) {
-  const born = natality(state.home.population.total, BALANCE.population.matRate);
+  const born = natality(state.home.population.total, BALANCE.population.matRate / DAYS_PER_YEAR);
   if (born <= 0) return;
 
   const capacity = getHousingCapacity(state);
@@ -46,8 +48,13 @@ export function healthBirths(state, _params, _ctx) {
   // If capacity > 0 (tents have null capacity = no limit from their field), limit births
   const actualBorn = capacity > 0 ? Math.min(born, Math.max(0, capacity - pop)) : born;
 
-  state.home.population.total = pop + actualBorn;
-  state.home.population.bornTotal = (state.home.population.bornTotal || 0) + actualBorn;
+  // Global sanity hard-cap: housing capacity wins when higher than sanityMaxPop.
+  const sanityCap = Math.max(capacity, BALANCE.population.sanityMaxPop);
+  const newTotal = Math.min(pop + actualBorn, sanityCap);
+  const cappedBorn = newTotal - pop;
+
+  state.home.population.total = newTotal;
+  state.home.population.bornTotal = (state.home.population.bornTotal || 0) + Math.max(0, cappedBorn);
 }
 
 /**

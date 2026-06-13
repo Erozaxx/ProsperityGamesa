@@ -4,7 +4,6 @@
  */
 
 import { createInitialState } from '../core/state/createInitialState.js';
-import { createHomeState, createPlayerState } from '../core/state/createHomeState.js';
 import { PERSIST_SCHEMA } from './persistSchema.js';
 import { migrate } from './migrations.js';
 import { SAVE_VERSION } from './schema.js';
@@ -185,10 +184,10 @@ function applyPayload(state, payload) {
  * Load and reconstruct a game state from a raw save payload.
  * Applies migrations, then merges into a fresh initial state to fill missing fields.
  * @param {Record<string, any>} rawPayload - The raw saved payload (may be outdated version)
- * @param {object} [catalog] - Catalog (for createHomeState)
+ * @param {object} [_catalog] - Catalog (retained for signature compatibility; state is seeded by createInitialState)
  * @returns {GameState}
  */
-export function loadAndReconstruct(rawPayload, catalog) {
+export function loadAndReconstruct(rawPayload, _catalog) {
   // Wrap as rec for validateEnvelope (it expects {saveVersion, payload})
   // If rawPayload already has saveVersion at top level, wrap it; otherwise assume it IS the payload
   const rec = /** @type {{ saveVersion: number, payload: Record<string, any> }} */ (
@@ -208,8 +207,8 @@ export function loadAndReconstruct(rawPayload, catalog) {
     seed: payload.meta && payload.meta.seed,
     gameVersion: payload.meta && payload.meta.gameVersion,
   }));
-  state.home = createHomeState(catalog);
-  state.player = createPlayerState();
+  // A1 (iter-012 T-005): keep the seeded state from createInitialState (single seed path);
+  // applyPayload (allowlist) overwrites persisted fields below, so old saves load correctly.
 
   // Step 4: apply payload via allowlist
   applyPayload(state, payload);

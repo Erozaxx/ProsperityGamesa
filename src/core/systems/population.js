@@ -13,6 +13,24 @@ import { natality } from '../balance/formulas.js';
 import { getCatalog } from '../catalog/index.js';
 
 /**
+ * Days per game year. iter-012 A4 (T-008): 4 seasons × seasonDays (= 364),
+ * consistent with stepsPerSeason (81900 = 900 × 91) and stepsPerDay (900).
+ * Used to convert annual birth/retirement rates to per-day rates (systems run daily).
+ * @type {number}
+ */
+export const DAYS_PER_YEAR = 4 * BALANCE.season.seasonDays;
+
+/**
+ * Global sanity hard-cap on population given current housing capacity.
+ * Housing capacity wins when it exceeds the MVP sanity ceiling.
+ * @param {number} housingCapacity
+ * @returns {number}
+ */
+export function populationSanityCap(housingCapacity) {
+  return Math.max(housingCapacity, BALANCE.population.sanityMaxPop);
+}
+
+/**
  * Compute housing-derived values from a houseTypes catalog and housing counts.
  * @param {Array<{id: string, capacity: number|null, workers: number, attractiveness: number}>} catalog
  * @param {Record<string, number>} counts
@@ -71,19 +89,22 @@ export function populationMigration(state, _params, _ctx) {
     // Limit by housing capacity (0 capacity means no limit from capacity field)
     const limit = capacity > 0 ? capacity - pop : Number.MAX_SAFE_INTEGER;
     const actualAdd = Math.max(0, Math.min(toAdd, limit));
-    state.home.population.total = Math.max(0, pop + actualAdd);
+    // iter-012 A4 (T-008): apply the global sanity hard-cap uniformly (symmetric with births).
+    const sanityCap = populationSanityCap(capacity);
+    state.home.population.total = Math.max(0, Math.min(pop + actualAdd, sanityCap));
   }
 }
 
 /**
  * Population retirement - noon edge, order 20.
- * Applies annual retirement/attrition rate (fractional daily step).
+ * Applies the annual retirement/attrition rate converted to a daily rate (system runs daily).
+ * iter-012 A4 (T-008): annual retRate ÷ DAYS_PER_YEAR. No RNG → deterministic.
  * @param {GameState} state
  * @param {object} _params
  * @param {TickContext} _ctx
  */
 export function populationRetirement(state, _params, _ctx) {
-  const died = natality(state.home.population.total, BALANCE.population.retRate);
+  const died = natality(state.home.population.total, BALANCE.population.retRate / DAYS_PER_YEAR);
   state.home.population.total = Math.max(0, state.home.population.total - died);
   state.home.population.diedTotal = (state.home.population.diedTotal || 0) + died;
 }

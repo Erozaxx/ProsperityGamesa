@@ -176,6 +176,12 @@ export const resourceHandlers = {
  * @returns {string}
  */
 export function resourceKindOf(key) {
+  // iter-012 A2 (T-006): gold/techPt are special currencies with dedicated handlers.
+  // Resolve them independently of catalog load order (defense-in-depth). They are also in
+  // resources.json with the same kind, so with the catalog loaded this is a no-op; without it
+  // (catalog-less harnesses) it still returns the correct handler instead of 'resource'.
+  if (key === 'gold') return 'gold';
+  if (key === 'techPt') return 'techPt';
   try {
     const entry = byId(key);
     const item = /** @type {Record<string, unknown>} */ (entry.entry);

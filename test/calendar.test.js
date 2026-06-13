@@ -1,10 +1,33 @@
-import { describe, it } from 'node:test';
+import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createInitialState } from '../src/core/state/createInitialState.js';
 import { initRng } from '../src/core/engine/rng.js';
 import { createRegistry } from '../src/core/registry/registry.js';
 import { registerCorePeriodics } from '../src/core/engine/tickOrder.js';
 import { createAccumulator, advance } from '../src/core/engine/clock.js';
+import { loadCatalog, clearCatalogs } from '../src/core/catalog/index.js';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const DATA_DIR = join(__dirname, '..', 'src', 'data');
+
+/** @param {string} name @returns {Record<string, unknown>} */
+function loadJson(name) {
+  return JSON.parse(readFileSync(join(DATA_DIR, `${name}.json`), 'utf8'));
+}
+
+// iter-012 A1 (T-005): fresh start now seeds population/food, so real tick systems
+// (food spoilage, etc.) actually run. Load the catalogs they need so resource resolution
+// works (catalog-less harness would mis-resolve food/resource keys). See architecture §2.2.
+before(() => {
+  clearCatalogs();
+  for (const name of ['resources', 'food', 'houseTypes', 'jobs', 'military', 'achievements']) {
+    loadCatalog(name, loadJson(name));
+  }
+  loadCatalog('population', loadJson('population'));
+});
 
 function makeBootstrap(seed = 1) {
   const state = createInitialState({ seed });

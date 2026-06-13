@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { loadCatalog, clearCatalogs } from '../src/core/catalog/index.js';
 import { createInitialState } from '../src/core/state/createInitialState.js';
 import { initRng } from '../src/core/engine/rng.js';
-import { populationMigration, populationRetirement, calcHousingDerivedFromCatalog } from '../src/core/systems/population.js';
+import { populationMigration, populationRetirement, calcHousingDerivedFromCatalog, DAYS_PER_YEAR, populationSanityCap } from '../src/core/systems/population.js';
 import { healthBirths } from '../src/core/systems/health.js';
 import { natality } from '../src/core/balance/formulas.js';
 import { BALANCE } from '../src/core/balance/balance.js';
@@ -169,21 +169,24 @@ describe('populationMigration', () => {
 // 3. populationRetirement
 // -----------------------------------------------------------------------
 describe('populationRetirement', () => {
-  it('decreases population by natality(pop, retRate)', () => {
+  // iter-012 A4 (T-008): retirement now uses the DAILY rate (annual retRate ÷ DAYS_PER_YEAR).
+  // Use a large population so floor(pop * dailyRate) is observable.
+  it('decreases population by natality(pop, retRate/DAYS_PER_YEAR)', () => {
     const state = createState();
-    state.home.population.total = 1000;
-    const expectedDied = natality(1000, BALANCE.population.retRate);
+    state.home.population.total = 200000;
+    const expectedDied = natality(200000, BALANCE.population.retRate / DAYS_PER_YEAR);
+    assert.ok(expectedDied > 0, 'sanity: daily retirement should be observable at pop=200000');
 
     populationRetirement(state, {}, MOCK_CTX);
 
-    assert.strictEqual(state.home.population.total, 1000 - expectedDied);
+    assert.strictEqual(state.home.population.total, 200000 - expectedDied);
   });
 
   it('adds to diedTotal', () => {
     const state = createState();
-    state.home.population.total = 1000;
+    state.home.population.total = 200000;
     state.home.population.diedTotal = 5;
-    const expectedDied = natality(1000, BALANCE.population.retRate);
+    const expectedDied = natality(200000, BALANCE.population.retRate / DAYS_PER_YEAR);
 
     populationRetirement(state, {}, MOCK_CTX);
 
@@ -215,24 +218,27 @@ describe('populationRetirement', () => {
 // 4. healthBirths
 // -----------------------------------------------------------------------
 describe('healthBirths', () => {
-  it('increases population by natality(pop, matRate)', () => {
+  // iter-012 A4 (T-008): births now use the DAILY rate (annual matRate ÷ DAYS_PER_YEAR).
+  // pop=9100 keeps the daily floor() > 0 while staying below sanityMaxPop (10000).
+  it('increases population by natality(pop, matRate/DAYS_PER_YEAR)', () => {
     const state = createState();
-    state.home.population.total = 1000;
-    // Give unlimited capacity (tent)
+    state.home.population.total = 9100;
+    // Give null-capacity housing (tent) so capacity does not limit births.
     state.home.housing.counts = { tent: 10 };
-    const expectedBorn = natality(1000, BALANCE.population.matRate);
+    const expectedBorn = natality(9100, BALANCE.population.matRate / DAYS_PER_YEAR);
+    assert.ok(expectedBorn > 0, 'sanity: daily births should be observable at pop=9100');
 
     healthBirths(state, {}, MOCK_CTX);
 
-    assert.strictEqual(state.home.population.total, 1000 + expectedBorn);
+    assert.strictEqual(state.home.population.total, 9100 + expectedBorn);
   });
 
   it('increases bornTotal', () => {
     const state = createState();
-    state.home.population.total = 1000;
+    state.home.population.total = 9100;
     state.home.population.bornTotal = 0;
     state.home.housing.counts = { tent: 10 };
-    const expectedBorn = natality(1000, BALANCE.population.matRate);
+    const expectedBorn = natality(9100, BALANCE.population.matRate / DAYS_PER_YEAR);
 
     healthBirths(state, {}, MOCK_CTX);
 
@@ -251,15 +257,69 @@ describe('healthBirths', () => {
     assert.ok(state.home.population.total <= 200, 'population should not exceed housing capacity');
   });
 
-  it('allows unlimited growth with null-capacity housing (tent)', () => {
+  // iter-012 A4 (T-008): null-capacity housing (tent) no longer allows literally unlimited
+  // growth — the global sanity hard-cap bounds it. Renamed from "allows unlimited growth".
+  it('grows up to the sanity cap with null-capacity housing (tent)', () => {
     const state = createState();
-    state.home.population.total = 1000;
-    state.home.housing.counts = { tent: 10 }; // tent has null capacity = unlimited
+    state.home.population.total = 9100;
+    state.home.housing.counts = { tent: 10 }; // tent has null capacity (no per-house limit)
 
     const before = state.home.population.total;
     healthBirths(state, {}, MOCK_CTX);
 
-    // With tent (null capacity), births should not be limited
-    assert.ok(state.home.population.total >= before, 'births allowed with unlimited capacity');
+    // Grows, but never beyond the global sanity cap.
+    assert.ok(state.home.population.total >= before, 'births allowed with null-capacity housing');
+    assert.ok(
+      state.home.population.total <= BALANCE.population.sanityMaxPop,
+      'population must not exceed the global sanity cap'
+    );
+  });
+
+  it('hard-caps births at the global sanity cap (tent-only)', () => {
+    const state = createState();
+    // Just below the cap; with null-capacity housing only the sanity cap should bound growth.
+    state.home.population.total = BALANCE.population.sanityMaxPop - 1;
+    state.home.housing.counts = { tent: 100 };
+
+    healthBirths(state, {}, MOCK_CTX);
+
+    assert.strictEqual(
+      state.home.population.total,
+      BALANCE.population.sanityMaxPop,
+      'population should be clamped exactly to sanityMaxPop'
+    );
+  });
+
+  it('does not exceed sanity cap even when births would overshoot', () => {
+    const state = createState();
+    state.home.population.total = BALANCE.population.sanityMaxPop;
+    state.home.housing.counts = { tent: 100 };
+
+    healthBirths(state, {}, MOCK_CTX);
+
+    assert.ok(
+      state.home.population.total <= BALANCE.population.sanityMaxPop,
+      'already-at-cap population must not grow'
+    );
+  });
+});
+
+// -----------------------------------------------------------------------
+// 5. DAYS_PER_YEAR + sanity cap helpers (iter-012 A4 / T-008)
+// -----------------------------------------------------------------------
+describe('A4 sanity helpers', () => {
+  it('DAYS_PER_YEAR equals 4 * seasonDays (= 364)', () => {
+    assert.strictEqual(DAYS_PER_YEAR, 4 * BALANCE.season.seasonDays);
+    assert.strictEqual(DAYS_PER_YEAR, 364);
+  });
+
+  it('populationSanityCap returns housing capacity when it exceeds sanityMaxPop', () => {
+    const big = BALANCE.population.sanityMaxPop + 5000;
+    assert.strictEqual(populationSanityCap(big), big);
+  });
+
+  it('populationSanityCap returns sanityMaxPop when housing capacity is lower', () => {
+    assert.strictEqual(populationSanityCap(0), BALANCE.population.sanityMaxPop);
+    assert.strictEqual(populationSanityCap(100), BALANCE.population.sanityMaxPop);
   });
 });

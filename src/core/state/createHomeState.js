@@ -5,25 +5,14 @@
  */
 
 /**
- * Creates a fresh HomeState with seed defaults.
- * Reads balance.start section from catalog if available; falls back gracefully to hardcoded defaults.
- * @param {object} [catalog] - catalog (may contain balance.start overrides)
+ * Creates a fresh HomeState with neutral defaults (no catalog, no start seed).
+ * A1 (iter-012 T-005): start values are seeded centrally in createInitialState from BALANCE.start.
  * @returns {import('./types.js').HomeState}
  */
-export function createHomeState(catalog) {
-  // Try to read seed values from balance.start if provided via catalog
-  /** @type {Record<string, unknown>} */
-  const balanceCat = /** @type {any} */ (catalog);
-  const start = (balanceCat && balanceCat.balance && /** @type {any} */ (balanceCat.balance).start)
-    ? /** @type {Record<string, unknown>} */ (/** @type {any} */ (balanceCat.balance).start)
-    : null;
-
-  const tentCount = (start && typeof start['startTents'] === 'number') ? start['startTents'] : 5;
-  const startPop = (start && typeof start['startPopulation'] === 'number') ? start['startPopulation'] : 0;
-
+export function createHomeState() {
   return {
-    population: { total: startPop, migrationAcc: 0, bornTotal: 0, diedTotal: 0 },
-    housing: { counts: { tent: tentCount } },
+    population: { total: 0, migrationAcc: 0, bornTotal: 0, diedTotal: 0 },
+    housing: { counts: {} },
     food: { store: { bread: 0, cheese: 0, fish: 0, fruit: 0, meat: 0, vegetable: 0 } },
     health: { diseaseActive: false, diseaseDaysLeft: 0 },
     crime: { level: 0 },

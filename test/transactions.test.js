@@ -136,12 +136,14 @@ describe('grant', () => {
 
   it('adds food to home.food.store', () => {
     const state = createInitialState();
+    state.home.food.store.bread = 0; // iter-012 A1: fresh start now seeds bread=20; test the delta
     grant(state, { bread: 10 }, 'harvest');
     assert.strictEqual(state.home.food.store.bread, 10);
   });
 
   it('accumulates grants', () => {
     const state = createInitialState();
+    state.player.gold = 0; // iter-012 A1: fresh start now seeds gold=500; test the delta
     grant(state, { gold: 100 }, 'earn');
     grant(state, { gold: 50 }, 'earn2');
     assert.strictEqual(state.player.gold, 150);

@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T18:21:55Z",
+  "generated": "2026-06-13T19:47:27Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -410,32 +410,42 @@ const DATA = {
       },
       {
         "id": "T-005",
-        "text": "coder – Start seed: createInitialState předá katalog do factory + createHomeState/createPlayerState čtou BALANCE.start (population/gold/food/housing); fresh hra startuje populovaná (in-flight: T-005–T-009 v jednom běhu codera)",
-        "done": false
+        "text": "coder – Start seed: createInitialState předá katalog do factory + createHomeState/createPlayerState čtou BALANCE.start (population/gold/food/housing); fresh hra startuje populovaná (pop 50, gold 500) → CI zelená, smoke „Populace 50\". POZN: A1 seed odhalil reload-determinismus regres → DR-012-02, řeší T-013/T-014",
+        "done": true
       },
       {
         "id": "T-006",
-        "text": "coder – Fix resolveru zdrojů: resourceKindOf vrací pro 'gold'/'techPt' dedikovaný handler (ne 'resource'); pay/grant/canAfford konzistentní se state.player.gold",
-        "done": false
+        "text": "coder – Fix resolveru zdrojů (A2 Option A): resourceKindOf vrací pro 'gold'/'techPt' dedikovaný handler před byId lookupem; +test invariance s katalogem i bez",
+        "done": true
       },
       {
         "id": "T-007",
-        "text": "coder – Crime pay robustnost: integer-clamp goldLoss na floor(available), broke osada nespadne (žádná výjimka z pay)",
-        "done": false
+        "text": "coder – Crime pay robustnost (A3): crime.js beze změny logiky; +regresní no-throw testy (broke osada, pop/gold grid)",
+        "done": true
       },
       {
         "id": "T-008",
-        "text": "coder – Sanity-cap populace: porody/migrace omezené bydlením a jídlem (zamezit explozi 50→~8749/rok); ne plná M9 kalibrace",
-        "done": false
+        "text": "coder – Sanity-cap populace (A4): denní sazba annualRate/DAYS_PER_YEAR (=364) v births/retirement + globální hard-cap sanityMaxPop=10000; deterministické, calcHousingDerivedFromCatalog nezměněna",
+        "done": true
       },
       {
         "id": "T-009",
-        "text": "coder – Market UI overflow fix na úzkém mobilu (horizontální přetékání)",
+        "text": "coder – Market UI overflow (A5): .table-scroll wrapper + responsivní CSS pro 6sl. market tabulku; bez přepisu komponenty",
+        "done": true
+      },
+      {
+        "id": "T-013",
+        "text": "architect – Rozhodnutí fixu reload-determinismu (workforce.total): Option A rebuild-on-load vs B jobsAccidents reload-independent vs C reorder; zapsat do DR-012-02 (blocker před opravou)",
+        "done": false
+      },
+      {
+        "id": "T-014",
+        "text": "coder – Aplikovat schválený fix dle DR-012-02 + REVERT oslabení G1 testu (iter005-edge.test.js zpět na plný hashState); npm run ci + smoke zelené",
         "done": false
       },
       {
         "id": "T-010",
-        "text": "tester – QA: npm run ci zelené (+ aktualizace testů na seedovaný start), npm run smoke OK, dlouhý seedovaný sim (≥2 herní roky) bez crashe; ověřit accounting invariant u gold po fixu resolveru",
+        "text": "tester – QA: npm run ci zelené (+ aktualizace testů na seedovaný start), npm run smoke OK, dlouhý seedovaný sim (≥2 herní roky) bez crashe; ověřit accounting invariant u gold po fixu resolveru; ověřit G1 determinismus po load drží na plném hashState",
         "done": false
       },
       {
@@ -449,8 +459,8 @@ const DATA = {
         "done": false
       }
     ],
-    "total": 12,
-    "done_count": 4
+    "total": 14,
+    "done_count": 9
   },
   "closed_iterations": [
     "iter-001",
@@ -523,9 +533,9 @@ const DATA = {
     {
       "slug": "coder",
       "status": "done",
-      "task_id": "T-002 (iter-011 M4b market/caravans MVP)",
-      "brief": "brief_coder_T-002_iter-011.md",
-      "iteration": "iter-011",
+      "task_id": "T-005..T-009 (iter-012 playability hardening A1-A5)",
+      "brief": "brief_coder_T-005-009_iter-012.md",
+      "iteration": "iter-012",
       "started": "2026-06-13",
       "completed": "2026-06-13"
     },
@@ -919,6 +929,15 @@ const DATA = {
       "description": "M4b trh/karavany/getGoldValue + wiring + crime fix; CI zelene"
     },
     {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-012_T-005-009.md",
+      "type": "final",
+      "name": "impl_summary_iter-012_T-005-009.md",
+      "task": "T-005",
+      "completed": "2026-06-13T18:46:57Z",
+      "description": "implementace A1-A5 hotová, ci+smoke zelené (778 testů pass, smoke OK); deviace: balance.json sanityMaxPop nezrcadleno (gen. soubor), smoke.mjs type-only unblock (pre-existing red), latent jobsAccidents workforce.total nález pro architekta"
+    },
+    {
       "agent": "project-manager",
       "file": "agents/project-manager/artifacts/final/iteration_master_plan_iter-003_T-001.md",
       "type": "final",
@@ -1181,6 +1200,7 @@ const DATA = {
   },
   "agent_tokens": {
     "architect": 207830,
+    "coder": 192176,
     "reviewer": 123402
   }
 };

@@ -10,6 +10,7 @@ import { extname, join, normalize } from 'node:path';
 
 const PORT = Number(process.argv[2]) || 8231;
 const ROOT = process.cwd();
+/** @type {Record<string, string>} */
 const MIME = { '.html':'text/html', '.js':'text/javascript', '.mjs':'text/javascript', '.json':'application/json', '.webmanifest':'application/manifest+json', '.css':'text/css', '.svg':'image/svg+xml' };
 
 const server = createServer(async (req, res) => {
@@ -23,7 +24,7 @@ const server = createServer(async (req, res) => {
   } catch { res.writeHead(404); res.end('not found'); }
 });
 
-await new Promise((r) => server.listen(PORT, r));
+await new Promise((r) => server.listen(PORT, () => r(undefined)));
 
 let pw;
 try { pw = await import('playwright'); }
@@ -32,6 +33,7 @@ catch { console.error('SMOKE SKIP: playwright not installed (npx playwright inst
 const browser = await pw.chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
 const page = await ctx.newPage();
+/** @type {string[]} */
 const errors = [];
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 page.on('pageerror', (e) => errors.push('PAGEERROR: ' + e.message));
@@ -44,6 +46,6 @@ try {
   if (errors.length) { ok = false; console.error('SMOKE FAIL: console/page errors:\n - ' + errors.slice(0,10).join('\n - ')); }
   else if (!txt || /Načítám/.test(txt) && txt.length < 30) { ok = false; console.error('SMOKE FAIL: app did not render (still loading / empty #app).'); }
   else console.log('SMOKE OK: app rendered, 0 console errors.\n--- app text (head) ---\n' + txt.slice(0, 200));
-} catch (e) { ok = false; console.error('SMOKE FAIL: ' + e.message); }
+} catch (e) { ok = false; console.error('SMOKE FAIL: ' + (e instanceof Error ? e.message : String(e))); }
 finally { await browser.close(); server.close(); }
 process.exit(ok ? 0 : 1);

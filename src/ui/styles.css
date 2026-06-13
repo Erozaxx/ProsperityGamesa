@@ -52,3 +52,25 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .error-actions { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
 .error-actions button { padding: 0.5rem 1.2rem; background: var(--btn-bg); color: var(--text); border: 1px solid #2e4a35; border-radius: 4px; cursor: pointer; }
 .error-actions button:hover { background: var(--btn-hover); }
+
+/* Market table (iter-012 A5 / T-009): horizontal scroll fallback so the 6-column
+   table never overflows the viewport on narrow mobile screens. */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.market-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.market-table th, .market-table td { padding: 0.3rem 0.4rem; text-align: right; }
+.market-table th:first-child, .market-table td:first-child { text-align: left; }
+.market-actions { white-space: nowrap; }
+.market-actions button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.market-actions button:hover:not(:disabled) { background: var(--btn-hover); }
+.market-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+@media (max-width: 480px) {
+  .market-actions { display: flex; flex-direction: column; gap: 0.25rem; }
+}

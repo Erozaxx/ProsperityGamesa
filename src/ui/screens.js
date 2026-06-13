@@ -77,6 +77,7 @@ export function MarketScreen({ snapshot, send }) {
       <h2>Trh</h2>
       <section class="market-section">
         <h3>Zboží</h3>
+        <div class="table-scroll">
         <table class="market-table">
           <thead>
             <tr>
@@ -109,6 +110,7 @@ export function MarketScreen({ snapshot, send }) {
               `)}
           </tbody>
         </table>
+        </div>
       </section>
       <section class="caravan-section">
         <h3>Karavana</h3>
