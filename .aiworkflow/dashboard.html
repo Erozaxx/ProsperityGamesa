@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T20:06:54Z",
+  "generated": "2026-06-13T21:29:49Z",
   "iteration": {
     "id": "iter-012",
     "goal": "Zprovoznit MVP jako reálně hratelné — opravit start seed, resolver gold/techPt, crime pay a sanity-cap populace; zavést browser-smoke + dlouhý sim do gate.",
@@ -440,12 +440,17 @@ const DATA = {
       },
       {
         "id": "T-015",
-        "text": "architect – Rozhodnout dotažení fixu: derive-on-init (přepočet workforce.total v createInitialState == load; mění hash fresh-simu, vyžaduje refresh fixtures) vs uznat 2 testy jako křehké (posun save-pointu za 1. quarterDay edge); reorder (C) už zamítnut. Zapsat do DR-012-02 (extend), identifikovat dotčené fixtures",
-        "done": false
+        "text": "architect – Rozhodnutí dotažení → Derive-on-init (přepočet workforce.total v createInitialState přes deriveWorkforceTotal, jeden řádek). Varianta 2 (uznat testy křehké) zamítnuta jako maskování. Fixtures k regeneraci pro CI: ŽÁDNÉ (v repu nejsou stored golden hashe). DR-012-02 decided-extended. POZN: architekt DOPORUČUJE user-gate (behavior-change spojitého simu) → T-015a",
+        "done": true
+      },
+      {
+        "id": "",
+        "text": "T-015a: human – Gate SCHVÁLENO: uživatel zvolil „Derive-on-init\" (přepočet workforce.total v createInitialState; akceptována změna RNG-průběhu fresh-simu jako korektní)",
+        "done": true
       },
       {
         "id": "T-016",
-        "text": "coder – Aplikovat schválené dotažení dle T-015 + regenerovat dotčené fixtures; plné `npm run ci` zelené, `npm run smoke` OK, G1 + app-bootstrap + export-string zelené",
+        "text": "coder – Aplikovat schválené dotažení dle T-015 (derive-on-init v createInitialState) + volitelně regen precache; plné `npm run ci` zelené, `npm run smoke` OK, G1 + app-bootstrap + export-string zelené",
         "done": false
       },
       {
@@ -464,8 +469,8 @@ const DATA = {
         "done": false
       }
     ],
-    "total": 15,
-    "done_count": 10
+    "total": 16,
+    "done_count": 12
   },
   "closed_iterations": [
     "iter-001",
@@ -484,8 +489,8 @@ const DATA = {
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-013 (iter-012)",
-      "brief": "context/inbox/brief_architect_T-013_iter-012.md (BRIEF-012-013)",
+      "task_id": "T-015 (iter-012)",
+      "brief": "context/inbox/brief_architect_T-015_iter-012.md (BRIEF-012-015)",
       "iteration": "iter-012 (Playability & onboarding hardening)",
       "started": "2026-06-13",
       "completed": "2026-06-13"
@@ -833,6 +838,15 @@ const DATA = {
       "task": "T-001",
       "completed": "2026-06-13T16:53:21Z",
       "description": "architektura playability hardeningu hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/fix_reload_determinism_complete_iter-012_T-015.md",
+      "type": "final",
+      "name": "fix_reload_determinism_complete_iter-012_T-015.md",
+      "task": "T-015",
+      "completed": "2026-06-13T20:13:57Z",
+      "description": "dotažení fixu reload-determinismu rozhodnuto"
     },
     {
       "agent": "architect",
@@ -1222,7 +1236,7 @@ const DATA = {
     }
   },
   "agent_tokens": {
-    "architect": 284097,
+    "architect": 391496,
     "coder": 280318,
     "reviewer": 123402
   }

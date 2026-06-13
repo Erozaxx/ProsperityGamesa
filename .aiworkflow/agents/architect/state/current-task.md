@@ -1,13 +1,44 @@
 # Current Task
 
-- **Task ID**: T-013 (iter-012)
-- **Brief**: context/inbox/brief_architect_T-013_iter-012.md (BRIEF-012-013)
+- **Task ID**: T-015 (iter-012)
+- **Brief**: context/inbox/brief_architect_T-015_iter-012.md (BRIEF-012-015)
 - **Iteration**: iter-012 (Playability & onboarding hardening)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
+Hotovo – ROZHODNUTÍ o DOTAŽENÍ fixu reload-determinismu (NE implementace; tu dělá coder v T-016).
+
+Zvolená varianta dotažení: **Derive-on-init** (rozšíření Option A). V `createInitialState` se po
+sestavení stavu dopočítá `state.home.workforce.total = deriveWorkforceTotal(state)` (bez ctx) —
+stejnou kanonickou derivací jako load Step 5 i autoAssign. Tím spojitý sim vstupuje do kroku 1 s
+dopočítanou hodnotou (== load) → `jobsAccidents` (order 20) čerpá `'population'` RNG ve stejném
+okamžiku na obou cestách → žádný desync. 2 dříve failující testy (app-bootstrap, export-string,
+save na curStep=0) zezelenají.
+
+**Proč správnější (ne jen průchozí)**: odstraňuje root cause (stale workforce.total=0 = reálná
+invariantní díra), ne symptom. Seedovaná osada MÁ mít workforce od kroku 1. Init↔load = jeden
+invariant „po konstrukci stavu se workforce dopočítá".
+
+**User-gate**: DOPORUČUJI ESKALOVAT — je to behavior-change spojitého simu (RNG na kroku 1, mění
+průběh fresh běhu). Technicky nic v `npm run ci` nerozbije (žádné golden sim-hash fixtures), ale
+„měnit deterministický průběh hry kvůli korektnosti" je produktové rozhodnutí → orchestrátor gate.
+
+**Fixtures k regeneraci**: pro `npm run ci` ŽÁDNÉ (všechny determinismus testy porovnávají Path A vs
+Path B za běhu, ne proti uložené konstantě; `273280195` v repu nikde není). Volitelně mimo CI:
+`node tools/gen-precache.mjs` → `src/precache.js` (změna bajtů zdroje; není CI-gated). bench-step
+NEgenerovat (perf, není v CI). Riziko rozbití dalších golden testů: NÍZKÉ až nulové.
+
+Výstupy:
+- DR rozšířen + Status decided-extended: `orchestration/decisions/DR-012-02_reload-determinism-workforce-total.md`
+- Design pro codera (T-016): `artifacts/final/fix_reload_determinism_complete_iter-012_T-015.md`
+
+Zamítnuto pro dotažení: Varianta 2 (uznat testy jako křehké → posun save-pointu) — maskuje díru,
+křehkost se přesouvá; Option C (reorder) zamítnuta už v T-013.
+
+<details><summary>Předchozí (T-013) – archiv</summary>
+
 Hotovo – ROZHODNUTÍ k opravě reload-determinismus regresu `workforce.total` (NE implementace; tu dělá coder v T-014).
 
 Zvolená varianta: **Option A — rebuild-on-load**. Po načtení (`load.js` Step 5) se přepočítá
@@ -29,6 +60,8 @@ Option C (reorder autoAssign před accidents → širší zásah do determinismu
 - Refresh až v `autoAssignWorkers` jobs.js:204-206; tickOrder quarterDay order 30 (assign) vs 20 (accidents).
 - `workerSlots` jobs.js:44-58 funguje BEZ ctx přes globální katalog fallback → load cesta (bez ctx) ho použije.
 - load.js Step 5 (ř.216) je dnes prázdný no-op „recalculate derivates" → přesné místo přepočtu.
+
+</details>
 
 <details><summary>Předchozí (T-003) – archiv</summary>
 

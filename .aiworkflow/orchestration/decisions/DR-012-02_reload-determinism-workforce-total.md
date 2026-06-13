@@ -3,10 +3,10 @@
 - **ID**: DR-012-02
 - **Iteration**: iter-012
 - **Date**: 2026-06-13
-- **Status**: decided (architekt rozhodl → coder implementuje v T-014)
+- **Status**: decided-extended (architekt rozhodl dotažení v T-015 → coder implementuje v T-016)
 - **Owner**: architect (decision), coder (impl)
 - **Rozhodl o směru**: uživatel (T-004 follow-up) → „Nejdřív architekt"
-- **Decided by**: architect (T-013, 2026-06-13) → **Option A (rebuild-on-load)**
+- **Decided by**: architect (T-013, 2026-06-13) → **Option A (rebuild-on-load)**; rozšířeno architektem (T-015, 2026-06-13) → **Derive-on-init (dotažení)**
 
 ## Kontext / nález
 Implementace A1 (start seed, T-005) odhalila **latentní bug determinismu po save/load**, který byl dříve maskovaný:
@@ -81,6 +81,132 @@ je neúplný.
 Konkrétní coder design (soubor, funkce, přesné místo, edge-case, ověření):
 `agents/architect/artifacts/final/fix_reload_determinism_iter-012_T-013.md`.
 
+---
+
+# ROZŠÍŘENÍ (architect, T-015) — dotažení fixu
+
+## Nový nález (ověřeno coderem v T-014, experiment)
+Option A (rebuild-on-load) je aplikované a **korektní pro svůj scope** (G1 v `iter005-edge.test.js`
+zelený na plném `hashState`, 16/16). ALE odhalilo **hlubší preexistující díru**, kterou předtím
+maskovala symetrie obou bugových cest:
+
+- `createInitialState` seeduje populaci (A1, pop 50), ale `workforce.total` **nedopočítá** (= 0).
+- `jobsAccidents` (quarterDay order 20) běží **před** `autoAssignWorkers` (order 30), a quarterDay
+  edge nastává už na **kroku 1** (`sid=(curStep-1)%900=0`).
+- → **Spojitý sim** (Path A) vstupuje do kroku 1 se stale `workforce.total=0` → `jobsAccidents`
+  čte `workers=0` → přeskočí `rng.next()` na streamu `'population'`. **Load** (Path B) má díky
+  Option A správnou hodnotu → čerpá RNG → **desync** (jediné rozcházející pole: `rng.streams.population`).
+- 2 preexistující testy (`test/app-bootstrap.test.js` S-1, `test/export-string.test.js` round-trip)
+  savnou/exportují state na **`curStep=0`** (před 1. tickem) → po Option A selhávají. Existují beze
+  změny od iter-008; Option A je jen **odhalil**.
+- **Důkaz codera**: aplikovat `deriveWorkforceTotal` i v Path A PŘED krokem 1 → `hashA == hashB ==
+  273280195` (shoda). Root cause jednoznačný.
+
+## Varianty dotažení (k rozhodnutí)
+1. **Derive-on-init**: v `createInitialState` přepočítat `workforce.total` přes existující
+   `deriveWorkforceTotal` helper (== load). Spojitý sim vstupuje do kroku 1 s dopočítanou hodnotou.
+   Sjednotí obě cesty. Mění hash fresh-simu (= mění chování spojitého simu na kroku 1).
+2. **Uznat 2 testy jako křehké**: posunout save-point v těch 2 testech za 1. quarterDay edge
+   (hra reálně nikdy nesavne na `curStep=0`). Ponechává tick-1 stale `workforce.total` ve spojitém simu.
+3. Reorder (Option C) — **zamítnuto** v T-013, neuvažuje se.
+
+## ROZHODNUTÍ (architect, T-015): **Derive-on-init (Varianta 1).**
+
+`createInitialState` po seedu populace/housing dopočítá `state.home.workforce.total` přes **stejnou
+kanonickou derivaci** (`deriveWorkforceTotal`), kterou už používá load (Step 5) i `autoAssignWorkers`.
+Tím spojitý sim vstupuje do kroku 1 s identickou hodnotou jako load → `jobsAccidents` čerpá
+`'population'` RNG ve stejném okamžiku na obou cestách → žádný desync.
+
+### Zdůvodnění (proč Derive-on-init je SPRÁVNĚJŠÍ, ne jen průchozí)
+- **Odstraňuje root cause, ne symptom.** Stale `workforce.total=0` na 1. ticku spojitého simu je
+  reálná invariantní díra: derivované pole je nekonzistentní se svým definičním vztahem
+  (`min(population, workerSlots)`) v okamžiku, kdy ho čte RNG-čerpající systém. Varianta 2 tu díru
+  **ponechává** a jen schová 2 testy, které ji odhalují.
+- **Korektnost domény.** Seedovaná osada (50 obyvatel, 5 stanů) **má** mít workforce od kroku 1 —
+  obyvatelé existují, pracovní sloty existují. `workforce.total=0` na startu je věcně chybný stav,
+  ne legitimní „ještě nedopočítáno".
+- **Symetrie init ↔ load = jeden invariant.** Po Option A platí: *„po rekonstrukci stavu se
+  workforce.total dopočítá".* Derive-on-init rozšiřuje stejný invariant na *„po jakékoli konstrukci
+  stavu"* (init i load jsou konstrukce). `createInitialState` se sám deklaruje jako „single source of
+  truth about state shape" — derivovaná pole tam patří. Sjednocení přes `deriveWorkforceTotal` drží
+  single-source-of-truth (žádná čtvrtá kopie derivace).
+- **Testovatelnost > elegance.** Vrací obě round-trip cesty (save/export) do stavu, kdy save na
+  jakémkoli kroku (vč. 0) je deterministicky bezpečný — to je silnější a trvanlivější invariant než
+  „nesavuj na kroku 0".
+
+### Proč NE Varianta 2 (uznat testy jako křehké)
+- **Maskuje reálnou díru.** Tick-1 stale `workforce.total` ve spojitém simu zůstává; jen se
+  přesune save-point, aby ji testy nezachytily. To je přesně ten typ „falešné shody", který Option A
+  právě (správně) rozbil. Skrývat ho znovu je regres v kvalitě invariantu.
+- **Křehkost se přesouvá, nemizí.** Jakýkoli budoucí test nebo reálná funkce, která pracuje se
+  stavem na kroku 0 (např. export tutorial-save, diagnostika, fresh-start snapshot), narazí na
+  totéž. Save-point hack je bodová záplata.
+- **Mění CIZÍ testy kvůli skrytí jádrového bugu** — horší dohledatelnost příčiny než oprava jádra.
+- Jediná výhoda V2 (nemění hash spojitého simu) je v tomto repu **bezpředmětná**: žádné golden
+  sim-hash fixtures neexistují (viz níže), takže behavior-change nic nerozbije.
+
+## Rozsah regenerace fixtures (KONKRÉTNÍ — ověřeno v repu)
+
+**Závěr: pro `npm run ci` se NEREGENERUJE žádná fixture. Behavior-change nemůže rozbít žádný golden test.**
+
+Ověření:
+- **Žádné stored sim-hash golden fixtures neexistují.** Grep konstanty `273280195` i jakéhokoli
+  9+místného hash literálu napříč `test/` → 0 výskytů. Všechny determinismus testy (G1 v
+  `iter005-edge`, `app-bootstrap` S-1, `export-string` round-trip) porovnávají **Path A vs Path B
+  za běhu** (`hashState(stateA) === hashState(stateB)`), ne proti uložené konstantě. Změna hodnoty
+  fresh-simu na kroku 1 posune **obě** cesty stejně → rovnost drží.
+- **`tools/bench-step.mjs`**: čistě perf benchmark, **žádný golden hash**, **NENÍ v `npm run ci`**
+  (`ci = typecheck && lint:core && test`). Změna chování ho neovlivní (měří jen ns/krok).
+- **`tools/gen-precache.mjs` / `test/gen-precache.test.js`**: precache verze je sha256 **obsahu
+  zdrojových souborů**, ne sim-hashe. Test `gen-precache.test.js` **neasertuje konkrétní verzi** —
+  jen prefix `prosperity-`, strukturu a determinismus; navíc si `precache.js` na každém běhu sám
+  regeneruje. Editace `createInitialState.js` (bajty) tedy **žádný CI test nerozbije**.
+- **`test/iter012-playability.test.js` A1**: asertuje jen `gold/population/housing/food`, **NE
+  `workforce.total`** → derive-on-init ho nerozbije.
+- **Žádný test neasertuje `workforce.total` přímo** (grep `workforce` v `test/` → 0 výskytů).
+
+**Doporučená (nepovinná, mimo CI) regenerace pro čistotu repo:**
+- `node tools/gen-precache.mjs` → přepíše `src/precache.js` (PRECACHE_VERSION) kvůli změně bajtů
+  `createInitialState.js`. **Není CI-gated**, ale je to committed artefakt SW cache → vygenerovat,
+  aby cache verze odpovídala obsahu. (Nutné jen pokud se mění i jiné precachované zdroje; coder ať
+  spustí a commitne výsledný `src/precache.js`.)
+- `tools/bench-step.mjs` — **NEregenerovat jako gate**; volitelně přeměřit jen pro kontrolu, že
+  derive-on-init (1 volání `min` + součet slotů jednou při initu) nemá perf dopad (nemá — init není
+  hot-path).
+
+**Riziko, že behavior-change rozbije další golden testy: NÍZKÉ až nulové.** Žádné absolutní golden
+hashe v repu; všechny round-trip testy jsou relativní (A==B). Jediný teoretický risk by byl test,
+který asertuje `workforce.total=0` po fresh initu — žádný takový neexistuje.
+
+## Doporučení k user-gate
+
+**Doporučuji ESKALOVAT uživateli PŘED implementací — ANO, jako explicitní gate.**
+
+Důvod: jde o **behavior-change spojitého simu** (mění RNG-relevantní stav na kroku 1 → posouvá
+průběh každého fresh běhu, vč. frekvence/načasování vlčích útoků v rané hře). To je sémantická změna
+herního chování, byť malá a směřující ke korektnosti. I když:
+- technicky nic v `npm run ci` nerozbije (žádné golden fixtures),
+- je to jednoznačně správnější řešení,
+
+…rozhodnutí „měnit deterministický průběh existující hry kvůli korektnosti vs. ponechat status quo
+a jen posunut save-point" je **produktové, ne čistě technické**. Orchestrátor podle tohoto doporučení
+rozhodne, zda gate otevřít. Můj odborný názor je jednoznačně **Derive-on-init**; eskalace je kvůli
+transparentnosti behavior-change, ne kvůli nejistotě o správnosti.
+
+> Pozn.: Pokud uživatel/orchestrátor behavior-change ODMÍTNE, fallback je Varianta 2 (save-point
+> posun v 2 testech) — funkční, ale ponechává díru; v tom případě to zapsat jako vědomý technický dluh.
+
+## Acceptance po dotažení
+- Plné `npm run ci` **zelené**: `app-bootstrap.test.js` (S-1), `export-string.test.js` (round-trip),
+  `iter005-edge.test.js` (G1 plný hashState), `iter012-playability.test.js` (A1) — vše pass.
+- `npm run smoke` zelené (seeded pop=50, 0 console errors).
+- Žádná změna tvaru save (v3); `workforce.total` zůstává NEperzistované odvozené pole.
+- `deriveWorkforceTotal` zůstává jediná derivace, volaná z init, load i autoAssign.
+
+## Design pro implementaci (T-016)
+`agents/architect/artifacts/final/fix_reload_determinism_complete_iter-012_T-015.md`.
+
 ## Odkazy
+- impl summary T-014 (důkaz root cause): `agents/coder/artifacts/final/impl_summary_iter-012_T-014.md`
 - impl summary: `agents/coder/artifacts/final/impl_summary_iter-012_T-005-009.md` (latentní nález + odchylka #2)
 - architektura: `agents/architect/artifacts/final/architecture_playability_iter-012_T-003.md` (§9.1 K11)

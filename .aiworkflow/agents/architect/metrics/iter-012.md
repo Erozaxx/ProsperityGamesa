@@ -17,3 +17,10 @@
 - **total_tokens**: 76267
 - **tool_uses**: 35
 - **duration_ms**: 306572
+
+## T-015 (dotažení fixu reload-determinismu)
+- **Timestamp**: 2026-06-13T20:00Z
+- **total_tokens**: 107399
+- **tool_uses**: 62
+- **duration_ms**: 436945
+- **outcome**: Derive-on-init zvoleno; fixtures k regeneraci pro CI = žádné; doporučen user-gate (behavior-change)

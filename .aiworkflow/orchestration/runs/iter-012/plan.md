@@ -17,8 +17,9 @@
 - [x] T-009: coder – Market UI overflow (A5): .table-scroll wrapper + responsivní CSS pro 6sl. market tabulku; bez přepisu komponenty
 - [x] T-013: architect – Rozhodnutí fixu reload-determinismu → Option A (rebuild-on-load): deriveWorkforceTotal helper + přepočet v load.js Step 5; B/C zamítnuty; DR-012-02 decided; design pro codera hotový
 - [~] T-014: coder – BLOCKED: Option A fix aplikován a korektní (G1 plný hashState zelený 16/16, smoke OK, typecheck+lint zelené); REVERT G1 testu hotový. ALE plné `npm run ci` červené — fix odhalil hlubší preexistující díru: stale workforce.total=0 i na 1. ticku SPOJITÉHO simu → 2 preexist. testy (app-bootstrap, export-string, savnou na curStep=0) selhávají. NEMASKOVÁNO, eskalováno → T-015
-- [ ] T-015: architect – Rozhodnout dotažení fixu: derive-on-init (přepočet workforce.total v createInitialState == load; mění hash fresh-simu, vyžaduje refresh fixtures) vs uznat 2 testy jako křehké (posun save-pointu za 1. quarterDay edge); reorder (C) už zamítnut. Zapsat do DR-012-02 (extend), identifikovat dotčené fixtures
-- [ ] T-016: coder – Aplikovat schválené dotažení dle T-015 + regenerovat dotčené fixtures; plné `npm run ci` zelené, `npm run smoke` OK, G1 + app-bootstrap + export-string zelené
+- [x] T-015: architect – Rozhodnutí dotažení → Derive-on-init (přepočet workforce.total v createInitialState přes deriveWorkforceTotal, jeden řádek). Varianta 2 (uznat testy křehké) zamítnuta jako maskování. Fixtures k regeneraci pro CI: ŽÁDNÉ (v repu nejsou stored golden hashe). DR-012-02 decided-extended. POZN: architekt DOPORUČUJE user-gate (behavior-change spojitého simu) → T-015a
+- [x] T-015a: human – Gate SCHVÁLENO: uživatel zvolil „Derive-on-init" (přepočet workforce.total v createInitialState; akceptována změna RNG-průběhu fresh-simu jako korektní)
+- [ ] T-016: coder – Aplikovat schválené dotažení dle T-015 (derive-on-init v createInitialState) + volitelně regen precache; plné `npm run ci` zelené, `npm run smoke` OK, G1 + app-bootstrap + export-string zelené
 - [ ] T-010: tester – QA: npm run ci zelené (+ aktualizace testů na seedovaný start), npm run smoke OK, dlouhý seedovaný sim (≥2 herní roky) bez crashe; ověřit accounting invariant u gold po fixu resolveru; ověřit G1 determinismus po load drží na plném hashState
 - [ ] T-011: reviewer – Code review celé implementace (correctness + reuse/simplify)
 - [ ] T-012: human – Schválení uzavření iterace (review výsledků před /close-iteration)
@@ -37,7 +38,7 @@
 
 ## Decisions Made This Iteration
 - DR-012-01: A2 resolver hardening Option A (accepted, schváleno T-004).
-- DR-012-02: Reload-determinismus regres (workforce.total) odhalený A1 seedem; uživatel zvolil „nejdřív architekt" → T-013 (architekt fix decision) → T-014 (coder fix + revert G1 testu). Open.
+- DR-012-02: Reload-determinismus regres (workforce.total) odhalený A1 seedem. T-013 architekt → Option A (rebuild-on-load). T-014 coder: Option A korektní (G1 zelený), ale odhalil hlubší preexist. díru (stale workforce.total=0 na 1. ticku spojitého simu). T-015 architekt → Derive-on-init (dotažení). T-015a uživatel SCHVÁLIL Derive-on-init (akceptuje změnu RNG-průběhu fresh-simu). decided-extended → T-016 coder.
 
 ## Retrospective Notes
 - Vstup: doc/playtest-findings-mvp.md (nálezy z reálného browser playtestu po M0–M4).
