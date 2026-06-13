@@ -2,7 +2,7 @@
 
 - **Created**: 2026-06-13
 - **Goal**: Cizelovat plán – ze schválené architektury a milníků (M0–M9) vytvořit kompletní end-to-end plán všech iterací, nařezaný tak, aby tasky šly detailně navrhnout Opus agentem a provést Sonnet agentem, s povinným test loop (Sonnet/Haiku tester) + review gate (Opus reviewer, právo re-run) na konci každé iterace.
-- **Status**: active
+- **Status**: closed
 
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
