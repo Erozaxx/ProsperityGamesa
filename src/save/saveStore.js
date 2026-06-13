@@ -17,7 +17,7 @@ import { applyPersist } from './persistSchema.js';
  * @typedef {{ slotId: string, activeGen: number, updatedAt: number }} SlotRecord
  * @typedef {{ key: string, slotId: string, generation: number, savedAt: number,
  *             lastSimTimestamp: number, saveVersion: number, gameVersion: string,
- *             payload: GameState }} SaveRecord
+ *             payload: Record<string, unknown> }} SaveRecord
  */
 
 /**
@@ -56,14 +56,14 @@ function validateEnvelope(rec) {
   if (!rec.payload || typeof rec.payload !== 'object') {
     throw new Error('save: payload missing or not an object');
   }
-  const p = rec.payload;
-  if (!p.meta || !p.engine || !p.season || !p.rng) {
+  const p = /** @type {Record<string, any>} */ (rec.payload);
+  if (!p['meta'] || !p['engine'] || !p['season'] || !p['rng']) {
     throw new Error('save: payload missing required fields (meta/engine/season/rng)');
   }
-  if (!Number.isFinite(p.engine.curStep)) {
+  if (!Number.isFinite(p['engine'].curStep)) {
     throw new Error('save: engine.curStep is not finite');
   }
-  if (!p.rng.streams || typeof p.rng.streams !== 'object') {
+  if (!p['rng'].streams || typeof p['rng'].streams !== 'object') {
     throw new Error('save: rng.streams missing or not an object');
   }
 }
@@ -140,7 +140,10 @@ export async function loadGame(slotId = SLOT_ID, catalog) {
     try {
       validateEnvelope(rec);
       // Use 7-step pipeline if catalog available
-      const state = catalog ? loadAndReconstruct(rec.payload, catalog) : rec.payload;
+      const rawPayload = /** @type {Record<string, any>} */ (rec.payload);
+      const state = catalog
+        ? loadAndReconstruct(rawPayload, catalog)
+        : /** @type {GameState} */ (/** @type {unknown} */ (rawPayload));
       return { state, record: rec };
     } catch {
       // Corrupted generation – try next
