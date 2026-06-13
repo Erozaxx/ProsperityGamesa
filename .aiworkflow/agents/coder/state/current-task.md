@@ -1,34 +1,25 @@
 # Current Task
 
-- **Task ID**: T-014 (iter-012 reload-determinismus fix, Option A)
-- **Brief**: brief_coder_T-014_iter-012.md
+- **Task ID**: T-016 (iter-012 reload-determinismus fix dotažení, Derive-on-init)
+- **Brief**: brief_coder_T-016_iter-012.md
 - **Iteration**: iter-012
-- **Status**: blocked
+- **Status**: done
 - **Started**: 2026-06-13
-- **Blocked**: 2026-06-13
+- **Done**: 2026-06-13
 
-## Checklist (T-014)
-- [x] jobs.js: deriveWorkforceTotal(state, ctx?) přidán+exportován; autoAssignWorkers ho používá (bez změny chování); workerSlots běží bez ctx (globální katalog fallback)
-- [x] load.js: Step 5 přepočítá state.home.workforce.total přes helper (po applyPayload, před validateInvariants), bez ctx
-- [x] iter005-edge.test.js: G1 zpět na plný hashState; applyPersist obejití + A1 komentář + nepoužitý import odstraněny; before() katalogy ponechány
-- [x] G1 iter005-edge na PLNÉM hashState ZELENÝ (16/16)
-- [x] npm run typecheck zelené
-- [x] npm run lint:core zelené
-- [x] npm run smoke OK
-- [ ] npm run ci ZELENÉ — BLOKOVÁNO: 2 preexistující determinismus testy (app-bootstrap, export-string) selhávají; fix je odhalil
+## Checklist (T-016)
+- [x] createInitialState.js: import deriveWorkforceTotal z '../systems/jobs.js'
+- [x] createInitialState.js: state sestaven do lokální proměnné; před return dopočet state.home.workforce.total = deriveWorkforceTotal(state) (bez ctx)
+- [x] node --test test/app-bootstrap.test.js PASS (dříve red) — 8/8
+- [x] node --test test/export-string.test.js PASS (dříve red) — 12/12
+- [x] node --test test/iter005-edge.test.js G1 plný hashState PASS — 16/16
+- [x] node --test test/iter012-playability.test.js PASS — 9/9
+- [x] npm run ci ZELENÉ (typecheck + lint:core + test 778/778, exit 0)
+- [x] npm run smoke OK (pop=50, 0 console errors, exit 0)
+- [x] applyPersist(state) payload NEobsahuje workforce.total (jen {"assigned":0})
+- [x] Single source of truth: workforce.total derivován VÝHRADNĚ přes deriveWorkforceTotal (init/load/autoAssign), žádná 4. inline kopie
+- [x] precache regenerován (node tools/gen-precache.mjs) — deterministický, jen změna PRECACHE_VERSION
 
-## Blocker (eskalace – NEMASKOVÁNO dle pokynu briefu)
-Self-fix T-014 je úplný a korektní pro svůj scope (G1 iter005-edge plný hashState zelený).
-Po fixu plné `npm run ci` ČERVENÉ kvůli 2 testům mimo scope T-014:
-- test/app-bootstrap.test.js → "hashState after round-trip (save→load) then N steps …"
-- test/export-string.test.js → "export then run N steps … → same hash"
-
-Root cause (ověřeno experimentem): oba testy savnou/exportují na curStep=0. jobsAccidents
-(quarterDay order 20) běží před autoAssignWorkers (order 30); quarterDay edge nastane už na
-kroku 1 (sid=0). Path A (kontinuální) tak vstupuje do kroku 1 se stale workforce.total=0
-→ jobsAccidents přeskočí RNG draw; Path B (load) má díky Option A fixu workforce.total=9
-→ čerpá RNG draw → rozejde se stream 'population' (jediné rozcházející pole). Před fixem obě
-cesty bugově přeskočily (falešná shoda). Oprava vyžaduje zásah mimo scope (derive-on-init /
-reorder=zamítnutá Option C / posun save pointu v cizích testech) → rozhodnutí architekta.
-
-Detaily + důkaz + doporučené varianty: artifacts/final/impl_summary_iter-012_T-014.md
+## Výsledek
+Hotovo. Plné `npm run ci` zelené, smoke OK, 2 dříve red testy zelené. Detaily v
+artifacts/final/impl_summary_iter-012_T-016.md.

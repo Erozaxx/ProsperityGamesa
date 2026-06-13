@@ -6,6 +6,7 @@
 import { createHomeState, createPlayerState } from './createHomeState.js';
 import { createCouncilState } from './createCouncilState.js';
 import { BALANCE } from '../balance/balance.js';
+import { deriveWorkforceTotal } from '../systems/jobs.js';
 
 /**
  * Creates the initial world sub-domain state.
@@ -78,7 +79,8 @@ export function createInitialState(opts = {}) {
   // Factory already returns a zero-filled 6-key store; merge BALANCE.start.food over it.
   home.food.store = { ...home.food.store, ...BALANCE.start.food };
 
-  return {
+  /** @type {GameState} */
+  const state = {
     meta: {
       saveVersion: DEFAULT_SAVE_VERSION,
       gameVersion,
@@ -121,4 +123,15 @@ export function createInitialState(opts = {}) {
     achievements: { unlocked: {} },
     council: createCouncilState(),
   };
+
+  // A1/T-016 (DR-012-02 dotažení): workforce.total je odvozené pole (NEPERZISTUJE se).
+  // Dopočítej ho už při konstrukci přes stejnou kanonickou derivaci jako load.js Step 5
+  // a autoAssignWorkers — jinak spojitý sim vstupuje do kroku 1 se stale workforce.total=0
+  // a jobsAccidents (order 20, před autoAssign order 30) přeskočí svůj 'population' RNG draw
+  // → desync vůči load cestě. Bez ctx → workerSlots použije globální katalog fallback
+  // (== chování load); když houseTypes katalog není načten, derivuje 0 (shodné s load i se
+  // spojitým simem bez katalogu).
+  state.home.workforce.total = deriveWorkforceTotal(/** @type {any} */ (state));
+
+  return state;
 }
