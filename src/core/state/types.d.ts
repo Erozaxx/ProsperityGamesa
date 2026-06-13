@@ -173,6 +173,10 @@ export interface HomeState {
   workerEfficiency: number;
   /** Auto-assign policy (default true). iter-009 M3. */
   autoAssign?: boolean;
+  /** Flag: insufficient funds for military upkeep. iter-010 M4a. */
+  notEnoughMilitaryFunding?: boolean;
+  /** Firewood/resources stockpile (general). iter-010 M4a. */
+  store?: Record<string, number>;
 }
 
 /** Player resource state */
@@ -180,6 +184,14 @@ export interface PlayerState {
   gold: number;
   techPt: number;
   inventory: Record<string, number>;
+  /** Tax rate set by player. Default 1. iter-010 M4a. */
+  taxRate: number;
+  /** Warrior count (upkeep). M4a placeholder – filling M7; default 0. */
+  totWarriors: number;
+  /** Archer count (upkeep). M4a placeholder – filling M7; default 0. */
+  totArchers: number;
+  /** Disease-from-cold accumulator. iter-010 M4a. */
+  diseaseFromColdChance: number;
 }
 
 /** Transaction event emitted by resource handlers */
@@ -188,6 +200,23 @@ export interface TxEvent {
   amount: number;
   cause: string;
   step: number;
+}
+
+/** One monthly financial report. iter-010 M4a. */
+export interface MonthlyReport {
+  month: number;
+  year: number;
+  goldEarned: number;
+  goldSpent: number;
+  byCause: Record<string, number>;
+  consumed: Record<string, number>;
+  produced: Record<string, number>;
+}
+
+/** Council domain – accounting. iter-010 M4a. */
+export interface CouncilState {
+  current: MonthlyReport;
+  history: MonthlyReport[];
 }
 
 /** Full game state tree – plain-data, serializable, single source of truth */
@@ -221,6 +250,8 @@ export interface GameState {
   log: LogState;
   /** Slot: filled in M8 */
   achievements: { unlocked: Record<string, unknown> };
+  /** Council accounting state. iter-010 M4a. */
+  council: CouncilState;
 }
 
 /** Options for createInitialState */

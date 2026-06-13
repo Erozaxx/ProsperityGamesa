@@ -8,7 +8,7 @@
  */
 
 export const PERSIST_SCHEMA = {
-  player:     ['gold', 'techPt', 'inventory'],
+  player:     ['gold', 'techPt', 'inventory', 'taxRate', 'totWarriors', 'totArchers', 'diseaseFromColdChance'],
   population: ['total', 'migrationAcc', 'bornTotal', 'diedTotal'],
   housing:    ['counts'],
   food:       ['store'],

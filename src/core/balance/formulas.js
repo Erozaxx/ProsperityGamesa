@@ -280,3 +280,56 @@ export function settlementLevel(population, housingAttractiveness, balanceHousin
   }
   return level;
 }
+
+/**
+ * Local tax amount (5-day collection).
+ * Formula: floor(localRate × curWorkers × taxRate). iter-010 M4a.
+ * @param {number} curWorkers
+ * @param {number} taxRate
+ * @param {number} localRate
+ * @returns {number}
+ */
+export function localTaxAmount(curWorkers, taxRate, localRate) {
+  return Math.floor(localRate * curWorkers * taxRate);
+}
+
+/**
+ * Monthly tax amount.
+ * Formula: floor(monthlyRate × curWorkers × taxRate × centerBase × taxCenterLevel). iter-010 M4a.
+ * @param {number} curWorkers
+ * @param {number} taxRate
+ * @param {number} monthlyRate
+ * @param {number} centerBase
+ * @param {number} [taxCenterLevel]
+ * @returns {number}
+ */
+export function monthlyTaxAmount(curWorkers, taxRate, monthlyRate, centerBase, taxCenterLevel = 1) {
+  return Math.floor(monthlyRate * curWorkers * taxRate * centerBase * taxCenterLevel);
+}
+
+/**
+ * Military upkeep cost.
+ * Formula: warriors × warriorUpkeep + archers × archerUpkeep. iter-010 M4a.
+ * @param {number} warriors
+ * @param {number} archers
+ * @param {number} warriorUpkeep
+ * @param {number} archerUpkeep
+ * @returns {number}
+ */
+export function militaryUpkeep(warriors, archers, warriorUpkeep, archerUpkeep) {
+  return warriors * warriorUpkeep + archers * archerUpkeep;
+}
+
+/**
+ * Firewood needs per day based on season.
+ * Winter(3): floor(0.5 × curWorkers), Spring(0)/Autumn(2): floor(0.2 × curWorkers), Summer(1): 0.
+ * iter-010 M4a.
+ * @param {number} curWorkers
+ * @param {number} seasonIndex - 0=Spring, 1=Summer, 2=Autumn, 3=Winter
+ * @returns {number}
+ */
+export function firewoodNeeds(curWorkers, seasonIndex) {
+  if (seasonIndex === 3) return Math.floor(0.5 * curWorkers);
+  if (seasonIndex === 0 || seasonIndex === 2) return Math.floor(0.2 * curWorkers);
+  return 0;
+}
