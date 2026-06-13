@@ -1,23 +1,12 @@
-// Service worker pro offline hraní: cachuje app shell.
-// Při změně souborů zvyš CACHE_VERSION, aby se cache obnovila.
-
-const CACHE_VERSION = 'prosperity-v1';
-const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './icons/icon.svg',
-  './src/css/style.css',
-  './src/js/main.js',
-  './src/js/state.js',
-  './src/js/game.js',
-  './src/js/storage.js',
-  './src/js/ui.js',
-];
+/**
+ * Hand-written service worker (§2.1). Cache-first, versioned precache list.
+ * Version + URL list come from the generated src/precache.js (run tools/gen-precache.mjs to refresh).
+ */
+import { PRECACHE_VERSION, PRECACHE_URLS } from './src/precache.js';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(PRECACHE_VERSION).then((cache) => cache.addAll(PRECACHE_URLS))
   );
   self.skipWaiting();
 });
@@ -25,23 +14,26 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)))
+      Promise.all(
+        keys
+          .filter((k) => k !== PRECACHE_VERSION)
+          .map((k) => caches.delete(k))
+      )
     )
   );
   self.clients.claim();
 });
 
-// Strategie cache-first: rychlé a plně offline. Při miss zkusí síť a uloží.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
+    caches.match(event.request).then((hit) => {
+      if (hit) return hit;
       return fetch(event.request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, copy));
-          return response;
+        .then((resp) => {
+          const copy = resp.clone();
+          caches.open(PRECACHE_VERSION).then((cache) => cache.put(event.request, copy));
+          return resp;
         })
         .catch(() => caches.match('./index.html'));
     })

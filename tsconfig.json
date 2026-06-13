@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "moduleResolution": "Bundler",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
     "checkJs": true,
     "allowJs": true,
     "noEmit": true,
@@ -14,6 +14,21 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["src/core/**/*.js", "src/core/**/*.d.ts", "src/core/globals.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/core/**/*.js",
+    "src/core/**/*.d.ts",
+    "src/core/globals.d.ts",
+    "src/app/**/*.js",
+    "src/ui/**/*.js",
+    "src/save/**/*.js",
+    "src/vendor/preact.standalone.js",
+    "tools/**/*.mjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/vendor/preact.module.js",
+    "src/vendor/hooks.module.js",
+    "src/vendor/htm.module.js",
+    "service-worker.js"
+  ]
 }

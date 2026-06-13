@@ -382,30 +382,30 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T05:44:02Z",
+  "generated": "2026-06-13T06:26:25Z",
   "iteration": {
-    "id": "iter-004",
-    "goal": "M0a – Kostra repa & engine core: headless engine v čistých ES modulech (čas, scheduler, RNG, jeden serializovatelný stav), CI typový gate `tsc --checkJs` + grep gate. Dle master plánu §3/iter-004 (tasky T1–T6).",
+    "id": "iter-005",
+    "goal": "M0b – PWA shell + save minimal + benchmark → M0 hotov: „prázdná\" hra instalovatelná offline PWA, save/load funguje, cena kroku změřena (synteticky, Q2/A2) a technický strop capu potvrzen/eskalován. Dle master plánu §3/iter-005 (T1–T5).",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Detailní návrh (Opus) všech tasků iterace T1–T6 (struktura repa §3.1, state container §3.2, clock+akumulátor §4.1, scheduler heap+periodika §4.2, RNG streamy §4.4, tickOrder §4.3 + calendar/seasons + commands skeleton §3.3) → implementační spec pro Sonnet. Model: Opus.",
+        "text": "architect – Detailní návrh (Opus) tasků iter-005: T1 PWA shell (index.html + app/ bootstrap, rAF, visibilitychange/pagehide, vendorovaný preact+htm, minimální UI čas/sezóna/pauza přes commands), T2 manifest+SW (cache-first, verzovaný precache) + tools/ generátor precache manifestu, T3 IndexedDB save minimal (K1: promise wrapper, stores slots/saves, 1 slot + N=3 generace, lastSimTimestamp, fallback), T4 benchmark ceny kroku (synteticky Node + prohlížeč, report → potvrzení/eskalace capu 8h + D13), T5 navigator.storage.persist() + chybová obrazovka loaderu. Plus .github/workflows CI gate (carry-over SUGGESTION-1) a BUG-001 fix (assertSerializable WeakSet) odložen na M1. Model: Opus.",
         "done": false
       },
       {
         "id": "T-002",
-        "text": "coder – Implementace (Sonnet) celé iterace dle návrhu T-001: src/ struktura, engine core, CI gate tsc+grep, package.json, node:test. Model: Sonnet.",
+        "text": "coder – Implementace (Sonnet) dle návrhu; tsc/test/grep + PWA artefakty. Model: Sonnet.",
         "done": false
       },
       {
         "id": "T-003",
-        "text": "tester – Test loop (Sonnet/Haiku): tsc --checkJs zelené, node:test suite, determinism hash, grep gate, jednotkové testy clock/scheduler/RNG hran (den/sezóna/rok). Model: Sonnet.",
+        "text": "tester – Test loop (Sonnet): save round-trip, PWA smoke (install + offline start), determinismus po loadu, benchmark report. Model: Sonnet.",
         "done": false
       },
       {
         "id": "T-004",
-        "text": "reviewer – Review gate (Opus, právo re-run): DoD iter-004, hranice vrstev, živé artefakty (tickOrder + diagram). Model: Opus.",
+        "text": "reviewer – Review gate (Opus, právo re-run): DoD M0 komplet vč. benchmarku; nevyhovující benchmark → eskalace (Worker/cap), ne pokračování. Model: Opus.",
         "done": false
       }
     ],
@@ -415,17 +415,18 @@ const DATA = {
   "closed_iterations": [
     "iter-001",
     "iter-002",
-    "iter-003"
+    "iter-003",
+    "iter-004"
   ],
   "agents": [
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-003 (iter-002)",
-      "brief": "context/inbox/brief_architect_T-003_iter-002.md (BRIEF-007)",
-      "iteration": "iter-002",
-      "started": "2026-06-12",
-      "completed": "2026-06-12"
+      "task_id": "T-001 (iter-004)",
+      "brief": "context/inbox/brief_architect_T-001_iter-004.md (BRIEF-011)",
+      "iteration": "iter-004 (M0a)",
+      "started": "2026-06-13",
+      "completed": "2026-06-13"
     },
     {
       "slug": "audience-adapter",
@@ -474,12 +475,12 @@ const DATA = {
     },
     {
       "slug": "coder",
-      "status": "idle",
-      "task_id": "",
-      "brief": "",
-      "iteration": "",
-      "started": "",
-      "completed": ""
+      "status": "done",
+      "task_id": "T-002",
+      "brief": "BRIEF-012",
+      "iteration": "iter-004",
+      "started": "2026-06-13",
+      "completed": "2026-06-13"
     },
     {
       "slug": "content-writer",
@@ -592,9 +593,9 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-002",
-      "brief": "BRIEF-009",
-      "iteration": "iter-003",
+      "task_id": "T-004",
+      "brief": "BRIEF-014",
+      "iteration": "iter-004",
       "started": "2026-06-13",
       "completed": "2026-06-13"
     },
@@ -618,12 +619,12 @@ const DATA = {
     },
     {
       "slug": "tester",
-      "status": "idle",
-      "task_id": "",
-      "brief": "",
-      "iteration": "",
-      "started": "",
-      "completed": ""
+      "status": "done",
+      "task_id": "T-003",
+      "brief": "BRIEF-013",
+      "iteration": "iter-004",
+      "started": "2026-06-13",
+      "completed": "2026-06-13"
     },
     {
       "slug": "tom-proxy",
@@ -651,8 +652,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-12T21:15:25Z",
-      "description": "návrh architektury projektu rebuildu hotov"
+      "completed": "2026-06-13T05:54:07Z",
+      "description": "detailni navrh iter-004 (T1-T6 spec pro Sonnet)"
     },
     {
       "agent": "architect",
@@ -678,8 +679,17 @@ const DATA = {
       "type": "final",
       "name": "architecture_proposal_iter-002_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-12T21:15:25Z",
-      "description": "návrh architektury projektu rebuildu hotov"
+      "completed": "2026-06-13T05:54:07Z",
+      "description": "detailni navrh iter-004 (T1-T6 spec pro Sonnet)"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-004_T-001.md",
+      "type": "final",
+      "name": "design_iter-004_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-13T05:54:07Z",
+      "description": "detailni navrh iter-004 (T1-T6 spec pro Sonnet)"
     },
     {
       "agent": "architect",
@@ -698,6 +708,15 @@ const DATA = {
       "task": "T-003",
       "completed": "2026-06-12T22:40:03Z",
       "description": "zapracování všech nálezů z review hotovo"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_iter-004_T-002.md",
+      "type": "final",
+      "name": "impl_iter-004_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-13T06:10:41Z",
+      "description": "implementace M0a engine core dle navrhu; tsc/test/grep vysledky v impl note"
     },
     {
       "agent": "project-manager",
@@ -737,6 +756,15 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-004_T-004.md",
+      "type": "final",
+      "name": "review_iter-004_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-13T06:24:49Z",
+      "description": "review gate iter-004: GO"
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md",
       "type": "final",
       "name": "review_iteration_master_plan_iter-003_T-002.md",
@@ -752,6 +780,15 @@ const DATA = {
       "task": "T-002",
       "completed": "2026-06-13T00:34:45Z",
       "description": "review master planu iteraci: verdikt + klasifikovane nalezy"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/testreport_iter-004_T-003.md",
+      "type": "final",
+      "name": "testreport_iter-004_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T06:18:27Z",
+      "description": "test loop iter-004: PASS – 63 testů (27 původních + 36 nových edge), grep gate negativní ověřen, BUG-001 annotován (low severity)"
     }
   ],
   "metrics": {
@@ -763,6 +800,9 @@ const DATA = {
     },
     "iter-003_summary": {
       "raw": "# Orchestration Metrics: iter-003\n\n- **Closed**: 2026-06-13\n\n## Per-Agent Metrics\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| project-manager | T-001 (master plán) | fable | 83591 | 21 | 525308 |\n| reviewer | T-002 (review plánu) | opus | 94224 | 20 | 313019 |\n| project-manager | T-003 (rework) | fable | 88570 | 33 | 388801 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Poznámky\n- iter-003 = cizelování plánu (žádný produkční kód).\n- Vznikl nový agent **project-manager** (order 5, Fable) – čistě přes agent_definitions, make validate zelená.\n- PM (Fable) vytvořil end-to-end plán M0–M9 → 15 iterací (iter-004…iter-018); reviewer (Opus) GO s úpravami (0 blockerů); PM zapracoval S-1..S-5 + N-1/N-3.\n- Schválení uživatelem (T-004) + DR-001 (Q1 playtest checkpoint, Q2 syntetický benchmark, Q3 autonomní gap eskalace).\n"
+    },
+    "iter-004_summary": {
+      "raw": "# Orchestration Metrics: iter-004 (M0a)\n\n- **Closed**: 2026-06-13\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| architect | T-001 design | opus | 105462 | 17 | 568320 |\n| coder | T-002 impl | sonnet | 103565 | 83 | 925207 |\n| tester | T-003 test loop | sonnet | 92616 | 67 | 383765 |\n| reviewer | T-004 review | opus | 122152 | 73 | 314653 |\n\n## Výsledek\n- M0a engine core hotov: state, clock+akumulátor, scheduler (heap+_seq), RNG (8 streamů), calendar (91d/364d), tickOrder (9 slotů), commands.\n- CI: tsc --checkJs 0 · grep gate OK · node --test 63/63. Determinism hash stabilní.\n- Review GO (0 blockerů). BUG-001 (assertSerializable cyklus) → M1; SUGGESTION-1 (GH workflow) → iter-005.\n"
     }
   },
   "agent_tokens": {}

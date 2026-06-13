@@ -1,49 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0f1f17" />
-  <meta name="description" content="Prosperity – offline idle ekonomická hra o budování bohatství." />
+  <meta name="description" content="Prosperity – offline idle ekonomická hra (rebuild)." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icons/icon.svg" />
-  <link rel="stylesheet" href="src/css/style.css" />
-  <title>Prosperity</title>
+  <link rel="stylesheet" href="src/ui/styles.css" />
+  <title>Prosperity (rebuild)</title>
 </head>
 <body>
-  <header class="topbar">
-    <h1 class="logo">Prosperity</h1>
-    <div class="balance">
-      <span id="money" class="money">0</span>
-      <span class="currency">💰</span>
-    </div>
-    <div class="rate">
-      <span id="rate">0</span> / s
-    </div>
-  </header>
-
-  <main class="game">
-    <section class="tap-zone">
-      <button id="work-btn" class="work-btn" type="button">
-        <span class="work-btn__label">Pracovat</span>
-        <span class="work-btn__sub">+<span id="click-value">1</span> 💰</span>
-      </button>
-    </section>
-
-    <section class="shop">
-      <h2 class="shop__title">Investice</h2>
-      <ul id="generators" class="generators"></ul>
-    </section>
-  </main>
-
-  <footer class="statusbar">
-    <span id="status" class="status"></span>
-    <button id="reset-btn" class="reset-btn" type="button">Reset</button>
-  </footer>
-
-  <div id="offline-toast" class="toast" hidden></div>
-
-  <script type="module" src="src/js/main.js"></script>
+  <div id="app" aria-busy="true">
+    <div id="boot-loader" class="boot-loader">Načítám…</div>
+  </div>
+  <script type="module" src="src/app/main.js"></script>
 </body>
 </html>
