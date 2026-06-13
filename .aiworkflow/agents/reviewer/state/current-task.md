@@ -1,25 +1,24 @@
 # Current Task
 
 - **Task ID**: T-002
-- **Brief**: BRIEF-006
-- **Iteration**: iter-002
+- **Brief**: BRIEF-009
+- **Iteration**: iter-003
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-12
-- **Completed**: 2026-06-12
+- **Started**: 2026-06-13
+- **Completed**: 2026-06-13
 
 ## Co teď dělám
-Hotovo: review návrhu architektury rebuildu (architecture_proposal_iter-002_T-001).
-Výstup: agents/reviewer/artifacts/final/review_iter-002_T-002.md
+Hotovo: review master plánu iterací (project-manager iter-003 T-001 → iter-004…iter-018).
+Výstup: agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md
 
 ## Výsledek
-Verdikt: GO s úpravami. 0 BLOCKER, 0 položek vyžadujících T-003 architect rework.
-6 SUGGESTION (S-01..S-06) + 4 NITPICK (N-01..N-04) – redakce / vstupy do M0/M1/M9.
-Cílená kontrola: D1 (no-build) OK, D10/R2 (cap 8 h) OK, R1 (drift trhu §9.1) OK.
-K0–K19 úplně a reálně namapováno; R1–R4 skutečně rozhodnuto; konzistentní s iter-01, bez rozporů.
+Verdikt: GO s úpravami. 0 BLOCKER.
+5 SUGGESTION (řez L-tasků iter-007/iter-014, nekonzistence ASCII diagramu §2.2 vs. text, chybějící explicitní split-trigger iter-007, re-planning checkpoint vs. lineární kritická cesta, kontrola PWA smoke v některých test loopech) + 4 NITPICK.
+Body 1–5 ze Scope IN: 1 (úplnost) OK, 2 (řez) OK s výhradami, 3 (závislosti) OK s 1 nekonzistencí diagramu, 4 (test loop+gate) OK, 5 (konzistence s architekturou) OK.
 
 ## Předpoklady
-- Vybraná čísla ověřena proti original_source_doc.md (cenový vzorec trhu, časové konstanty, aritmetika capu).
-- Plné JSON katalogy nejsou v repu – úplnost extrakce (R3/M1) ověří až M1 gap report.
+- Architektura D1–D13/R1–R4 schválená – nehodnotil jsem ji znovu, jen konzistenci plánu s ní.
+- Plán je plánovací deliverable – detailní task design dělá Opus v každé iteraci.
 
 ## Blockery
-Žádné. Doporučení: APPROVE → předat uživateli ke schválení (T-004).
+Žádné. Doporučení: GO s úpravami → PM zapracuje SUGGESTION v T-003, pak schválení uživatelem (T-004).
