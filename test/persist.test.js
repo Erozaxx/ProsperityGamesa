@@ -81,15 +81,17 @@ describe('applyPersist', () => {
 // 3. migrations
 // -----------------------------------------------------------------------
 describe('migrate', () => {
-  it('MIGRATIONS has v1→v2 migration (iter-010 M4a)', () => {
+  it('MIGRATIONS has v1→v2 and v2→v3 migrations (iter-010 M4a + iter-011 M4b)', () => {
     assert.ok(Array.isArray(MIGRATIONS));
-    // M4a added v1→v2 migration for economics fields
-    assert.strictEqual(MIGRATIONS.length, 1);
+    // M4a added v1→v2, M4b added v2→v3
+    assert.ok(MIGRATIONS.length >= 2, `expected >= 2 migrations, got ${MIGRATIONS.length}`);
     assert.strictEqual(MIGRATIONS[0].from, 1);
     assert.strictEqual(MIGRATIONS[0].to, 2);
+    assert.strictEqual(MIGRATIONS[1].from, 2);
+    assert.strictEqual(MIGRATIONS[1].to, 3);
   });
 
-  it('migrate v1→v2: adds taxRate, totWarriors, council to payload', () => {
+  it('migrate v1→v3 (chain): adds taxRate, totWarriors, council, marketState, caravan to payload', () => {
     const payload = { meta: { saveVersion: 1 }, engine: { curStep: 0 }, player: { gold: 100 } };
     const result = /** @type {any} */ (migrate(payload));
     assert.strictEqual(result.player.taxRate, 1);
@@ -97,15 +99,36 @@ describe('migrate', () => {
     assert.strictEqual(result.player.totArchers, 0);
     assert.strictEqual(result.player.diseaseFromColdChance, 0);
     assert.ok(result.council, 'council should be added by migration');
-    assert.strictEqual(result.meta.saveVersion, 2);
+    // v2→v3 also runs: marketState and caravan should be present
+    assert.ok(result.world && result.world.marketState !== undefined, 'world.marketState should be added');
+    assert.ok(result.world && result.world.caravan !== undefined, 'world.caravan should be added');
+    assert.strictEqual(result.meta.saveVersion, 3);
   });
 
-  it('migrate handles missing meta.saveVersion gracefully (treated as v1, migrated to v2)', () => {
+  it('migrate handles missing meta.saveVersion gracefully (treated as v1, migrated to v3)', () => {
     const payload = { engine: { curStep: 0 }, player: { gold: 50 } };
     const result = /** @type {any} */ (migrate(payload));
-    // Missing saveVersion defaults to 1, so migration runs
+    // Missing saveVersion defaults to 1, so all migrations run
     assert.ok(result.council, 'council should be added when missing saveVersion');
     assert.strictEqual(result.player.taxRate, 1);
+  });
+
+  it('migrate v2→v3: adds world.marketState and world.caravan', () => {
+    const payload = { meta: { saveVersion: 2 }, world: { forest: {} } };
+    const result = /** @type {any} */ (migrate(payload));
+    assert.ok(result.world.marketState !== undefined, 'world.marketState should be added');
+    assert.deepEqual(result.world.marketState, {}, 'marketState starts empty');
+    assert.ok(result.world.caravan !== undefined, 'world.caravan should be added');
+    assert.strictEqual(result.world.caravan.capacity, 10000);
+    assert.strictEqual(result.world.caravan.sentOut, 0);
+    assert.strictEqual(result.meta.saveVersion, 3);
+  });
+
+  it('migrate v2→v3: existing world.marketState is preserved', () => {
+    const existing = { wood: { available: 5000, max: 10000, baseline: 5000 } };
+    const payload = { meta: { saveVersion: 2 }, world: { marketState: existing } };
+    const result = /** @type {any} */ (migrate(payload));
+    assert.deepEqual(result.world.marketState, existing, 'existing marketState preserved');
   });
 });
 

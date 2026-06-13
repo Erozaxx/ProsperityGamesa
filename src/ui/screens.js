@@ -5,7 +5,7 @@
  * Each screen is a pure component: receives snapshot + send, reads via selectors.
  */
 import { html } from '../vendor/preact.standalone.js';
-import { selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance } from './selectors.js';
+import { selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance, selectMarket } from './selectors.js';
 
 // ---------------------------------------------------------------------------
 // CouncilScreen
@@ -38,6 +38,90 @@ export function CouncilScreen({ snapshot, send }) {
           <dt>Bilance</dt><dd>${r.goldEarned - r.goldSpent} zlata</dd>
         </dl>
       ` : html`<p class="empty-state">Žádná uzavřená účetní zpráva zatím.</p>`}
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// MarketScreen
+// ---------------------------------------------------------------------------
+
+/**
+ * Market screen: shows goods table with buy/sell prices and caravan status.
+ * Buy/sell qty=10 per button (MVP – simple and deterministic).
+ * iter-011 M4b T5.
+ * @param {{ snapshot: import('../core/state/types.js').GameState, send: (type: string, params?: object) => {ok: boolean, error?: string} }} props
+ */
+export function MarketScreen({ snapshot, send }) {
+  const market = selectMarket(snapshot);
+  const { rows, caravan } = market;
+
+  /** @param {string} goodsId @param {number} qty */
+  function buy(goodsId, qty) {
+    send('buyGoods', { goodsId, qty });
+  }
+
+  /** @param {string} goodsId @param {number} qty */
+  function sell(goodsId, qty) {
+    send('sellGoods', { goodsId, qty });
+  }
+
+  function sendCaravan() {
+    // MVP preset: buy 10 tools (simple deterministic preset)
+    send('sendCaravan', { buy: { tools: 10 }, sell: {} });
+  }
+
+  const daysLeft = caravan.sentOut > 0 ? Math.ceil(caravan.sentOut / 900) : 0;
+
+  return html`
+    <div class="screen screen-market">
+      <h2>Trh</h2>
+      <section class="market-section">
+        <h3>Zboží</h3>
+        <table class="market-table">
+          <thead>
+            <tr>
+              <th>Zboží</th>
+              <th>Dostupné</th>
+              <th>Nákupní cena</th>
+              <th>Prodejní cena</th>
+              <th>V inventáři</th>
+              <th>Akce</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.length === 0
+              ? html`<tr><td colspan="6" class="empty-state">Trh není k dispozici.</td></tr>`
+              : rows.map(row => html`
+                <tr key=${row.id}>
+                  <td>${row.id}</td>
+                  <td>${row.available.toFixed(0)} / ${row.max}</td>
+                  <td>${row.buy.toFixed(2)}</td>
+                  <td>${row.sell.toFixed(2)}</td>
+                  <td>${row.owned}</td>
+                  <td class="market-actions">
+                    <button onClick=${() => buy(row.id, 10)}>Koupit 10</button>
+                    <button
+                      onClick=${() => sell(row.id, 10)}
+                      disabled=${row.owned < 10}
+                    >Prodat 10</button>
+                  </td>
+                </tr>
+              `)}
+          </tbody>
+        </table>
+      </section>
+      <section class="caravan-section">
+        <h3>Karavana</h3>
+        <dl>
+          <dt>Kapacita</dt><dd>${caravan.capacity}</dd>
+          <dt>Stav</dt><dd>${caravan.onRoad ? `Na cestě (${daysLeft}d)` : 'Připravena'}</dd>
+        </dl>
+        <button
+          onClick=${sendCaravan}
+          disabled=${caravan.onRoad}
+          title="Koupit 10 tools (MVP preset)"
+        >Poslat karavanu (koupit 10 tools)</button>
+      </section>
     </div>`;
 }
 

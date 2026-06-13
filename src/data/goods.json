@@ -1,8 +1,44 @@
 {
   "_meta": {
-    "notes": "listGoods not found in extracted sources; gap G-LISTGOODS",
+    "notes": "Seed goods catalog for M4b market MVP. Gap G-LISTGOODS: listGoods not found in extracted sources (doc/original_source/modules/prosperity/services/config.js). These 5 commodities are approximated from design_iter-011_T-001.md. IDs chosen to not conflict with resources.json (K10: tools/cloth/gems/spice/silk are market-exclusive).",
     "provenance": "approximated",
     "source": "doc/original_source"
   },
-  "goods": []
+  "goods": [
+    {
+      "id": "tools",
+      "kind": "goods",
+      "basePrice": 25,
+      "max": 2000,
+      "baselineFraction": 0.5
+    },
+    {
+      "id": "cloth",
+      "kind": "goods",
+      "basePrice": 15,
+      "max": 3000,
+      "baselineFraction": 0.5
+    },
+    {
+      "id": "gems",
+      "kind": "goods",
+      "basePrice": 120,
+      "max": 500,
+      "baselineFraction": 0.5
+    },
+    {
+      "id": "spice",
+      "kind": "goods",
+      "basePrice": 50,
+      "max": 1000,
+      "baselineFraction": 0.5
+    },
+    {
+      "id": "silk",
+      "kind": "goods",
+      "basePrice": 80,
+      "max": 800,
+      "baselineFraction": 0.5
+    }
+  ]
 }

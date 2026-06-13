@@ -392,26 +392,62 @@ describe('extraction reproducibility: second run = identical catalogs', () => {
   /** @type {string[]} */
   const CATALOG_FILES = [
     'achievements', 'balance', 'buildings', 'companies',
-    'food', 'goods', 'houseTypes', 'jobs', 'marketBaseline',
+    'food', 'houseTypes', 'jobs', 'marketBaseline',
     'military', 'population', 'resources', 'sectors', 'skills',
     'techs', 'zones',
+    // NOTE: 'goods' excluded – iter-011 M4b seed catalog (gap G-LISTGOODS: listGoods not in
+    // extracted sources). extract.mjs produces empty goods.json (no source data), but we
+    // maintain a hand-seeded approximated catalog. Extraction reproducibility for goods
+    // is tested separately in iter006-catalog-schema via schema validation.
   ];
 
+  /**
+   * Hard-coded seed content for catalogs that extract.mjs cannot produce (gap catalogs).
+   * Using a constant instead of a disk backup so that restore is always correct
+   * regardless of what extract.mjs wrote to disk during a previous CI run.
+   * Gap G-LISTGOODS: listGoods not in extracted sources → goods seeded in iter-011 M4b.
+   */
+  const SEEDED_CATALOG_CONTENT = {
+    'goods': JSON.stringify({
+      '_meta': {
+        'notes': 'Seed goods catalog for M4b market MVP. Gap G-LISTGOODS: listGoods not found in extracted sources (doc/original_source/modules/prosperity/services/config.js). These 5 commodities are approximated from design_iter-011_T-001.md. IDs chosen to not conflict with resources.json (K10: tools/cloth/gems/spice/silk are market-exclusive).',
+        'provenance': 'approximated',
+        'source': 'doc/original_source',
+      },
+      'goods': [
+        { 'id': 'tools', 'kind': 'goods', 'basePrice': 25,  'max': 2000, 'baselineFraction': 0.5 },
+        { 'id': 'cloth', 'kind': 'goods', 'basePrice': 15,  'max': 3000, 'baselineFraction': 0.5 },
+        { 'id': 'gems',  'kind': 'goods', 'basePrice': 120, 'max': 500,  'baselineFraction': 0.5 },
+        { 'id': 'spice', 'kind': 'goods', 'basePrice': 50,  'max': 1000, 'baselineFraction': 0.5 },
+        { 'id': 'silk',  'kind': 'goods', 'basePrice': 80,  'max': 800,  'baselineFraction': 0.5 },
+      ],
+    }, null, 2) + '\n',
+  };
+
   before(() => {
-    // Snapshot current state
+    // Snapshot current state of extracted catalogs
     for (const name of CATALOG_FILES) {
       beforeSnapshots[name] = readFileSync(join(DATA_DIR, `${name}.json`), 'utf8');
+    }
+    // Ensure seeded catalogs are correctly written before any extraction runs
+    for (const [name, content] of Object.entries(SEEDED_CATALOG_CONTENT)) {
+      writeFileSync(join(DATA_DIR, `${name}.json`), content, 'utf8');
     }
   });
 
   it('running extract.mjs a second time produces identical output (deterministic)', () => {
-    // Run extraction
+    // Run extraction (this WILL overwrite seeded catalogs like goods.json with empty versions)
     execSync('node tools/extract/extract.mjs', {
       cwd: ROOT,
       stdio: 'pipe',
     });
 
-    // Compare
+    // Restore seeded catalogs (extraction cannot produce these from source – gap G-LISTGOODS)
+    for (const [name, content] of Object.entries(SEEDED_CATALOG_CONTENT)) {
+      writeFileSync(join(DATA_DIR, `${name}.json`), content, 'utf8');
+    }
+
+    // Compare extracted catalogs only (excluding seeded ones)
     const diffs = [];
     for (const name of CATALOG_FILES) {
       const after = readFileSync(join(DATA_DIR, `${name}.json`), 'utf8');
@@ -427,6 +463,10 @@ describe('extraction reproducibility: second run = identical catalogs', () => {
     assert.doesNotThrow(() => {
       execSync('node tools/extract/extract.mjs', { cwd: ROOT, stdio: 'pipe' });
     }, 'extract.mjs should not throw');
+    // Restore seeded catalogs after extraction
+    for (const [name, content] of Object.entries(SEEDED_CATALOG_CONTENT)) {
+      writeFileSync(join(DATA_DIR, `${name}.json`), content, 'utf8');
+    }
   });
 });
 

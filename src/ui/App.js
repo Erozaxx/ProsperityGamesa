@@ -12,7 +12,7 @@ import { useState } from '../vendor/preact.standalone.js';
 import { selectClock, selectSeason, selectSpeed } from './selectors.js';
 import { OfflineSummary } from './OfflineSummary.js';
 import { CatchupProgress } from './CatchupProgress.js';
-import { ForestScreen, JobsScreen, SkillsScreen, CouncilScreen } from './screens.js';
+import { ForestScreen, JobsScreen, SkillsScreen, CouncilScreen, MarketScreen } from './screens.js';
 
 const TABS = [
   { id: 'overview', label: 'Přehled' },
@@ -20,6 +20,7 @@ const TABS = [
   { id: 'jobs', label: 'Práce' },
   { id: 'skills', label: 'Dovednosti' },
   { id: 'council', label: 'Rada' },
+  { id: 'market', label: 'Trh' },
 ];
 
 /**
@@ -106,6 +107,7 @@ export function App({ snapshot, send, offlineSummary, catchupProgress, onDismiss
         ${activeTab === 'jobs' ? html`<${JobsScreen} snapshot=${snapshot} send=${send} />` : null}
         ${activeTab === 'skills' ? html`<${SkillsScreen} snapshot=${snapshot} send=${send} />` : null}
         ${activeTab === 'council' ? html`<${CouncilScreen} snapshot=${snapshot} send=${send} />` : null}
+        ${activeTab === 'market' ? html`<${MarketScreen} snapshot=${snapshot} send=${send} />` : null}
       </div>
     </div>`;
 }

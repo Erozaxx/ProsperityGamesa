@@ -3,6 +3,8 @@
  * @typedef {import('../core/state/types.js').GameState} GameState
  */
 
+import { buyingPrice, sellingPrice } from '../core/systems/market.js';
+
 const SEASON_NAMES = ['Jaro', 'Léto', 'Podzim', 'Zima'];
 
 /**
@@ -103,6 +105,35 @@ export function selectFinance(s) {
     taxRate: s.player.taxRate ?? 1,
     lastReport: last,
     notEnoughMilitaryFunding: !!(s.home && s.home.notEnoughMilitaryFunding),
+  };
+}
+
+/**
+ * Selects market state for display: rows with buy/sell prices and caravan status.
+ * Pure selector: imports price helpers from market.js (pure fns, no DOM).
+ * iter-011 M4b T5.
+ * @param {GameState} s
+ * @returns {{ rows: Array<{id: string, available: number, max: number, buy: number, sell: number, owned: number}>, caravan: {sentOut: number, capacity: number, onRoad: boolean} }}
+ */
+export function selectMarket(s) {
+  const ms = /** @type {Record<string, {available:number,max:number,baseline:number}> | undefined} */ (s.world.marketState);
+  const rows = ms ? Object.entries(ms).map(([id, m]) => ({
+    id,
+    available: m.available,
+    max: m.max,
+    buy: buyingPrice(s, id),
+    sell: sellingPrice(s, id),
+    owned: (s.player.inventory && s.player.inventory[id]) || 0,
+  })) : [];
+
+  const caravan = /** @type {import('../core/state/types.js').CaravanState | undefined} */ (s.world.caravan);
+  return {
+    rows,
+    caravan: {
+      sentOut: caravan ? caravan.sentOut : 0,
+      capacity: caravan ? caravan.capacity : 10000,
+      onRoad: caravan ? caravan.sentOut > 0 : false,
+    },
   };
 }
 

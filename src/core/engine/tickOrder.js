@@ -23,6 +23,8 @@ import { jobsProduction, jobsAccidents, autoAssignWorkers } from '../systems/job
 import { housingSettlementLevel } from '../systems/housing.js';
 import { worldTick } from '../systems/world.js';
 import { battleTick } from '../systems/battle.js';
+import { marketDailyDrift } from '../systems/market.js';
+import { caravanReturns } from '../systems/caravan.js';
 import { skillsProgress } from '../systems/skills.js';
 import { workerEfficiencyDaily } from '../systems/workerEfficiency.js';
 import { forestRegen } from '../systems/forest.js';
@@ -155,6 +157,8 @@ export function registerCorePeriodics(registry) {
   register(registry, 'housing.settlementLevel', housingSettlementLevel);
   register(registry, 'world.tick', worldTick);
   register(registry, 'battle.tick', battleTick);
+  register(registry, 'market.drift', marketDailyDrift);
+  register(registry, 'caravanReturns', caravanReturns);
   register(registry, 'skills.progress', skillsProgress);
   register(registry, 'workerEfficiency.daily', workerEfficiencyDaily);
   register(registry, 'forest.regen', forestRegen);
@@ -182,6 +186,7 @@ export function registerCorePeriodics(registry) {
     { id: 'food.meal1',              every: 'day',        order: 10, systemFn: 'food.meal1' },
     { id: 'housing.settlementLevel', every: 'day',        order: 20, systemFn: 'housing.settlementLevel' },
     { id: 'world.tick',              every: 'day',        order: 30, systemFn: 'world.tick' },
+    { id: 'market.drift',            every: 'day',        order: 35, systemFn: 'market.drift' },
     { id: 'field.daily',             every: 'day',        order: 40, systemFn: 'field.daily' },
     { id: 'mine.daily',              every: 'day',        order: 50, systemFn: 'mine.daily' },
     { id: 'forest.regen',            every: '10days',     order: 10, systemFn: 'forest.regen' },

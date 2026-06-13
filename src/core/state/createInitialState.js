@@ -10,6 +10,7 @@ import { BALANCE } from '../balance/balance.js';
 /**
  * Creates the initial world sub-domain state.
  * Source: config.js:686-715 (start values). provenance: extracted.
+ * iter-011 M4b: added marketState (empty, filled by marketInit after catalog load) and caravan.
  * @returns {import('./types.js').GameState['world']}
  */
 function createWorldState() {
@@ -33,13 +34,22 @@ function createWorldState() {
     mine: {
       curOres: bal.mine.startOres, // config.js:715
     },
+    /** Client-side market supply (empty – filled by marketInit after goods catalog load). iter-011 M4b. */
+    marketState: {},
+    /** Caravan trade state. iter-011 M4b. Source: dump.BASECARAVANCAPACITY. */
+    caravan: {
+      capacity: bal.caravan.baseCapacity, // 10000
+      speed: 0,                           // road tech bonus = M5 gap G-CARAVAN-ROADS
+      sentOut: 0,                         // 0 = idle
+      recGoods: {},                       // delivered on return
+    },
   };
 }
 
 // Defaults – MOVE TO balance.js @ M1 (source: design_iter-004_T-001 §2.2)
 const DEFAULT_SEED = 0x9E3779B9;
 const DEFAULT_GAME_VERSION = '0.0.0-m0a';
-const DEFAULT_SAVE_VERSION = 2;
+const DEFAULT_SAVE_VERSION = 3;
 const DEFAULT_LOG_CAPACITY = 200;
 const DEFAULT_FRAME_BUDGET = 8;
 

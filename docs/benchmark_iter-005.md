@@ -1,8 +1,8 @@
 # Benchmark ceny kroku – iter-005 (M0b)
 
-- **Datum**: 2026-06-13 13:24:31
+- **Datum**: 2026-06-13 14:44:05
 - **Node**: v22.22.2
-- **OS/CPU**: linux x64, Intel(R) Xeon(R) Processor @ 2.80GHz (4 cores)
+- **OS/CPU**: linux x64, Intel(R) Xeon(R) Processor @ 2.10GHz (4 cores)
 - **Commit**: (viz git log)
 
 ## METODIKA
@@ -17,17 +17,17 @@ Měří: `step(state, ctx)` = calendar + scheduleDue (prázdný/naplněný heap)
 
 | varianta            | ns/krok       | kroků/s          | catch-up 8h (576,000 kroků) |
 |---------------------|---------------|------------------|------------------------------------|
-| empty heap          |         543.1 |          1841291 |                   312.8 ms |
-| loaded heap (~1k)   |         497.4 |          2010646 |                   286.5 ms |
+| empty heap          |         290.2 |          3445991 |                   167.2 ms |
+| loaded heap (~1k)   |         272.4 |          3671014 |                   156.9 ms |
 
 ## VYHODNOCENÍ CAPU (S-02/D10a)
 
-- Technický strop 8 h = 576,000 kroků. Při změřené ceně catch-up trvá ~312.8 ms (empty heap).
+- Technický strop 8 h = 576,000 kroků. Při změřené ceně catch-up trvá ~167.2 ms (empty heap).
 - Prahy:
   - Cíl: ≤ 10 000 ns/krok (0,01 ms) → catch-up 8h ≈ ≤ 5 760 ms
   - Varování: 10 000–50 000 ns/krok → 5 760–28 800 ms; zvážit nižší cap nebo Worker
   - Eskalace: > 50 000 ns/krok → > ~29 000 ms na ref. HW → D13 Worker NEBO snížit cap
-- **ZÁVĚR**: POTVRDIT cap 8h ✓ (prod. cesta pod cílem 1,500 ns/krok; catch-up 312.8 ms << 5760 ms)
+- **ZÁVĚR**: POTVRDIT cap 8h ✓ (prod. cesta pod cílem 1,500 ns/krok; catch-up 167.2 ms << 5760 ms)
 
 ## DOPORUČENÍ D13 (main thread vs Worker)
 
