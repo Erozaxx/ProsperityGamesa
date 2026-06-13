@@ -186,25 +186,42 @@ describe('iter-005: PWA smoke – precache freshness', () => {
 });
 
 // ---------------------------------------------------------------
-// TC-T04: Benchmark sanity – ns/krok < 10 000
+// TC-T04: Benchmark sanity – ns/krok (catalogs-loaded production path)
+//
+// iter-008 T-003 note: bench now loads catalogs before measuring to represent
+// the production path (in production, boot() always loads catalogs first).
+// Without catalogs, getCatalog() throws every step (~3000 ns/throw per call),
+// inflating cost from ~500 ns to ~8000 ns. The production threshold is 10 000 ns
+// (with generous CI headroom for slow machines; typical value ~500 ns on fast HW).
 // ---------------------------------------------------------------
 describe('iter-005: benchmark sanity', () => {
-  test('bench-step nsPerStep < 10000 ns (scope requirement)', () => {
+  test('bench-step nsPerStep < 10000 ns (production path, catalogs loaded)', () => {
     // Use modest step count for CI speed; enough for meaningful average
     const result = runBench({ steps: 100_000, warmup: 10_000 });
     assert.ok(result.nsPerStep > 0, 'nsPerStep must be positive');
+    // Threshold: 10 000 ns gives 5.76 s for 8h catch-up (576k steps) – within cap.
+    // Typical value with catalogs loaded: ~500 ns. 10 000 ns = 20x safety margin for CI.
     assert.ok(
       result.nsPerStep < 10_000,
-      `nsPerStep ${result.nsPerStep.toFixed(1)} ns exceeds threshold 10 000 ns/krok (scope requirement)`
+      `nsPerStep ${result.nsPerStep.toFixed(1)} ns exceeds threshold 10 000 ns/krok (production path)`
     );
   });
 
-  test('bench-step loadedHeap nsPerStep < 10000 ns', () => {
+  test('bench-step loadedHeap nsPerStep < 10000 ns (production path, catalogs loaded)', () => {
     const result = runBench({ steps: 100_000, warmup: 10_000 });
     assert.ok(result.loadedHeap !== undefined, 'loadedHeap result must be present');
     assert.ok(
       result.loadedHeap.nsPerStep < 10_000,
       `loadedHeap nsPerStep ${result.loadedHeap.nsPerStep.toFixed(1)} ns exceeds threshold 10 000 ns/krok`
+    );
+  });
+
+  test('bench-step catch-up 8h < 30000 ms (cap sanity)', () => {
+    const result = runBench({ steps: 50_000, warmup: 5_000 });
+    // 576 000 steps at 10 000 ns/step = 5760 ms. Threshold 30 000 ms is very conservative.
+    assert.ok(
+      result.catchUpMs8h < 30_000,
+      `catchUpMs8h ${result.catchUpMs8h.toFixed(1)} ms exceeds 30 000 ms cap sanity threshold`
     );
   });
 });

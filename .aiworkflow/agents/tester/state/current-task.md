@@ -1,29 +1,30 @@
 # Current Task
 
 - **Task ID**: T-003
-- **Brief**: BRIEF-026
-- **Iteration**: iter-007
+- **Brief**: BRIEF-030
+- **Iteration**: iter-008
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-13
 - **Completed**: 2026-06-13
 
 ## Co teď dělám
-Dokončeno. Nezávislý test loop M2a – catch-up safe invariant, persist round-trip, tx invarianty, edge cases, determinismus, PWA smoke.
+Dokončeno. Nezávislý test loop M2b – catchup engine (T1/T2), export/import round-trip (T5), autosave triggery (T4), offline summary model (T3), save bootstrap round-trip (S-1). Vyřešena benchmark regrese.
 
 ## Předpoklady
-- Produkční kód implementován coderem T-002a (M2a-1: infrastruktura) a T-002b (M2a-2: živé systémy).
+- Produkční kód implementován coderem T-002 (M2b: offline catch-up, export/import, autosave, UI).
 - Scope OUT: žádné změny produkčního kódu.
 
 ## Blockery
 –
 
-## Checklist (z briefa – iter-007)
-- [x] `npm install && npm run ci` zelené (tsc, grep gate, node --test) – 460/460 PASS
-- [x] S-05 catch-up-safe invariant: live N kroků == dávka N kroků (identický hash) pro VŠECHNY systémy – 13/13 PASS
-- [x] Persist round-trip per doména (population/food/health/crime/housing) – všechny PASS
-- [x] Tx invarianty: žádné NaN/záporné, atomicita pay, ne-pod-nulu bez allowDeficit, txEvent konzistence – 10/10 PASS
-- [x] Kontraktní testy §8 vč. negativního S-06 – existující, zelené
-- [x] Determinismus celé simulace (seed → stejný hash) – PASS
-- [x] PWA smoke kumulativní – 4/4 PASS
-- [x] Edge testy: hladovění→úmrtí, přeplnění bydlení, disease lifecycle – PASS
-- [x] Verdikt zapsán do artifacts/final/testreport_iter-007_T-003.md
+## Checklist (z briefu iter-008 BRIEF-030)
+- [x] Benchmark regrese prošetřena: příčina = getCatalog() throw/catch bez načtených katalogů (~3000 ns/throw vs 22 ns loaded)
+- [x] tools/bench-step.mjs upraven: načítá katalogy před měřením (produkční cesta)
+- [x] iter005-edge.test.js: threshold ponechán 10000 ns, přidán comment + nový test catch-up < 30 s
+- [x] npm run ci ZELENÉ: 529/529 PASS
+- [x] test/catchup.test.js nový: catchupStepCount, runCatchupBatch, G1 chunked==batch==live, cap, T2 interrupt/resume (22 testů)
+- [x] test/export-string.test.js nový: round-trip, komprese, error handling, allowlist parita (12 testů)
+- [x] test/autosave.test.js nový: throttle, hide-bypass, flush (11 testů)
+- [x] test/offline-summary.test.js nový: buildOfflineSummary model, formatOfflineSummary (15 testů)
+- [x] test/app-bootstrap.test.js nový: save→load via saveStore+catalog, payload allowlist, idempotence (8 testů)
+- [x] Verdikt zapsán do artifacts/final/testreport_iter-008_T-003.md
