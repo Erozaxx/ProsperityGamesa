@@ -40,6 +40,14 @@ export const BALANCE = Object.freeze({
   forest: {
     /** Steps for a tree to mature. Source: dump.TREEMATURETIME = 36 */
     treeMatureTime: 36,
+    /**
+     * Max trees for fire risk denominator. Source: config.js:688 maxTrees=328327.
+     * SUGGESTION-1 fix: fire risk = (curTrees / maxTrees)^2 (not forestArea).
+     * Using forestArea (~33000) would give ~100× higher risk than the source.
+     * In source, forester tech can modify maxTrees, but that is a M5+ tech (G-FOREST-TECHMODS).
+     * For M3 (no forester), maxTrees is the static config.js initial value.
+     */
+    maxTrees: 328327,
   },
 
   /** Technology cost scaling. Source: dump.techBase=100, dump.techScale=1.25 */

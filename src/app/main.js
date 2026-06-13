@@ -14,6 +14,9 @@ import { catchupStepCount, runCatchupBatch } from '../core/engine/catchup.js';
 import { createRegistry } from '../core/registry/registry.js';
 import { createCommandRegistry, dispatch } from '../core/commands/dispatch.js';
 import { registerSetSpeed } from '../core/commands/setSpeed.js';
+import { registerAssignJob } from '../core/commands/assignJob.js';
+import { registerStartSkill } from '../core/commands/startSkill.js';
+import { getCatalog, hasCatalog } from '../core/catalog/index.js';
 import { requestPersistentStorage } from './persist.js';
 import { registerServiceWorker } from './sw-register.js';
 import { createGameLoop } from './loop.js';
@@ -47,8 +50,30 @@ function bootstrapNewState(seed) {
 }
 
 /**
+ * Builds the ctx.catalog preload from the global catalog store (BL-3 Variant A).
+ * Reads jobs/skills/houseTypes/food catalogs into a plain object so tick systems
+ * can use ctx.catalog instead of getCatalog() on every hot-path step.
+ * @returns {Record<string, unknown[]>}
+ */
+function buildCtxCatalog() {
+  /** @type {Record<string, unknown[]>} */
+  const catalog = {};
+  for (const name of ['jobs', 'skills', 'houseTypes', 'food']) {
+    if (hasCatalog(name)) {
+      const cat = /** @type {Record<string, unknown>} */ (getCatalog(name));
+      // Each catalog stores items under the same key as the catalog name
+      const items = cat[name];
+      catalog[name] = Array.isArray(items) ? items : [];
+    }
+  }
+  return catalog;
+}
+
+/**
  * Bootstraps engine context (registry + periodics + commands).
  * Called both on fresh start and after load (registry is not part of save).
+ * BLOCKER-1 fix: registers assignJob + startSkill (in addition to setSpeed)
+ * and builds ctx.catalog from the globally loaded catalogs (BL-3 Var. A preload).
  * @returns {{ ctx: import('../core/state/types.js').TickContext, creg: import('../core/commands/dispatch.js').CommandRegistry }}
  */
 function bootstrapEngine() {
@@ -56,7 +81,11 @@ function bootstrapEngine() {
   const periodics = registerCorePeriodics(registry);
   const creg = createCommandRegistry();
   registerSetSpeed(creg);
-  return { ctx: { registry, periodics }, creg };
+  registerAssignJob(creg);
+  registerStartSkill(creg);
+  // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
+  const catalog = buildCtxCatalog();
+  return { ctx: { registry, periodics, catalog }, creg };
 }
 
 /**
