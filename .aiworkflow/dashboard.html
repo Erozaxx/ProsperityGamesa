@@ -382,7 +382,7 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T00:35:16Z",
+  "generated": "2026-06-13T00:43:17Z",
   "iteration": {
     "id": "iter-003",
     "goal": "Cizelovat plán – ze schválené architektury a milníků (M0–M9) vytvořit kompletní end-to-end plán všech iterací, nařezaný tak, aby tasky šly detailně navrhnout Opus agentem a provést Sonnet agentem, s povinným test loop (Sonnet/Haiku tester) + review gate (Opus reviewer, právo re-run) na konci každé iterace.",
@@ -401,7 +401,7 @@ const DATA = {
       {
         "id": "T-003",
         "text": "project-manager – Zapracovat všechny nálezy z review do plánu + rework note. Model: Fable.",
-        "done": false
+        "done": true
       },
       {
         "id": "T-004",
@@ -415,7 +415,7 @@ const DATA = {
       }
     ],
     "total": 5,
-    "done_count": 2
+    "done_count": 3
   },
   "closed_iterations": [
     "iter-001",
@@ -569,8 +569,8 @@ const DATA = {
     {
       "slug": "project-manager",
       "status": "done",
-      "task_id": "T-001",
-      "brief": "BRIEF-008 (brief_project-manager_T-001_iter-003.md)",
+      "task_id": "T-003",
+      "brief": "BRIEF-010 (brief_project-manager_T-003_iter-003.md)",
       "iteration": "iter-003",
       "started": "2026-06-13",
       "completed": "2026-06-13"
@@ -704,6 +704,15 @@ const DATA = {
       "description": "kompletni end-to-end plan iteraci M0-M9 s tasky, modely, DoD a test/review gates"
     },
     {
+      "agent": "project-manager",
+      "file": "agents/project-manager/artifacts/final/rework_iter-003_T-003.md",
+      "type": "final",
+      "name": "rework_iter-003_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-13T00:42:35Z",
+      "description": "zapracovani S-1..S-5 + N-1/N-3 do master planu + rework note"
+    },
+    {
       "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iter-001_T-003.md",
       "type": "final",
@@ -749,7 +758,7 @@ const DATA = {
     }
   },
   "agent_tokens": {
-    "project-manager": 83591,
+    "project-manager": 172161,
     "reviewer": 94224
   }
 };

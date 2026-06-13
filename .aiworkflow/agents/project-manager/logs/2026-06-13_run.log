@@ -7,3 +7,4 @@
   - Předpoklady A1–A4, otázky Q1–Q3 (plán platí i bez odpovědí).
 - Validace grepem: 15 iterací, M0–M9 pokryto ≥1 iterací, 15× T-TEST, 15× T-REV, re-run explicitně.
 - state/current-task.md → done; handoff-out.sh volán.
+[2026-06-13T00:42Z] T-003 (rework po review T-002) DONE: S-1..S-5 zapracovany do iteration_master_plan_iter-003_T-001.md (split-triggery iter-007 M2a-1/M2a-2 + iter-014 M7a-1/M7a-2, diagram §2.2, re-planning §2.2, PWA smoke §1.3+T-TEST 006/007, eskalace §1.4); N-1/N-2/N-3 prijaty, N-4 bez akce; rework note rework_iter-003_T-003.md; validacni grepy OK; handoff-out odeslan.

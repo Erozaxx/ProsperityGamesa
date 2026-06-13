@@ -34,6 +34,8 @@ Každá iterace má předposlední task **T-TEST** (tester, Sonnet; opakované s
 | iter-007+ (M2a dál) | + **catch-up-safe invariant (S-05)**: každý nově přidaný systém běží deterministicky a levně v catch-up dávce (žádný DOM, žádný `Date.now()`/`Math.random()`, žádné alokace/O(n²) v hot-path); **kontraktní testy §8** vč. negativního testu S-06 (stub world nevolá `getGoldValue`/`market.inject` před M4b) |
 | iter-008+ (M2b dál) | + end-to-end catch-up scénář (load se starým `lastSimTimestamp` → dávka → cap → summary); migrace savů z předchozí verze schémat |
 
+Kumulativní sada platí i tam, kde T-TEST dané iterace výčet neopakuje položku po položce – např. **PWA smoke běží od iter-005 při každé iteraci** (tedy i v iter-006 a iter-007), i kdyby ho výčet T-TEST výslovně nejmenoval. Tester se řídí touto tabulkou, výčty v T-TEST jsou jen zvýraznění nových priorit.
+
 „Systém funguje live, ale rozbíjí catch-up" = neprošlá iterace.
 
 ### 1.4 Povinný review gate (úplný závěr KAŽDÉ iterace)
@@ -42,6 +44,7 @@ Poslední task každé iterace je **T-REV** (reviewer, **Opus**):
 - Ověří platnost kontraktů §8 a aktuálnost **živých artefaktů** (tickOrder §4.3, ASCII diagram §3.5 – musí být aktualizovány ve stejném commitu jako strukturální změna; N-04).
 - Ověří, že balanc čísla šla do `balance.js` s odkazem na zdroj (ne inline), a persist schéma vzniklo současně se systémem (doporučení §14.3–4).
 - **Pravomoc re-run**: při nálezu reviewer vrací iteraci (orchestrátor: `make reopen-task` + re-dispatch přes `/dispatch-agent`); smyčka oprava → test loop → review se opakuje **dokola**, dokud reviewer nedá GO. Po 3. neúspěšném kole reviewer eskaluje orchestrátorovi/uživateli s analýzou příčiny (špatně nařezaný task vs. chybný návrh) – re-run právo tím nezaniká.
+- **Dopad eskalace na kritickou cestu**: protože řetěz iterací je v podstatě lineární (§2.2), zaseklá iterace blokuje vše za sebou – po eskalaci se **navazující iterace nezahajují**, dokud zaseklá iterace není uzavřena (reviewer GO), nebo její rozsah re-scopován decision recordem (orchestrátor + PM, případně rozhodnutí uživatele). Orchestrátor nesmí pokračovat „okolo" zaseklé iterace; jedinou výjimkou je deklarovaný paralelismus iter-005 ∥ iter-006 (§2.2).
 
 ### 1.5 Struktura iterace
 Každá iterace níže má: **Cíl · Milník/K mapování · Tasky (ID, popis, komplexita, model, závislosti) · DoD · Test loop · Review gate.** Task ID jsou plánovací (`Tn`); finální T-ID přiděluje orchestrátor v plan.md dané iterace. Test loop a review gate jsou vždy explicitní tasky T-TEST a T-REV.
@@ -90,7 +93,7 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 - **Kritická cesta**: iter-004 → 005 → 006 → 007 → 008 → 009 → 010 → 011 → 012 → 013 → 014 → 015 → 016 → 017 → 018 (řetěz je v podstatě lineární – každá iterace staví na předchozí).
 - **Jediný povolený paralelismus**: iter-006 (M1, čistě tooling + data) smí běžet souběžně s iter-005 (M0b, PWA/save) – obě závisí jen na iter-004. Nic jiného neparalelizovat: sdílený stav repa + lineární závislosti systémů.
 - **Tvrdé závislosti uvnitř plánu** (z architektury): M1 blokuje M2+ (katalogy); trh (M4b) blokuje plné AI oceňování (M7a) – hlídá negativní test S-06; battle automat (M7b) potřebuje jednotky a zóny (M7a); kalibrace (M9a) potřebuje kompletní obsah (M8).
-- **Re-planning checkpoint po iter-006**: obsahové milníky M2+ jsou *plán, ne závazek rozsahu*, dokud M1 gap report nepotvrdí úplnost dat (§13.1 architektury). Po gap reportu project-manager plán M2+ potvrdí nebo upraví (decision record při změně).
+- **Re-planning checkpoint po iter-006**: obsahové milníky M2+ jsou *plán, ne závazek rozsahu*, dokud M1 gap report nepotvrdí úplnost dat (§13.1 architektury). Po gap reportu project-manager plán M2+ potvrdí nebo upraví (decision record při změně). **Jak se checkpoint promítne**: při materiální změně rozsahu (typicky díry v listTechs/listZone – riziko R-A) PM vydá decision record a iterace M6/M7 (iter-013–015) se re-scopují **před** jejich zahájením – ne za běhu. Kritická cesta MVP (iter-007 → iter-011) zůstává na gap reportu obsahu pozdních systémů **nezávislá**: staví na katalozích jádra (zdroje, budovy, joby, trh), takže se rozjíždí hned po iter-006 i při otevřených dírách v datech pozdních systémů.
 
 ---
 
@@ -150,7 +153,7 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 | T4 | Tabulkové testy vzorců s referenčními hodnotami z `original_source_doc.md` (houseTypes, companies, tech 100×1.25^level, upkeep…) + vědomé odchylky zapečené do dat s poznámkou (Skills 2×, market perioda V3, home.js:970 obě varianty) | M | Opus | Sonnet | T3 |
 | T5 | Registr efektů obsahu – kostra (K14, §5.4): `onBuild`/`onUnlock`/event `options[].fn` jako string-ID s parametry v datech, typovaný modul per doména | S | Opus (zkrácený) | Sonnet | T2 |
 | T6 | **Gap report** (DoD M1): která pole/položky nejsou doložitelné z dumpu/zdroje (zejm. listTechs/listZone) + eskalační dokument pro uživatele s volbou (a) dotěžit z runtime, (b) aproximace s `provenance: 'approximated'` | S | Opus (zkrácený) | Sonnet | T1, T2 |
-| T-TEST | Test loop (tester **Sonnet**): sada 1.3/iter-006 – schema validace všech katalogů zelená, tabulkové testy vzorců, fail-fast na uměle rozbitém katalogu | M | – | Sonnet/Haiku | T1–T6 |
+| T-TEST | Test loop (tester **Sonnet**): sada 1.3/iter-006 – schema validace všech katalogů zelená, tabulkové testy vzorců, fail-fast na uměle rozbitém katalogu + PWA smoke (kumulativní sada 1.3) | M | – | Sonnet/Haiku | T1–T6 |
 | T-REV | Review gate (reviewer **Opus**, právo re-run): úplnost extrakce vs. gap report, referenční čísla sedí, provenance flagy korektní | M | – | Opus | T-TEST |
 
 **DoD iter-006 (= DoD M1)**: katalogy kompletní/validované nebo díry explicitně v gap reportu s eskalací uživateli; referenční čísla potvrzena testem; balance/formulas základ položen; reviewer GO. **Následuje re-planning checkpoint M2+ (viz 2.2).**
@@ -169,10 +172,11 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 | T3 | Systémy population + housing: migrační akumulátor (per step), births/retirement (noon), house tiery, settlementLevel (day) – dle tickOrder | M | Opus | Sonnet | T1 |
 | T4 | Systémy food + health + crime: meal#1/#2, fair-share food handler + foodVariety, spoilage (month), disease, crime (noon) – dle tickOrder; balanc čísla rovnou do balance.js | L | Opus | Sonnet | T1, T3 |
 | T5 | Stub-registrace world/battle v tickOrder a persist schématech (no-op fn) + kontraktní testy §8: determinismus prázdné bitvy, round-trip `state.battle/zones`, schedule s AI eventy přežívá save/load, **negativní test S-06** | M | Opus | Sonnet | T2 |
-| T-TEST | Test loop (tester **Sonnet**): sada 1.3/iter-007 – poprvé **catch-up-safe invariant** pro všechny nové systémy, persist round-trip per doména, tx invarianty (žádné NaN/záporné zásoby) | M | – | Sonnet/Haiku | T1–T5 |
+| T-TEST | Test loop (tester **Sonnet**): sada 1.3/iter-007 – poprvé **catch-up-safe invariant** pro všechny nové systémy, persist round-trip per doména, tx invarianty (žádné NaN/záporné zásoby) + PWA smoke (kumulativní sada 1.3) | M | – | Sonnet/Haiku | T1–T5 |
 | T-REV | Review gate (reviewer **Opus**, právo re-run): persist schéma vzniklo se systémem (§14.3), tickOrder aktualizován ve stejných commitech, kontrakty §8 zavedeny | M | – | Opus | T-TEST |
 
 **DoD iter-007 (= M2a)**: populace/jídlo/zdraví/krimi běží deterministicky live i v dávce; save round-trip všech nových domén; stuby + kontraktní testy existují; reviewer GO.
+**Pozn. (split-trigger)**: iter-007 nese 3× L (T1, T2, T4) – pokud Opus návrhy ukážou, že transakční vrstva + persist + 4 systémy nesouzní do jedné iterace, orchestrátor smí split **M2a-1** (T1–T2 infrastruktura: transakce + persist) / **M2a-2** (T3–T5 systémy + stuby) – bez dopadu na architekturu, DoD M2a se vyhodnotí po M2a-2.
 
 ---
 
@@ -183,7 +187,7 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 
 | ID | Task | Kompl. | Návrh | Provedení | Závislosti |
 |---|---|---|---|---|---|
-| T1 | Catch-up smyčka end-to-end (§4.1 režim 3): load → `missedMs` z `lastSimTimestamp` → dávka (chunky ~25k kroků, yield na UI) → cap `min(technický, balanční)` → vědomě minimální: dohání jen systémy M2 | L | Opus | Sonnet | – |
+| T1 | Catch-up smyčka end-to-end (§4.1 režim 3): load → `missedMs` z `lastSimTimestamp` → dávka (chunky ~25k kroků, yield na UI) → cap `min(technický, balanční)` → vědomě minimální: dohání jen systémy M2 (předpokládá **catch-up-safe invariant** zavedený a otestovaný v iter-007 T-TEST) | L | Opus | Sonnet | iter-007 |
 | T2 | Přerušitelnost dávky interaktivními eventy (D10): `stopPending` přeruší dávku, zbytek akumulátoru zůstává, pokračování po odkliknutí | M | Opus | Sonnet | T1 |
 | T3 | Offline summary UI (prostý textový výčet: produkce, události) + catch-up progress UI nad prahem | S | Sonnet | Sonnet | T1 |
 | T4 | Autosave triggery komplet (§6.2): periodicky (herní den / 60–120 s), `visibilitychange→hidden`/`pagehide`, po významných událostech | M | Opus | Sonnet | – |
@@ -268,7 +272,7 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 | T-REV | Review gate (reviewer **Opus**, právo re-run): žádné `applyUpgrade` mutace in-place; derivovaná data se neukládají | M | – | Opus | T-TEST |
 
 **DoD iter-012 (= DoD M5)**: město roste, stavby mají scaling a opotřebení, kontrakty běží, modifikátory čistě; reviewer GO.
-**Pozn.**: pokud Opus návrhy ukážou, že T4 (modifikátory) + T5 (kontrakty) nesouzní do jedné iterace, orchestrátor smí split M5a (T1–T4) / M5b (T5–T6) – bez dopadu na architekturu.
+**Pozn. (split-trigger)**: pokud Opus návrhy ukážou, že T4 (modifikátory) + T5 (kontrakty) nesouzní do jedné iterace, orchestrátor smí split **M5-1** (T1–T4) / **M5-2** (T5–T6) – bez dopadu na architekturu. *(Názvosloví splitů jednotně `<milník>-1/<milník>-2`; písmenné sufixy a/b zůstávají vyhrazeny pro milníkové splity přes hranici iterací – M2a/M2b, M7a/M7b.)*
 
 ---
 
@@ -307,6 +311,7 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 | T-REV | Review gate (reviewer **Opus**, právo re-run): kontrakty §8.2 naplněny beze změny signatur (změna = decision record) | M | – | Opus | T-TEST |
 
 **DoD iter-014 (= M7a)**: AI svět tiká deterministicky, jednotky existují, trh dostává zónové injekce; reviewer GO.
+**Pozn. (split-trigger)**: T1 (zone tick) a T2 (frakční AI automat) jsou dva nezávislé L celky – pokud Opus návrhy ukážou, že nesouzní do jedné iterace, orchestrátor smí split **M7a-1** (T1, T4, T5: zóny + jednotky + napojení trhu) / **M7a-2** (T2, T3, T6: frakční AI + revolty/questy/tribute + UI) – bez dopadu na architekturu, DoD M7a se vyhodnotí po M7a-2.
 
 ---
 
@@ -362,6 +367,7 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 | T-REV | Review gate (reviewer **Opus**, právo re-run): DoD M9-kalibrace formulován proti hratelnostním cílům (ne proti neexistující serverové referenci); odchylky zdokumentované v datech | M | – | Opus | T-TEST |
 
 **DoD iter-017 (= M9a)**: trh a cap kalibrovány proti explicitním cílům; balanc regression zelená; vědomé odchylky rozhodnuty a zapsány; reviewer GO.
+**Pozn. (T4, L)**: dlouhé simulační běhy (rok+ herního času) mohou narazit na časové limity test loopu – Opus návrh T4 (povinná dekompozice L dle §1.2) musí běhy rozdělit na seedované segmenty / checkpointované úseky tak, aby jednotlivý testovací běh zůstal pod limitem prostředí.
 
 ---
 
@@ -387,7 +393,7 @@ iter-004 (M0a) ─→ iter-005 (M0b) ──┐
 
 1. **A1 – Rozsah M2+ podmíněn M1**: gap report (iter-006) může změnit rozsah iter-007+; plán platí s checkpointem 2.2. Při dírách v techs/zones se posouvá obsah M6/M7, ne architektura.
 2. **A2 – Benchmark „na low-end mobilu"** (DoD M0): předpokládám, že v agentickém prostředí se měří syntetickým benchmarkem v Node + na dostupném prohlížeči, a reálné zařízení potvrdí uživatel; benchmark report to musí explicitně uvést (viz Q2).
-3. **A3 – Délka iterace**: iterace jsou řezané na ~4–6 implementačních tasků + test + review, aby je workflow zvládl v jednom průchodu; orchestrátor smí iteraci dál dělit (např. M5a/M5b dle pozn. v iter-012), nikdy slučovat přes hranici milníku bez decision recordu.
+3. **A3 – Délka iterace**: iterace jsou řezané na ~4–6 implementačních tasků + test + review, aby je workflow zvládl v jednom průchodu; orchestrátor smí iteraci dál dělit (explicitní split-triggery: M2a-1/M2a-2 v iter-007, M5-1/M5-2 v iter-012, M7a-1/M7a-2 v iter-014), nikdy slučovat přes hranici milníku bez decision recordu.
 4. **A4 – Rizika architektury** (§12) mapována do plánu: R-A → iter-006 T6; R-B → iter-005 T4; R-C → iter-017 T1–T2; R-D → iter-015 T5; R-E → iter-007 T5 + iter-014/015; R-F → iter-018 T2; R-G → iter-016 T2 + iter-018 T3; R-H → tabulkové testy průběžně; R-I → iter-004 T1 + každý review gate; R-J → měření velikosti savu od iter-007 (tester).
 5. **Žádný rozpor s D1–D13/R1–R4 nenalezen** – plán architekturu pouze sekvencuje.
 
