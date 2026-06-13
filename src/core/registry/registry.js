@@ -64,12 +64,13 @@ export function has(reg, id) {
  * Validates that params are serializable (plain data, no functions, no cycles).
  * Throws in DEV if params contain functions or non-serializable values.
  * Uses structuredClone for cycle detection (structuredClone is safe - not DOM/IO).
+ * BUG-001 fix (iter-006): added WeakSet seen to prevent stack overflow on cyclic objects.
  * @param {object} params
  * @returns {void}
  */
 export function assertSerializable(params) {
   // Check for functions recursively (structuredClone doesn't catch all edge cases)
-  checkNoFunctions(params);
+  checkNoFunctions(params, new WeakSet());
   // structuredClone catches cycles and non-transferable types
   try {
     structuredClone(params);
@@ -80,14 +81,17 @@ export function assertSerializable(params) {
 
 /**
  * @param {unknown} val
+ * @param {WeakSet<object>} seen
  */
-function checkNoFunctions(val) {
+function checkNoFunctions(val, seen) {
   if (typeof val === 'function') {
     throw new Error('registry: params must not contain functions');
   }
   if (val !== null && typeof val === 'object') {
+    if (seen.has(/** @type {object} */ (val))) return; // cycle – already visited
+    seen.add(/** @type {object} */ (val));
     for (const v of Object.values(/** @type {object} */ (val))) {
-      checkNoFunctions(v);
+      checkNoFunctions(v, seen);
     }
   }
 }

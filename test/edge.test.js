@@ -279,18 +279,15 @@ describe('edge: registry fail-fast', () => {
     assert.doesNotThrow(() => assertSerializable({ x: 1, y: 'hello', z: [1, 2, 3] }));
   });
 
-  it('assertSerializable throws on cyclic object (BUG: stack overflow before structuredClone)', () => {
-    // BUG FOUND: checkNoFunctions in registry.js has no WeakSet cycle protection.
-    // A cyclic object causes Maximum call stack size exceeded (infinite recursion)
-    // instead of a clean "not serializable" error. This test documents the actual behavior.
-    // See: src/core/registry/registry.js function checkNoFunctions – needs WeakSet visited guard.
+  it('assertSerializable does NOT throw on cyclic object (BUG-001 fixed in iter-006)', () => {
+    // BUG-001 FIXED: checkNoFunctions now has WeakSet cycle protection.
+    // A cyclic object no longer causes Maximum call stack size exceeded.
+    // Cycle-only object (no function) should pass assertSerializable cleanly.
     /** @type {Record<string, unknown>} */
     const obj = { a: 1 };
     obj.self = obj; // cycle
-    // The implementation currently throws RangeError (stack overflow) rather than a clean message.
-    // We assert it throws (any error) to confirm cycles are caught, but note the error quality issue.
-    assert.throws(() => assertSerializable(obj));
-    // Note: ideal behavior would be throw with /serializable/i message – coder should fix.
+    // After BUG-001 fix: cyclic object with no functions does NOT throw.
+    assert.doesNotThrow(() => assertSerializable(obj));
   });
 });
 
