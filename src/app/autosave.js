@@ -18,7 +18,7 @@
  */
 export function createAutosave(opts) {
   const { doSave } = opts;
-  const minIntervalMs = opts.minIntervalMs ?? 30_000;
+  const minIntervalMs = opts.minIntervalMs ?? 60_000;
   const now = opts.now ?? Date.now.bind(Date);
 
   let lastSaveAt = 0;

@@ -1,9 +1,10 @@
 /**
  * App-layer catalog loader: fetches all JSON catalogs and loads them into the catalog store.
  * S-1: centralised catalog bootstrap for main.js.
+ * S-5: validate BEFORE load + buildById() after all catalogs loaded.
  */
 
-import { loadCatalog, assertCatalogValid } from '../core/catalog/index.js';
+import { loadCatalog, assertCatalogValid, buildById } from '../core/catalog/index.js';
 
 /** Catalog names that are loaded from src/data/ */
 const CATALOG_NAMES = [
@@ -19,6 +20,8 @@ const CATALOG_NAMES = [
 
 /**
  * Fetch and load all catalogs. Throws on fetch or validation failure.
+ * S-5: validate each catalog BEFORE loading it into the store (fail-fast, no dirty store).
+ * After all catalogs are loaded, builds the byId cross-catalog index (K10 collision detection).
  * @returns {Promise<void>}
  */
 export async function loadAllCatalogs() {
@@ -33,7 +36,10 @@ export async function loadAllCatalogs() {
     })
   );
   for (const { name, data } of results) {
-    loadCatalog(name, data);
+    // S-5: validate BEFORE loading to avoid dirty store on error
     assertCatalogValid(name, data);
+    loadCatalog(name, data);
   }
+  // S-5: build cross-catalog byId index and detect K10 collisions
+  buildById();
 }

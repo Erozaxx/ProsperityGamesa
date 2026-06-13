@@ -2,16 +2,24 @@
  * Root UI component: time/season readout + speed controls (pause / 1× / 2×).
  * Also displays population, food totals, and health status.
  * Reads a read-only snapshot; mutates ONLY via the injected send callback (command/intent API).
+ * B-4: wires OfflineSummary, CatchupProgress, export/import.
  */
 import { html } from '../vendor/preact.standalone.js';
 import { selectClock, selectSeason, selectSpeed } from './selectors.js';
+import { OfflineSummary } from './OfflineSummary.js';
+import { CatchupProgress } from './CatchupProgress.js';
 
 /**
  * @param {Object} props
  * @param {import('../core/state/types.js').GameState} props.snapshot
  * @param {(type: string, params?: object) => {ok: boolean, error?: string}} props.send
+ * @param {import('./OfflineSummary.js').OfflineSummaryModel | null} [props.offlineSummary]
+ * @param {{ done: number, total: number } | null} [props.catchupProgress]
+ * @param {(() => void) | null} [props.onDismissOfflineSummary]
+ * @param {(() => void) | null} [props.onExport]
+ * @param {(() => void) | null} [props.onImport]
  */
-export function App({ snapshot, send }) {
+export function App({ snapshot, send, offlineSummary, catchupProgress, onDismissOfflineSummary, onExport, onImport }) {
   const clock = selectClock(snapshot);
   const season = selectSeason(snapshot);
   const speed = selectSpeed(snapshot);
@@ -48,5 +56,13 @@ export function App({ snapshot, send }) {
         <button class=${speed === 1 ? 'on' : ''} onClick=${() => send('setSpeed', { speed: 1 })}>1×</button>
         <button class=${speed === 2 ? 'on' : ''} onClick=${() => send('setSpeed', { speed: 2 })}>2×</button>
       </div>
+      ${onExport || onImport ? html`
+        <div class="save-actions">
+          ${onExport ? html`<button onClick=${onExport}>Exportovat hru</button>` : null}
+          ${onImport ? html`<button onClick=${onImport}>Importovat hru</button>` : null}
+        </div>
+      ` : null}
+      ${catchupProgress ? html`<${CatchupProgress} done=${catchupProgress.done} total=${catchupProgress.total} />` : null}
+      ${offlineSummary && !catchupProgress ? html`<${OfflineSummary} model=${offlineSummary} onDismiss=${onDismissOfflineSummary ?? (() => {})} />` : null}
     </div>`;
 }

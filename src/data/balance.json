@@ -30,7 +30,11 @@
       "priceFactor": 1.5
     },
     "offline": {
-      "capTechRealHours": 8
+      "_provenance": "approximated",
+      "capTechRealHours": 8,
+      "capRealHours": 8,
+      "chunkSteps": 25000,
+      "progressThresholdSteps": 5000
     },
     "population": {
       "consumeFoodRate": 2,
