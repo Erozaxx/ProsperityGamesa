@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit",
     "lint:core": "node tools/check-core-imports.mjs",
     "test": "node --test",
-    "ci": "npm run typecheck && npm run lint:core && npm run test"
+    "ci": "npm run typecheck && npm run lint:core && npm run test",
+    "smoke": "node tools/smoke.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
