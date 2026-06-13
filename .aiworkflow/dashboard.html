@@ -382,44 +382,40 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T05:29:10Z",
+  "generated": "2026-06-13T05:44:02Z",
   "iteration": {
-    "id": "iter-003",
-    "goal": "Cizelovat plán – ze schválené architektury a milníků (M0–M9) vytvořit kompletní end-to-end plán všech iterací, nařezaný tak, aby tasky šly detailně navrhnout Opus agentem a provést Sonnet agentem, s povinným test loop (Sonnet/Haiku tester) + review gate (Opus reviewer, právo re-run) na konci každé iterace.",
+    "id": "iter-004",
+    "goal": "M0a – Kostra repa & engine core: headless engine v čistých ES modulech (čas, scheduler, RNG, jeden serializovatelný stav), CI typový gate `tsc --checkJs` + grep gate. Dle master plánu §3/iter-004 (tasky T1–T6).",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "project-manager – Z architektury (`agents/architect/artifacts/final/architecture_proposal_iter-002_T-001.md`) a milníků M0–M9 vytvořit kompletní end-to-end plán VŠECH iterací do cíle. Milník ≠ nutně 1 iterace; řez podle komplexity. Pro každou iteraci: tasky s odhadem komplexity + doporučeným modelem (Opus návrh tasku / Sonnet provedení), závislosti, DoD a povinný závěrečný test loop (Sonnet/Haiku tester) + review gate (Opus reviewer s pravomocí re-run). Model: Fable.",
-        "done": true
+        "text": "architect – Detailní návrh (Opus) všech tasků iterace T1–T6 (struktura repa §3.1, state container §3.2, clock+akumulátor §4.1, scheduler heap+periodika §4.2, RNG streamy §4.4, tickOrder §4.3 + calendar/seasons + commands skeleton §3.3) → implementační spec pro Sonnet. Model: Opus.",
+        "done": false
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review plánu (úplnost cesty M0→cíl, správnost řezu tasků na Opus-návrh+Sonnet-provedení, závislosti/kritická cesta, konzistence test loop + review gate u každé iterace). Všechny nálezy, nejen blockery. Model: Opus.",
-        "done": true
+        "text": "coder – Implementace (Sonnet) celé iterace dle návrhu T-001: src/ struktura, engine core, CI gate tsc+grep, package.json, node:test. Model: Sonnet.",
+        "done": false
       },
       {
         "id": "T-003",
-        "text": "project-manager – Zapracovat všechny nálezy z review do plánu + rework note. Model: Fable.",
-        "done": true
+        "text": "tester – Test loop (Sonnet/Haiku): tsc --checkJs zelené, node:test suite, determinism hash, grep gate, jednotkové testy clock/scheduler/RNG hran (den/sezóna/rok). Model: Sonnet.",
+        "done": false
       },
       {
         "id": "T-004",
-        "text": "human – Review a schválení kompletního plánu uživatelem (blocker před zahájením implementačních iterací)",
-        "done": true
-      },
-      {
-        "id": "T-005",
-        "text": "human – Schválení uzavření iterace (review výsledků před /close-iteration)",
+        "text": "reviewer – Review gate (Opus, právo re-run): DoD iter-004, hranice vrstev, živé artefakty (tickOrder + diagram). Model: Opus.",
         "done": false
       }
     ],
-    "total": 5,
-    "done_count": 4
+    "total": 4,
+    "done_count": 0
   },
   "closed_iterations": [
     "iter-001",
-    "iter-002"
+    "iter-002",
+    "iter-003"
   ],
   "agents": [
     {
@@ -630,6 +626,15 @@ const DATA = {
       "completed": ""
     },
     {
+      "slug": "tom-proxy",
+      "status": "idle",
+      "task_id": "",
+      "brief": "",
+      "iteration": "",
+      "started": "",
+      "completed": ""
+    },
+    {
       "slug": "workshop-facilitator",
       "status": "idle",
       "task_id": "",
@@ -755,12 +760,12 @@ const DATA = {
     },
     "iter-002_summary": {
       "raw": "# Orchestration Metrics: iter-002\n\n- **Closed**: 2026-06-12\n\n## Per-Agent Metrics\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| architect | T-001 | fable (xhigh) | 151639 | 38 | 925114 |\n| reviewer | T-002 (pokus 1, socket err) | opus | 5276 | 19 | 272313 |\n| reviewer | T-002 (pokus 2, session limit) | opus | 9359 | 25 | 366286 |\n| reviewer | T-002 (úspěšný) | opus | 106591 | 29 | 433220 |\n| architect | T-003 (rework) | fable | 105528 | 35 | 475150 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Poznámky\n- Návrh architektury (T-001) na Fable bez timeoutu (~15 min).\n- Reviewer (T-002) dvakrát přerušen infra (socket error, session limit), třetí běh úspěšný po resetu limitu.\n- T-003 = zapracování všech nálezů review (S-01..S-06, N-01..N-04) na žádost uživatele (i když review byla 0-blocker).\n- Bonus deliverable: doc/HLD/architecture-overview.html (HTML one-pager s blokovými diagramy).\n"
+    },
+    "iter-003_summary": {
+      "raw": "# Orchestration Metrics: iter-003\n\n- **Closed**: 2026-06-13\n\n## Per-Agent Metrics\n\n| Agent | Task | Model | total_tokens | tool_uses | duration_ms |\n|-------|------|-------|-------------|-----------|-------------|\n| project-manager | T-001 (master plán) | fable | 83591 | 21 | 525308 |\n| reviewer | T-002 (review plánu) | opus | 94224 | 20 | 313019 |\n| project-manager | T-003 (rework) | fable | 88570 | 33 | 388801 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Poznámky\n- iter-003 = cizelování plánu (žádný produkční kód).\n- Vznikl nový agent **project-manager** (order 5, Fable) – čistě přes agent_definitions, make validate zelená.\n- PM (Fable) vytvořil end-to-end plán M0–M9 → 15 iterací (iter-004…iter-018); reviewer (Opus) GO s úpravami (0 blockerů); PM zapracoval S-1..S-5 + N-1/N-3.\n- Schválení uživatelem (T-004) + DR-001 (Q1 playtest checkpoint, Q2 syntetický benchmark, Q3 autonomní gap eskalace).\n"
     }
   },
-  "agent_tokens": {
-    "project-manager": 172161,
-    "reviewer": 94224
-  }
+  "agent_tokens": {}
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
