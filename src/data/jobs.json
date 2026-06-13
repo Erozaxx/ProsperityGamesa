@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "notes": "Reconstructed from home.js job loops; production amounts per quarterDay per worker are estimates (provenance: derived); S-3 iter-007: products changed from array to map {resourceId:amount}",
+    "notes": "Reconstructed from home.js job loops; products migrated to productMap (S-3, iter-007 M2a-1). Exact production numbers are estimates.",
     "provenance": "derived",
     "source": "doc/original_source/modules/prosperity/services/home.js"
   },
@@ -8,12 +8,12 @@
     {
       "id": "baker",
       "name": "Baker",
-      "products": { "bread": 2 }
+      "products": { "bread": 1 }
     },
     {
       "id": "cheesefarmer",
       "name": "Cheese Farmer",
-      "products": { "cheese": 2 }
+      "products": { "cheese": 1 }
     },
     {
       "id": "farmer",
@@ -23,12 +23,12 @@
     {
       "id": "fisher",
       "name": "Fisher",
-      "products": { "fish": 2 }
+      "products": { "fish": 1 }
     },
     {
       "id": "hunter",
       "name": "Hunter",
-      "products": { "meat": 2 }
+      "products": { "meat": 1 }
     },
     {
       "id": "miner",
@@ -38,7 +38,7 @@
     {
       "id": "woodcutter",
       "name": "Woodcutter",
-      "products": { "wood": 2 }
+      "products": { "wood": 1 }
     }
   ]
 }
