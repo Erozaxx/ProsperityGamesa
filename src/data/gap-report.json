@@ -1,9 +1,22 @@
 {
   "_meta": {
-    "iteration": "iter-006",
-    "milestone": "M1",
-    "notes": "Gap analysis for catalogs not fully extractable from original sources",
+    "iteration": "iter-007",
+    "milestone": "M2a",
+    "notes": "Gap analysis for catalogs not fully extractable from original sources. Updated in iter-007 M2a-1: added blocksMvp, provenance per gap, summary block (S-2).",
     "provenance": "derived"
+  },
+  "summary": {
+    "total": 8,
+    "blocksMvp": 4,
+    "byMilestone": {
+      "M2": 0,
+      "M3": 1,
+      "M4": 2,
+      "M5": 1,
+      "M6": 1,
+      "M7": 1,
+      "M9": 2
+    }
   },
   "gaps": [
     {
@@ -11,56 +24,72 @@
       "catalog": "buildings",
       "description": "Full building list (listBuildings.json) not found in extracted sources; only 4 buildings reconstructed from config.js references",
       "milestone": "M5",
-      "severity": "high"
+      "severity": "high",
+      "blocksMvp": true,
+      "provenance": "missing"
     },
     {
       "id": "G-LISTGOODS",
       "catalog": "goods",
       "description": "listGoods.json not found in extracted sources; goods catalog is empty",
       "milestone": "M4",
-      "severity": "high"
+      "severity": "high",
+      "blocksMvp": true,
+      "provenance": "missing"
     },
     {
       "id": "G-MARKETBASELINE",
       "catalog": "marketBaseline",
       "description": "basePrice is randomized at runtime; no static baseline extractable from sources",
       "milestone": "M4/M9",
-      "severity": "high"
+      "severity": "high",
+      "blocksMvp": true,
+      "provenance": "missing"
     },
     {
       "id": "G-LISTJOB",
       "catalog": "jobs",
       "description": "listJob.json not found; 7 jobs reconstructed from home.js/config.js; exact production numbers are estimates",
       "milestone": "M3",
-      "severity": "high"
+      "severity": "high",
+      "blocksMvp": true,
+      "provenance": "approximated"
     },
     {
       "id": "G-LISTTECHS",
       "catalog": "techs",
       "description": "listTechs.json not found in extracted sources; tech tree is empty skeleton",
       "milestone": "M6",
-      "severity": "medium"
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "missing"
     },
     {
       "id": "G-LISTZONE",
       "catalog": "zones",
       "description": "listZone.json not found; zones catalog is empty skeleton",
       "milestone": "M7",
-      "severity": "low"
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
     },
     {
       "id": "G-LISTSKILL",
       "catalog": "skills",
       "description": "listSkill.json and listSectors.json not found; both catalogs are empty skeletons",
       "milestone": "M3/M6",
-      "severity": "medium"
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "missing"
     },
     {
       "id": "D-CHEESE-SPOILAGE",
       "catalog": "population",
       "description": "Discrepancy: spoilage.cheese=0.08 in active config but baseSpoilage.cheese=0.10 in base config; may indicate a bug in the original",
       "milestone": "M9",
-      "severity": "low"
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "derived"
     }
   ]
 }
