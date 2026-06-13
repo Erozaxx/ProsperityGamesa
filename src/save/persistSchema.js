@@ -134,6 +134,11 @@ export function applyPersist(state) {
       home.workerEfficiency = s.home.workerEfficiency;
     }
 
+    // notEnoughMilitaryFunding flag (iter-010 M4a)
+    if (s.home.notEnoughMilitaryFunding !== undefined) {
+      home.notEnoughMilitaryFunding = s.home.notEnoughMilitaryFunding;
+    }
+
     // workforce (only assigned – total is derived)
     if (s.home.workforce) {
       home.workforce = { assigned: s.home.workforce.assigned || 0 };
@@ -176,6 +181,13 @@ export function applyPersist(state) {
 
   // battle: null or full
   payload.battle = s.battle ?? null;
+
+  // council: accounting state (iter-010 M4a)
+  if (s.council) {
+    payload.council = { current: s.council.current, history: s.council.history };
+  } else {
+    payload.council = undefined;
+  }
 
   return payload;
 }
