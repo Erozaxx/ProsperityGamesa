@@ -305,6 +305,51 @@ describe('healthBirths', () => {
 });
 
 // -----------------------------------------------------------------------
+// 4b. R-A4-3: over-cap loaded ("exploded") saves must not be shrunk
+//     (iter-012 T-017 / F-1). Cap only stops NEW growth; never a retro shrink.
+// -----------------------------------------------------------------------
+describe('A4 over-cap loaded save is not shrunk (R-A4-3 / T-017 F-1)', () => {
+  // tent has null capacity → housing capacity = 0 → sanityCap = sanityMaxPop.
+  const overCap = BALANCE.population.sanityMaxPop + 5000;
+
+  it('healthBirths leaves an over-cap total unchanged (no shrink, no growth past cap)', () => {
+    const state = createState();
+    state.home.population.total = overCap;
+    state.home.population.bornTotal = 0;
+    state.home.housing.counts = { tent: 100 }; // null-capacity → sanityCap = sanityMaxPop
+    // Sanity: births would be > 0 at this pop, so a clamp-shrink bug would fire.
+    assert.ok(
+      natality(overCap, BALANCE.population.matRate / DAYS_PER_YEAR) > 0,
+      'sanity: daily births should be observable above the cap'
+    );
+
+    healthBirths(state, {}, MOCK_CTX);
+
+    assert.strictEqual(
+      state.home.population.total,
+      overCap,
+      'over-cap total must not be shrunk down to the cap, nor grow above it'
+    );
+    assert.strictEqual(state.home.population.bornTotal, 0, 'no births counted while at/over cap');
+  });
+
+  it('populationMigration leaves an over-cap total unchanged (no shrink)', () => {
+    const state = createState();
+    state.home.population.total = overCap;
+    state.home.population.migrationAcc = 5; // forces toAdd >= 1 so the cap branch executes
+    state.home.housing.counts = { tent: 100 }; // null capacity → no per-house limit, sanityCap = sanityMaxPop
+
+    populationMigration(state, {}, MOCK_CTX);
+
+    assert.strictEqual(
+      state.home.population.total,
+      overCap,
+      'over-cap total must not be shrunk down to the cap by migration'
+    );
+  });
+});
+
+// -----------------------------------------------------------------------
 // 5. DAYS_PER_YEAR + sanity cap helpers (iter-012 A4 / T-008)
 // -----------------------------------------------------------------------
 describe('A4 sanity helpers', () => {

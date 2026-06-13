@@ -12,7 +12,7 @@ import { BALANCE } from '../balance/balance.js';
 import { natality, diseaseChance } from '../balance/formulas.js';
 import { makeRng } from '../engine/rng.js';
 import { getCatalog } from '../catalog/index.js';
-import { calcHousingDerivedFromCatalog, DAYS_PER_YEAR } from './population.js';
+import { calcHousingDerivedFromCatalog, DAYS_PER_YEAR, populationSanityCap } from './population.js';
 
 /**
  * Get housing capacity (for birth cap).
@@ -49,8 +49,10 @@ export function healthBirths(state, _params, _ctx) {
   const actualBorn = capacity > 0 ? Math.min(born, Math.max(0, capacity - pop)) : born;
 
   // Global sanity hard-cap: housing capacity wins when higher than sanityMaxPop.
-  const sanityCap = Math.max(capacity, BALANCE.population.sanityMaxPop);
-  const newTotal = Math.min(pop + actualBorn, sanityCap);
+  // R-A4-3: the cap only prevents NEW growth past it; an already-over-cap loaded
+  // ("exploded") save must never be shrunk back down. Symmetric with migration.
+  const sanityCap = populationSanityCap(capacity);
+  const newTotal = pop >= sanityCap ? pop : Math.min(pop + actualBorn, sanityCap);
   const cappedBorn = newTotal - pop;
 
   state.home.population.total = newTotal;

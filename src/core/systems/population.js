@@ -90,8 +90,10 @@ export function populationMigration(state, _params, _ctx) {
     const limit = capacity > 0 ? capacity - pop : Number.MAX_SAFE_INTEGER;
     const actualAdd = Math.max(0, Math.min(toAdd, limit));
     // iter-012 A4 (T-008): apply the global sanity hard-cap uniformly (symmetric with births).
+    // R-A4-3: the cap only prevents NEW growth past it; an already-over-cap loaded
+    // ("exploded") save must never be shrunk back down — only future growth is stopped.
     const sanityCap = populationSanityCap(capacity);
-    state.home.population.total = Math.max(0, Math.min(pop + actualAdd, sanityCap));
+    state.home.population.total = pop >= sanityCap ? pop : Math.min(pop + actualAdd, sanityCap);
   }
 }
 
