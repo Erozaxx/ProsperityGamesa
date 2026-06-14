@@ -935,13 +935,13 @@ function takeOver(state, params, _ctx) {
 }
 
 /** M7b stub: startBattle — AI vs player, battle automat is M7b. No-op until M7b. */
-function startBattleStub(_state, _params, _ctx) { /* M7b stub */ }
+function startBattleStub(/** @type {any} */ _state, /** @type {any} */ _params, /** @type {any} */ _ctx) { /* M7b stub */ }
 /** M8 stub: warningAIAttacking — spy warning. No-op until M8. */
-function warningAIAttackingStub(_state, _params, _ctx) { /* M8 stub */ }
+function warningAIAttackingStub(/** @type {any} */ _state, /** @type {any} */ _params, /** @type {any} */ _ctx) { /* M8 stub */ }
 /** M8 stub: dangerAIAttacking — spy danger. No-op until M8. */
-function dangerAIAttackingStub(_state, _params, _ctx) { /* M8 stub */ }
+function dangerAIAttackingStub(/** @type {any} */ _state, /** @type {any} */ _params, /** @type {any} */ _ctx) { /* M8 stub */ }
 /** M8 stub: AIIsAttacking — attack announcement. No-op until M8. */
-function AIIsAttackingStub(_state, _params, _ctx) { /* M8 stub */ }
+function AIIsAttackingStub(/** @type {any} */ _state, /** @type {any} */ _params, /** @type {any} */ _ctx) { /* M8 stub */ }
 
 /**
  * Register world AI schedule handlers into registry.

@@ -201,6 +201,9 @@ export async function bootSequence(env) {
     // Deterministické (žádný RNG/Date při armování), pokrývá fresh+M5-2 save+starý save.
     armContractOffer(state);
 
+    // iter-017 M7a-2 T2: Arm faction AI schedulers (per-faction set-difference guard).
+    armFactionAI(state);
+
     // B-3: Create autosave coordinator (periodic + hide bypass)
     const autosave = createAutosave({
       doSave: async () => { await env.saveGame(state); },
