@@ -14,13 +14,13 @@
 - [x] T-005: coder – T6 hotový [ZACHRÁNĚNO – agent zemřel před handoffem, práce ověřena orchestrátorem]: selectors (selectBuildableBuildings scaling, selectProjectQueue, selectBuilderCapacity/Companies, selectContracts deriváty), BuildScreen + ContractsScreen, taby Stavba+Kontrakty, styly. ci 990/990, smoke OK (taby renderují, 0 console errors), G1 nedotčen, 33 UI testů
 - [x] T-006: tester – Test loop M5-2 GO (DoD M5 komplet): všech 9 AC PASS empiricky (990/990, smoke OK taby renderují). Kontrakty lifecycle (accept/complete pay+grant, expire idempotentní, reject), B2 re-arm starý save→1 offer/idempotentní, determinismus (stream izolovaný, hashState round-trip identita), catch-up 365 dní (328500 kroků bez crashe, 24 offers), persist schedule eventy přežijí, build UI reálně staví (B1), SAVE_VERSION=3 kompat. M5 hratelný
 - [x] T-007: reviewer – Review gate M5-2 GO; DoD M5 KOMPLETNÍ a hratelný. Všech 6 tvrdých invariantů ověřeno proti kódu (K14 string-ID, determinismus+serializace, B2 idempotentní re-arm, B1 boot wiring, žádná logika v UI, SAVE_VERSION=3). Zachráněná build UI bez nálezu (kompletní, pure komponenty). 0 blocker/0 major/1 minor/2 nit. MINOR-1: gap-report.json neaktualizován pro iter-014 (traceability) → orchestrátor doplní při close
-- [ ] T-008: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → DoD M5 hotovo
+- [x] T-008: human – Uzavření SCHVÁLENO stálým pověřením uživatele (DR-013-00, "dojeď celý master plán do konce"). DoD M5 komplet, reviewer GO + QA GO, MINOR-1 vyřešen → /close-iteration + PR + merge → DoD M5 hotovo
 
 ## Quality Gates
-- [ ] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
-- [ ] Code review (Reviewer) – T-007
-- [ ] QA validace (Tester) – T-006
-- [ ] Plán neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
+- [x] Code review (Reviewer) – T-007 GO (0 blocker/major)
+- [x] QA validace (Tester) – T-006 GO (9/9 AC)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
 
 ## Exit Criteria (DoD M5 komplet)
 - Kontrakty běží: contractQueue, onComplete/onExpire/onReject přes registr efektů (K14), eventy přes schedule serializovatelné a deterministické.
