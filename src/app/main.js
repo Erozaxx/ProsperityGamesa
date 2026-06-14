@@ -25,6 +25,7 @@ import { registerBuild } from '../core/commands/build.js';
 import { registerBuyTech } from '../core/commands/buyTech.js';
 import { registerRecruitUnit } from '../core/commands/recruitUnit.js';
 import { registerContractCommands } from '../core/commands/contracts.js';
+import { registerQuestCommands } from '../core/commands/quests.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
 import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
 import { marketInit } from '../core/systems/market.js';
@@ -114,6 +115,8 @@ function bootstrapEngine() {
   registerBuyTech(creg);
   // iter-016 M7a-1 T4: recruitUnit command (anti-dark-code B1 — registered here, not dark code)
   registerRecruitUnit(creg);
+  // iter-017 M7a-2 T3: quest commands (acceptQuest/rejectQuest)
+  registerQuestCommands(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };

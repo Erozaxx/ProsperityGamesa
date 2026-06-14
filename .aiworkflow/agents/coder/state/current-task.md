@@ -1,5 +1,7 @@
 # Current Task
-- **Task ID**: T-004 (iter-017 M7a-2 T2 — frakční automat)
+- **Task ID**: T-005 (iter-017)
 - **Iteration**: iter-017
-- **Status**: done (zachráněno orchestrátorem – agent dokončil práci ale nezapsal summary; ověřeno CI 1192/1192 + T2 determinismus)
+- **Milestone**: M7a-2 T3 — revolty + questy + tribute výběr + AI-AI bitvy vzorcem
+- **Status**: done
 - **Done**: 2026-06-15
+- **CI**: 1227 tests, 0 fail (35 nových T3 testů)

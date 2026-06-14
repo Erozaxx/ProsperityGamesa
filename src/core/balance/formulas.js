@@ -348,3 +348,82 @@ export function firewoodNeeds(curWorkers, seasonIndex) {
   if (seasonIndex === 0 || seasonIndex === 2) return Math.floor(0.2 * curWorkers);
   return 0;
 }
+
+/**
+ * AI-AI battle resolution formula (1:1 original world.js ř.952-981).
+ * Pure function: takes all inputs explicitly, rng as parameter → deterministic.
+ * Gap G-AI-BATTLE-FORMULA: tested tabulkově against original formula.
+ *
+ * iter-017 M7a-2 T3 (§4 design).
+ *
+ * @param {{
+ *   atkWarriorStrength: number,    // attackerFaction.unitStats.warriors.strength
+ *   atkArcherStrength: number,     // attackerFaction.unitStats.archers.strength
+ *   defWarriorStrength: number,    // targetLiegeFaction.unitStats.warriors.strength
+ *   defArcherStrength: number,     // targetLiegeFaction.unitStats.archers.strength
+ *   atkWarriors: number,           // capital.warriors (attacker capital)
+ *   atkArchers: number,            // capital.archers (attacker capital)
+ *   defWarriors: number,           // targetZone.warriors
+ *   defArchers: number,            // targetZone.archers
+ * }} params
+ * @param {{ next: () => number }} rng
+ * @returns {{
+ *   warrResults: number,
+ *   archResults: number,
+ *   attackerWins: boolean,
+ *   newAtkWarriors: number,
+ *   newAtkArchers: number,
+ *   newDefWarriors: number,
+ *   newDefArchers: number,
+ * }}
+ */
+export function aiBattleResolve(params, rng) {
+  const {
+    atkWarriorStrength, atkArcherStrength,
+    defWarriorStrength, defArcherStrength,
+    atkWarriors, atkArchers,
+    defWarriors, defArchers,
+  } = params;
+
+  // Original ř.952-956: compute battle results
+  const warrResults = Math.max(
+    (atkWarriorStrength * atkWarriors
+      - (defWarriors * defWarriorStrength * rng.next() * 0.5 + 0.7))
+    / atkWarriorStrength,
+    0
+  );
+  const archResults = Math.max(
+    (atkArcherStrength * atkArchers
+      - (defArchers * defArcherStrength * rng.next() * 0.5 + 0.7))
+    / atkArcherStrength,
+    0
+  );
+
+  const attackerWins = (warrResults + archResults) > 0;
+
+  let newAtkWarriors, newAtkArchers, newDefWarriors, newDefArchers;
+
+  if (attackerWins) {
+    // Original ř.956-973: attacker wins
+    newAtkWarriors = Math.floor(rng.next() * 1.4 * warrResults);
+    newAtkArchers  = Math.floor(rng.next() * 1.4 * archResults);
+    newDefArchers  = Math.floor(rng.next() * 0.3 * archResults);
+    newDefWarriors = Math.floor(rng.next() * 0.3 * warrResults);
+  } else {
+    // Original ř.974-981: attacker loses
+    newAtkWarriors = Math.floor(rng.next() * 0.2 * atkWarriors);
+    newAtkArchers  = Math.floor(rng.next() * 0.2 * atkArchers);
+    newDefArchers  = Math.floor(rng.next() * 0.7 * defArchers);
+    newDefWarriors = Math.floor(rng.next() * 0.7 * defWarriors);
+  }
+
+  return {
+    warrResults,
+    archResults,
+    attackerWins,
+    newAtkWarriors,
+    newAtkArchers,
+    newDefWarriors,
+    newDefArchers,
+  };
+}
