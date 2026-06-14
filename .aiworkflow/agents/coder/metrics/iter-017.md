@@ -14,3 +14,8 @@
 - **tool_uses**: 89
 - **duration_ms**: 527338
 - **outcome**: ci 1255/1255, smoke OK (tab Svět); WorldZonesScreen+selektory; M7a-2 impl kompletní
+## T-008a (minor fixes)
+- **Timestamp**: 2026-06-15T05:00Z
+- **total_tokens**: 62704
+- **tool_uses**: 67
+- **outcome**: F-3 tickOrder doc + F-2 gap; F-1 zones favour dodělal orchestrátor (coder chybně ohlásil); ci 1260/1260
