@@ -1,15 +1,35 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-014) — design M5-2 (kontrakty K14 + build UI)
-- **Brief**: context/inbox/brief_architect_T-001_iter-014.md (BRIEF-014-001)
+- **Task ID**: T-002a (iter-014) — revize M5-2 designu (B1/B2/M1 z reviewer gate T-002)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-014.md (BRIEF-014-002a)
 - **Iteration**: iter-014 (M5-2 – Kontrakty & build UI)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – plný design M5-2 (T5 kontrakty + T6 build UI). Dotaženo §5/§6/§13 z M5-1 designu
-do plného návrhu pro Sonnet. Žádný kód. Žádná změna architektury iter-002 ani command vrstvy.
+Hotovo – revize T-002a. Doplněna chybějící **§14** (B1/B2/M1 + M2/minor/nit) do
+`design_iter-014_T-001.md` (in-place). §14 byla v changelogu/§0–§13 referencovaná, ale
+text chyběl → dopsána jako závazná sekce s přednastí. Ověřeno proti kódu (main.js, load.js,
+market.js, scheduler.js, schema.js, migrations.js, build.js, engine/index.js). Žádný kód.
+**Platný dokument: `artifacts/final/design_iter-014_T-001.md` (in-place; nový T-002a NEvznikl).**
+
+## Revize T-002a — výsledek
+- **B1 (blocker)**: §14.1 — import + `registerBuild(creg)` + `registerContractCommands(creg)`
+  za `main.js:99`; `registerContractEffects(registry)` za `main.js:88`. Ověřeno: registerBuild
+  (build.js:147) dnes NEimportován ani volán v main.js → build dark code. Fresh i po loadu.
+- **B2 (blocker)**: §14.2 — `armContractOffer(state)` za `marketInit` (main.js:180) v bootSequence;
+  guard `scheduleCountOf('contract.offer')===0`; insert na `max(curStep, firstOfferStep)`.
+  Deterministický (bez RNG/Date), idempotentní (2. volání no-op), jedna cesta pro fresh+M5-2+starý save.
+  Ověřeno: applyPayload (load.js:90) přepíše engine.schedule saved heapem → starý save bez offeru.
+- **M1 (major)**: §14.3 — SAVE_VERSION ZŮSTÁVÁ 3, žádná migrace polí (undefined-guard, precedent
+  projectQueue load.js:189). B2 je nutný NEZÁVISLE (schedule v engine ≠ home pole; migrace pole
+  schedule nepokrývá). Escape hatch: pokud bump z jiného důvodu → v3→v4 no-op migrace.
+- **M2 + minor/nit**: §14.4/§14.5 — init v createHomeState; firstOfferStep=1 sjednoceno;
+  registerEffects vynechán; title derivovat; G-CONTRACT-SCHED-CLEANUP backlog.
+
+## Předchozí (T-001) — plný design M5-2 (T5 kontrakty + T6 build UI)
+Žádný kód. Žádná změna architektury iter-002 ani command vrstvy.
 **Výstup: `artifacts/final/design_iter-014_T-001.md`.**
 
 ## Klíčová rozhodnutí
