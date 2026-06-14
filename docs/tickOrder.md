@@ -1,4 +1,4 @@
-# Tick Order – Living Artefact (iter-009 M3 / iter-013 M5-1 T1+T2 / iter-016 M7a-1)
+# Tick Order – Living Artefact (iter-009 M3 / iter-013 M5-1 T1+T2 / iter-016 M7a-1 / iter-017 M7a-2)
 
 Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `registerCorePeriodics`).
 
@@ -11,7 +11,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | 3 | periodics | Runs periodic tasks in declared order, filtered by active edge |
 | 4 | eventFlush | Dev invariant checks (NaN guard on curStep; full invariants in M2+) |
 
-## Core Periodics (iter-009 M3 / iter-013 M5-1 – live systems)
+## Core Periodics (iter-009 M3 / iter-013 M5-1 / iter-017 M7a-2 – live systems)
 
 | ID | Edge | Order | SystemFn | Status |
 |----|------|-------|----------|--------|
@@ -41,6 +41,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | localTaxes | 5days | 10 | taxes.local | LIVE (M4a) |
 | food.spoilage | month | 10 | food.spoilage | LIVE |
 | taxes.monthly | month | 20 | taxes.monthly | LIVE (M4a) |
+| world.gatherTributes | month | 25 | world.gatherTributes | LIVE (M7a-2: tribute collection before upkeep, §6.2) |
 | upkeep.military | month | 30 | upkeep.military | LIVE (M4a) |
 | council.closeMonth | month | 40 | council.closeMonth | LIVE (M4a) |
 | season.change | season | 10 | noop | STUB |
@@ -55,12 +56,28 @@ day:        workerEfficiency → meal1 → settlementLevel → worldTick(round-r
             → field → mine → burnWood → [buildings.age]NEW(T1) → [research.daily]NEW(M6)
 10days:     forestRegen
 5days:      localTaxes
-month:      food.spoilage → taxes.monthly → upkeep.military → council.closeMonth
+month:      food.spoilage → taxes.monthly → world.gatherTributes → upkeep.military → council.closeMonth
 season:     noop
 schedule:   one-shot events by deadlineStep (e.g. future: contract.expire)
 event-driven (outside tick): completeBuild/destroyInstance/applyRepair → rebuildBuildingDerived
              → recalcBuildingAggregates → derived.{maxWorkers,storageCapacity,attractiveness}
 ```
+
+## Schedule Handlers (iter-017 M7a-2 – registerWorldEffects)
+
+One-shot schedule entries fired by `engine.schedule` (step ≤ curStep). Registered via `registerWorldEffects` (world.js) + `registerCorePeriodics` (tickOrder.js).
+
+| Schedule ID | Handler fn | Status | Notes |
+|---|---|---|---|
+| world.processFaction | processFaction | LIVE (M7a-2) | AI turn per faction; self-re-arms unconditionally (anti-DR-012-02); period = BALANCE.world.aiTurnPeriod |
+| world.takeOver | takeOver | LIVE (M7a-2) | AI faction takes over a zone after AI-vs-AI battle resolve |
+| world.questExpire | questExpire | LIVE (M7a-2) | Idempotent quest expiration when deadline step reached |
+| startBattle | startBattleStub | STUB (M7b) | AI-vs-player battle trigger; no-op until M7b |
+| AIIsAttacking | AIIsAttackingStub | STUB (M8) | Attack announcement event; no-op until M8 |
+| warningAIAttacking | warningAIAttackingStub | STUB (M8) | Spy warning event; no-op until M8 |
+| dangerAIAttacking | dangerAIAttackingStub | STUB (M8) | Spy danger event; no-op until M8 |
+| loadImportantEvent | loadImportantEventStub | STUB (M8) | Revolt/story event; no-op until M8 |
+| world.gatherTributes | gatherTributes | LIVE (M7a-2) | Also registered as periodic (month, order 25); registered here as fallback |
 
 ## Edge Definitions
 
