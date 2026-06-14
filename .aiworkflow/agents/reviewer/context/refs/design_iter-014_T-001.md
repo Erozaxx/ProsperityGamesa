@@ -9,6 +9,22 @@
 
 ---
 
+## Changelog — Revize T-002a (2026-06-14, reviewer gate GO-s-podmínkami)
+
+Tato revize zapracovává **2 blocker + 1 major** z review `review_design_iter-014_T-002.md` (verdikt GO-s-podmínkami). Ověřeno proti kódu (`main.js`, `load.js`, `market.js`, `scheduler.js`, `schema.js`, `migrations.js`, `createHomeState.js`, `build.js`). Žádný kód, žádná změna architektury / command vrstvy (G-BUILD-TXAUDIT zůstává). Detail jednotlivých nálezů níže v §14 (nová sekce). Zbylé major/minor/nit shrnuty tamtéž.
+
+| ID | Závažnost | Co se mění | Sekce |
+|---|---|---|---|
+| **B1** | blocker | `registerBuild(creg)` + contract commands wired do `bootstrapEngine` — bez něj je build "dark code" (`send('build')` → unknown command) | §6.4, §14.1 |
+| **B2** | blocker | `contract.offer` re-arm po loadu přes `armContractOffer(state)` se `scheduleCountOf` guardem (mirror `marketInit`) — jinak staré savy nikdy negenerují kontrakty | §5.1, §6.4, §14.2 |
+| **M1** | major | Rozhodnutí: **SAVE_VERSION zůstává 3, žádná migrace polí** (undefined-guard); B2 (schedule re-arm) je nutný NEZÁVISLE na migraci polí | §6.2, §14.3 |
+| M2 | major | Init `contractQueue=[]`/`contractSeq=0` v **`createHomeState.js`** (ne createInitialState) | §6.2, §14.4 |
+| M-4/NIT | minor/nit | `firstOfferStep ≥ 1`; `title` neukládat (derivovat ze selektoru); `goodsBuyer` mimo min. generátor; hash fresh-vs-roundtrip; G-CONTRACT-SCHED-CLEANUP backlog | §14.5 |
+
+> **Platný dokument po revizi:** **tento** `design_iter-014_T-001.md` (in-place; nový T-002a soubor se NEvytváří). Sekce §5.1/§6.2/§6.4/§10 níže jsou upravené, §14 je nová a je **závazná** tam, kde se kříží se starším textem (§14 má přednost).
+
+---
+
 ## 0. Shrnutí rozhodnutí (registr)
 
 | # | Rozhodnutí | Sekce | Opora |
@@ -247,7 +263,7 @@ contractOffer(state, params, ctx):
   scheduleInsert(state, nextStep, 'contract.offer', {})
 ```
 
-- **Bootstrap generátoru:** první `contract.offer` se naplánuje v `createInitialState` (po init contractQueue) NEBO v boot. **Rozhodnutí:** naplánovat v `createInitialState.js` přes `scheduleInsert(state, BALANCE.contracts.firstOfferStep, 'contract.offer', {})` — tím je deterministicky v save od začátku (přežije round-trip). Pro load: schedule je v `engine.schedule` (persistován), takže po loadu pokračuje (nepřeplánovat znovu — jinak duplicita; guard `scheduleCountOf(state,'contract.offer')===0` před insertem, scheduler.js:161).
+- **Bootstrap generátoru (REVIDOVÁNO T-002a B2 — viz §14.2):** ~~naplánovat v `createInitialState.js`~~ **NE**. Plánování VÝHRADNĚ přes jednu idempotentní cestu `armContractOffer(state)`, volanou z boot (`main.js`) hned vedle `marketInit` — běží **fresh i po loadu**. Důvod: `applyPayload` (load.js:90) přepíše `engine.schedule` saved heapem → plán z createInitialState by se po loadu zahodil a staré savy by NIKDY negenerovaly kontrakty. `armContractOffer` = mirror `marketInit` vzoru (main.js:180, idempotentní, běží v obou cestách). Guard `scheduleCountOf(state,'contract.offer')===0` zajistí, že fresh save (který offer už MÁ ze předchozího běhu) se NEpřeplánuje 2×. Insert na `Math.max(state.engine.curStep, BALANCE.contracts.firstOfferStep)` (scheduleInsert hází na step < curStep — scheduler.js:75). Plná specifikace §14.2.
 - **Catch-up-safe:** generátor je schedule one-shot re-schedulující se → v catch-up dávce se odpálí přesně tolikrát, kolikrát má (deterministicky dle curStep), žádný per-step polling. Náhoda jen ze `'contracts'` streamu (izolovaná, K16/D4 → přidání kontraktů nerozhodí ostatní RNG systémy).
 
 ### 5.2 `buildContractInstance` — generování cost/reward (supply typ)
@@ -317,8 +333,9 @@ if (payload.home.contractSeq !== undefined)   state.home.contractSeq = payload.h
 
 - **Ukládá se:** `contractQueue` celé (serializovatelné — id/type/status/cost/reward/deadlineStep/title/onComplete/onExpire/onReject jsou plain-data), `contractSeq`.
 - **NEUKLÁDÁ se (derivát):** `canComplete`, `daysLeft`, `pctComplete` (UI počítá v selektoru, §7.2).
-- **Schedule eventy (`contract.expire`, `contract.offer`) se ukládají automaticky** — `engine.schedule` + `scheduleCount` jsou už v persistu (persistSchema.js:62-64, load.js:90-91). **Round-trip:** po loadu schedule heap pokračuje → expirace i generátor přežijí save/load (K17 dedup indexem). **Reviewer gate (round-trip test, povinný):** save uprostřed aktivního kontraktu → load → `contract.expire` se odpálí na původním `deadlineStep` (ne přeplánovaný); contractSeq pokračuje (žádná kolize ID).
-- **Init (`createInitialState.js`):** přidat `home.contractQueue = []`, `home.contractSeq = 0` (vedle `projectQueue`/`projectSeq`). + naplánovat první `contract.offer` (§5.1, guard scheduleCountOf===0).
+- **Schedule eventy (`contract.expire`, `contract.offer`) se ukládají automaticky** — `engine.schedule` + `scheduleCount` jsou už v persistu (persistSchema.js:62-64, load.js:90-91). **Round-trip:** po loadu schedule heap pokračuje → expirace i generátor přežijí save/load (K17 dedup indexem). **POZOR (B2, §14.2):** to platí jen pro savy VYTVOŘENÉ pod M5-2 (které už `contract.offer` v heapu MAJÍ). Staré savy (před M5-2) ho v heapu NEMAJÍ → `applyPayload` přepíše schedule bez offeru → generátor se musí re-armovat zvlášť (§14.2). Expirace tento problém NEMÁ (active kontrakt vzniká až acceptem za běhu M5-2, takže jeho `contract.expire` je vždy v heapu, který se ukládá). **Reviewer gate (round-trip test, povinný):** save uprostřed aktivního kontraktu → load → `contract.expire` se odpálí na původním `deadlineStep` (ne přeplánovaný); contractSeq pokračuje (žádná kolize ID).
+- **Init (REVIDOVÁNO T-002a M2 — §14.4):** `home.contractQueue = []`, `home.contractSeq = 0` patří do **`createHomeState.js`** (vedle `projectQueue`/`projectSeq`/`ownedCompanies`, createHomeState.js:36-49), NE do createInitialState (ten home pole jen deleguje). Plánování prvního `contract.offer` NEpatří do init — řeší ho `armContractOffer` v boot (§5.1, §14.2).
+- **SAVE_VERSION / migrace (REVIDOVÁNO T-002a M1 — §14.3):** `SAVE_VERSION` **zůstává 3, žádná nová migrace polí.** `contractQueue`/`contractSeq` jsou pod `!== undefined` allowlist-guardem (precedent projectQueue load.js:189-196) → starý v3 save se načte korektně, init z createHomeState doplní `[]`/0. Migrace pole NEpokrývá schedule → B2 re-arm je nutný NEZÁVISLE.
 
 ### 6.3 Determinismus / catch-up-safe (M52-D9)
 - **Žádný Date.now:** `contract.id = 'contract_'+(contractSeq++)` (NE `getUniqueContractId` přes Date — orig. nepoužíval Date pro contract, ale pro project ano; M5-2 contractSeq je čistý čítač).
@@ -330,13 +347,18 @@ if (payload.home.contractSeq !== undefined)   state.home.contractSeq = payload.h
 
 **Ověřeno:** `bootstrapEngine` (`main.js:86-103`) **NEvolá `registerEffects(registry)`** — registr efektů je dnes prázdný kromě periodik (registerCorePeriodics registruje system fns + 'noop'). Schedule fáze `runTick` (tickOrder.js:119) resolvuje `entry.id` z `ctx.registry`. Pokud `contract.expire`/`contract.offer` nejsou registrované → `resolve` hodí (registry.js fail-fast) při prvním odpálení.
 
-M5-2 přidá do `bootstrapEngine` (`main.js`):
+M5-2 přidá do `bootstrapEngine` (`main.js`) — VČETNĚ B1 (registerBuild):
 ```
-registerEffects(registry);            // M1 stuby + (M5-2: rozšířit effects.js o contract efekty? viz níže)
-registerContractEffects(registry);    // contract.expire, contract.offer, contract.complete, (noop už je)
-…
-registerContractCommands(creg);       // acceptContract, rejectContract, completeContract
+// --- command registry (creg), uvnitř bootstrapEngine, vedle registerBuyCompany (main.js:99) ---
+registerBuild(creg);                  // B1 (§14.1) — DNES CHYBÍ; bez něj send('build') = unknown command
+registerContractCommands(creg);       // acceptContract, rejectContract, completeContract (§6.1)
+
+// --- effect registry (registry), uvnitř bootstrapEngine, vedle registerCorePeriodics (main.js:88) ---
+registerContractEffects(registry);    // contract.expire, contract.offer (noop už je z tickOrder.js:146)
+// registerEffects(registry) — VYNECHAT pro min. sadu (MINOR-3, §14.5): M1 stuby s console.log nejsou potřeba
 ```
+- **B1 (registerBuild):** import `registerBuild` z `commands/build.js` (export build.js:147, dnes nikde nevolán) do main.js a zaregistrovat v `bootstrapEngine`. `bootstrapEngine` je volán fresh i po loadu → build dostupný v obou cestách. Plná specifikace §14.1.
+- **B2 (armContractOffer):** re-arm generátoru NEpatří do `bootstrapEngine` (ta nemá `state` — staví jen registry/creg), ale do `bootSequence` **PO** sestavení state, vedle `marketInit(state, …)` (main.js:180). Plná specifikace §14.2.
 - **Kam contract efekty:** doporučení — `contract.expire`/`contract.offer` registrovat z `contracts.js` (`registerContractEffects`), protože jsou to **systémové schedule handlery** (potřebují ctx). `effects.js` (registr datových efektů onBuild/onUnlock) zůstává pro K14 obsahové efekty; `contract.complete` jako datový efekt smí být i v effects.js, ale completion běží primárně přes command (§6.1). **Min. wiring:** `registerContractEffects(registry)` registruje `contract.expire` + `contract.offer`; to stačí pro funkčnost (expirace + generování). `noop` už registrován (tickOrder.js:146).
 - **Reviewer gate:** negativní test — `contract.offer`/`contract.expire` odpálené ze schedule se resolvnou bez throw (registr je naplněn v boot). Bootstrap je volán i po loadu (main.js: registry není v save, znovu se staví) → handlery dostupné po loadu i pro fresh.
 
@@ -472,7 +494,7 @@ event-driven (mimo tick, přes commands):
 |---|---|---|
 | M52-R1 | `registerEffects`/contract handlery nezavedené v boot → schedule resolve fail-fast (`contract.offer`/`expire` throw) | M52-D8 §6.4: `registerContractEffects(registry)` v `bootstrapEngine` (volán fresh i po loadu); negativní test "schedule contract.* resolvne bez throw" |
 | M52-R2 | Expirace na již dořešený kontrakt (completed/rejected) double-effect | `contract.expire` guard `status==='active'` (idempotentní no-op); §4.1; volitelný scheduleCancel §4.4; round-trip/idempotence test |
-| M52-R3 | Generátor po loadu naplánovaný 2× (duplicitní contract.offer) | guard `scheduleCountOf(state,'contract.offer')===0` před init insertem (§5.1, §6.2 init); schedule je v save → po loadu se NEpřeplánuje |
+| M52-R3 | Generátor: (a) po loadu naplánovaný 2× (duplicita) NEBO (b) staré savy ho nikdy nenaplánují | **B2 (§14.2):** jedna idempotentní cesta `armContractOffer(state)` v boot (fresh i po loadu, mirror marketInit) + guard `scheduleCountOf('contract.offer')===0`. (a) fresh save offer už MÁ → guard přeskočí; (b) starý save offer NEMÁ → guard naplánuje. Deterministické, idempotentní. |
 | M52-R4 | Nový rng stream `'contracts'` změní hash existujících saveů / determinismus | stream přidán na KONEC `STREAM_NAMES` (rng.js:9); seeduje se až initRng nové hry; staré savy bez streamu → makeRng default 0 deterministicky; reviewer hash test §6.3 |
 | M52-R5 | Command nemá ctx/registry → nelze resolvovat onComplete přes registry | completion běží přes exportovanou `applyContractComplete` (import, ne runtime registry); §6.1 — žádná změna command vrstvy |
 | M52-R6 | Contract pay/grant bez ctx → emitTx audit chybí (kontrakt se neobjeví v měsíčním reportu) | G-BUILD-TXAUDIT (stejné jako M5-1 build/buyCompany); gold/goods se mění správně; audit dořeší M9; není blocker §4.3 |
@@ -530,6 +552,118 @@ event-driven (mimo tick, přes commands):
 
 **A3 — Plný katalog všech 8 originálních contract typů.**
 - *Zamítnuto:* `marbleSeller`/`mercenaryForHire`/`mineBuilder`/`houseBuilder`/`ximniTrader` závisí na M6 (granite/marble techy, importantEvent) / M7 (military zones, AI) systémech, které M5-2 nemá. Min. hratelná sada (goodsSeller supply + goodsBuyer demand) pokrývá briefem požadovaný "dodávkový kontrakt → odměna, oceňování getGoldValue". Zbytek = gap G-CONTRACTS-CATALOG (informativní, Q3/DR-001), doplní se s M6/M7. **Zvolena min. sada** (M52-D1/§3.2).
+
+---
+
+## 14. Revize T-002a — B1 / B2 / M1 (závazná; má přednost před starším textem)
+
+> Tato sekce je **závazný** výstup revize reviewer gate (T-002, GO-s-podmínkami). Kde se kříží se starším textem §1–§13, **platí §14.** Vše ověřeno proti reálnému kódu (`main.js`, `load.js`, `market.js`, `scheduler.js`, `schema.js`, `migrations.js`, `build.js`, `engine/index.js`) — citace ř. NNNN odpovídají stavu repo k 2026-06-14. Žádný produkční kód v tomto dokumentu; jen přesné předpisy pro codera (Sonnet).
+
+### 14.1 B1 (blocker) — `registerBuild(creg)` + contract commands wired do `bootstrapEngine`
+
+**Problém (ověřeno proti kódu):** `bootstrapEngine` (`main.js:86–103`) registruje do command registru `creg`: `setSpeed`, `assignJob`, `startSkill`, `setTaxRate`, `buyGoods`, `sellGoods`, `sendCaravan`, `buyCompany` — ale **NE `registerBuild`**. `registerBuild` existuje (`build.js:147`), ale v `main.js` **není ani importován, ani volán** (grep potvrzen: jen def+export, žádný call-site). Build z M5-1 je tedy **dark code**: T6 `BuildScreen` volá `send('build',{itemId})` (§7.3), `dispatch` (`dispatch.js`) nezná command → vrátí `{ok:false, error:'unknown command: build'}` → tlačítko "Postavit" nic neudělá.
+
+**Předpis (PŘESNÁ MÍSTA):**
+
+1. **Import** v `main.js` (vedle ostatních command importů, v bloku `main.js:16–23`):
+   ```
+   import { registerBuild } from '../core/commands/build.js';
+   import { registerContractCommands } from '../core/commands/contracts.js';   // nový modul (§6.1)
+   ```
+2. **Registrace** uvnitř `bootstrapEngine`, v command-registry bloku **hned za `registerBuyCompany(creg)` (`main.js:99`)**:
+   ```
+   registerBuyCompany(creg);            // existující (main.js:99)
+   registerBuild(creg);                 // B1 — DNES CHYBÍ; bez něj send('build') = unknown command
+   registerContractCommands(creg);      // M5-2 — acceptContract / rejectContract / completeContract (§6.1)
+   ```
+3. **Effect-registry** uvnitř `bootstrapEngine`, v registry bloku **za `registerCorePeriodics(registry)` (`main.js:88`)**:
+   ```
+   const periodics = registerCorePeriodics(registry);   // existující (main.js:88)
+   registerContractEffects(registry);   // M5-2 — 'contract.offer' + 'contract.expire' (§4.1, §6.4)
+   ```
+   (`registerEffects(registry)` se **NEpřidává** — MINOR-3/§14.5: M1 stuby s `console.log` nejsou pro min. sadu potřeba; menší povrch.)
+
+**Proč to stačí a je bezpečné (ověřeno):**
+- `bootstrapEngine` je volán **fresh i po loadu** (`main.js:172`, registry NENÍ součást save) → build i contract commandy dostupné v obou cestách.
+- `registerBuild`/`registerContractCommands` registrují **nová** command-ID → žádná kolize s existujícími (`registerCommand` hází jen na ID-kolizi s jinou fn). Contract effect-ID (`contract.offer`/`contract.expire`) jsou nové; `noop` už registrován (`tickOrder.js:146`), takže `onExpire/onReject={effect:'noop'}` se resolvne.
+
+**AC / reviewer gate:** po boot `send('build',{itemId:'<validní>'})` vrátí `{ok:true}` (ne `unknown command`); `send('acceptContract',…)` taktéž resolvuje. Negativní test: schedule `contract.offer`/`contract.expire` odpálené z `runTick` phase 2 se resolvnou bez throw (registr naplněn v boot, fresh i po loadu).
+
+### 14.2 B2 (blocker) — `contract.offer` re-arm pro existující savy (`armContractOffer`)
+
+**Problém (ověřeno proti kódu):** `loadAndReconstruct` (`load.js:239`) staví fresh state přes `createInitialState` (Step 3, ř.255), ale **`applyPayload` (Step 4) přepíše `state.engine.schedule = payload.engine.schedule ?? []` (`load.js:90`) celým saved heapem** + `scheduleCount` (ř.91). → jakýkoli `contract.offer` naplánovaný při init je **zahozen** a nahrazen saved heapem. **Starý save (vytvořený před M5-2)** v saved heapu `contract.offer` **NEMÁ** → po loadu žádný generátor → kontrakty se pro existující hru NIKDY nenabídnou. (Fresh hra problém nemá; expirace problém nemá — `contract.expire` aktivního kontraktu vzniká až acceptem za běhu M5-2, takže je v heapu, který se ukládá.)
+
+**Rozhodnutí — JEDNA idempotentní cesta `armContractOffer(state)` (mirror `marketInit`):**
+Plánování `contract.offer` patří **VÝHRADNĚ** do `armContractOffer(state)`, NE do `createInitialState`/`createHomeState`. (DRY — analogie M5-1 M-2 "žádná load-only větev"; jediná cesta běží fresh i po loadu, nelze rozsynchronizovat.)
+
+```
+// systems/contracts.js — DESIGN, ne kód
+armContractOffer(state):
+  if (scheduleCountOf(state, 'contract.offer') === 0):                     // guard (scheduler.js:161)
+      const step = Math.max(state.engine.curStep, BALANCE.contracts.firstOfferStep)
+      scheduleInsert(state, step, 'contract.offer', {})                    // scheduler.js:74
+```
+
+**PŘESNÉ MÍSTO volání — `bootSequence` v `main.js`, hned za `marketInit(state, …)` (`main.js:180`):**
+```
+marketInit(state, /* goods */ …);          // existující (main.js:180) — idempotentní, fresh i po loadu
+armContractOffer(state);                    // B2 — re-arm generátoru; idempotentní, fresh i po loadu
+```
+- **NEpatří do `bootstrapEngine`** — ta nemá `state` (staví jen registry/creg). Patří do `bootSequence` **PO** sestavení/loadu state, přesně vedle `marketInit` (které už dnes tento "fresh i po loadu" vzor splňuje, main.js:178–180 komentář to potvrzuje). Import: `import { armContractOffer } from '../core/systems/contracts.js';` + `scheduleInsert`/`scheduleCountOf` jsou re-exportovány z `../core/engine/index.js` (ověřeno: `engine/index.js:6`).
+
+**Proč je guard deterministický a idempotentní (ověřeno):**
+- **Idempotentní:** `armContractOffer` je čistá fn nad `state`; `scheduleCountOf('contract.offer')` je přesný počet plánovaných offerů v heapu (udržován `scheduleInsert`/`popMin`/`scheduleCancel`, scheduler.js:82/138/162). Druhé (i n-té) volání ve stejném boot → count už `≥1` → **no-op**. Tj. lze volat opakovaně bez duplicit.
+- **Deterministický:** žádný RNG, žádný Date/now uvnitř `armContractOffer` (jitter periody se losuje až UVNITŘ `contract.offer` handleru ze streamu `'contracts'`, §5.1 — ne při armování). `step = max(curStep, firstOfferStep)` je čistá fce herního času → identický pro identický state.
+- **Pokrývá obě třídy savů jednou cestou:**
+  - **fresh hra:** `curStep=0`, heap nemá offer → guard 0 → naplánuje na `max(0, firstOfferStep)`.
+  - **save VYTVOŘENÝ pod M5-2:** saved heap offer UŽ MÁ (uložil se) → `applyPayload` ho obnoví → guard `≥1` → **přeskočí** (žádný 2× offer, žádné přeplánování na jiný step).
+  - **starý save (před M5-2):** saved heap offer NEMÁ → po `applyPayload` guard 0 → naplánuje na `max(curStep, firstOfferStep)` (typicky `curStep`, protože hra je dál) → existující hra začne generovat kontrakty od dalšího kroku.
+- **`scheduleInsert` guard na minulost:** `scheduleInsert` hází pro `step < curStep` (scheduler.js:75). `Math.max(curStep, firstOfferStep)` to **eliminuje** (step ≥ curStep vždy). Proto je `max(...)` v předpisu povinný, ne kosmetický.
+
+**AC / reviewer gate:**
+1. Starý save (bez `contract.offer` v heapu) → load → `scheduleCountOf('contract.offer')===1` po `armContractOffer`; do `offerPeriodDays` se objeví `offered` kontrakt.
+2. M5-2 save (s offerem v heapu) → load → `armContractOffer` **NEpřidá druhý** (count zůstane 1; offer se odpálí na svém původně naplánovaném kroku, ne přeplánovaný).
+3. Dvojí volání `armContractOffer` v jednom boot → count se nezvýší nad 1 (idempotence).
+
+### 14.3 M1 (major) — SAVE_VERSION / migrace: ROZHODNUTÍ
+
+**Rozhodnutí: `SAVE_VERSION` zůstává `3` (`schema.js:14`). ŽÁDNÝ bump, ŽÁDNÁ nová migrace polí.**
+
+**Odůvodnění (ověřeno proti kódu):**
+- Nová pole `home.contractQueue`/`home.contractSeq` se v `applyPayload` (`load.js`) i `applyPersist` (`persistSchema.js`) řeší pod **`!== undefined` allowlist-guardem** — **přesný precedent**: `projectQueue` (`load.js:189`), `projectSeq` (`load.js:194`), `ownedCompanies` (`load.js:199`). Starý **v3** save tato pole nemá → guard je přeskočí → init z `createHomeState` doplní `[]`/`0` (§14.4). Round-trip starého v3 save zůstává validní (žádná verze-mismatch v `validateEnvelope`, `load.js:21`).
+- Bump na v4 by byl **kontraproduktivní**: `validateEnvelope` hází na `saveVersion !== SAVE_VERSION` (`load.js:22`), takže bump by VYNUTIL napsat v3→v4 migraci jen pro doplnění polí, která allowlist-guard už pokrývá zadarmo. Migrace v `migrations.js` se přidává jen když se mění **tvar/sémantika** existujícího pole — což M5-2 nedělá (jen přidává nová pole).
+
+**KRITICKÉ provázání s B2 (zdůrazněno dle briefu):** **Migrace polí by B2 NEVYŘEŠILA — a B2 je nutný NEZÁVISLE.** Důvody:
+- Chybějící generátor je v `state.engine.schedule` (doména `engine`), NE v `state.home`. I kdyby existovala v3→v4 migrace doplňující `contractQueue`/`contractSeq`, schedule heap by stále neobsahoval `contract.offer` (migrace se týká `payload`, ne re-armu heapu).
+- Proto re-arm (§14.2) řeší **schedule**, undefined-guard (§14.3/§14.4) řeší **pole** — dvě ortogonální cesty, obě nutné, ani jedna nenahrazuje druhou.
+- (Teoretická alternativa "migrace v3→v4 doplní `contract.offer` přímo do `payload.engine.schedule`" je **zamítnuta**: dražší — bump verze, dotek `migrations.js`, nutnost reprodukovat scheduler `seq`/heap invariant v migraci — vs. jedno idempotentní `armContractOffer` v boot, které navíc sjednocuje fresh+load cestu. §14.2 je robustnější a levnější.)
+
+**Podmínka rozhodnutí (escape hatch):** Pokud by coder z JINÉHO důvodu musel bumpnout `SAVE_VERSION` (nesouvisí s M5-2 poli), pak přidá v3→v4 **no-op** migrační krok (`migrations.js` vzor `from:3,to:4`, jen `p.meta.saveVersion=4`) — pole zůstávají pod undefined-guardem i tak. Default M5-2: **nebumpovat**.
+
+### 14.4 M2 (major) — init `contractQueue=[]` / `contractSeq=0` v `createHomeState.js`
+
+**Upřesnění cesty:** init nových polí patří do **`createHomeState.js`** (vedle `projectQueue=[]`/`projectSeq=0`/`ownedCompanies={}`), NE do `createInitialState.js` (ten home pole jen deleguje na `createHomeState`). Bez factory-initu by fresh hra měla `contractQueue===undefined` → generátor `push` hodí, selektor `selectContracts` (Object iterace) hodí. `applyPersist`/`applyPayload` bloky zůstávají jak v §6.2 (analogicky `projectQueue`); `PERSIST_SCHEMA.home` pole se **nerozšiřuje** (precedent: `projectQueue` tam taky není, řeší se ad-hoc `if (… !== undefined)` blokem).
+
+### 14.5 Zbylé minor/nit — rozhodnutí
+
+| ID | Nález | Rozhodnutí M5-2 |
+|---|---|---|
+| MINOR-3 | `registerEffects` (M1 stuby s `console.log`) v boot | **NEpřidávat.** Jen `registerContractEffects` (offer/expire). Menší povrch, žádné stub `console.log` v prod běhu. (§14.1 krok 3.) |
+| MINOR-4 / R7 | `firstOfferStep` nekonzistence (§5.3 dává 0, §10 R7 dává ≥1) | **Sjednoceno: `BALANCE.contracts.firstOfferStep = 1`** (≥1 quarterDay). Garantuje, že generátor (volá `getGoldValue`) se odpálí AŽ po `marketInit` (main.js:180 < první offer). §5.3 tabulku ber jako `firstOfferStep:1`. |
+| MINOR-1 | `contractSeq` round-trip / kolize ID | Pokryto M2 (seq v home allowlistu, přežije load). Test T5.6: po loadu save s `contractSeq=N` → další offer dostane `contract_N` (ne `contract_0`). |
+| MINOR-2 | osiřelý `contract.expire` v heapu (heap-growth) | Default **ponechat** (idempotentní no-op, guard `status==='active'`). Backlog **G-CONTRACT-SCHED-CLEANUP** (volitelný `scheduleCancel`, scheduler.js:131) pro M9. Není blocker. |
+| NIT-1 | hashState: fresh vs round-trip | **fresh hash SE mění** (nová pole `contractQueue=[]`/`contractSeq=0` + lazy stream `'contracts'`) → referenční fresh hash přegenerovat (NE regrese). **round-trip hash starého save stabilní** (save→load→save = totéž). Doplněno do §6.3 ducha. |
+| NIT-2 | `title` ukládán v save (UI text v core) | **Doporučení: NEukládat `title`** — derivovat v `selectContracts` přes `byId(type).entry.title` (§7.2). `cost`/`reward` se ukládají (dynamické), `title` je statický z katalogu. Snižuje UI-text v save. (Volitelné; pokud coder ponechá title v queue, je to plain-string-safe — ne blocker.) |
+| NIT-3 | `goodsBuyer` "dark" katalog (v katalogu, generátor jen 'supply') | Min. sada: buď generovat i `kind:'demand'` (goodsBuyer), NEBO goodsBuyer označit `provenance:'approximated'` + `m6plus:true` a nedávat do min. generátoru. Default: ponechat goodsSeller (supply) jako jediný generovaný; goodsBuyer = volitelné rozšíření téže iterace. |
+
+### 14.6 Souhrn AC revize T-002a
+
+| AC (brief) | Splnění |
+|---|---|
+| B1 vyřešen, přesná místa | §14.1 — import + `registerBuild(creg)` + `registerContractCommands(creg)` za `main.js:99`; `registerContractEffects(registry)` za `main.js:88`. |
+| B2 vyřešen, přesná místa | §14.2 — `armContractOffer(state)` za `marketInit` (`main.js:180`) v `bootSequence`; guard `scheduleCountOf('contract.offer')===0`. |
+| Re-arm deterministický + idempotentní | §14.2 — bez RNG/Date; `scheduleCountOf` guard → druhé volání no-op; `max(curStep,firstOfferStep)` zabrání throw na minulost; pokrývá fresh + M5-2 save + starý save jednou cestou. |
+| Jasné rozhodnutí SAVE_VERSION | §14.3 — **zůstává 3, žádná migrace polí** (undefined-guard, precedent projectQueue); B2 nutný NEZÁVISLE (schedule ≠ home pole). |
 
 ---
 
