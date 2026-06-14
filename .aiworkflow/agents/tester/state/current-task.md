@@ -1,14 +1,14 @@
 # Current Task
 
-- **Task ID**: T-006
-- **Brief**: BRIEF-014-006
-- **Iteration**: iter-014
+- **Task ID**: T-008
+- **Brief**: BRIEF-015-008
+- **Iteration**: iter-015
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Dokončeno. Nezávislá QA M5-2 (kontrakty K14 + build UI) + DoD M5 celkově.
+Dokončeno. Nezávislá QA M6 (tech strom + tech modifikátory + academy/research + UI) + DoD M6 (K13 plně).
 Verdikt **GO** — všech 9 AC empiricky ověřeno vlastním během.
 
 ## Předpoklady
