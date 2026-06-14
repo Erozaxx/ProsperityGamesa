@@ -38,13 +38,20 @@ export function applyPersist(state) {
   const payload = {};
 
   // Infrastructure fields - always save entirely
-  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'catalogState', 'story']) {
+  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'story']) {
     if (/** @type {Record<string, unknown>} */ (state)[key] !== undefined) {
       payload[key] = /** @type {Record<string, unknown>} */ (state)[key];
     }
   }
 
   const s = /** @type {Record<string, any>} */ (state);
+
+  // catalogState: save ONLY modifiers (never _effCache / _modVersion — those are derived).
+  // Design §4.2/§4.5/T4.6 invariant 1: "Save = JEN catalogState.modifiers".
+  // _effCache and _modVersion are rebuilt lazily on load via rebuildBuildingDerived (load Step 5).
+  if (s.catalogState) {
+    payload.catalogState = { modifiers: s.catalogState.modifiers ?? [] };
+  }
 
   // Engine - save specific fields only
   if (s.engine) {

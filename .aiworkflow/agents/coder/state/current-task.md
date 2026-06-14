@@ -1,7 +1,7 @@
 # Current Task
 
-- **Task ID**: T-006 (iter-013 M5-1 T3: builder companies — katalog + logika výběru/kapacit)
-- **Brief**: brief_coder_T-006_iter-013.md
+- **Task ID**: T-007 (iter-013 M5-1 T4: modifier vrstva K13 — full implementation)
+- **Brief**: brief_coder_T-007_iter-013.md
 - **Iteration**: iter-013
 - **Status**: done
 - **Started**: 2026-06-14

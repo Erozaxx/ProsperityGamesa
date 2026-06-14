@@ -160,3 +160,38 @@ export function companyBuildersTotal(state) {
   }
   return total;
 }
+
+/**
+ * Get the total extra mason capacity (maxActiveProjects bonus) from all owned companies.
+ * masonProvided per company → adds to maxActiveProjects in buildersProcess (G-BUILDER-MASON, T4.5).
+ * Called by buildersProcess to supplement builderHut-derived maxActiveProjects.
+ *
+ * Design §3.2: masonProvided from companies = additional active build slots.
+ * provenance: approximated, gap G-BUILDER-MASON (masonProvided not in original extract).
+ *
+ * @param {GameState} state
+ * @returns {number} total extra maxActiveProjects from owned companies
+ */
+export function companyMasonTotal(state) {
+  const ownedCompanies = /** @type {Record<string, boolean>} */ (
+    /** @type {any} */ (state.home).ownedCompanies ?? {}
+  );
+  const ownedIds = Object.keys(ownedCompanies).filter((id) => ownedCompanies[id]);
+  if (ownedIds.length === 0) return 0;
+
+  if (!hasCatalog('companies')) return 0;
+  const cat = /** @type {Record<string, any>} */ (getCatalog('companies'));
+  const data = /** @type {Record<string, any[]>} */ (cat.companies ?? cat);
+
+  let total = 0;
+  for (const items of Object.values(data)) {
+    if (!Array.isArray(items)) continue;
+    for (const entry of items) {
+      if (ownedIds.includes(entry.id)) {
+        const mp = typeof entry.masonProvided === 'number' ? entry.masonProvided : 0;
+        total += mp;
+      }
+    }
+  }
+  return total;
+}

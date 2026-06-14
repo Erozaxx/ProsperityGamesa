@@ -29,7 +29,12 @@ export function housingSettlementLevel(state, _params, _ctx) {
   }
 
   const counts = state.home.housing.counts || {};
-  const { attractiveness } = calcHousingDerivedFromCatalog(houseTypes, counts);
+  const { attractiveness: housingAttractiveness } = calcHousingDerivedFromCatalog(houseTypes, counts);
+
+  // T4.5 (iter-013 M5-1): add building attractiveness from derived aggregate (§4.4).
+  // derived.attractiveness = Σ effective(buildingId,'attractiveness',state) across built buildings.
+  const buildingAttractiveness = /** @type {any} */ (state.home).derived?.attractiveness ?? 0;
+  const attractiveness = housingAttractiveness + buildingAttractiveness;
 
   state.home.settlementLevel = settlementLevel(
     state.home.population.total,

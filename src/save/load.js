@@ -65,8 +65,22 @@ function validateInvariants(state) {
  * @param {Record<string, any>} payload
  */
 function applyPayload(state, payload) {
-  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'catalogState', 'story']) {
+  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'story']) {
     if (payload[key] !== undefined) state[key] = payload[key];
+  }
+
+  // catalogState: deep-clone to avoid reference aliasing.
+  // If we assign state.catalogState = payload.catalogState directly, then
+  // rebuildBuildingDerived (Step 5) mutates state.catalogState by adding _effCache/_modVersion,
+  // which would also mutate the caller's payload object (same reference) → round-trip test breaks.
+  // By cloning, state.catalogState is independent: mutations stay in state, not in payload.
+  // Only modifiers are saved (applyPersist strips _effCache/_modVersion), so only clone modifiers.
+  if (payload.catalogState !== undefined) {
+    state.catalogState = {
+      modifiers: Array.isArray(payload.catalogState.modifiers)
+        ? payload.catalogState.modifiers.slice()
+        : [],
+    };
   }
 
   if (payload.engine) {

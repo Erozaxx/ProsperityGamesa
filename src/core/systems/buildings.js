@@ -1,16 +1,17 @@
 /**
  * Buildings system: ageBuildings (daily wear), repair enqueueing, rebuildBuildingDerived,
  * buildersProcess (quarterDay builder advancement), completeBuild, applyRepair.
- * iter-013 M5-1 T1+T2.
+ * iter-013 M5-1 T1+T2+T4.
  *
- * Design source: design_iter-013_T-001.md §1, §2, §4.6, §4.7 (M-2).
+ * Design source: design_iter-013_T-001.md §1, §2, §4.1–4.7 (M-1/M-2/M-3).
  *
  * Key invariants:
  *   - state.home.buildings[id].created === state.home.buildings[id].instances.length
  *   - rebuildBuildingDerived is the ONLY derivation path (called from load Step 5 AND mutations)
  *   - No Date.now / Math.random in core; RNG via rng.stream('buildings')
- *   - Modifier/aggregate parts (T4) are stubbed as TODO placeholders here
- *   - buildersProcess: deterministic, catch-up-safe (no RNG), quarterDay cadence
+ *   - effective() uses deterministc sort by (source,id) before fold (M-3)
+ *   - Save = ONLY catalogState.modifiers; home.derived/_effCache/_modVersion are NOT persisted
+ *   - ONE canonical aggregates path: Σ effective(id, attr) — multiplicty baked into modifier.value
  */
 
 /**
@@ -23,7 +24,8 @@ import { makeRng } from '../engine/rng.js';
 import { getGoldValue } from './market.js';
 import { byId, hasId } from '../catalog/loader.js';
 import { canAfford, pay } from '../resources/transactions.js';
-import { companyBuildersTotal } from '../commands/buyCompany.js';
+import { companyBuildersTotal, companyMasonTotal } from '../commands/buyCompany.js';
+import { deriveWorkforceTotal } from './jobs.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -32,14 +34,201 @@ import { companyBuildersTotal } from '../commands/buyCompany.js';
 const BAL = /** @type {any} */ (BALANCE).buildings;
 
 // ---------------------------------------------------------------------------
-// effectFromCatalog — read scalar effect values directly from effects[] (T2 helper)
+// T4.1 — effective(itemId, attr, state) + fold with deterministic sort (M-3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Comparator for deterministic modifier sort.
+ * Sort by (source, id) lexicographically — M-3, §4.1 design.
+ * This ensures fold results are independent of insertion order.
+ * @param {any} a
+ * @param {any} b
+ * @returns {number}
+ */
+function cmpModifier(a, b) {
+  if (a.source !== b.source) return a.source < b.source ? -1 : 1;
+  if (a.id !== b.id) return a.id < b.id ? -1 : 1;
+  return 0;
+}
+
+/**
+ * Fold a set of modifiers onto a base value.
+ * Operation order: add → mul → set.
+ * Deterministc sort applied BEFORE fold (M-3): sort by (source, id) so that
+ * 'set' picks the last modifier by that order, NOT by insertion order.
+ *
+ * @param {number} base
+ * @param {any[]} mods
+ * @returns {number}
+ */
+function fold(base, mods) {
+  if (!mods.length) return base;
+
+  // M-3: deterministic sort before fold — result independent of insertion order
+  const sorted = mods.slice().sort(cmpModifier);
+
+  // Step 1: add
+  let result = base;
+  for (const m of sorted) {
+    if (m.op === 'add') result += m.value;
+  }
+
+  // Step 2: mul (each multiplier applied in sorted order)
+  for (const m of sorted) {
+    if (m.op === 'mul') result *= m.value;
+  }
+
+  // Step 3: set — last after sort wins (M-3)
+  for (const m of sorted) {
+    if (m.op === 'set') result = m.value;
+  }
+
+  return result;
+}
+
+/**
+ * Get the base attribute value for a building from the catalog.
+ * Supports dot-path for map attributes (e.g. 'baseCost.wood').
+ * @param {string} itemId
+ * @param {string} attr
+ * @returns {any}
+ */
+function baseAttr(itemId, attr) {
+  if (!hasId(itemId)) return 0;
+  const entry = /** @type {Record<string, any>} */ (byId(itemId).entry);
+  const parts = attr.split('.');
+  let val = /** @type {any} */ (entry);
+  for (const p of parts) {
+    if (val == null || typeof val !== 'object') return 0;
+    val = val[p];
+  }
+  return val !== undefined ? val : 0;
+}
+
+/**
+ * Effective attribute value for a building item (with modifier fold).
+ * T4.1: Full modifier fold (add→mul→set, deterministc sort by (source,id), memoized).
+ *
+ * For map attributes without dot-path (e.g. 'baseCost'), returns a reconstructed map:
+ *   { k: effective(id, 'baseCost.k', state) } for each key in the base map.
+ *
+ * @param {string} itemId
+ * @param {string} attr
+ * @param {GameState} state
+ * @returns {number | Record<string, number>}
+ */
+export function effective(itemId, attr, state) {
+  const base = baseAttr(itemId, attr);
+
+  // Map attribute (no dot-path) → reconstruct map via dot-path per key
+  if (typeof base === 'object' && base !== null) {
+    /** @type {Record<string, number>} */
+    const result = {};
+    for (const k of Object.keys(base)) {
+      result[k] = /** @type {number} */ (effective(itemId, `${attr}.${k}`, state));
+    }
+    return result;
+  }
+
+  const numBase = typeof base === 'number' ? base : 0;
+
+  // T4.2: memoization cache (plain object, JSON-serializable)
+  const cs = /** @type {any} */ (state.catalogState);
+
+  // Ensure cache is initialized (lazy: first call after load/invalidate re-initializes)
+  ensureCache(cs);
+
+  const cacheKey = `${itemId}:${attr}`;
+  const cached = cs._effCache.map[cacheKey];
+  if (cached !== undefined) return cached;
+
+  // Filter relevant modifiers
+  const mods = /** @type {any[]} */ (cs.modifiers).filter(
+    (m) => m.target === itemId && m.attr === attr
+  );
+
+  const result = fold(numBase, mods);
+
+  // Store in cache
+  cs._effCache.map[cacheKey] = result;
+
+  return result;
+}
+
+/**
+ * Get effective map attribute (e.g. baseCost) as a full Record.
+ * For each key in the base map, calls effective(id, 'attr.key', state).
+ * @param {string} buildingId
+ * @param {string} attr
+ * @param {GameState} state
+ * @returns {Record<string, number>}
+ */
+export function effectiveMap(buildingId, attr, state) {
+  const base = baseAttr(buildingId, attr);
+  if (typeof base !== 'object' || base === null) return {};
+  /** @type {Record<string, number>} */
+  const result = {};
+  for (const k of Object.keys(base)) {
+    result[k] = /** @type {number} */ (effective(buildingId, `${attr}.${k}`, state));
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// T4.2 — Memoization + invalidation
+// ---------------------------------------------------------------------------
+
+/**
+ * Bump the modifier version to invalidate the effective() cache.
+ * Called every time catalogState.modifiers changes.
+ * _modVersion and _effCache are NOT persisted (underscore prefix, not in allowlist).
+ *
+ * Note: _effCache.map uses a plain object (not Map) for JSON-serializability.
+ * JSON.stringify includes _effCache/{_modVersion in hashState — both paths must agree.
+ * @param {GameState} state
+ */
+export function invalidateModifiers(state) {
+  const cs = /** @type {any} */ (state.catalogState);
+  // Initialize _modVersion if not present
+  if (typeof cs._modVersion !== 'number') {
+    cs._modVersion = 0;
+  }
+  cs._modVersion += 1;
+
+  // Rebuild cache: plain object for JSON-serializability (not Map — Maps serialize as {})
+  // Using plain object for map: cacheKey → value
+  cs._effCache = {
+    version: cs._modVersion,
+    /** @type {Record<string, number>} */
+    map: /** @type {Record<string, number>} */ ({}),
+  };
+}
+
+/**
+ * Ensure cache is initialized and valid. Called at the start of effective().
+ * If version mismatch, resets the cache.
+ * @param {any} cs - catalogState
+ */
+function ensureCache(cs) {
+  if (typeof cs._modVersion !== 'number') {
+    cs._modVersion = 0;
+  }
+  if (!cs._effCache || cs._effCache.version !== cs._modVersion) {
+    cs._effCache = {
+      version: cs._modVersion,
+      map: /** @type {Record<string, number>} */ ({}),
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// effectFromCatalog — read scalar effect values directly from effects[] (T2 helper, still used by buildersProcess)
 // ---------------------------------------------------------------------------
 
 /**
  * Read the sum of all 'add' effect values for the given attr from the building's effects array.
- * This is a T2 workaround: for T4, effective() will fold modifiers instead.
- * Used for attrs that live ONLY in building.effects (not as top-level entry fields), e.g.
- * 'maxProjectQueue' and 'maxActiveProjects' on builderHut.
+ * This is a T2 helper still used by buildersProcess for maxProjectQueue (which is not aggregated
+ * in home.derived). For T4 modifier-fold use effective() instead.
  *
  * @param {string} buildingId
  * @param {string} attr
@@ -59,94 +248,107 @@ export function effectFromCatalog(buildingId, attr) {
 }
 
 // ---------------------------------------------------------------------------
-// Modifier helpers (T4 placeholder)
+// T4.3 — addBuildingModifiers / removeBuildingModifiers (effects → modifier mapping)
 // ---------------------------------------------------------------------------
 
 /**
- * Get the base attribute value for a building from the catalog.
- * Supports dot-path for map attributes (e.g. 'baseCost.wood').
- * @param {string} buildingId
- * @param {string} attr
- * @returns {number | Record<string, number>}
+ * Normalize building.effects to canonical atom array.
+ * Supports:
+ *   - Array form: [{ attr, op, value }, ...]  (canonical)
+ *   - Object form: { workers: 5, attractiveness: 3 }  (legacy → default op='add')
+ *
+ * @param {any} effects
+ * @returns {Array<{attr:string, op:'add'|'mul'|'set', value:number}>}
  */
-function baseAttr(buildingId, attr) {
-  if (!hasId(buildingId)) return 0;
-  const entry = /** @type {Record<string, any>} */ (byId(buildingId).entry);
-  const parts = attr.split('.');
-  let val = /** @type {any} */ (entry);
-  for (const p of parts) {
-    if (val == null || typeof val !== 'object') return 0;
-    val = val[p];
+function normalizeEffects(effects) {
+  if (!effects) return [];
+  if (Array.isArray(effects)) {
+    return effects
+      .filter((e) => e && typeof e.attr === 'string')
+      .map((e) => ({
+        attr: e.attr,
+        op: e.op === 'mul' ? 'mul' : e.op === 'set' ? 'set' : 'add',
+        value: typeof e.value === 'number' ? e.value : 0,
+      }));
   }
-  return val !== undefined ? val : 0;
+  if (typeof effects === 'object') {
+    return Object.entries(effects).map(([attr, val]) => ({
+      attr,
+      op: /** @type {'add'} */ ('add'),
+      value: typeof val === 'number' ? val : 0,
+    }));
+  }
+  return [];
 }
 
 /**
- * Effective attribute value for a building instance (with modifier fold).
- * TODO T4: Full modifier fold (add→mul→set, deterministc sort, memoization).
- * For T1, returns base catalog value only (no modifiers yet).
- * @param {string} buildingId
- * @param {string} attr
- * @param {GameState} _state
- * @returns {number}
- */
-export function effective(buildingId, attr, _state) {
-  const val = baseAttr(buildingId, attr);
-  if (typeof val === 'number') return val;
-  // Map attr (e.g. baseCost) without dot-path → return 0 (caller should use dot-path)
-  return 0;
-}
-
-/**
- * Get effective map attribute (e.g. baseCost) as a full Record.
- * For each key in the base map, calls effective(id, 'attr.key', state).
- * @param {string} buildingId
- * @param {string} attr
+ * Add modifier entries for a building type based on its effects[].
+ * Per-type aggregate (M-1): ONE modifier per (buildingId, attr, op), not per instance.
+ * Multiplicty is baked into modifier.value according to op (§4.3 design):
+ *   op='add' → value = atom.value * created
+ *   op='mul' → value = atom.value  (mul is NOT stacked per instance, gap G-BUILD-MULSTACK)
+ *   op='set' → value = atom.value  (set is absolute, independent of count)
+ *
+ * Called from rebuildBuildingDerived (idempotent: remove-all then re-add).
+ * ALSO called directly from completeBuild/destroyInstance via rebuildBuildingDerived.
+ *
  * @param {GameState} state
- * @returns {Record<string, number>}
+ * @param {string} buildingId
  */
-export function effectiveMap(buildingId, attr, state) {
-  const base = baseAttr(buildingId, attr);
-  if (typeof base !== 'object' || base === null) return {};
-  /** @type {Record<string, number>} */
-  const result = {};
-  for (const k of Object.keys(base)) {
-    result[k] = effective(buildingId, `${attr}.${k}`, state);
+export function addBuildingModifiers(state, buildingId) {
+  if (!hasId(buildingId)) return;
+
+  const buildings = /** @type {Record<string, any>} */ (state.home.buildings);
+  const b = buildings[buildingId];
+  if (!b || b.created <= 0) return;
+
+  const entry = /** @type {Record<string, any>} */ (byId(buildingId).entry);
+  const atoms = normalizeEffects(entry.effects);
+  if (atoms.length === 0) return;
+
+  const created = b.created;
+  const mods = /** @type {any[]} */ (state.catalogState.modifiers);
+
+  for (const atom of atoms) {
+    // Per-type modifier: one per (buildingId, attr, op)
+    // id and source are deterministic (no instId) → stable across save/load
+    let value;
+    if (atom.op === 'add') {
+      value = atom.value * created;
+    } else if (atom.op === 'mul') {
+      // G-BUILD-MULSTACK: mul NOT stacked per instance (BALANCE.buildings.mulPerInstance=false default)
+      // Each building type provides the same mul regardless of count.
+      value = atom.value;
+    } else {
+      // op='set': absolute value, independent of count
+      value = atom.value;
+    }
+
+    mods.push({
+      id: `bld:${buildingId}:${atom.attr}:${atom.op}`,
+      source: `building:${buildingId}`,
+      target: buildingId,
+      attr: atom.attr,
+      op: atom.op,
+      value,
+    });
   }
-  // For T1, just return base values since no modifiers yet
-  for (const k of Object.keys(base)) {
-    result[k] = /** @type {number} */ (base[k]);
-  }
-  return result;
 }
 
-// ---------------------------------------------------------------------------
-// Modifier management (T4 placeholder)
-// ---------------------------------------------------------------------------
-
 /**
- * TODO T4.3: Add modifier entries for a building type based on its effects[].
- * Per-type aggregate: one modifier per (buildingId, attr, op), value = atom.value * created.
- * Currently a no-op placeholder — T4 implements the full mapping.
- * @param {GameState} _state
- * @param {string} _buildingId
+ * Remove all modifier entries sourced from a given building type.
+ * @param {GameState} state
+ * @param {string} buildingId
  */
-export function addBuildingModifiers(_state, _buildingId) {
-  // TODO T4.3: implement effects → modifier mapping per design §4.3
-  // modifier.id = `bld:${buildingId}:${attr}:${op}`
-  // modifier.source = `building:${buildingId}`
-  // value for op='add': atom.value * created
-  // value for op='mul': atom.value ^ created
-  // value for op='set': atom.value
-}
-
-/**
- * TODO T4.3: Remove all modifier entries sourced from a given building type.
- * @param {GameState} _state
- * @param {string} _buildingId
- */
-export function removeBuildingModifiers(_state, _buildingId) {
-  // TODO T4.3: filter state.catalogState.modifiers removing source === `building:${buildingId}`
+export function removeBuildingModifiers(state, buildingId) {
+  const source = `building:${buildingId}`;
+  const mods = /** @type {any[]} */ (state.catalogState.modifiers);
+  let wi = 0;
+  for (let ri = 0; ri < mods.length; ri++) {
+    if (mods[ri].source === source) continue;
+    mods[wi++] = mods[ri];
+  }
+  mods.length = wi;
 }
 
 /**
@@ -156,7 +358,6 @@ export function removeBuildingModifiers(_state, _buildingId) {
  */
 function removeAllBuildingSourcedModifiers(state) {
   const mods = /** @type {any[]} */ (state.catalogState.modifiers);
-  // Filter in-place
   let wi = 0;
   for (let ri = 0; ri < mods.length; ri++) {
     if (typeof mods[ri].source === 'string' && mods[ri].source.startsWith('building:')) {
@@ -167,24 +368,20 @@ function removeAllBuildingSourcedModifiers(state) {
   mods.length = wi;
 }
 
-/**
- * Bump the modifier version to invalidate the effective() cache.
- * TODO T4.2: full cache invalidation; for T1 this is a no-op since effective() doesn't cache yet.
- * @param {GameState} _state
- */
-export function invalidateModifiers(_state) {
-  // TODO T4.2: bump state.catalogState._modVersion
-}
-
 // ---------------------------------------------------------------------------
-// Aggregate recalculation (T4 placeholder)
+// T4.4 — recalcBuildingAggregates — ONE canonical path (M-1)
 // ---------------------------------------------------------------------------
 
 /**
  * Recalculate building aggregate derived fields.
- * ONE canonical path (M-1): Σ effective(id, attr) — multiplicty is in modifier value.
- * TODO T4.4: Full implementation with effective() fold. For T1, only iterates built buildings
- *   and reads base catalog values (no modifier fold yet).
+ * ONE canonical path (M-1): Σ effective(id, attr) — multiplicty is already in modifier.value (§4.3).
+ * NEVER multiply by created here → eliminates risk of double-counting.
+ *
+ * Updates state.home.derived.{maxWorkers, storageCapacity, attractiveness}.
+ *
+ * Called ONLY via rebuildBuildingDerived (from load Step 5 and from mutations §4.7).
+ * Never call directly from load.js (reviewer grep: must go through rebuildBuildingDerived — M5-R1).
+ *
  * @param {GameState} state
  */
 export function recalcBuildingAggregates(state) {
@@ -198,31 +395,31 @@ export function recalcBuildingAggregates(state) {
   for (const buildingId of Object.keys(buildings)) {
     const b = buildings[buildingId];
     if (!b || b.created <= 0) continue;
-
-    // TODO T4.4: replace base reads below with effective(buildingId, attr, state)
-    // For T1, read directly from catalog (no modifier fold yet)
     if (!hasId(buildingId)) continue;
+
+    // T4.4: ONE path — effective() already includes multiplicty (created baked into modifier.value §4.3)
+    // Do NOT multiply by created here.
     const entry = /** @type {Record<string, any>} */ (byId(buildingId).entry);
-    const effects = /** @type {any[]} */ (Array.isArray(entry.effects) ? entry.effects : []);
+    const atoms = normalizeEffects(entry.effects);
 
-    for (const fx of effects) {
-      const attr = /** @type {string} */ (fx.attr);
-      const value = /** @type {number} */ (fx.value ?? 0);
-      const op = fx.op ?? 'add';
-      if (op !== 'add') continue; // T1: only add effects for now
+    for (const atom of atoms) {
+      // Only aggregate add-type effects (mul/set are modifiers on specific attrs, not counted here)
+      if (atom.op !== 'add') continue;
 
-      // Multiplicty: value * created (as T4.3 will embed into modifier value)
-      const total = value * b.created;
+      const attr = atom.attr;
+      // effective() reads the modifier fold (which has created × value for 'add')
+      const val = /** @type {number} */ (effective(buildingId, attr, state));
 
       if (attr === 'workers') {
-        maxWorkers += total;
+        maxWorkers += val;
       } else if (attr === 'attractiveness') {
-        attractiveness += total;
+        attractiveness += val;
       } else if (attr.startsWith('storage.')) {
         const resource = attr.slice('storage.'.length);
-        storageCapacity[resource] = (storageCapacity[resource] ?? 0) + total;
+        storageCapacity[resource] = (storageCapacity[resource] ?? 0) + val;
       }
-      // maxActiveProjects / maxProjectQueue → not in derived (used directly by builder)
+      // maxActiveProjects / maxProjectQueue are read via effectFromCatalog in buildersProcess
+      // (they're not aggregated into home.derived — they're per-buildingType capacity)
     }
   }
 
@@ -235,7 +432,28 @@ export function recalcBuildingAggregates(state) {
 }
 
 // ---------------------------------------------------------------------------
-// Shared derivation (M-2, §4.6)
+// T4.5 — Aggregate napojení (G-BUILDER-MASON: masonProvided → maxActiveProjects)
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute the total masonProvided from all owned builder companies.
+ * Exposed so buildersProcess can add this to the builderHut-derived maxActiveProjects.
+ * Design §3.2: masonProvided = extra maxActiveProjects from companies (G-BUILDER-MASON).
+ * Re-exported via buyCompany.js; kept here as a proxy call.
+ *
+ * Note: workerSlots (T4.5) reads state.home.derived.maxWorkers in jobs.js.
+ * Housing settlementLevel reads state.home.derived.attractiveness in housing.js.
+ * Both are updated by recalcBuildingAggregates via rebuildBuildingDerived.
+ *
+ * @param {GameState} state
+ * @returns {number}
+ */
+function getMasonProvided(state) {
+  return companyMasonTotal(state);
+}
+
+// ---------------------------------------------------------------------------
+// T4.6 — Shared derivation (M-2, §4.6)
 // ---------------------------------------------------------------------------
 
 /**
@@ -248,8 +466,9 @@ export function recalcBuildingAggregates(state) {
  *
  * Steps:
  *   (a) Re-derive created = instances.length per building (drift protection)
- *   (b) Re-gen building modifiers into catalogState.modifiers  [TODO T4.3 — stub]
- *   (c) Recalc aggregates via ONE canonical path               [TODO T4.4 — partial T1]
+ *   (b) Re-gen building modifiers into catalogState.modifiers (idempotent: remove-all then re-add)
+ *   (c) Invalidate effective() cache (bump _modVersion)
+ *   (d) Recalc aggregates via ONE canonical path (§4.4)
  *
  * @param {GameState} state
  */
@@ -266,18 +485,36 @@ export function rebuildBuildingDerived(state) {
   }
 
   // (b) Re-gen building modifiers (idempotent: remove-all then re-add)
-  //     TODO T4.3: addBuildingModifiers will populate catalogState.modifiers once implemented
+  //     Modifiers from other sources (M6 techs, events — source != 'building:*') stay untouched.
   removeAllBuildingSourcedModifiers(state);
   for (const buildingId of Object.keys(buildings)) {
     const b = buildings[buildingId];
     if (b && b.created > 0) {
-      addBuildingModifiers(state, buildingId); // no-op placeholder until T4
+      addBuildingModifiers(state, buildingId);
     }
   }
-  invalidateModifiers(state); // no-op until T4.2
 
-  // (c) Recalculate aggregates (ONE canonical path, M-1)
+  // (c) Reset _modVersion to 0 then invalidate → always version=1 after full rebuild.
+  // This ensures that hashState is IDENTICAL whether this is the N-th rebuild (mutation path)
+  // or the 1st rebuild (load path). The absolute value of _modVersion does not affect
+  // cache correctness (only the _effCache.version===_modVersion check matters).
+  // Without this reset, _modVersion would differ between "fresh game after N mutations"
+  // and "load after N mutations" → hashState mismatch.
+  const cs = /** @type {any} */ (state.catalogState);
+  cs._modVersion = 0; // reset to canonical base so next invalidateModifiers → version=1
+  invalidateModifiers(state); // now _modVersion = 1, _effCache = { version:1, map:{} }
+
+  // (d) Recalculate aggregates (ONE canonical path, M-1)
+  // Note: effective() is memoized; ensureCache is called lazily inside effective()
   recalcBuildingAggregates(state);
+
+  // (e) Keep workforce.total in sync with derived.maxWorkers (T4.5).
+  // Since derived.maxWorkers contributes to workerSlots (jobs.js T4.5), workforce.total
+  // must be re-derived here to keep the state self-consistent.
+  // This mirrors load.js Step 5b but is called on every mutation too → single derivation path.
+  if (state.home && state.home.workforce) {
+    state.home.workforce.total = deriveWorkforceTotal(state);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -431,8 +668,10 @@ export function ageBuildings(state, _params, ctx) {
 /**
  * Complete a build project: create new instance, update totalMade, rebuild derived.
  * Called by buildersProcess when curProgress >= completionUnits.
- * Design §2.2: instances.push + created++ + totalMade++ → addBuildingModifiers (T4 stub)
+ * Design §2.2: instances.push + created++ + totalMade++ → addBuildingModifiers (T4.3)
  *   + invalidateModifiers + recalcBuildingAggregates.
+ *
+ * Uses rebuildBuildingDerived (shared derivation path, M-2 §4.7) for idempotency.
  *
  * @param {GameState} state
  * @param {any} project
@@ -451,14 +690,14 @@ export function completeBuild(state, project, _ctx) {
   // instId = deterministc: `${buildingId}_${totalMade}` (home.js:284, no Date.now)
   const instId = `${buildingId}_${b.totalMade}`;
 
-  // Get starting HP = effective resistance (use base for T2; T4 will add modifier fold)
+  // Get starting HP = effective resistance (uses modifier fold post-T4)
   const resistance = /** @type {number} */ (effective(buildingId, 'resistance', state)) || BAL.defaultResistance;
 
   b.instances.push({ instId, hp: resistance, inRepair: false });
   b.created = b.instances.length;
   b.totalMade += 1;
 
-  // Shared derivation path (M-2 §4.7): re-derive modifiers (T4 stub) + aggregates
+  // Shared derivation path (M-2 §4.7): re-derive modifiers + aggregates
   rebuildBuildingDerived(state);
 }
 
@@ -503,6 +742,7 @@ export function applyRepair(state, project, _ctx) {
  * Design §2.2, home.js:1720-1840 (port, determinized):
  *   - totalBuilders = state.home.jobs['builder']?.number ?? 0  (from M3 jobs)
  *   - maxActiveProjects from builderHut.created × effective('builderHut','maxActiveProjects')
+ *     + masonProvided from owned builder companies (G-BUILDER-MASON, T4.5)
  *   - masonStep = BALANCE.buildings.masonStep (progress per quarterDay)
  *   - completionUnits = maxProgress × quarterDaysPerDay
  *   - for each active project (up to maxActiveProjects):
@@ -513,7 +753,8 @@ export function applyRepair(state, project, _ctx) {
  *       if progress >= completionUnits → completeBuild / applyRepair, remove from queue
  *
  * Catch-up-safe: no RNG, deterministic, runs cheaply 4×/day.
- * T3 (iter-013): builder company capacity (companyBuildersTotal) added to totalBuilders (design §3.2).
+ * T3 (iter-013): builder company capacity (companyBuildersTotal) added to totalBuilders.
+ * T4.5 (iter-013): masonProvided (companyMasonTotal) adds to maxActiveProjects (G-BUILDER-MASON).
  *
  * @param {GameState} state
  * @param {object} _params
@@ -537,20 +778,27 @@ export function buildersProcess(state, _params, ctx) {
   totalBuilders += companyBuildersTotal(state);
 
   // maxActiveProjects from builderHut (builderHut.effects: maxActiveProjects per hut)
-  // T2: reads from effects[] directly (effectFromCatalog). T4 will use effective() modifier fold.
+  // T4.5: effective() now uses modifier fold (modifier has value = perHut * created for 'add')
+  // G-BUILDER-MASON: add masonProvided from owned companies to maxActiveProjects
   const builderHut = /** @type {any} */ (state.home.buildings?.['builderHut']);
   const hutCreated = builderHut?.created ?? 0;
   let maxActiveProjects = BAL_B.maxActiveProjects; // fallback: 0
   if (hutCreated > 0) {
+    // T4.5: use effective() with modifier fold (replaces effectFromCatalog T2 workaround)
+    // effective('builderHut','maxActiveProjects',state) now reads from modifier fold
+    // Modifier value = effectAtom.value * created (baked in by addBuildingModifiers T4.3)
     const perHut = effectFromCatalog('builderHut', 'maxActiveProjects');
     maxActiveProjects = perHut * hutCreated;
   }
+  // T4.5 G-BUILDER-MASON: companies with masonProvided add extra active project slots
+  maxActiveProjects += getMasonProvided(state);
 
   if (maxActiveProjects <= 0) return; // no builder hut → nothing to process
 
+  // maxProjectQueue: only for the build command validation (not needed here)
+  // (build.js checks projectQueue.length < maxProjectQueue before adding)
+
   // Process up to maxActiveProjects projects (rest wait)
-  // We need to iterate with possible removal/requeue — work on a stable copy of indices
-  // and track mutations carefully.
   let activeSlot = 0;
   let qi = 0;
 
