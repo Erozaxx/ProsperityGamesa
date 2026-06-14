@@ -325,6 +325,34 @@ export const BALANCE = Object.freeze({
   },
 
   /**
+   * Research mechanic constants. iter-015 M6 T3.
+   * Source: doc/original_source/services/techs.js:46-138 (step fn); design §3.2.
+   * provenance: approximated (sector mapping, academy/university exp values); gap G-RESEARCH-ACADEMY.
+   */
+  research: {
+    /**
+     * Sector IDs for research progress accumulation.
+     * Source: techs.js:70 scholarLevels = ['agriculture','civil','crafts','forestry','medicine','military'].
+     * provenance: extracted.
+     */
+    sectorIds: ['agriculture', 'civil', 'crafts', 'forestry', 'medicine', 'military'],
+    /**
+     * Job category → research sector mapping.
+     * Source: techs.js:55-60 (expPoints['sector_'+job.category]); provenance: approximated.
+     * 'builder' excluded (noProduction); categories not in map produce 0 exp.
+     * Gap G-JOB-SECTOR-MAP: exact mapping not in extracted dump, calibration M9.
+     */
+    jobSectorMap: {
+      agriculture: 'agriculture',
+      forestry: 'forestry',
+      crafts: 'crafts',
+      civil: 'civil',
+      medicine: 'medicine',
+      military: 'military',
+    },
+  },
+
+  /**
    * Contracts mechanic constants. iter-014 M5-2 T5.
    * Source: events.js + home.js:2407 + config.js:3248. See design_iter-014.md §5.3.
    */

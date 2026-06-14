@@ -169,6 +169,68 @@
       "name": "Well",
       "resistance": 60,
       "unlocked": true
+    },
+    {
+      "_meta": {
+        "gap": "G-RESEARCH-ACADEMY",
+        "note": "Academy: researchExp=2 per building. Source: controllers/academy.js. M6 T3 min. playable set.",
+        "provenance": "approximated"
+      },
+      "baseCost": {
+        "gold": 200,
+        "ore": 20,
+        "wood": 80
+      },
+      "builders": 2,
+      "category": "service",
+      "effects": [
+        {
+          "attr": "attractiveness",
+          "op": "add",
+          "value": 10
+        },
+        {
+          "attr": "researchExp",
+          "op": "add",
+          "value": 2
+        }
+      ],
+      "id": "academy",
+      "maxProgress": 15,
+      "name": "Academy",
+      "resistance": 120,
+      "unlocked": true
+    },
+    {
+      "_meta": {
+        "gap": "G-RESEARCH-ACADEMY",
+        "note": "University: researchExp=5 per building. RNG scholar bonus vynechán (G-RESEARCH-UNIV-RNG). M6 T3 min. playable set.",
+        "provenance": "approximated"
+      },
+      "baseCost": {
+        "gold": 500,
+        "ore": 50,
+        "wood": 150
+      },
+      "builders": 3,
+      "category": "service",
+      "effects": [
+        {
+          "attr": "attractiveness",
+          "op": "add",
+          "value": 20
+        },
+        {
+          "attr": "researchExp",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "id": "university",
+      "maxProgress": 30,
+      "name": "University",
+      "resistance": 150,
+      "unlocked": true
     }
   ]
 }

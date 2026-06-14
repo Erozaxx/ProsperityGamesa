@@ -3,6 +3,9 @@
  * iter-013 M5-1: expanded with resistance/maxProgress/builders/effects fields.
  * New buildings (workerHouse, well) approximated per design §9 (G-LISTBUILDINGS).
  * Note: id='workerHouse' (not 'house') to avoid K10 collision with houseTypes catalog.
+ * iter-015 M6 T3: added academy/university buildings with researchExp attribute.
+ *   Source: controllers/academy.js (academy unlock, scholars). provenance: approximated.
+ *   Gap G-RESEARCH-ACADEMY: exact researchExp values approximated; calibration M9.
  */
 import { makeMeta } from '../lib/provenance.mjs';
 
@@ -93,6 +96,37 @@ export function extractBuildings() {
         { attr: 'attractiveness', op: 'add', value: 5 },
       ],
       _meta: { provenance: 'approximated', gap: 'G-LISTBUILDINGS' },
+    },
+    // iter-015 M6 T3: academy/university — provide researchExp via effective() (gap G-RESEARCH-ACADEMY)
+    {
+      id: 'academy',
+      name: 'Academy',
+      category: 'service',
+      baseCost: { gold: 200, wood: 80, ore: 20 },
+      resistance: 120,
+      maxProgress: 15,
+      builders: 2,
+      unlocked: true,
+      effects: [
+        { attr: 'attractiveness', op: 'add', value: 10 },
+        { attr: 'researchExp',    op: 'add', value: 2  },
+      ],
+      _meta: { provenance: 'approximated', gap: 'G-RESEARCH-ACADEMY', note: 'Academy: researchExp=2 per building. Source: controllers/academy.js. M6 T3 min. playable set.' },
+    },
+    {
+      id: 'university',
+      name: 'University',
+      category: 'service',
+      baseCost: { gold: 500, wood: 150, ore: 50 },
+      resistance: 150,
+      maxProgress: 30,
+      builders: 3,
+      unlocked: true,
+      effects: [
+        { attr: 'attractiveness', op: 'add', value: 20 },
+        { attr: 'researchExp',    op: 'add', value: 5  },
+      ],
+      _meta: { provenance: 'approximated', gap: 'G-RESEARCH-ACADEMY', note: 'University: researchExp=5 per building. RNG scholar bonus vynechán (G-RESEARCH-UNIV-RNG). M6 T3 min. playable set.' },
     },
   ];
   return {
