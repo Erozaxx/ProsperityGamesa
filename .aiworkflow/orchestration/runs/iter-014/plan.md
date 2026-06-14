@@ -6,7 +6,7 @@
 
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
-- [ ] T-001: architect – Detailní design M5-2 (navazuje na design_iter-013 §13 odloženo): (1) kontrakty – contractQueue struktura, onComplete/onExpire/onReject přes registr efektů K14 (string-ID+params v datech, ne imperativní háčky), kontraktové eventy přes schedule (serializovatelné, přežijí load), persist schéma; zdroj kontraktů z katalogu/originálu; (2) build UI – datový návrh build screen (karty budov, ceny se scalingem přes scaleCostByCount, fronta projektů, opravy) + kontrakty panel nad selektory/commandy. Determinismus/catch-up-safe; G-BUILD-TXAUDIT kontext. Výstup: design doc
+- [x] T-001: architect – Design M5-2 hotový (design_iter-014_T-001.md). Contract data DOLOŽITELNÁ z events.js (8 typů, originál už string-ID callbacky→1:1 K14); contractQueue {id,type,status,cost,reward,deadlineStep,on*} + contractSeq; lifecycle přes registr efektů (data, ne háčky); absolutní deadlineStep + scheduleInsert contract.expire; generování schedule-driven rng stream 'contracts'; nový systems/contracts.js; build UI selektory+screens+taby. M52-D8: nutno přidat registerContractEffects/Commands do bootstrapu. tickOrder beze změny (vše přes SCHEDULE fázi)
 - [ ] T-002: reviewer – Review designu M5-2 (K14 registr efektů korektně, kontrakty serializovatelné/deterministické, UI jen přes selektory/commands bez logiky v UI, soulad s architekturou)
 - [ ] T-003: tom-proxy – Human gate: schválení M5-2 designu (zastupuje uživatele dle DR-013-00, mandát: auto-ano u gate v rámci scope)
 - [ ] T-004: coder – T5: kontrakty – contractQueue, onComplete/onExpire/onReject přes registr efektů K14, kontraktové eventy přes schedule, persist + round-trip; balanc do balance.js
