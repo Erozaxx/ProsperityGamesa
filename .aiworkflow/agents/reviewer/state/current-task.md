@@ -1,39 +1,39 @@
 # Current Task
 
-- **Task ID**: T-002 (Review DESIGNU M5 iter-013, architektonický gate před implementací)
-- **Brief**: BRIEF-013-002
+- **Task ID**: T-009 (Review GATE M5-1 iter-013 — budovy/builder/companies/modifikátory, závěrečný gate)
+- **Brief**: BRIEF-013-009
 - **Iteration**: iter-013
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo: Review designu M5 (`design_iter-013_T-001.md`, 562 ř.) před implementací.
-Ověřena tvrzení proti architektuře iter-002 (§5.3 K13, §5.4 K14, §6.3-6.4 persist, §7.1, §8),
-master plánu §1.2/§3, DR-013-00, Q3/DR-001 a REÁLNÉMU KÓDU/ZDROJI:
-effects.js, market.js getGoldValue, save/persistSchema.js + load.js, buildings.json,
-formulas.js scaleCost, companies.json, jobs.json/jobs.js, originál home.js:285/2344 + config.js:1170.
-Všechna nosná tvrzení designu o originálu/kódu ověřena – sedí.
-Výstup: agents/reviewer/artifacts/final/review_design_iter-013_T-002.md
+Hotovo: Závěrečný REVIEW GATE M5-1 (produkční diff 2e71c94..HEAD, 24 souborů, +4211).
+Ověřeno proti KÓDU (ne tvrzení): 5 tvrdých invariantů, soulad s designem §4.1-4.8 + arch iter-002
+(§5.3 K13/§6.3/§7.1), DR-013-01 (M-1..M-4). npm test = 906/906 pass.
+Výstup: agents/reviewer/artifacts/final/review_iter-013_T-009.md
 
 ## Výsledek
-Verdikt: **GO – s podmínkami**. Split: **ANO** M5-1(T1-T4)/M5-2(T5-T6), hranice beze změny.
+Verdikt: **GO — s podmínkami** (MINOR-1 gap-report + MINOR-2 tickOrder.md T4 sekce před close-iteration;
+zbytek backlog). BEZ re-run. Všech 5 tvrdých invariantů PLATÍ proti kódu.
 
 Klíčová zjištění:
-- Invarianty determinismu/persistu navržené správně (det. čítače místo Date.now, rng stream
-  'buildings' místo Math.random, save=jen modifikátory, created=instances.length re-derivace,
-  žádné applyUpgrade mutace). Tvrzení ověřena proti zdroji.
-- M-1 (major): mapování building.effects → modifier není úplně specifikováno (T4.3 jádro K13);
-  + dvojí cesta agregátů (modifikátory vs. created×effective) může dvojitě započítat. Vyjasnit = podmínka GO.
-- M-2 (major): load Step 5 dnes dělá JEN workforce.total – design předpokládá obecný rebuild;
-  T4.6 musí zavést rebuildBuildingDerived volaný z load I complete/destroy (jediná cesta),
-  jinak load-only drift (M5-R1).
+- Invariant 1 (save=minimal): persistSchema.js:52-54 jen modifiers; derived/_effCache/_modVersion ne-persist. ✓
+- Invariant 2 (sdílený rebuild): 5 call-sites (createInitialState:133, load:275, completeBuild:701,
+  destroyInstance:553, applyRepair:731→recalcAggregates delta). load NEvolá recalc/addMods přímo. ✓
+- Invariant 3 (det. fold): cmpModifier sort (source,id); set=poslední po sortu; add→mul→set. ✓
+- Invariant 4 (jedna cesta): recalcBuildingAggregates Σ effective bez ×created (created zapečen ve value). ✓
+- Invariant 5 (no Date.now/Math.random/DOM, catch-up): grep=0; rng stream 'buildings' na konci STREAM_NAMES
+  (G1 zachován); det. instId/projectSeq; requeue-smyčka terminuje (no infinite loop). ✓
+- effectFromCatalog (T2 workaround) NEnahrazen v T4 — ale legitimní (maxActiveProjects/maxProjectQueue
+  nemají top-level base, nejsou agregovány); není mrtvý kód, jen design slíbil náhradu + zavádějící komentáře.
 
 ## Nálezy (severity)
 - BLOCKER: 0
-- MAJOR: 4 (M-1 effects→modifier mapping; M-2 Step 5 rebuild; M-3 fold set řazení; M-4 build pay bez ctx/emitTx)
-- MINOR: 5 (m-1 dot-path; m-2 grep gate do testu; m-3 M9 geom growth; m-4 DoD M5-1 commandy ne UI; m-5 T4.5 integ body)
-- NIT: 3 (n-1 ageBuildings O(n); n-2 scaleCostByCount param name; n-3 doplnit pole ke 4 existujícím budovám)
+- MAJOR: 0
+- MINOR: 4 (M1 gap-report neaktualizován; M2 tickOrder.md T4 sekce zastaralá+neexist. cesta effective.js;
+  M3 zavádějící komentář buildings.js:787-790; M4 effectFromCatalog nekonzistence+duplicita build.js/buildersProcess)
+- NIT: 4 (N1 dvojí workforce.total derivace; N2 latentní dvojí započtení při dup (attr,op);
+  N3 mrtvá build.js:getMaxActiveProjects; N4 cost:{} build projektu bez audit kopie)
 
-## Design je dost konkrétní pro Sonnet kromě M-1/M-2 (vyžadují doplnění, jinak Sonnet rozhoduje architektonicky).
-## Negitcommitnuto (scope per brief).
+## NEcommitnuto, NEopravoval kód (scope per brief).
