@@ -1,38 +1,33 @@
 # Current Task
 
-- **Task ID**: T-007 (Závěrečný review gate M5-2 iter-014 — kontrakty K14 + build UI + DoD M5, právo re-run)
-- **Brief**: BRIEF-014-007
-- **Iteration**: iter-014
+- **Task ID**: T-002 (Review DESIGN M6 iter-015 — tech strom + techy=modifikátory K13 + academy, před implementací)
+- **Brief**: BRIEF-015-002
+- **Iteration**: iter-015
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo: Závěrečný REVIEW GATE M5-2 + ověření DoD M5 (celý milník) PROTI KÓDU (diff ecfb479..HEAD).
-Ověřeno: contracts.js (system+commands), main.js (B1 bootstrapEngine + B2 bootSequence/armContractOffer),
-rng.js (stream 'contracts' na konci), tickOrder.js (phase2 resolve), scheduler.js, registry.js (idempotent register),
-load.js/persistSchema.js (undefined-guard allowlist), createHomeState.js, transactions.js, market.js (getGoldValue),
-selectors.js + screens.js + App.js (zachráněná build UI), balance.js, schemas.js, gap-report.json.
-Nezávislý běh testů: m5-contracts 51/51, ui-selectors-t6 14/14, iter005-edge G1 16/16.
-Výstup: agents/reviewer/artifacts/final/review_iter-014_T-007.md
+Hotovo: Architektonický review gate DESIGNu M6 (design_iter-015_T-001.md) PROTI KÓDU.
+Ověřeno: buildings.js (rebuildBuildingDerived ř.475-518, effective/fold ř.48-156, addBuildingModifiers,
+removeAllBuildingSourcedModifiers, invalidateModifiers, recalcBuildingAggregates), formulas.js (techCap ř.31 EXISTUJE),
+buyCompany.js (vzor command), load.js (Step 5 ř.285 + undefined-guard precedent ownedCompanies/projectQueue),
+persistSchema.js (player allowlist ř.11 + catalogState modifiers ř.52), handlers.js (techPt ř.74),
+createHomeState.js (createPlayerState ř.64), createInitialState.js (rebuildBuildingDerived ř.133), main.js
+(bootstrapEngine ř.89-111), dispatch.js, transactions.js (grant ř.57), tickOrder.js (order 75 volný na day),
+techs.json (prázdná kostra), catalogs.js (techs NENÍ v CATALOG_NAMES), architektura §5.3:297.
+Výstup: agents/reviewer/artifacts/final/review_design_iter-015_T-002.md
 
 ## Výsledek
-Verdikt: **GO** (jediná ne-funkční podmínka: doplnit gap-report — MINOR, neblokuje merge/hratelnost).
-DoD M5: **KOMPLETNÍ a hratelný.**
-
-Klíčová zjištění:
-- Všech 6 tvrdých invariantů PLATÍ proti kódu (K14 string-ID v datech; determinismus+serializace; B2 idempotentní
-  re-arm s scheduleCountOf guardem vedle marketInit; B1 registerBuild+contract commands/effects wired;
-  žádná logika v UI; žádný Date.now/Math.random/DOM, SAVE_VERSION=3).
-- Zachráněná build UI (T6): ÚPLNÁ a funkční — BuildScreen 4 sekce + ContractsScreen accept/reject/complete,
-  taby, deriváty v selektorech, pure komponenty. Žádný nález.
-- rng 'contracts' na konci STREAM_NAMES → seedy ostatních streamů beze změny; G1 hash nedotčen.
-- Persist round-trip OK; staré savy přes undefined-guard + B2 re-arm.
+Verdikt: **GO-s-podmínkami** (2 podmínky major + 1 doporučení).
+Generalizace rebuild: **BEZ REGRESE M5-1** (no-op tech krok při unlockedTechs={}, bit-identické, jedna cesta, DR-012-02 OK).
+Determinismus/persist: **DRŽÍ** (allowlist, re-gen z pravdy, undefined-guard, grant ctx, žádný RNG v research).
+Split=NE: **SOUHLASÍM**.
 
 ## Nálezy (severity)
 - BLOCKER: 0
-- MAJOR: 0
-- MINOR: 1 (gap-report.json neaktualizován: 4 contract gapy chybí, summary.byMilestone nekonzistentní, _meta stale iter-013)
-- NIT: 2 (resolveEffect silent-fallback vs fail-fast; pctComplete heuristika bez acceptedStep reference)
+- MAJOR: 2 (M-1 createPlayerState init unlockedTechs/research → fresh≠load desync; M-2 addTechModifiers/findTech defenzíva vůči chybějícímu techs katalogu → crash createInitialState/load)
+- MINOR: 4 (m-1 techCap vs scholarLevelCap approximace; m-2 agregát čte add-only; m-3 tech efekt na job vyžaduje effective() čtecí cestu; m-4 techs catalog wiring vs byId K10)
+- NIT: 3 (id pseudokód s targetem; alias rebuildDerived; order 75 ověřen volný)
 
-## NEcommitnuto, kód neopravován (per brief).
+## NEcommitnuto (per brief).
