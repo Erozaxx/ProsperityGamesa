@@ -1,31 +1,28 @@
 # Current Task
 
-- **Task ID**: T-008 (Závěrečný REVIEW GATE M7a-1 — zóny/jednotky/napojení trhu, Opus)
-- **Brief**: BRIEF-016-008
-- **Iteration**: iter-016
+- **Task ID**: T-002 (REVIEW DESIGN M7a-2 — frakční automat/revolty/questy/tribute/UI, Opus)
+- **Brief**: BRIEF-017-002
+- **Iteration**: iter-017
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo: Závěrečný review gate M7a-1 PROTI KÓDU (diff afac3b9..HEAD). Ověřeno všech 6 tvrdých invariantů:
-- M-1 round-robin REÁLNĚ tiká: world.js:343-360 gate `_absDay % slot===0` (ne mrtvý curStep%dist), bezstavový, _absDay persistovaný (season fully-saved).
-- M-2 re-hydratace bez load-only větve: sdílená hydrateZones (world.js:373) z createInitialState (:141) i load Step 5 (load.js:317); id-based merge (ne Object.assign na pole); persist jen dynamika (persistSchema.js:248-286); zones/factions vyjmuty z generického world-merge (load.js:228-234); fresh==load hashState test PASS.
-- §8.2: marketInject/getGoldValue signatury beze změny (market.js:91/103); inject(+)/drain(−)/clamp; world.tick(30)<market.drift(35) (tickOrder.js:204-205).
-- battle.js NEDOTČEN (git diff prázdný).
-- Jednotky: recruitUnit přes pay, reuse totWarriors/totArchers+upkeep.military (M4a), registerRecruitUnit (main.js:113).
-- Determinismus: jediný rng('world'), žádný Math.random/Date.now/DOM v core, O(1)/den.
-CI 1179/1179 PASS (nezávisle ověřeno), M7a suity 82/82 PASS.
-Výstup: agents/reviewer/artifacts/final/review_iter-016_T-008.md
+Hotovo: Review DESIGNu M7a-2 (před implementací) PROTI KÓDU + originálu world.js.
+Ověřeno: armContractOffer vzor (contracts.js:262, main.js:199), scheduler indexace by-id (scheduler.js:82), hydrateZones/favour (world.js:335-417), persistSchema favour||0 (persistSchema.js:259), zones.json favour:number, load.js shared path, balance.world. Originál world.js: processAI ř.743-991, AI-AI bitva ř.952-984, revolt ř.282-369 (favour=OBJEKT), quest ř.371-487, gatherTributes ř.527-565 — ověřeno subagentem.
 
 ## Výsledek
-Verdikt: **GO**. DoD M7a-1 **SPLNĚNO** (zóny+ekonomika, jednotky, napojení trhu; frakce=M7a-2).
-Determinismus: round-robin reálně tiká (M-1 ✅), re-hydratace bez driftu/bez load-only větve (M-2 ✅).
+Verdikt: **GO-S-PODMÍNKAMI** (M-1 favour migrace + M-2 set-difference guard).
+- Self-rearm determinismus: vzor SPRÁVNÝ (nepodmíněný re-arm, boot-only arm, set-diff guard). DR-012-02 ošetřeno. Podmínka: set-difference guard závazný (scheduleCountOf nerozliší frakce — indexace by-id).
+- favour migrace: RIZIKO REGRESE M7a-1 ANO, řešitelné — persistSchema.js:259 `|| 0`→`?? {}` + hydrateZones number→{} migrace; revolt nebyl v M7a-1 aktivní → nedestruktivní.
+- Split NEsplit: SOUHLAS (kostra M7a-1 hotová, ověřeno proti kódu).
 
 ## Nálezy (severity)
 - BLOCKER: 0
-- MAJOR: 0
-- MINOR: 4 (calcMilitary/EconomicRating mrtvý kód world.js:299-328; goldDemand/goldProduction persist odchylka od §8 bez DR; homeZone mirror neimpl. + zavádějící komentář world.js:179; docs/tickOrder.md stale "STUB")
-- NIT: 2 (immunity boolean vs >0 test; allies/allies_dyn dvojí klíč)
+- MAJOR: 2 (M-1 favour persist `||0` + hydrateZones migrace = regrese M7a-1; M-2 armFactionAI set-difference guard závazný)
+- MINOR: 5 (state re-map ověř; redistributeForces jen AI-AI větev; state7 mimo enum; quest gating home.level/militaryCouncil chybí v state; capitalId schema validace)
+- NIT: 3 (favour selektor undefined-safe; tribute order 25 OK; immunity flag nevyužit)
+
+Výstup: agents/reviewer/artifacts/final/review_design_iter-017_T-002.md
 
 ## NEcommitnuto (per brief).
