@@ -115,6 +115,6 @@ export const SCHEMAS = {
     required: ['techBase', 'techScale'],
   },
   zones: {
-    required: ['policies', 'factions'],
+    required: ['policies', 'factions', 'zones'],
   },
 };

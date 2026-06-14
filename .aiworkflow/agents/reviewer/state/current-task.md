@@ -1,36 +1,31 @@
 # Current Task
 
-- **Task ID**: T-009 (Závěrečný REVIEW GATE M6 + ověření DoD M6 K13 plně — budovy+techy)
-- **Brief**: BRIEF-015-009
-- **Iteration**: iter-015
+- **Task ID**: T-008 (Závěrečný REVIEW GATE M7a-1 — zóny/jednotky/napojení trhu, Opus)
+- **Brief**: BRIEF-016-008
+- **Iteration**: iter-016
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo: Závěrečný review gate M6 PROTI KÓDU (právo re-run). CI re-run: npm run ci = 1097/1097 pass.
-Ověřeno proti kódu: buildings.js (b2 ř.606-611, applyTechModifiers ř.470-478, addTechModifiers ř.425-454,
-findTech ř.383-388, _modVersion reset konzistentní ř.619-621 vs :474-476, fold ř.64-87),
-research.js (researchDaily, žádný RNG, while-loop level-up, grant ctx ř.131),
-buyTech.js (lifecycle, techCap reuse), createHomeState.js (M-1 init ř.72-73),
-persistSchema.js (player allowlist ř.14, catalogState jen modifiers ř.55-57),
-load.js (Step 5 ř.285 jedna cesta, undefined-guard ř.96-97), tickOrder.js (research.daily order 75 ř.218),
-balance.js (research config), buildings.json (academy/university researchExp), techs.json, catalogs.js,
-selectors.js (čisté selektory), App.js (tab Veda), docs/tickOrder.md (DRIFT — bez research.daily).
-Výstup: agents/reviewer/artifacts/final/review_iter-015_T-009.md
+Hotovo: Závěrečný review gate M7a-1 PROTI KÓDU (diff afac3b9..HEAD). Ověřeno všech 6 tvrdých invariantů:
+- M-1 round-robin REÁLNĚ tiká: world.js:343-360 gate `_absDay % slot===0` (ne mrtvý curStep%dist), bezstavový, _absDay persistovaný (season fully-saved).
+- M-2 re-hydratace bez load-only větve: sdílená hydrateZones (world.js:373) z createInitialState (:141) i load Step 5 (load.js:317); id-based merge (ne Object.assign na pole); persist jen dynamika (persistSchema.js:248-286); zones/factions vyjmuty z generického world-merge (load.js:228-234); fresh==load hashState test PASS.
+- §8.2: marketInject/getGoldValue signatury beze změny (market.js:91/103); inject(+)/drain(−)/clamp; world.tick(30)<market.drift(35) (tickOrder.js:204-205).
+- battle.js NEDOTČEN (git diff prázdný).
+- Jednotky: recruitUnit přes pay, reuse totWarriors/totArchers+upkeep.military (M4a), registerRecruitUnit (main.js:113).
+- Determinismus: jediný rng('world'), žádný Math.random/Date.now/DOM v core, O(1)/den.
+CI 1179/1179 PASS (nezávisle ověřeno), M7a suity 82/82 PASS.
+Výstup: agents/reviewer/artifacts/final/review_iter-016_T-008.md
 
 ## Výsledek
-Verdikt: **GO-s-podmínkami**. DoD M6 (K13 plně budovy+techy): **SPLNĚN** (s podmínkou M-A).
-Tvrdé invarianty 1-6: VŠECHNY PASS (jedna modifier vrstva, jedna re-derivace b2, žádná load/tech-only větev,
-_modVersion reset konzistentní, deterministický fold, research bez RNG catch-up-safe, M6 nerozbil M5).
+Verdikt: **GO**. DoD M7a-1 **SPLNĚNO** (zóny+ekonomika, jednotky, napojení trhu; frakce=M7a-2).
+Determinismus: round-robin reálně tiká (M-1 ✅), re-hydratace bez driftu/bez load-only větve (M-2 ✅).
 
 ## Nálezy (severity)
 - BLOCKER: 0
-- MAJOR: 1 (M-A double-count researchExp v research.js:94-99 — effective() už × created, násobí podruhé → kvadratická exp při created>1; testy maskuje loose >= aserce)
-- MINOR: 1 (m-1 docs/tickOrder.md neaktualizován o research.daily order 75 — living artefakt drift)
-- NIT: 2 (n-1 forestry_axes target lumberjack neexistuje, spadá pod schválený G-TECH-JOB-EFFECTIVE; n-2 zastaralé "placeholder T2" komentáře v buyTech.js)
+- MAJOR: 0
+- MINOR: 4 (calcMilitary/EconomicRating mrtvý kód world.js:299-328; goldDemand/goldProduction persist odchylka od §8 bez DR; homeZone mirror neimpl. + zavádějící komentář world.js:179; docs/tickOrder.md stale "STUB")
+- NIT: 2 (immunity boolean vs >0 test; allies/allies_dyn dvojí klíč)
 
-## Podmínka GO
-Opravit M-A (1 řádek: totalBonus = perBuilding) + zpřísnit test na exact-match; NEBO explicitní acceptace jako sledovaný gap M9.
-
-## NEcommitnuto, NEopraven kód (per brief).
+## NEcommitnuto (per brief).

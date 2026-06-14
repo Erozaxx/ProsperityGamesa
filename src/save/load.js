@@ -9,6 +9,7 @@ import { migrate } from './migrations.js';
 import { SAVE_VERSION } from './schema.js';
 import { deriveWorkforceTotal } from '../core/systems/jobs.js';
 import { rebuildBuildingDerived } from '../core/systems/buildings.js';
+import { hydrateZones } from '../core/systems/world.js';
 
 /**
  * @typedef {import('../core/state/types.js').GameState} GameState
@@ -133,6 +134,12 @@ function applyPayload(state, payload) {
       }
     }
 
+    // store: general resource stockpile (ore/stone/wood/etc.)
+    // iter-016 M7a-1: added to persist schema to fix round-trip determinism (M-2 gate)
+    if (payload.home.store !== undefined) {
+      state.home.store = payload.home.store;
+    }
+
     // workerEfficiency (iter-009 M3)
     if (payload.home.workerEfficiency !== undefined) {
       state.home.workerEfficiency = payload.home.workerEfficiency;
@@ -213,14 +220,25 @@ function applyPayload(state, payload) {
 
   if (payload.world) {
     // world.forest / world.field / world.mine (iter-009 M3)
-    // Use merge: take saved values but ensure initial state provides defaults for missing fields
+    // Use merge: take saved values but ensure initial state provides defaults for missing fields.
+    // iter-016 M7a-1: zones and factions are handled specially — stored as raw dynamic state
+    // for hydrateZones (Step 5) to merge with catalog static data.
     for (const field of PERSIST_SCHEMA.world) {
       if (payload.world[field] !== undefined) {
-        // Deep merge: initial state has default values; saved values overwrite
-        if (state.world[field] && typeof state.world[field] === 'object' && typeof payload.world[field] === 'object') {
-          Object.assign(state.world[field], payload.world[field]);
+        if (field === 'zones') {
+          // Raw dynamic state copy — hydrateZones will merge with catalog on Step 5
+          state.world.zones = Array.isArray(payload.world.zones) ? payload.world.zones.slice() : [];
+        } else if (field === 'factions') {
+          // Raw dynamic faction state — hydrateZones will merge with catalog on Step 5.
+          // Assign directly to preserve array/object type from saved payload (legacy saves may use array).
+          state.world.factions = payload.world.factions;
         } else {
-          state.world[field] = payload.world[field];
+          // Deep merge: initial state has default values; saved values overwrite
+          if (state.world[field] && typeof state.world[field] === 'object' && typeof payload.world[field] === 'object') {
+            Object.assign(state.world[field], payload.world[field]);
+          } else {
+            state.world[field] = payload.world[field];
+          }
         }
       }
     }
@@ -275,7 +293,7 @@ export function loadAndReconstruct(rawPayload, _catalog) {
   // Step 5: recalculate derived fields (architecture §9.1 K11 — derived, NEVER persisted).
   //
   // Order matters: rebuildBuildingDerived FIRST (may populate derived.maxWorkers which
-  // workforce derivation may eventually read), then deriveWorkforceTotal.
+  // workforce derivation may eventually read), then deriveWorkforceTotal, then hydrateZones.
   //
   // (a) Buildings: re-derive created=instances.length, re-gen modifiers (TODO T4), recalc aggregates.
   //     Design M5-R1: MUST call the SAME fn as mutations — no load-only derivation branch.
@@ -293,6 +311,10 @@ export function loadAndReconstruct(rawPayload, _catalog) {
   if (state.home && state.home.workforce) {
     state.home.workforce.total = deriveWorkforceTotal(/** @type {any} */ (state));
   }
+
+  // (c) Zones and factions: re-hydrate from catalog + raw dynamic state stored by applyPayload.
+  //     iter-016 M7a-1: shared path with createInitialState (M5-R1 gate — no load-only branch).
+  hydrateZones(/** @type {any} */ (state));
 
   // Step 6: validate invariants
   validateInvariants(state);

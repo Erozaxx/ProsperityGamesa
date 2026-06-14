@@ -141,6 +141,12 @@ export function applyPersist(state) {
       home.crime = crime;
     }
 
+    // store: general resource stockpile (ore/stone/wood/etc. from jobs/mines/forest)
+    // iter-016 M7a-1: added to persist schema to fix round-trip determinism (M-2 gate)
+    if (s.home.store !== undefined) {
+      home.store = s.home.store;
+    }
+
     // workerEfficiency (scalar)
     if (s.home.workerEfficiency !== undefined) {
       home.workerEfficiency = s.home.workerEfficiency;
@@ -233,11 +239,59 @@ export function applyPersist(state) {
   }
 
   // world: forest/field/mine sub-domains (iter-009 M3)
+  // iter-016 M7a-1: zones and factions handled specially — save only dynamic state fields.
   if (s.world) {
     /** @type {Record<string, unknown>} */
     const world = {};
     for (const field of PERSIST_SCHEMA.world) {
-      if (s.world[field] !== undefined) world[field] = s.world[field];
+      if (s.world[field] !== undefined) {
+        if (field === 'zones') {
+          // Save only dynamic state per zone (static fields re-hydrated from catalog on load)
+          world.zones = Array.isArray(s.world.zones) ? s.world.zones.map((/** @type {any} */ z) => ({
+            id:           z.id,
+            liege:        z.liege,
+            policy:       z.policy,
+            numWorkers:   z.numWorkers,
+            warriors:     z.warriors,
+            archers:      z.archers,
+            resources:    z.resources  || {},
+            tribute:      z.tribute    || {},
+            favour:       z.favour     || 0,
+            goldStore:    z.goldStore   || 0,
+            notEnoughGold:z.notEnoughGold || 0,
+            curQuest:     z.curQuest   || null,
+            // goldDemand/goldProduction: persisted despite design §8 classifying them as derived (re-derivable).
+            // Intentional deviation (G-WORLD-PERSIST-DERIVED, severity:low, M9): pre-policy snapshot values must
+            // survive save/load so fresh-vs-load hashState matches (M-2 hash stability). Removing persist would
+            // require recalculating them identically on both create and load paths before hash comparison, which
+            // adds complexity. Decision: keep persisted; revisit during M9 persist audit.
+            goldDemand:    z.goldDemand    ?? 0,
+            goldProduction:z.goldProduction ?? 0,
+          })) : [];
+        } else if (field === 'factions') {
+          // Save only dynamic faction state (static fields re-hydrated from catalog on load).
+          // If factions is an array (legacy/test format), save as-is.
+          if (Array.isArray(s.world.factions)) {
+            world.factions = s.world.factions;
+          } else {
+            /** @type {Record<string, any>} */
+            const factionsSave = {};
+            if (s.world.factions && typeof s.world.factions === 'object') {
+              for (const [fid, f] of Object.entries(s.world.factions)) {
+                const ff = /** @type {any} */ (f);
+                factionsSave[fid] = {
+                  state:        ff.state        ?? 0,
+                  wantToAttack: ff.wantToAttack ?? false,
+                  nextTarget:   ff.nextTarget   ?? null,
+                };
+              }
+            }
+            world.factions = factionsSave;
+          }
+        } else {
+          world[field] = s.world[field];
+        }
+      }
     }
     payload.world = world;
   }

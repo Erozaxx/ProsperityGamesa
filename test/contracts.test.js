@@ -137,25 +137,29 @@ describe('battleStep determinism', () => {
 // -----------------------------------------------------------------------
 describe('applyPersist + loadAndReconstruct round-trip', () => {
   it('preserves world.zones and world.factions through save/load', () => {
+    // iter-016 M7a-1: zones/factions are now catalog-hydrated.
+    // Without the zones catalog loaded in tests, hydrateZones is a no-op.
+    // applyPersist saves only dynamic-state fields (id + runtime state).
+    // factions are saved as {[id]: dynamicState} keyed by faction id (string).
     const state = createState();
-    state.world = {
-      zones: [{ id: 'zone1', name: 'Test Zone' }],
-      factions: [{ id: 'faction1', name: 'Test Faction' }],
-    };
+    state.world.zones = [{ id: 'zone1', liege: 'player', policy: 1, numWorkers: 50,
+      warriors: 0, archers: 0, resources: {}, tribute: {}, favour: 0, goldStore: 0,
+      notEnoughGold: 0, curQuest: null }];
+    state.world.factions = { faction1: { state: 0, wantToAttack: false, nextTarget: null } };
     state.battle = null;
 
     const payload = applyPersist(state);
     const reconstructed = loadAndReconstruct(payload);
 
-    // world.zones should be preserved
+    // world.zones: id preserved through save/load (without catalog, raw dynamic state is used)
     const zones = /** @type {any} */ (reconstructed.world).zones;
-    assert.ok(Array.isArray(zones), 'world.zones should be preserved');
+    assert.ok(Array.isArray(zones), 'world.zones should be an array');
     assert.strictEqual(zones[0].id, 'zone1');
 
-    // world.factions should be preserved
+    // world.factions: keyed by faction id (Record<string, dynamicState>)
     const factions = /** @type {any} */ (reconstructed.world).factions;
-    assert.ok(Array.isArray(factions), 'world.factions should be preserved');
-    assert.strictEqual(factions[0].id, 'faction1');
+    assert.ok(factions && typeof factions === 'object', 'world.factions should be preserved');
+    assert.ok('faction1' in factions, 'world.factions should contain faction1');
   });
 
   it('preserves battle=null through save/load', () => {
