@@ -382,75 +382,55 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-14T02:34:24Z",
+  "generated": "2026-06-14T02:37:29Z",
   "iteration": {
-    "id": "iter-013",
-    "goal": "M5-1 – Budovy & modifikátory: building instances + opotřebení/opravy, projectQueue/builder (quarterDay slot z M3), scaleCost, builder companies, vrstva modifikátorů z budov (K13). Kontrakty + build UI (T5–T6) jsou M5-2/iter-014 (split dle DR-013-01). Dle master plánu §3/iter-012(M5). Posun číslování viz DR-013-00.",
+    "id": "iter-014",
+    "goal": "M5-2 – Kontrakty & build UI: contractQueue + onComplete/onExpire/onReject přes registr efektů (K14), kontraktové eventy přes schedule; UI build screen (karty budov, ceny se scalingem, fronta) + kontrakty panel. Dokončuje M5 (DoD M5 se vyhodnotí zde). Dle master plánu §3/iter-012(M5) T5/T6 + design iter-013 §13. Posun číslování viz DR-013-00/01.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Detailní design M5 hotový (design_iter-013_T-001.md). Stav budov {created,totalMade,instances}; scaleCost = approximated addice (originál neškáluje, default faithful, gap G-BUILD-COSTSCALE); modifier fold K13 (save=jen modifikátory, T4 dekomponován na 6 kroků); kontrakty přes registr K14; doporučuje SPLIT M5-1(T1–T4)/M5-2(T5–T6); G-LISTBUILDINGS → doplnit ≥6 budov approximated. [orig. brief] Detailní design M5 dle master plánu §3/iter-012(M5) + architektury §5.3 (modifier vrstva K13), §5.4 (registr efektů K14): (1) building instances created/totalMade + opotřebení (ageBuildings, day) + opravy (oceňování getGoldValue) + persist schéma; (2) projectQueue + builder systém (quarterDay slot) + `build(itemId)` command + `scaleCost(base, created)` čistá fn; (3) builder companies (katalog + logika výběru/kapacit); (4) modifier vrstva plně pro budovy: `effective(itemId, attr)`, fold add→mul→set, memoizace + event-driven agregáty, save = jen seznam modifikátorů; (5) kontrakty: contractQueue, onComplete/onExpire/onReject přes registr efektů, eventy přes schedule. Rozhodnout split M5-1(T1–T4)/M5-2(T5–T6). Výstup: design doc + tickOrder/diagram dopady",
-        "done": true
+        "text": "architect – Detailní design M5-2 (navazuje na design_iter-013 §13 odloženo): (1) kontrakty – contractQueue struktura, onComplete/onExpire/onReject přes registr efektů K14 (string-ID+params v datech, ne imperativní háčky), kontraktové eventy přes schedule (serializovatelné, přežijí load), persist schéma; zdroj kontraktů z katalogu/originálu; (2) build UI – datový návrh build screen (karty budov, ceny se scalingem přes scaleCostByCount, fronta projektů, opravy) + kontrakty panel nad selektory/commandy. Determinismus/catch-up-safe; G-BUILD-TXAUDIT kontext. Výstup: design doc",
+        "done": false
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review designu M5: GO-s-podmínkami; split ANO (M5-1/M5-2); 0 blocker/4 major/5 minor/3 nit; všechna tvrzení designu ověřena proti zdroji. Podmínky: M-2 sdílený rebuildBuildingDerived (load+complete/destroy), M-1 effects→modifier mapování + jedna cesta agregátů, M-3 deterministické řazení set, M-4 G-BUILD-TXAUDIT gap. Viz DR-013-01",
-        "done": true
-      },
-      {
-        "id": "",
-        "text": "T-002a: architect – Revize designu hotová (design_iter-013_T-001.md, changelog T-002a). M-1: §4.3 effects→modifier (per-typ, value=created) + §4.4 JEDNA cesta agregátů Σeffective bez ×created; M-2: §4.6/§4.7 sdílený rebuildBuildingDerived z load Step5 i mutací (load-only zakázána); M-3: §4.1 fold sort by (source,id), set=poslední; M-4: §2.3 ctx se commandu nepředává → G-BUILD-TXAUDIT gap (Volba B). T5/T6 → §13 odloženo M5-2. T4 = 6 kroků T4.1–T4.6",
-        "done": true
+        "text": "reviewer – Review designu M5-2 (K14 registr efektů korektně, kontrakty serializovatelné/deterministické, UI jen přes selektory/commands bez logiky v UI, soulad s architekturou)",
+        "done": false
       },
       {
         "id": "T-003",
-        "text": "tom-proxy – Human gate SCHVÁLENO (jménem uživatele): scaleCost default=1.0 OK, G-LISTBUILDINGS approx OK, G-BUILD-TXAUDIT odloženo OK (s pozn.), split M5-1/M5-2 OK. Žádná blokující výhrada → implementace M5-1 může běžet",
-        "done": true
+        "text": "tom-proxy – Human gate: schválení M5-2 designu (zastupuje uživatele dle DR-013-00, mandát: auto-ano u gate v rámci scope)",
+        "done": false
       },
       {
         "id": "T-004",
-        "text": "coder – T1 hotový: buildings.js (ageBuildings day/order70, enqueueRepair, destroyInstance, rebuildBuildingDerived s created re-derivací; modifier/agregát část stub pro T4), stav home.buildings+projectQueue+projectSeq+derived, scaleCostByCount formula, BALANCE.buildings, persist (created derivován, derived mimo payload), load Step 5, buildings.json→6 budov approximated. ci 807/807, smoke OK, G1 pass, precache regen",
-        "done": true
+        "text": "coder – T5: kontrakty – contractQueue, onComplete/onExpire/onReject přes registr efektů K14, kontraktové eventy přes schedule, persist + round-trip; balanc do balance.js",
+        "done": false
       },
       {
         "id": "T-005",
-        "text": "coder – T2 hotový: build.js command (validace, scaleCostByCount, pay, projekt do projectQueue), completeBuild/applyRepair/buildersProcess (quarterDay order40, builder count z jobs.builder), effectFromCatalog (T2 workaround→T4). ci 840/840, smoke OK, G1 pass, persist round-trip OK. Firemní logika → T3 (G-BUILDER-COMPANIES)",
-        "done": true
+        "text": "coder – T6: build UI screen (karty budov, ceny scaling, fronta projektů, opravy, builder companies) + kontrakty panel; jen selektory + commands, žádná herní logika v UI",
+        "done": false
       },
       {
         "id": "T-006",
-        "text": "coder – T3 hotový: buyCompany.js command + companyBuildersTotal, ownedCompanies stav (persistovaný), buildersProcess přičítá buildersProvided z owned firem; companies.json buildersProvided/masonProvided (approximated). ci 862/862, smoke OK, G1 pass. G-BUILDER-MASON → T4",
-        "done": true
+        "text": "tester – Test loop M5-2 + DoD M5 komplet (sada §1.3): kontrakty deterministické + round-trip (schedule přežije save/load), catch-up-safe, build UI smoke (render bez chyb), plné `npm run ci` + `npm run smoke`, determinismus G1 nedotčen",
+        "done": false
       },
       {
         "id": "T-007",
-        "text": "coder – T4 hotový: buildings.js plná modifier vrstva (effective+memoizace, fold deterministický sort (source,id) add→mul→set, addBuildingModifiers value=created, recalcBuildingAggregates Σeffective bez ×created, rebuildBuildingDerived = jediná sdílená cesta z load i mutací). Napojení jobs.workerSlots/housing/G-BUILDER-MASON. createInitialState volá rebuild (fresh==load). Persist jen modifikátory (ověřeno: payload bez derived/_effCache/_modVersion). ci 906/906, smoke OK, G1 pass, 44 testů round-trip identita",
-        "done": true
+        "text": "reviewer – Review gate M5-2 + DoD M5: registr efektů bez imperativních háčků, kontrakty serializovatelné, UI bez logiky, derivovaná data se neukládají, tickOrder+diagram aktuální (právo re-run)",
+        "done": false
       },
       {
         "id": "T-008",
-        "text": "tester – Test loop M5-1 GO: všech 9 AC PASS empiricky (906+31 testů, 0 fail). Round-trip hashState identita (deepStrictEqual, 4 scénáře), save=jen modifikátory, fold deterministický, agregáty lineární (bez dvojího započtení), catch-up-safe 365 dní (seed determinismus h1=h2), persist všech domén, G1 + grep gate čisté, build flow e2e",
-        "done": true
-      },
-      {
-        "id": "T-009",
-        "text": "reviewer – Review gate M5-1 GO-s-podmínkami (BEZ re-run): 0 blocker/0 major/4 minor/4 nit; všech 5 tvrdých invariantů ověřeno proti kódu (save=jen modifikátory, sdílený rebuild v 5 call-sites, deterministický fold, jedna cesta agregátů, žádný Date.now/Math.random/DOM). Podmínky: MINOR-1 gap-report M5-1 gapy, MINOR-2 (N-04) stale tickOrder T4 sekce, MINOR-3/4 effectFromCatalog komentáře/duplicita",
-        "done": true
-      },
-      {
-        "id": "",
-        "text": "T-009a: coder – Oprava minor hotová: MINOR-3 komentáře effectFromCatalog opraveny, MINOR-4 mrtvá fce getMaxActiveProjects odstraněna (dedup neproveden – jiné zodpovědnosti); MINOR-1/2 ověřeny jako už vyřešené. Žádná logická změna; ci 906/906, smoke OK, G1 nedotčen",
-        "done": true
-      },
-      {
-        "id": "T-010",
-        "text": "human – Uzavření M5-1 SCHVÁLENO stálým pověřením uživatele (DR-013-00 + explicitní direktiva \"uzavřít, pr, mergnout, dojeď celý master plán do konce\"). QA GO (T-008) + reviewer GO (T-009) + všechny exit criteria splněny → /close-iteration + PR + merge",
-        "done": true
+        "text": "human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → DoD M5 hotovo",
+        "done": false
       }
     ],
-    "total": 12,
-    "done_count": 12
+    "total": 8,
+    "done_count": 0
   },
   "closed_iterations": [
     "iter-001",
@@ -464,7 +444,8 @@ const DATA = {
     "iter-009",
     "iter-010",
     "iter-011",
-    "iter-012"
+    "iter-012",
+    "iter-013"
   ],
   "agents": [
     {
@@ -1024,7 +1005,7 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-009a.md",
       "task": "T-009",
-      "completed": "2026-06-14T02:32:26Z",
+      "completed": "2026-06-14T02:35:28Z",
       "description": ""
     },
     {
@@ -1345,13 +1326,7 @@ const DATA = {
       "raw": "# Orchestration Metrics: iter-012\n\n- **Closed**: 2026-06-13\n- **Goal**: Playability hardening (A1–A5) + reload-determinismus fix\n- **Outcome**: MERGED do main (PR #15, 2baffaa); ci 780/780, smoke OK\n\n## Per-Agent Metrics\n\n| Agent | Task | total_tokens | tool_uses | duration_ms |\n|-------|------|-------------|-----------|-------------|\n| coder | T-005..T-009 (A1-A5) | (viz coder/metrics) | – | – |\n| coder | T-014 (Option A) | – | – | – |\n| coder | T-016 (derive-on-init) | 53956 | 41 | 286209 |\n| coder | T-017 (F-1+F-2) | 56655 | 42 | 286545 |\n| tester | T-010 (plná QA) | 115119 | 62 | 433657 |\n| reviewer | T-011 (code review) | 114654 | 53 | 382217 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A). Architekt T-013/T-015 a A1-A5 coder metriky viz agents/*/metrics/iter-012.md.\n"
     }
   },
-  "agent_tokens": {
-    "architect": 280922,
-    "coder": 582296,
-    "reviewer": 263874,
-    "tester": 151467,
-    "tom-proxy": 64437
-  }
+  "agent_tokens": {}
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
