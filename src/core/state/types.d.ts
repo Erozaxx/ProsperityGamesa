@@ -256,6 +256,12 @@ export interface HomeState {
   contractSeq: number;
 }
 
+/** Per-sector research progress state. iter-015 M6 T3. */
+export interface ResearchSectorState {
+  level: number;
+  exp: number;
+}
+
 /** Player resource state */
 export interface PlayerState {
   gold: number;
@@ -269,6 +275,16 @@ export interface PlayerState {
   totArchers: number;
   /** Disease-from-cold accumulator. iter-010 M4a. */
   diseaseFromColdChance: number;
+  /**
+   * Unlocked technology ids. Key = techId, value = true.
+   * Plain object (serialisable, deterministic). iter-015 M6 T1 (§1.3a M-1).
+   */
+  unlockedTechs: Record<string, boolean>;
+  /**
+   * Per-sector research progress (level + exp). Lazy: sectors added on first accumulation.
+   * iter-015 M6 T3 (§3.1). Only level/exp stored; cap/progPct are derived.
+   */
+  research: { sectors: Record<string, ResearchSectorState> };
 }
 
 /** Transaction event emitted by resource handlers */

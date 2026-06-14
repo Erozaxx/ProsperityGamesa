@@ -22,6 +22,7 @@ import { registerSellGoods } from '../core/commands/sellGoods.js';
 import { registerSendCaravan } from '../core/commands/sendCaravan.js';
 import { registerBuyCompany } from '../core/commands/buyCompany.js';
 import { registerBuild } from '../core/commands/build.js';
+import { registerBuyTech } from '../core/commands/buyTech.js';
 import { registerContractCommands } from '../core/commands/contracts.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
 import { marketInit } from '../core/systems/market.js';
@@ -105,6 +106,8 @@ function bootstrapEngine() {
   // iter-014 M5-2 T5 B1: build command wired (was dark code M5-1) + contract commands (§14.1)
   registerBuild(creg);
   registerContractCommands(creg);
+  // iter-015 M6 T1: buyTech command (anti-dark-code B1 lesson)
+  registerBuyTech(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };

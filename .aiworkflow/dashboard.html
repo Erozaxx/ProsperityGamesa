@@ -382,54 +382,64 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-14T02:37:29Z",
+  "generated": "2026-06-14T09:51:23Z",
   "iteration": {
-    "id": "iter-014",
-    "goal": "M5-2 – Kontrakty & build UI: contractQueue + onComplete/onExpire/onReject přes registr efektů (K14), kontraktové eventy přes schedule; UI build screen (karty budov, ceny se scalingem, fronta) + kontrakty panel. Dokončuje M5 (DoD M5 se vyhodnotí zde). Dle master plánu §3/iter-012(M5) T5/T6 + design iter-013 §13. Posun číslování viz DR-013-00/01.",
+    "id": "iter-015",
+    "goal": "M6 – Výzkum & tech strom: tech strom (cena 100×1.25^level), academy/university (research progres, techPt produkce), techy jako modifikátory → K13 uzavřeno plně. Dle master plánu §3/iter-013(M6). Posun číslování viz DR-013-00.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Detailní design M5-2 (navazuje na design_iter-013 §13 odloženo): (1) kontrakty – contractQueue struktura, onComplete/onExpire/onReject přes registr efektů K14 (string-ID+params v datech, ne imperativní háčky), kontraktové eventy přes schedule (serializovatelné, přežijí load), persist schéma; zdroj kontraktů z katalogu/originálu; (2) build UI – datový návrh build screen (karty budov, ceny se scalingem přes scaleCostByCount, fronta projektů, opravy) + kontrakty panel nad selektory/commandy. Determinismus/catch-up-safe; G-BUILD-TXAUDIT kontext. Výstup: design doc",
+        "text": "architect – Detailní design M6 dle master plánu §3/iter-013(M6) + architektury §5.3 (K13 modifikátory – tech efekty výhradně přes modifier vrstvu), §5.4 (K14 registr efektů): (1) tech strom – sektory, cena `techCap`=100×1.25^level (formulas), `unlockedTechs` ve stavu, `buyTech` command, persist; (2) techy jako modifikátory K13 plně (re-aplikace po loadu = fold přes sdílený rebuild, žádná load-only větev); (3) academy/university systém (research progres, techPt produkce, napojení na joby/efficiency); (4) UI academy/tech strom screen. Řešit gap G-LISTTECHS (techs.json approximated kostra → navrhnout doložitelný/approximated tech strom, vzorec doložitelný). Rozhodnout split. Determinismus/catch-up-safe. Výstup: design doc",
         "done": false
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review designu M5-2 (K14 registr efektů korektně, kontrakty serializovatelné/deterministické, UI jen přes selektory/commands bez logiky v UI, soulad s architekturou)",
+        "text": "reviewer – Review designu M6 (techy přes modifier vrstvu K13 bez load-only větve, deterministické, persist jen unlockedTechs/raw, soulad s architekturou, G-LISTTECHS postup) + posouzení splitu",
         "done": false
       },
       {
         "id": "T-003",
-        "text": "tom-proxy – Human gate: schválení M5-2 designu (zastupuje uživatele dle DR-013-00, mandát: auto-ano u gate v rámci scope)",
+        "text": "tom-proxy – Human gate: schválení M6 designu (mandát dle DR-013-00, auto-ano v rámci scope)",
         "done": false
       },
       {
         "id": "T-004",
-        "text": "coder – T5: kontrakty – contractQueue, onComplete/onExpire/onReject přes registr efektů K14, kontraktové eventy přes schedule, persist + round-trip; balanc do balance.js",
+        "text": "coder – T1: tech strom (sektory, techCap=100×1.25^level do formulas.js, unlockedTechs stav, buyTech command, persist) + tabulkové testy techCap; doplnit techs.json (G-LISTTECHS, provenance:'approximated')",
         "done": false
       },
       {
         "id": "T-005",
-        "text": "coder – T6: build UI screen (karty budov, ceny scaling, fronta projektů, opravy, builder companies) + kontrakty panel; jen selektory + commands, žádná herní logika v UI",
+        "text": "coder – T2: techy jako modifikátory K13 plně (tech efekty výhradně přes modifier vrstvu + registr efektů, re-aplikace po loadu = fold přes sdílený rebuild, žádná load-only větev, save=jen unlockedTechs+modifikátory)",
         "done": false
       },
       {
         "id": "T-006",
-        "text": "tester – Test loop M5-2 + DoD M5 komplet (sada §1.3): kontrakty deterministické + round-trip (schedule přežije save/load), catch-up-safe, build UI smoke (render bez chyb), plné `npm run ci` + `npm run smoke`, determinismus G1 nedotčen",
+        "text": "coder – T3: academy/university systém (research progres, techPt produkce, napojení na joby/efficiency) + persist",
         "done": false
       },
       {
         "id": "T-007",
-        "text": "reviewer – Review gate M5-2 + DoD M5: registr efektů bez imperativních háčků, kontrakty serializovatelné, UI bez logiky, derivovaná data se neukládají, tickOrder+diagram aktuální (právo re-run)",
+        "text": "coder – T4: UI academy/tech strom screen (selektory + commands, žádná logika v UI)",
         "done": false
       },
       {
         "id": "T-008",
-        "text": "human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → DoD M5 hotovo",
+        "text": "tester – Test loop M6 (sada §1.3): techCap tabulkové testy, tech→modifier→effective řetěz round-trip (save jen unlockedTechs → load → fold == identita), catch-up-safe, persist round-trip, determinismus G1 nedotčen, smoke (academy screen renderuje), plné `npm run ci` + `npm run smoke`",
+        "done": false
+      },
+      {
+        "id": "T-009",
+        "text": "reviewer – Review gate M6: DoD bod po bodu, techy přes modifier vrstvu (K13 plně), žádná load-only derivace, derivovaná data se neukládají, tickOrder+diagram aktuální (právo re-run)",
+        "done": false
+      },
+      {
+        "id": "T-010",
+        "text": "human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge",
         "done": false
       }
     ],
-    "total": 8,
+    "total": 10,
     "done_count": 0
   },
   "closed_iterations": [
@@ -445,15 +455,16 @@ const DATA = {
     "iter-010",
     "iter-011",
     "iter-012",
-    "iter-013"
+    "iter-013",
+    "iter-014"
   ],
   "agents": [
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-002a (iter-013) — revize designu M5 (po T-001)",
-      "brief": "context/inbox/brief_architect_T-002a_iter-013.md (BRIEF-013-002a)",
-      "iteration": "iter-013 (M5-1 – Budovy & modifikátory)",
+      "task_id": "T-002a (iter-014) — revize M5-2 designu (B1/B2/M1 z reviewer gate T-002)",
+      "brief": "context/inbox/brief_architect_T-002a_iter-014.md (BRIEF-014-002a)",
+      "iteration": "iter-014 (M5-2 – Kontrakty & build UI)",
       "started": "2026-06-14",
       "completed": "2026-06-14"
     },
@@ -504,11 +515,11 @@ const DATA = {
     },
     {
       "slug": "coder",
-      "status": "done",
-      "task_id": "T-009a (iter-013 M5-1 hygiene — 4 minor fixes from review gate)",
-      "brief": "brief_coder_T-009a_iter-013.md",
-      "iteration": "iter-013",
-      "started": "2026-06-14",
+      "status": "done (zachráněno orchestrátorem – agent zemřel před handoffem; práce ověřena CI 990/990 + smoke OK)",
+      "task_id": "T-005 (iter-014 M5-2 T6 — build UI + kontrakty panel)",
+      "brief": "brief_coder_T-005_iter-014.md",
+      "iteration": "iter-014",
+      "started": "",
       "completed": ""
     },
     {
@@ -622,9 +633,9 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-009 (Review GATE M5-1 iter-013 — budovy/builder/companies/modifikátory, závěrečný gate)",
-      "brief": "BRIEF-013-009",
-      "iteration": "iter-013",
+      "task_id": "T-007 (Závěrečný review gate M5-2 iter-014 — kontrakty K14 + build UI + DoD M5, právo re-run)",
+      "brief": "BRIEF-014-007",
+      "iteration": "iter-014",
       "started": "2026-06-14",
       "completed": "2026-06-14"
     },
@@ -649,9 +660,9 @@ const DATA = {
     {
       "slug": "tester",
       "status": "done",
-      "task_id": "T-008",
-      "brief": "BRIEF-013-008",
-      "iteration": "iter-013",
+      "task_id": "T-006",
+      "brief": "BRIEF-014-006",
+      "iteration": "iter-014",
       "started": "2026-06-14",
       "completed": "2026-06-14"
     },
@@ -659,8 +670,8 @@ const DATA = {
       "slug": "tom-proxy",
       "status": "done",
       "task_id": "T-003",
-      "brief": "BRIEF-013-003 (human gate M5-1 design)",
-      "iteration": "iter-013",
+      "brief": "BRIEF-014-003 (human gate M5-2 design)",
+      "iteration": "iter-014",
       "started": "2026-06-14",
       "completed": "2026-06-14"
     },
@@ -681,8 +692,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -708,8 +719,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_playability_iter-012_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -726,8 +737,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_proposal_iter-002_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -735,8 +746,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-004_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -744,8 +755,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-005_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -753,8 +764,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-006_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -762,8 +773,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-007_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -771,8 +782,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-008_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -780,8 +791,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-009_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -789,8 +800,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-010_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -798,8 +809,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-011_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -807,8 +818,17 @@ const DATA = {
       "type": "final",
       "name": "design_iter-013_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T00:04:10Z",
-      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-014_T-001.md",
+      "type": "final",
+      "name": "design_iter-014_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-14T02:48:21Z",
+      "description": "M5-2 design hotov (design_iter-014_T-001.md): T5 kontrakty K14 + T6 build UI. ROZHODNUTI O CONTRACT DATECH: DOLOZITELNE z originalu (events.js+home.js:2407 insertContract+config.js:3248 contract*) -> contracts.json = prepis modelu, provenance derived/approximated, gap G-CONTRACTS-CATALOG zuzen na rozsah+kalibraci M9 (informativni). contractQueue serializovatelne {id,type,status,cost,reward,deadlineStep,onComplete/onExpire/onReject jako {effect:string,...params}}, contractSeq citac. Lifecycle pres registr efektu (string-ID, K14; originalu UZ string callbacky). Expirace pres scheduleInsert(deadlineStep,contract.expire) + handler v novem systems/contracts.js. Generovani schedule-driven (contract.offer re-schedule self, izolovany rng stream contracts, ne polling). Commands accept/reject/completeContract (completion pres import applyContractComplete -> command vrstva BEZE ZMENY, G-BUILD-TXAUDIT zustava). Build UI jen selektory+commands. tickOrder DOPAD: zadne nove periodikum, kontrakty pres SCHEDULE fazi. NUTNE boot wiring: registerEffects dnes NEvolan v bootstrapEngine (M52-D8). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -969,8 +989,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-14T00:51:44Z",
-      "description": "T1 M5-1 building instances+opotřebení+opravy+persist. 807 testů 0 fail, smoke OK, G1 determinismus OK, persist round-trip OK, precache regenerován. T4 stubs nachystány."
+      "completed": "2026-06-14T03:28:53Z",
+      "description": "T5 kontrakty K14 implementovány: contractQueue/lifecycle/schedule/persist/boot wiring (B1+B2). CI 957/957 pass, smoke OK, G1 determinismus OK, +51 testů"
     },
     {
       "agent": "coder",
@@ -1009,6 +1029,24 @@ const DATA = {
       "description": ""
     },
     {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-014_T-004.md",
+      "type": "final",
+      "name": "impl_summary_iter-014_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-14T03:28:53Z",
+      "description": "T5 kontrakty K14 implementovány: contractQueue/lifecycle/schedule/persist/boot wiring (B1+B2). CI 957/957 pass, smoke OK, G1 determinismus OK, +51 testů"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-014_T-005.md",
+      "type": "final",
+      "name": "impl_summary_iter-014_T-005.md",
+      "task": "T-005",
+      "completed": "2026-06-14T01:08:42Z",
+      "description": "T2 M5-1 dokončen: build() command + buildersProcess + completeBuild/applyRepair + scaleCost testy. CI: 840 testů, 0 fail. Smoke OK. G1 OK. Persist round-trip OK. Builder kapacita z jobs (basic slot), builderHut effects. Firmy odloženy na T3."
+    },
+    {
       "agent": "project-manager",
       "file": "agents/project-manager/artifacts/final/iteration_master_plan_iter-003_T-001.md",
       "type": "final",
@@ -1041,8 +1079,8 @@ const DATA = {
       "type": "final",
       "name": "review_architecture_iter-012_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T00:13:19Z",
-      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
+      "completed": "2026-06-14T02:57:55Z",
+      "description": "GO-s-podminkami | 2 BLOCKER (B1 registerBuild chybi v boot, B2 contract.offer bootstrap pro stare savy), 2 MAJOR (migrace/bump rozhodnuti, init v createHomeState), 4 MINOR, 3 NIT | M52-D8 KOREKTNI (overeno proti main.js), determinismus contract streamu G1-safe (precedent buildings) | split: NE"
     },
     {
       "agent": "reviewer",
@@ -1050,8 +1088,17 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-013_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T00:13:19Z",
-      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
+      "completed": "2026-06-14T02:57:55Z",
+      "description": "GO-s-podminkami | 2 BLOCKER (B1 registerBuild chybi v boot, B2 contract.offer bootstrap pro stare savy), 2 MAJOR (migrace/bump rozhodnuti, init v createHomeState), 4 MINOR, 3 NIT | M52-D8 KOREKTNI (overeno proti main.js), determinismus contract streamu G1-safe (precedent buildings) | split: NE"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_design_iter-014_T-002.md",
+      "type": "final",
+      "name": "review_design_iter-014_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-14T02:57:55Z",
+      "description": "GO-s-podminkami | 2 BLOCKER (B1 registerBuild chybi v boot, B2 contract.offer bootstrap pro stare savy), 2 MAJOR (migrace/bump rozhodnuti, init v createHomeState), 4 MINOR, 3 NIT | M52-D8 KOREKTNI (overeno proti main.js), determinismus contract streamu G1-safe (precedent buildings) | split: NE"
     },
     {
       "agent": "reviewer",
@@ -1068,8 +1115,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T00:13:19Z",
-      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
+      "completed": "2026-06-14T02:57:55Z",
+      "description": "GO-s-podminkami | 2 BLOCKER (B1 registerBuild chybi v boot, B2 contract.offer bootstrap pro stare savy), 2 MAJOR (migrace/bump rozhodnuti, init v createHomeState), 4 MINOR, 3 NIT | M52-D8 KOREKTNI (overeno proti main.js), determinismus contract streamu G1-safe (precedent buildings) | split: NE"
     },
     {
       "agent": "reviewer",
@@ -1172,12 +1219,21 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-014_T-007.md",
+      "type": "final",
+      "name": "review_iter-014_T-007.md",
+      "task": "T-007",
+      "completed": "2026-06-14T09:45:47Z",
+      "description": "GO — DoD M5 KOMPLETNÍ a hratelný. Všech 6 tvrdých invariantů platí proti kódu; zachráněná build UI úplná. Nálezy: 0 blocker, 0 major, 1 minor (gap-report neaktualizován), 2 nit. Podmínka MINOR (gap-report) neblokuje merge."
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md",
       "type": "final",
       "name": "review_iteration_master_plan_iter-003_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T00:13:19Z",
-      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
+      "completed": "2026-06-14T02:57:55Z",
+      "description": "GO-s-podminkami | 2 BLOCKER (B1 registerBuild chybi v boot, B2 contract.offer bootstrap pro stare savy), 2 MAJOR (migrace/bump rozhodnuti, init v createHomeState), 4 MINOR, 3 NIT | M52-D8 KOREKTNI (overeno proti main.js), determinismus contract streamu G1-safe (precedent buildings) | split: NE"
     },
     {
       "agent": "reviewer",
@@ -1185,8 +1241,8 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-14T00:13:19Z",
-      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
+      "completed": "2026-06-14T02:57:55Z",
+      "description": "GO-s-podminkami | 2 BLOCKER (B1 registerBuild chybi v boot, B2 contract.offer bootstrap pro stare savy), 2 MAJOR (migrace/bump rozhodnuti, init v createHomeState), 4 MINOR, 3 NIT | M52-D8 KOREKTNI (overeno proti main.js), determinismus contract streamu G1-safe (precedent buildings) | split: NE"
     },
     {
       "agent": "tester",
@@ -1205,6 +1261,15 @@ const DATA = {
       "task": "T-008",
       "completed": "2026-06-14T02:15:28Z",
       "description": "GO — M5-1 všechny AC PASS: 906 testů/0 fail, modifier round-trip hashState identita, catch-up deterministický, G1 nedotčen"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-014_T-006.md",
+      "type": "final",
+      "name": "qa_report_iter-014_T-006.md",
+      "task": "T-006",
+      "completed": "2026-06-14T09:35:20Z",
+      "description": "GO — M5 kompletní: 990/990 CI pass, B2 re-arm PASS (starý save→arm→offer; M5-2→no-op), kontrakty lifecycle deterministické, build UI reálně staví (B1), G1 nedotčen, SAVE_VERSION=3"
     },
     {
       "agent": "tester",
@@ -1284,8 +1349,17 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-013_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-14T00:29:39Z",
-      "description": "SCHVALENO (proceed M5-1 impl). 4/4 produktovych rozhodnuti OK: (1) scaleCost default=1.0 verne originalu; (2) G-LISTBUILDINGS >=6 budov approximated dle Q3/DR-001; (3) G-BUILD-TXAUDIT odlozeno OK-s-poznamkou (gold se odecte, tx report do M5-2/M9); (4) split M5-1/M5-2 OK. Zadne blokujici vyhrady, nic mimo mandat. Verdikt: artifacts/final/gate_iter-013_T-003.md"
+      "completed": "2026-06-14T03:09:08Z",
+      "description": "SCHVÁLENO s výhradou — M5-2 design (kontrakty + build UI). 1) min. hratelná sada kontraktů + G-CONTRACTS-CATALOG informativní = OK (precedens G-LISTBUILDINGS); 2) B1 registerBuild fix = OK; 3) build UI dokončuje M5 = OK; 4) G-BUILD-TXAUDIT odložen na M9 = OK s poznámkou (podmínka: adresovat v M9, jinak eskalace). Proceed na implementaci."
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-014_T-003.md",
+      "type": "final",
+      "name": "gate_iter-014_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-14T03:09:08Z",
+      "description": "SCHVÁLENO s výhradou — M5-2 design (kontrakty + build UI). 1) min. hratelná sada kontraktů + G-CONTRACTS-CATALOG informativní = OK (precedens G-LISTBUILDINGS); 2) B1 registerBuild fix = OK; 3) build UI dokončuje M5 = OK; 4) G-BUILD-TXAUDIT odložen na M9 = OK s poznámkou (podmínka: adresovat v M9, jinak eskalace). Proceed na implementaci."
     }
   ],
   "metrics": {

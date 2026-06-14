@@ -212,7 +212,38 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 /* Screen base */
 .screen { width: 100%; max-width: 700px; padding: 0.5rem 0; }
 
+/* Tech screen (iter-015 M6 T4) */
+.screen-tech .tech-section { margin-bottom: 1rem; }
+.tech-points-header { font-size: 1rem; padding: 0.4rem 0; }
+
+.research-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+.research-item { display: grid; grid-template-columns: 1fr auto auto 1fr auto; align-items: center; gap: 0.4rem; font-size: 0.85rem; }
+.research-bar { width: 100%; }
+.research-pct { font-size: 0.75rem; opacity: 0.75; }
+
+.tech-sectors { display: flex; flex-direction: column; gap: 1rem; }
+.tech-sector-name { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; margin-bottom: 0.3rem; }
+.tech-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+.tech-item { background: var(--surface); border: 1px solid #2e4a35; border-radius: 6px; padding: 0.5rem 0.75rem; }
+.tech-item-unlocked { border-color: var(--accent); opacity: 0.85; }
+.tech-item-available { border-color: var(--on); }
+.tech-item-locked { opacity: 0.6; }
+.tech-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; }
+.tech-name { font-size: 0.9rem; font-weight: 600; }
+.tech-cost { font-size: 0.8rem; opacity: 0.8; }
+.tech-effects { font-size: 0.75rem; opacity: 0.65; display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.3rem; }
+.tech-effect { background: #1e3a28; padding: 0.1rem 0.35rem; border-radius: 3px; }
+.tech-action { margin-top: 0.25rem; }
+.tech-status { font-size: 0.8rem; }
+.tech-unlocked { color: var(--accent); }
+.tech-locked { opacity: 0.7; }
+.tech-buy-btn { padding: 0.3rem 0.7rem; background: var(--btn-bg); color: var(--text); border: 1px solid #2e4a35; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+.tech-buy-btn:hover:not(:disabled) { background: var(--btn-hover); }
+.tech-buy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 @media (max-width: 480px) {
   .building-cards { flex-direction: column; }
   .building-card { max-width: 100%; }
+  .research-item { grid-template-columns: 1fr auto; }
+  .research-level, .research-exp { display: none; }
 }

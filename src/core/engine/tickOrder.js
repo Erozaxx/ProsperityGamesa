@@ -35,6 +35,7 @@ import { upkeepMilitary } from '../systems/upkeep.js';
 import { burnWood } from '../systems/burnWood.js';
 import { closeMonth } from '../resources/accounting.js';
 import { ageBuildings, buildersProcess } from '../systems/buildings.js';
+import { researchDaily } from '../systems/research.js';
 import { registerContractEffects } from '../systems/contracts.js';
 
 /**
@@ -175,6 +176,8 @@ export function registerCorePeriodics(registry) {
   register(registry, 'buildings.age', ageBuildings);
   // iter-013 M5-1 T2: builder advancement system (quarterDay, order 40 — after jobs.autoAssign order 30)
   register(registry, 'buildings.builders', buildersProcess);
+  // iter-015 M6 T3: daily research exp accumulation + techPt production (day edge, order 75, after buildings.age 70)
+  register(registry, 'research.daily', researchDaily);
 
   // iter-014 M5-2 T5: contract schedule handlers (one-shot events, K17, §6.4)
   // Registered here so all test makeCtx() calls automatically include contract handlers.
@@ -212,6 +215,9 @@ export function registerCorePeriodics(registry) {
     // iter-013 M5-1 T1: daily building wear (after burnWood order 60; before month systems)
     // Design §7: buildings.age on 'day' edge, order 70. RNG via stream 'buildings' (K16/D4).
     { id: 'buildings.age',           every: 'day',        order: 70, systemFn: 'buildings.age' },
+    // iter-015 M6 T3: daily research (after buildings.age 70; academy/university state current)
+    // Design §3.5: research.daily on 'day' edge, order 75. Deterministic (no RNG).
+    { id: 'research.daily',          every: 'day',        order: 75, systemFn: 'research.daily' },
     { id: 'season.change',           every: 'season',     order: 10, systemFn: 'noop' },
     { id: 'battle.tick',             every: 'step',       order: 30, systemFn: 'battle.tick' },
   ];

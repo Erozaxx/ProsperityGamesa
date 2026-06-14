@@ -36,6 +36,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | mine.daily | day | 50 | mine.daily | LIVE (M3) |
 | home.burnWood | day | 60 | home.burnWood | LIVE (M4a) |
 | buildings.age | day | 70 | buildings.age | LIVE (M5-1 T1) |
+| research.daily | day | 75 | research.daily | LIVE (M6) |
 | forest.regen | 10days | 10 | forest.regen | LIVE (M3) |
 | localTaxes | 5days | 10 | taxes.local | LIVE (M4a) |
 | food.spoilage | month | 10 | food.spoilage | LIVE |
@@ -51,7 +52,7 @@ step:       populationMigration → skillsProgress → battleTick(stub)
 quarterDay: jobsProduction → jobsAccidents → autoAssignWorkers → [buildersProcess]NEW(T2)
 noon:       healthBirths → populationRetirement → healthDisease → crimeDaily → meal2
 day:        workerEfficiency → meal1 → settlementLevel → worldTick(stub) → market.drift
-            → field → mine → burnWood → [buildings.age]NEW(T1)
+            → field → mine → burnWood → [buildings.age]NEW(T1) → [research.daily]NEW(M6)
 10days:     forestRegen
 5days:      localTaxes
 month:      food.spoilage → taxes.monthly → upkeep.military → council.closeMonth

@@ -1,32 +1,31 @@
 # Current Task
 
-- **Task ID**: T-006
-- **Brief**: BRIEF-014-006
-- **Iteration**: iter-014
+- **Task ID**: T-008
+- **Brief**: BRIEF-015-008
+- **Iteration**: iter-015
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Dokončeno. Nezávislá QA M5-2 (kontrakty K14 + build UI) + DoD M5 celkově.
+Dokončeno. Nezávislá QA M6 (tech strom + tech modifikátory + academy/research + UI) + DoD M6 (K13 plně).
 Verdikt **GO** — všech 9 AC empiricky ověřeno vlastním během.
 
 ## Předpoklady
-- T5 (kontrakty) implementoval coder iter-014.
-- T6 (build UI + ContractsScreen) zachránil orchestrátor (coder zemřel před handoffem).
+- T4-T7 implementoval coder (iter-015).
 - Scope OUT: žádná změna produkčního kódu.
 
 ## Blockery
 –
 
-## Checklist (z briefu BRIEF-014-006)
-- [x] AC1: `npm run ci` zelené — 990/990 pass, 0 fail; smoke OK (Stavba+Kontrakty taby renderují)
-- [x] AC2: Kontrakty lifecycle — offer→accept→complete (pay+grant getGoldValue); expire (deadlineStep); reject. Registr efektů, deterministické
-- [x] AC3: B2 re-arm — starý save BEZ offer → arm → 1 offer; M5-2 save → no-op; idempotentní (3× volání = 1)
-- [x] AC4: Determinismus — seed → stejné kontrakty; rng stream 'contracts' izolovaný (G1 nedotčen); hash round-trip
-- [x] AC5: Catch-up-safe — 365 herních dní (328,500 steps) bez crashe; determinismus (h1=h2)
-- [x] AC6: Persist round-trip — contractQueue/contractSeq/schedule eventy přežijí; M5-1 domény nedotčeny
-- [x] AC7: Build UI funkční (B1) — build reálně staví (wood odečten, projekt do fronty); buyCompany PASS; ContractsScreen accept/reject/complete PASS; žádná logika v UI
-- [x] AC8: SAVE_VERSION = 3, starý save se načte
-- [x] AC9: DoD M5 celkově — město roste, kontrakty běží, modifikátory čistě, vše z UI — M5 kompletní hratelný
-- [x] QA report: artifacts/final/qa_report_iter-014_T-006.md (verdikt GO)
+## Checklist (z briefu BRIEF-015-008)
+- [x] AC1: `npm run ci` zelené — 1097/1097 pass, 0 fail; smoke OK (tab "Veda" renderuje)
+- [x] AC2: buyTech lifecycle — prereqs+canAfford+pay+odemčení; tech efekt v home.derived; nelze bez techPt/prereqs/2×
+- [x] AC3: Tech modifikátory round-trip identita (plný hashState) — bit-identický; payload bez derivovaných
+- [x] AC4: K13 plně — budovy+techy STEJNÁ modifier vrstva; jedna rebuild cesta; kombinace budova+tech fold add→mul→set
+- [x] AC5: Research/techPt deterministický; catch-up-safe; ≥1 rok sim (365 dní); techCap tabulkově
+- [x] AC6: M6 nerozbil M5 — m5-buildings-t4 44/44; m5-contracts 51/51; G1 iter005-edge 16/16
+- [x] AC7: Persist round-trip M6 domén (unlockedTechs, research.sectors) + M5; staré savy undefined-guard
+- [x] AC8: Determinismus — žádný Math.random/Date.now/DOM v core; fresh-vs-load identita
+- [x] AC9: UI — TechScreen renderuje; buyTech tlačítko odemyká; žádná logika v UI
+- [x] QA report: artifacts/final/qa_report_iter-015_T-008.md (verdikt GO)
