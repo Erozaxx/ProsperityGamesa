@@ -323,4 +323,41 @@ export const BALANCE = Object.freeze({
      */
     requeueDelay: 2,
   },
+
+  /**
+   * Contracts mechanic constants. iter-014 M5-2 T5.
+   * Source: events.js + home.js:2407 + config.js:3248. See design_iter-014.md §5.3.
+   */
+  contracts: {
+    /**
+     * Max contracts offered/active at once.
+     * Source: home.js:2414 maxContracts gate. provenance: approximated (orig. dynamic), gap G-CONTRACTS-CATALOG.
+     */
+    maxContracts: 5,
+    /**
+     * Offer generation period in days.
+     * Source: events.js:305 STEPSPERDAY*15. provenance: approximated, gap G-CONTRACT-GEN.
+     */
+    offerPeriodDays: 15,
+    /**
+     * Offer period jitter in days (±). provenance: approximated.
+     */
+    offerJitterDays: 5,
+    /**
+     * First offer scheduled at this absolute step (>= 1 quarterDay). §14.5 MINOR-4.
+     * Guarantees generátor fires AFTER marketInit (main.js:180). provenance: approximated.
+     */
+    firstOfferStep: 1,
+    /**
+     * Reward multiplier: reward = getGoldValue(cost) × rewardMult.
+     * Source: events.js:252 goodsSeller. provenance: derived.
+     */
+    rewardMult: 1.4,
+    /**
+     * Goods quantity range for supply contracts [min, max].
+     * provenance: approximated (orig. uses Math.random ranges), gap G-CONTRACT-GEN, calibration M9.
+     */
+    supplyQtyMin: 5,
+    supplyQtyMax: 30,
+  },
 });

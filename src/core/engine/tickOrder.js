@@ -35,6 +35,7 @@ import { upkeepMilitary } from '../systems/upkeep.js';
 import { burnWood } from '../systems/burnWood.js';
 import { closeMonth } from '../resources/accounting.js';
 import { ageBuildings, buildersProcess } from '../systems/buildings.js';
+import { registerContractEffects } from '../systems/contracts.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).
@@ -174,6 +175,10 @@ export function registerCorePeriodics(registry) {
   register(registry, 'buildings.age', ageBuildings);
   // iter-013 M5-1 T2: builder advancement system (quarterDay, order 40 — after jobs.autoAssign order 30)
   register(registry, 'buildings.builders', buildersProcess);
+
+  // iter-014 M5-2 T5: contract schedule handlers (one-shot events, K17, §6.4)
+  // Registered here so all test makeCtx() calls automatically include contract handlers.
+  registerContractEffects(registry);
 
   /** @type {PeriodicTask[]} */
   const periodics = [

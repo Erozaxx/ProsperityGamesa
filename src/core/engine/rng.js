@@ -6,7 +6,8 @@
 
 // Stream names in fixed order (determinism)
 // iter-013 M5-1: added 'buildings' stream (ageBuildings RNG, K16/D4 isolated stream)
-const STREAM_NAMES = /** @type {StreamName[]} */ (['population','forest','mine','field','market','world','battle','events','buildings']);
+// iter-014 M5-2: added 'contracts' stream (contract generator RNG, K16/D4 isolated, MUST be last)
+const STREAM_NAMES = /** @type {StreamName[]} */ (['population','forest','mine','field','market','world','battle','events','buildings','contracts']);
 
 /**
  * Single step of mulberry32 PRNG.

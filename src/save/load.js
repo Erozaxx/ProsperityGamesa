@@ -199,6 +199,16 @@ function applyPayload(state, payload) {
     if (payload.home.ownedCompanies !== undefined) {
       state.home.ownedCompanies = payload.home.ownedCompanies;
     }
+
+    // contractQueue: serialisable contract list (iter-014 M5-2 T5)
+    if (payload.home.contractQueue !== undefined) {
+      state.home.contractQueue = payload.home.contractQueue;
+    }
+
+    // contractSeq: monotonic counter for deterministic contract IDs (iter-014 M5-2 T5)
+    if (payload.home.contractSeq !== undefined) {
+      state.home.contractSeq = payload.home.contractSeq;
+    }
   }
 
   if (payload.world) {

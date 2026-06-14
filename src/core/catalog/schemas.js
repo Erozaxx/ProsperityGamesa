@@ -36,6 +36,16 @@ export const SCHEMAS = {
   companies: {
     required: ['explorer', 'houseBuilder', 'mineBuilder'],
   },
+  contracts: {
+    // iter-014 M5-2 T5: contract catalog. required = required fields per item.
+    required: ['id', 'title', 'expirationDays', 'kind'],
+    itemShape: {
+      id:             { type: 'string', required: true },
+      title:          { type: 'string', required: true },
+      expirationDays: { type: 'number', required: true, min: 1 },
+      kind:           { type: 'string', required: true, enum: ['supply', 'demand', 'build', 'military', 'unlock'] },
+    },
+  },
   food: {
     required: ['id', 'name', 'description', 'type'],
     itemShape: {
