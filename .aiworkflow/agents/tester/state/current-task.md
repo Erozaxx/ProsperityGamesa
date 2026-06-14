@@ -1,14 +1,14 @@
 # Current Task
 
-- **Task ID**: T-008
-- **Brief**: BRIEF-015-008
-- **Iteration**: iter-015
+- **Task ID**: T-007
+- **Brief**: BRIEF-016-007
+- **Iteration**: iter-016
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Dokončeno. Nezávislá QA M6 (tech strom + tech modifikátory + academy/research + UI) + DoD M6 (K13 plně).
+Dokončeno. Nezávislá QA M7a-1 (zóny + jednotky + napojení trhu).
 Verdikt **GO** — všech 9 AC empiricky ověřeno vlastním během.
 
 ## Předpoklady
