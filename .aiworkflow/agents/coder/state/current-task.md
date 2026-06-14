@@ -1,7 +1,7 @@
 # Current Task
-- **Task ID**: T-005 (iter-017)
+- **Task ID**: T-006 (iter-017)
 - **Iteration**: iter-017
-- **Milestone**: M7a-2 T3 — revolty + questy + tribute výběr + AI-AI bitvy vzorcem
+- **Milestone**: M7a-2 T6 — UI world/zones screen (WorldZonesScreen + selektory + tab)
 - **Status**: done
 - **Done**: 2026-06-15
-- **CI**: 1227 tests, 0 fail (35 nových T3 testů)
+- **CI**: 1255 tests, 0 fail (28 nových T6 testů selektorů)

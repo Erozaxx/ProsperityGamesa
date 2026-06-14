@@ -10,6 +10,7 @@ import {
   selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance, selectMarket,
   selectBuildableBuildings, selectProjectQueue, selectBuilderCapacity, selectBuilderCompanies,
   selectContracts, selectTechTree, selectResearchProgress, selectTechPoints,
+  selectWorldZones, selectFactions, selectQuests,
 } from './selectors.js';
 
 // ---------------------------------------------------------------------------
@@ -598,5 +599,135 @@ export function SkillsScreen({ snapshot, send }) {
           </li>
         `)}
       </ul>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// WorldZonesScreen (iter-017 M7a-2 T6)
+// ---------------------------------------------------------------------------
+
+/**
+ * World / Zones / Factions / Quests screen.
+ * Pure component — all reads via selectors, all writes via send('acceptQuest'/'rejectQuest').
+ * Design: design_iter-017.md §8.2/§8.3.
+ * @param {{ snapshot: import('../core/state/types.js').GameState, send: (type: string, params?: object) => {ok: boolean, error?: string} }} props
+ */
+export function WorldZonesScreen({ snapshot, send }) {
+  const zones    = selectWorldZones(snapshot);
+  const factions = selectFactions(snapshot);
+  const quests   = selectQuests(snapshot);
+
+  /**
+   * Format a req/reward basket for display.
+   * @param {Record<string, number>} basket
+   * @returns {string}
+   */
+  function formatBasket(basket) {
+    const entries = Object.entries(basket);
+    if (entries.length === 0) return '–';
+    return entries.map(([k, v]) => `${v} ${k}`).join(', ');
+  }
+
+  return html`
+    <div class="screen screen-world-zones">
+      <h2>Svět – Zóny a frakce</h2>
+
+      <!-- ── Zóny ── -->
+      <section class="world-zones-section">
+        <h3>Zóny</h3>
+        ${zones.length === 0
+          ? html`<p class="empty-state">Žádné zóny k dispozici.</p>`
+          : html`
+            <div class="table-scroll">
+              <table class="zones-table">
+                <thead>
+                  <tr>
+                    <th>Název</th>
+                    <th>Liege</th>
+                    <th>Policy</th>
+                    <th>Dělníci</th>
+                    <th>Válečníci</th>
+                    <th>Lučištníci</th>
+                    <th>Přízeň</th>
+                    <th>Vojenský rating</th>
+                    <th>Ekonomický rating</th>
+                    <th>Sousedé</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${zones.map(z => html`
+                    <tr key=${z.id} class="zone-row ${z.liege !== z.originalLiege ? 'zone-occupied' : ''}">
+                      <td class="zone-name">${z.name}</td>
+                      <td class="zone-liege" style=${'color:' + z.liegeColor}>${z.liegeName}</td>
+                      <td class="zone-policy">${z.policyName}</td>
+                      <td class="zone-workers">${z.numWorkers}</td>
+                      <td class="zone-warriors">${z.warriors}</td>
+                      <td class="zone-archers">${z.archers}</td>
+                      <td class="zone-favour ${z.favour < 0 ? 'favour-neg' : z.favour > 50 ? 'favour-high' : ''}">${z.favour}</td>
+                      <td class="zone-mil-rating">${z.militaryRating.toFixed(0)}</td>
+                      <td class="zone-eco-rating">${z.economicRating.toFixed(0)}</td>
+                      <td class="zone-neighbours">${z.neighbours.join(', ') || '–'}</td>
+                    </tr>
+                  `)}
+                </tbody>
+              </table>
+            </div>
+          `}
+      </section>
+
+      <!-- ── Frakce / diplomacie ── -->
+      <section class="world-zones-section">
+        <h3>Frakce</h3>
+        ${factions.length === 0
+          ? html`<p class="empty-state">Žádné frakce k dispozici.</p>`
+          : html`
+            <ul class="faction-list">
+              ${factions.map(f => html`
+                <li key=${f.id} class="faction-item">
+                  <span class="faction-name" style=${'color:' + f.color}>${f.name}</span>
+                  <span class="faction-state">Stav: ${f.stateName}</span>
+                  <span class="faction-zones">Zóny: ${f.totalZones}</span>
+                  <span class="faction-army">Armáda: ${f.totalWarriors}v / ${f.totalArchers}l</span>
+                  <span class="faction-aggression">Agrese: ${f.aggression}</span>
+                  ${f.wantToAttack ? html`<span class="faction-danger">Chce zaútočit!</span>` : null}
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
+
+      <!-- ── Questy ── -->
+      <section class="world-zones-section">
+        <h3>Questy</h3>
+        ${quests.length === 0
+          ? html`<p class="empty-state">Žádné aktivní questy.</p>`
+          : html`
+            <ul class="quest-list">
+              ${quests.map(q => html`
+                <li key=${q.id} class="quest-item ${q.canAccept ? 'quest-affordable' : 'quest-unaffordable'}">
+                  <div class="quest-title">${q.title || q.type}</div>
+                  <div class="quest-from">Zóna: ${q.fromName}</div>
+                  ${q.description ? html`<div class="quest-desc">${q.description}</div>` : null}
+                  <div class="quest-details">
+                    <span class="quest-req">Požadavek: ${formatBasket(q.req)}</span>
+                    <span class="quest-reward">Odměna: ${formatBasket(q.reward)}</span>
+                    <span class="quest-deadline ${q.daysLeft < 5 ? 'deadline-urgent' : ''}">Zbývá: ${q.daysLeft} dní</span>
+                  </div>
+                  <div class="quest-actions">
+                    <button
+                      onClick=${() => send('acceptQuest', { questId: q.id })}
+                      disabled=${!q.canAccept}
+                      title=${q.canAccept ? 'Přijmout quest' : 'Nedostatek zdrojů'}
+                    >Přijmout</button>
+                    <button
+                      onClick=${() => send('rejectQuest', { questId: q.id })}
+                      title="Odmítnout quest"
+                    >Odmítnout</button>
+                  </div>
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
     </div>`;
 }

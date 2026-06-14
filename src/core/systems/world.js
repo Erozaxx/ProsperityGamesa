@@ -731,11 +731,12 @@ function getCapital(state, factionId) {
 /**
  * Calculate military rating of a zone (derived, not persisted).
  * Source: original world.js ř.607-618.
+ * Exported for use by UI selectors (§8.1 design — ratingy on-demand, NEukládat).
  * @param {any} state
  * @param {any} zone
  * @returns {number}
  */
-function calcMilitaryRating(state, zone) {
+export function calcMilitaryRating(state, zone) {
   if (!zone) return 0;
   if (zone.immunity) return 99999999;
   const liege = getFaction(state, zone.liege);
@@ -750,11 +751,12 @@ function calcMilitaryRating(state, zone) {
 /**
  * Calculate economic rating of a zone (derived, not persisted).
  * Source: original world.js ř.620-634.
+ * Exported for use by UI selectors (§8.1 design — ratingy on-demand, NEukládat).
  * @param {any} state
  * @param {any} zone
  * @returns {number}
  */
-function calcEconomicRating(state, zone) {
+export function calcEconomicRating(state, zone) {
   if (!zone) return 0;
   if (zone.liege === 'player') {
     // Player capital: inventory gold value + player.gold

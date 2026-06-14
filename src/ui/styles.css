@@ -247,3 +247,51 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   .research-item { grid-template-columns: 1fr auto; }
   .research-level, .research-exp { display: none; }
 }
+
+/* ---- World/Zones screen (iter-017 T6) ---- */
+.screen-world-zones .world-zones-section { margin-top: 1rem; }
+.screen-world-zones h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent); }
+
+/* Zones table */
+.zones-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.zones-table th, .zones-table td { padding: 0.3rem 0.4rem; text-align: right; white-space: nowrap; }
+.zones-table th:first-child, .zones-table td:first-child { text-align: left; }
+.zone-occupied { background: rgba(239,83,80,0.07); }
+.favour-neg  { color: #ef9a9a; }
+.favour-high { color: var(--on); }
+
+/* Faction list */
+.faction-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+.faction-item {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+  background: var(--surface); border: 1px solid #2e4a35; border-radius: 4px;
+  padding: 0.4rem 0.6rem; font-size: 0.85rem;
+}
+.faction-name  { font-weight: 600; min-width: 6rem; }
+.faction-state { opacity: 0.8; }
+.faction-danger { color: #ef9a9a; font-weight: 600; }
+
+/* Quest list */
+.quest-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.quest-item {
+  background: var(--surface); border: 1px solid #2e4a35; border-radius: 6px;
+  padding: 0.5rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.quest-item.quest-unaffordable { opacity: 0.7; }
+.quest-title  { font-weight: 600; }
+.quest-from   { font-size: 0.8rem; opacity: 0.75; }
+.quest-desc   { font-size: 0.8rem; opacity: 0.7; }
+.quest-details { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.82rem; }
+.deadline-urgent { color: #ef9a9a; font-weight: 600; }
+.quest-actions { display: flex; gap: 0.4rem; margin-top: 0.25rem; }
+.quest-actions button {
+  padding: 0.3rem 0.7rem; font-size: 0.85rem; background: var(--btn-bg);
+  color: var(--text); border: 1px solid #2e4a35; border-radius: 4px; cursor: pointer;
+}
+.quest-actions button:hover:not(:disabled) { background: var(--btn-hover); }
+.quest-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .zones-table { font-size: 0.72rem; }
+  .zones-table th, .zones-table td { padding: 0.2rem 0.25rem; }
+}

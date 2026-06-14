@@ -10,6 +10,7 @@ import { scaleCostByCount, techCap } from '../core/balance/formulas.js';
 import { effectiveMap, effectFromCatalog } from '../core/systems/buildings.js';
 import { companyBuildersTotal, companyMasonTotal } from '../core/commands/buyCompany.js';
 import { BALANCE } from '../core/balance/balance.js';
+import { calcMilitaryRating, calcEconomicRating, findQuest } from '../core/systems/world.js';
 
 const STEPSPERDAY = BALANCE.engine.stepsPerDay;
 const BAL_BUILDINGS = /** @type {any} */ (BALANCE).buildings;
@@ -546,4 +547,214 @@ export function selectWorld(s) {
       curOres: mine ? mine.curOres : 0,
     },
   };
+}
+
+// ---------------------------------------------------------------------------
+// T6 (iter-017 M7a-2) — World / Zones / Factions / Quests selectors
+// ---------------------------------------------------------------------------
+
+/** Policy id → human-readable name (orig: 0=resource, 1=growth, 2=military, 3=tribute) */
+const POLICY_NAMES = ['Zdroje', 'Růst', 'Vojsko', 'Tribut'];
+
+/** Faction colour palette (approximate, vis-distinguishable)
+ * @type {Record<string, string>}
+ */
+const FACTION_COLORS = {
+  player:         '#4caf50',
+  theWarlord:     '#ef5350',
+  thePrincess:    '#ab47bc',
+  thePsychopath:  '#ff7043',
+};
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   liege: string,
+ *   liegeName: string,
+ *   liegeColor: string,
+ *   originalLiege: string,
+ *   policy: number,
+ *   policyName: string,
+ *   numWorkers: number,
+ *   warriors: number,
+ *   archers: number,
+ *   favour: number,
+ *   militaryRating: number,
+ *   economicRating: number,
+ *   neighbours: string[],
+ *   curQuest: string | null
+ * }} ZoneViewItem
+ */
+
+/**
+ * Selects world zones with derived ratings and display fields.
+ * Ratingy on-demand (calcMilitaryRating/calcEconomicRating) — NEukládá (design §8.1).
+ * favour = player favour number = zone.favour?.player ?? 0 (undefined-safe, §8.1 n-1).
+ * @param {GameState} s
+ * @returns {ZoneViewItem[]}
+ */
+export function selectWorldZones(s) {
+  const zones = /** @type {any[]} */ (s.world?.zones ?? []);
+  return zones.map(z => {
+    const liegeColor = FACTION_COLORS[/** @type {string} */ (z.liege)] ?? '#888';
+    const liegeName  = (() => {
+      if (z.liege === 'player') return 'Hráč';
+      const fac = /** @type {any} */ (s.world?.factions)?.[z.liege];
+      return fac ? fac.name : z.liege;
+    })();
+    // favour: player favour number from per-faction object (undefined-safe)
+    const favour = (z.favour && typeof z.favour.player === 'number') ? z.favour.player : 0;
+    return {
+      id:             z.id,
+      name:           z.name ?? z.id,
+      liege:          z.liege ?? '',
+      liegeName,
+      liegeColor,
+      originalLiege:  z.originalLiege ?? '',
+      policy:         z.policy ?? 0,
+      policyName:     POLICY_NAMES[z.policy ?? 0] ?? String(z.policy),
+      numWorkers:     z.numWorkers ?? 0,
+      warriors:       z.warriors   ?? 0,
+      archers:        z.archers    ?? 0,
+      favour,
+      militaryRating: calcMilitaryRating(s, z),
+      economicRating: calcEconomicRating(s, z),
+      neighbours:     Array.isArray(z.neighbours) ? z.neighbours : [],
+      curQuest:       z.curQuest ?? null,
+    };
+  });
+}
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   color: string,
+ *   state: number,
+ *   stateName: string,
+ *   capitalId: string | null,
+ *   capitalName: string | null,
+ *   aggression: number,
+ *   totalZones: number,
+ *   totalWarriors: number,
+ *   totalArchers: number,
+ *   wantToAttack: boolean
+ * }} FactionViewItem
+ */
+
+/**
+ * Selects world factions with derived totals and state name.
+ * stateName derived from aiStates catalog (key field, §8.1 design).
+ * @param {GameState} s
+ * @returns {FactionViewItem[]}
+ */
+export function selectFactions(s) {
+  const factions = /** @type {Record<string, any>} */ (s.world?.factions ?? {});
+  const zones = /** @type {any[]} */ (s.world?.zones ?? []);
+
+  // aiStates from catalog (zones.json.zones.aiStates)
+  let aiStates = /** @type {any[]} */ ([]);
+  try {
+    if (hasCatalog('zones')) {
+      const cat = /** @type {any} */ (getCatalog('zones'));
+      const catalogDef = cat?.zones ?? cat;
+      if (Array.isArray(catalogDef?.aiStates)) aiStates = catalogDef.aiStates;
+    }
+  } catch (_) { /* catalog not available (tests without catalog) */ }
+
+  /** @param {number} stateId @returns {string} */
+  function getStateName(stateId) {
+    const entry = aiStates.find((/** @type {any} */ a) => a.id === stateId);
+    return entry ? entry.key : String(stateId);
+  }
+
+  return Object.values(factions).map(fac => {
+    const facZones = zones.filter(z => z.liege === fac.id);
+    const totalWarriors = facZones.reduce((acc, z) => acc + (z.warriors || 0), 0);
+    const totalArchers  = facZones.reduce((acc, z) => acc + (z.archers  || 0), 0);
+
+    // capital name
+    const capitalZone = fac.capitalId ? zones.find((z) => z.id === fac.capitalId) : null;
+    const capitalName = capitalZone ? (capitalZone.name ?? fac.capitalId) : null;
+
+    return {
+      id:           fac.id,
+      name:         fac.name ?? fac.id,
+      color:        FACTION_COLORS[fac.id] ?? '#888',
+      state:        fac.state ?? 0,
+      stateName:    getStateName(fac.state ?? 0),
+      capitalId:    fac.capitalId ?? null,
+      capitalName,
+      aggression:   fac.aggression ?? 0,
+      totalZones:   facZones.length,
+      totalWarriors,
+      totalArchers,
+      wantToAttack: !!fac.wantToAttack,
+    };
+  });
+}
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   from: string,
+ *   fromName: string,
+ *   type: string,
+ *   title: string,
+ *   description: string,
+ *   req: Record<string, number>,
+ *   reward: Record<string, number>,
+ *   deadlineStep: number,
+ *   daysLeft: number,
+ *   canAccept: boolean
+ * }} QuestViewItem
+ */
+
+/**
+ * Selects world quests with derived daysLeft and canAccept affordability.
+ * daysLeft derived from curStep (design §8.1) — not stored.
+ * canAccept: player has enough warriors/archers for req (design §5.3).
+ * @param {GameState} s
+ * @returns {QuestViewItem[]}
+ */
+export function selectQuests(s) {
+  const quests = /** @type {any[]} */ (/** @type {any} */ (s.world)?.quests ?? []);
+  const curStep = s.engine.curStep;
+  const stepsPerDay = STEPSPERDAY;
+  const p = /** @type {any} */ (s.player);
+
+  return quests.map(q => {
+    const remaining = Math.max(0, (q.deadlineStep ?? 0) - curStep);
+    const daysLeft  = Math.round(remaining / stepsPerDay);
+
+    // canAccept: player has enough warriors and archers for req (min. set check)
+    const req = q.req || {};
+    const neededWarriors = req.warriors || 0;
+    const neededArchers  = req.archers  || 0;
+    const neededGold     = req.gold     || 0;
+    const hasWarriors    = (p?.totWarriors ?? 0) >= neededWarriors;
+    const hasArchers     = (p?.totArchers  ?? 0) >= neededArchers;
+    const hasGold        = (p?.gold        ?? 0) >= neededGold;
+    const canAccept      = hasWarriors && hasArchers && hasGold;
+
+    // fromName: zone name lookup
+    const zones = /** @type {any[]} */ (s.world?.zones ?? []);
+    const fromZone = zones.find(z => z.id === q.from);
+    const fromName = fromZone ? (fromZone.name ?? q.from) : q.from;
+
+    return {
+      id:           q.id,
+      from:         q.from,
+      fromName,
+      type:         q.type ?? '',
+      title:        q.title ?? '',
+      description:  q.description ?? '',
+      req:          /** @type {Record<string, number>} */ (req),
+      reward:       /** @type {Record<string, number>} */ (q.reward ?? {}),
+      deadlineStep: q.deadlineStep ?? 0,
+      daysLeft,
+      canAccept,
+    };
+  });
 }
