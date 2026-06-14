@@ -1,11 +1,17 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-017) — Detailní design M7a-2 (frakční automat + revolty/questy/tribute + AI-AI bitvy + UI)
-- **Brief**: context/inbox/brief_architect_T-001_iter-017.md (BRIEF-017-001)
+- **Task ID**: T-002a (iter-017) — Revize designu M7a-2 (zapracování 2 major + 1 minor z reviewer gate REVIEW-017-002)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-017.md (BRIEF-017-002a)
 - **Iteration**: iter-017 (M7a-2 – Frakční AI & svět ožívá; dokončuje M7a)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-14
-- **Completed**: 2026-06-14
+- **Started**: 2026-06-15
+- **Completed**: 2026-06-15
+
+## Revize T-002a (M-1/M-2/m-4) — platný doc: `artifacts/final/design_iter-017_T-001.md` (in-place)
+- **M-1 (favour migrace)**: §3.1 přepsán na přesnou deterministickou migraci number→{} (NE {originalLiege}, §3.1.1 s odůvodněním). Helper `migrateFavour(saved,def)` se závazným pořadím větví. 3 místa: hydrateZones (world.js:377), persistSchema.js:259 (`|| 0`→typeof-object deep-copy guard), zones.json favour:0→{} (13 zón). Povinný fresh-vs-load + starý-save + neprázdný round-trip test (§7.5, 3 body).
+- **M-2 (armFactionAI guard)**: §2.4 — set-difference scan `schedule.filter(id==='world.processFaction').params.factionId` je ZÁVAZNÝ kontrakt (ne alternativa). scheduleCountOf NEPOUŽÍT (scheduler.js:82 indexuje jen podle id). Idempotentní při libovolném stavu schedule (fresh/plný/částečný). [už bylo binding v T-001, ověřeno proti kódu]
+- **m-4 (quest gating)**: §5.1 — home.level/militaryCouncil.discovered NEEXISTUJÍ (ověřeno) → existující pole: `home.settlementLevel >= questSettlementMin` + `(player.totWarriors+totArchers)>0` proxy pro hasMilitary. Deterministické fresh==load.
+- Minor/nit: n-1 (selektor favour `?.player ?? 0` undefined-safe) zapracován.
 
 ## Výstup
 **`artifacts/final/design_iter-017_T-001.md`** — pokrývá T2/T3/T6 pro Sonnet codera.
