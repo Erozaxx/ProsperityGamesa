@@ -8,3 +8,9 @@
 - **tool_uses**: 89
 - **duration_ms**: 758747
 - **outcome**: ci 1227/1227, smoke OK; processRevolt/processQuestGen/gatherTributes/aiBattleResolve+quest commands; battle.js nedotčen
+## T-006 (T6 UI world/zones)
+- **Timestamp**: 2026-06-15T03:00Z
+- **total_tokens**: 118299
+- **tool_uses**: 89
+- **duration_ms**: 527338
+- **outcome**: ci 1255/1255, smoke OK (tab Svět); WorldZonesScreen+selektory; M7a-2 impl kompletní
