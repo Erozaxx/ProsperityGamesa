@@ -237,6 +237,11 @@ export interface HomeState {
   projectSeq: number;
   /** Non-persisted building aggregates. Rebuilt by rebuildBuildingDerived. iter-013 M5-1. */
   derived: BuildingDerived;
+  /**
+   * Purchased/hired builder companies. Key = companyId, value = true.
+   * Optional enhancement (design §3.2, G-BUILDER-COMPANIES). iter-013 M5-1 T3.
+   */
+  ownedCompanies?: Record<string, boolean>;
 }
 
 /** Player resource state */

@@ -201,6 +201,12 @@ export function applyPersist(state) {
       home.projectSeq = s.home.projectSeq;
     }
 
+    // ownedCompanies: set of purchased/hired builder company IDs (iter-013 M5-1 T3)
+    // Key = companyId, value = true. Persisted as-is (plain serialisable object).
+    if (s.home.ownedCompanies !== undefined) {
+      home.ownedCompanies = s.home.ownedCompanies;
+    }
+
     payload.home = home;
   }
 

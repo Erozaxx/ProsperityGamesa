@@ -23,6 +23,7 @@ import { makeRng } from '../engine/rng.js';
 import { getGoldValue } from './market.js';
 import { byId, hasId } from '../catalog/loader.js';
 import { canAfford, pay } from '../resources/transactions.js';
+import { companyBuildersTotal } from '../commands/buyCompany.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -512,7 +513,7 @@ export function applyRepair(state, project, _ctx) {
  *       if progress >= completionUnits → completeBuild / applyRepair, remove from queue
  *
  * Catch-up-safe: no RNG, deterministic, runs cheaply 4×/day.
- * G-BUILDER-COMPANIES: builder company logic deferred to T3. Uses basic builder job count only.
+ * T3 (iter-013): builder company capacity (companyBuildersTotal) added to totalBuilders (design §3.2).
  *
  * @param {GameState} state
  * @param {object} _params
@@ -528,10 +529,12 @@ export function buildersProcess(state, _params, ctx) {
   const requeueDelay = BAL_B.requeueDelay;
 
   // Total available builders from jobs (M3 builder job slot)
-  // G-BUILDER-COMPANIES (T3): firm-provided capacity deferred; use basic job count here
+  // T3: builder companies supplement the basic job count (design §3.2, G-BUILDER-CAP).
   let totalBuilders = 0;
   const builderJob = /** @type {any} */ (state.home.jobs?.['builder']);
   if (builderJob) totalBuilders = builderJob.number || 0;
+  // T3: add capacity from owned builder companies (buildersProvided per company)
+  totalBuilders += companyBuildersTotal(state);
 
   // maxActiveProjects from builderHut (builderHut.effects: maxActiveProjects per hut)
   // T2: reads from effects[] directly (effectFromCatalog). T4 will use effective() modifier fold.

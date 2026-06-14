@@ -1,5 +1,6 @@
 {
   "_meta": {
+    "notes": "iter-013 M5-1 T3: added buildersProvided/masonProvided (gap G-BUILDER-CAP, provenance:approximated)",
     "provenance": "extracted",
     "source": "doc/original_source/extracted/config-extract.json"
   },
@@ -20,45 +21,75 @@
     ],
     "houseBuilder": [
       {
+        "_meta": {
+          "gap": "G-BUILDER-CAP",
+          "provenance": "approximated"
+        },
+        "buildersProvided": 1,
         "cost": {
           "gold": 2000
         },
         "id": "KuttingKorners",
+        "masonProvided": 0,
         "name": "Kutting Korners",
         "type": "hovel"
       },
       {
+        "_meta": {
+          "gap": "G-BUILDER-CAP",
+          "provenance": "approximated"
+        },
+        "buildersProvided": 2,
         "cost": {
           "gold": 9000
         },
         "id": "BrickingBad",
+        "masonProvided": 1,
         "name": "Bricking Bad",
         "type": "house"
       },
       {
+        "_meta": {
+          "gap": "G-BUILDER-CAP",
+          "provenance": "approximated"
+        },
+        "buildersProvided": 3,
         "cost": {
           "gold": 30000
         },
         "id": "HonestlyGood",
+        "masonProvided": 1,
         "name": "Honestly Good",
         "type": "mansion"
       },
       {
+        "_meta": {
+          "gap": "G-BUILDER-CAP",
+          "provenance": "approximated"
+        },
+        "buildersProvided": 5,
         "cost": {
           "gold": 200000
         },
         "id": "LawyeredUp",
+        "masonProvided": 2,
         "name": "Lawyered Up Conglomeration",
         "type": "manor"
       }
     ],
     "mineBuilder": [
       {
+        "_meta": {
+          "gap": "G-BUILDER-CAP",
+          "provenance": "approximated"
+        },
+        "buildersProvided": 2,
         "cost": {
           "gold": 10000,
           "wood": 2400
         },
         "id": "StrikeGoldInc",
+        "masonProvided": 0,
         "name": "Strike Gold Inc."
       }
     ]

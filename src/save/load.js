@@ -180,6 +180,11 @@ function applyPayload(state, payload) {
     if (payload.home.projectSeq !== undefined) {
       state.home.projectSeq = payload.home.projectSeq;
     }
+
+    // ownedCompanies: purchased/hired builder companies (iter-013 M5-1 T3)
+    if (payload.home.ownedCompanies !== undefined) {
+      state.home.ownedCompanies = payload.home.ownedCompanies;
+    }
   }
 
   if (payload.world) {

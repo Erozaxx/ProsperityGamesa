@@ -1,46 +1,38 @@
 # Current Task
 
-- **Task ID**: T-005 (iter-013 M5-1 T2: projectQueue stavba + builder + build() command + scaleCost)
-- **Brief**: brief_coder_T-005_iter-013.md
+- **Task ID**: T-006 (iter-013 M5-1 T3: builder companies — katalog + logika výběru/kapacit)
+- **Brief**: brief_coder_T-006_iter-013.md
 - **Iteration**: iter-013
 - **Status**: done
 - **Started**: 2026-06-14
 - **Done**: 2026-06-14
 
-## Checklist (T-005)
+## Checklist (T-006)
 
-- [x] build(itemId) command: validace, scaleCostByCount, pay, push do projectQueue
-- [x] Registrace build command v registerBuild (src/core/commands/build.js)
-- [x] Builder systém: buildersProcess (quarterDay, order 40) v buildings.js
-- [x] completeBuild: nová instance, totalMade++, rebuildBuildingDerived
-- [x] applyRepair: hp restore, inRepair=false, recalcBuildingAggregates
-- [x] Napojení builder slotu z jobs (state.home.jobs['builder'].number)
-- [x] effectFromCatalog helper (pro T2 čtení effect values z builderHut.effects[])
-- [x] BALANCE.buildings rozšíření: masonStep, quarterDaysPerDay, maxActiveProjects, maxProjectQueue, requeueDelay
-- [x] Registrace buildings.builders v tickOrder.js (quarterDay, order 40)
-- [x] docs/tickOrder.md aktualizován (buildings.builders + T2 sekce)
-- [x] precache regenerován (PRECACHE_VERSION aktualizován)
-- [x] scaleCostByCount tabulkové testy (factor=1.0 konstantní, factor>1.0 geometrický)
-- [x] test/m5-buildings-t2.test.js: 33 nových testů
-- [x] npm run ci ZELENÉ — 840 testů, 0 fail
+- [x] companies.json: doplněna pole buildersProvided/masonProvided (gap G-BUILDER-CAP, provenance:approximated)
+- [x] tools/extract/extractors/companies.mjs: extractor upraven pro injekci buildersProvided/masonProvided (reprodukovatelný)
+- [x] ownedCompanies state: již v createHomeState.js (T1/T2 anticipovalo), ověřeno
+- [x] src/core/state/types.d.ts: ownedCompanies přidáno do HomeState interface
+- [x] src/core/commands/buyCompany.js: NOVÝ soubor — buyCompany command (validace, pay, ownedCompanies), companyBuildersTotal helper
+- [x] src/core/systems/buildings.js: buildersProcess rozšířen o companyBuildersTotal (T3 integrace)
+- [x] src/save/persistSchema.js: ownedCompanies přidáno do persist bloku (home.ownedCompanies)
+- [x] src/save/load.js: ownedCompanies obnoven z payload v applyPayload
+- [x] src/app/main.js: registerBuyCompany přidán do bootstrapEngine()
+- [x] precache regenerován (companies.json změněno → PRECACHE_VERSION aktualizován)
+- [x] test/m5-buildings-t3.test.js: 22 nových testů (validace, happy-path, companyBuildersTotal, efekt na buildersProcess, persist round-trip)
+- [x] npm run ci ZELENÉ — 862 testů, 0 fail
 - [x] npm run smoke OK
 - [x] G1 determinismus nedotčen
-- [x] Persist round-trip: rozestavěný projekt přežije save→load a pokračuje
 
-## Builder kapacita: co z jobs vs. odloženo na T3
+## Jak firmy ovlivňují stavbu (T3 implementace)
 
-- **z jobs (implementováno T2)**: `state.home.jobs['builder'].number` — základní počet builderů přiřazených přes M3 job systém
-- **z builderHut effects (implementováno T2)**: `maxActiveProjects` a `maxProjectQueue` čteny přes `effectFromCatalog('builderHut', attr)` z builderHut.effects[] (T4 stub verze bez modifier fold)
-- **odloženo na T3**: builder company logika (selectBuilderCompany command, firm-provided capacity, companies.json `buildersProvided` field) — T-006
+- **companyBuildersTotal(state)**: sečte `buildersProvided` ze všech owned companies → přičteno k `totalBuilders` v `buildersProcess`
+- **Firmy fungují jako doplňkový zdroj builderů**: hráč kupuje firmu via `buyCompany` command (platí cenu z companies.json), firma pak přidává builders capacity do `buildersProcess` každý quarterDay
+- **Typ firma → effect**: houseBuilder firmy poskytují `buildersProvided` builderů (+ masonProvided pro maxActiveProjects — zatím neimplementováno, stub); mineBuilder totéž; explorer bez capacity
+- **G-BUILDER-COMPANIES odstraněn**: základní logika firem implementována; masonProvided napojení na maxActiveProjects odloženo (T4 po modifier fold)
 
-## T4 Placeholders (TODO pro T4/T-007)
+## Zbylé gapy
 
-- `effectFromCatalog` je T2 workaround — T4 nahradí za `effective('builderHut', attr, state)` s modifier fold
-- `addBuildingModifiers` — stub (TODO T4.3)
-- `invalidateModifiers` — stub (TODO T4.2)
-- `effective()` — base-only, bez modifier fold (TODO T4.1)
-- `recalcBuildingAggregates` — base catalog values (TODO T4.4)
-
-## Výsledek
-T2 dokončen. 840 testů, 0 fail. Smoke OK. G1 determinismus nedotčen.
-Persist round-trip funguje. Rozestavěný projekt přežije save→load a pokračuje.
+- **G-BUILD-TXAUDIT**: buyCompany command volá pay() bez ctx (shodné s build command) — vědomý gap M-4, dořeší M5-2/M9
+- **G-BUILDER-MASON**: masonProvided (navýšení maxActiveProjects z firem) zatím neimplementováno — effectFromCatalog workaround bude nahrazen v T4 modifier foldem
+- Ostatní gapy z T2: G-BUILD-COSTSCALE, G-BUILD-RESISTANCE, G-BUILD-SPACE, G-BUILD-TECHBONUS, G-REPAIR-RECYCLING (všechny provenance:approximated, kalibrace M9)

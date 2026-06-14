@@ -20,6 +20,7 @@ import { registerSetTaxRate } from '../core/commands/setTaxRate.js';
 import { registerBuyGoods } from '../core/commands/buyGoods.js';
 import { registerSellGoods } from '../core/commands/sellGoods.js';
 import { registerSendCaravan } from '../core/commands/sendCaravan.js';
+import { registerBuyCompany } from '../core/commands/buyCompany.js';
 import { marketInit } from '../core/systems/market.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
@@ -94,6 +95,8 @@ function bootstrapEngine() {
   registerBuyGoods(creg);
   registerSellGoods(creg);
   registerSendCaravan(creg);
+  // iter-013 M5-1 T3: builder companies
+  registerBuyCompany(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };

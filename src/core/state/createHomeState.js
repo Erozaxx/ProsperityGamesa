@@ -3,6 +3,7 @@
  * iter-007 M2a-1: initial state factories.
  * iter-009 M3: added jobs/skills/workforce/workerEfficiency fields.
  * iter-013 M5-1: added buildings/projectQueue/projectSeq/derived fields (T1).
+ * iter-013 M5-1 T3: added ownedCompanies (builder companies state).
  */
 
 /**
@@ -42,6 +43,10 @@ export function createHomeState() {
       storageCapacity: {},  // per resource: Σ effective(id,'storage.<resource>')
       attractiveness: 0,    // Σ effective(id,'attractiveness')
     },
+    // ownedCompanies: set of company IDs that have been purchased/hired (iter-013 M5-1 T3).
+    // Design §3.2: companies are an optional unlock/boost (G-BUILDER-COMPANIES).
+    // Key = companyId, value = true (owned). Populated by buyCompany command.
+    ownedCompanies: {},
   };
 }
 
