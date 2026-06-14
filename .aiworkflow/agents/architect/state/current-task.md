@@ -1,16 +1,34 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-015) — detailní DESIGN M6 (výzkum & tech strom; techy jako modifikátory K13 plně; academy; UI)
-- **Brief**: context/inbox/brief_architect_T-001_iter-015.md (BRIEF-015-001)
+- **Task ID**: T-002a (iter-015) — REVIZE designu M6 (zapracování reviewer gate T-002: 2 major + 1 minor)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-015.md (BRIEF-015-002a)
 - **Iteration**: iter-015 (M6 – Výzkum & tech strom)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – plný design M6 (T1–T4) pro Sonnet implementaci. Žádný kód, žádná změna
-architektury iter-002 (jen konkretizace). Ověřeno proti reálnému kódu.
-**Výstup: `artifacts/final/design_iter-015_T-001.md`.**
+Hotovo – revize T-002a designu M6 in-place. Doplněny chybějící sekce §2.6 (catalog API
+kontrakt + M-2 guard) a §2.7 (prokazatelná effective() cesta + překalibrace demo techů),
+které changelog referencoval, ale v souboru nebyly. §1.3a (M-1) a §2.2 guard (M-2) ověřeny
+a ponechány. Vše ověřeno proti reálnému kódu. Žádný kód, žádná změna architektury iter-002.
+**Platný výstup: `artifacts/final/design_iter-015_T-001.md` (in-place, changelog "Revize T-002a").**
+
+## Revize T-002a — jak vyřešeno
+- **M-1 (player state init)**: §1.3a — `createPlayerState` (createHomeState.js:64-66, OVĚŘENO plochý objekt
+  bez unlockedTechs/research) MUSÍ init `unlockedTechs:{}` + `research:{sectors:{}}` (přesný tvar) na
+  `state.player`. Povinný fresh-vs-load determinismus test: `hashState(createInitialState()) ===
+  hashState(load(save(createInitialState())))` zelený i s 0 techy/0 research (jinak undefined vs {} desync,
+  třída DR-012-02). Hotovo (sekce už byla, ověřena proti kódu).
+- **M-2 (defenzivní guard)**: §2.6 (nová) + §2.2 — `addTechModifiers` early-return `if(!hasCatalog('techs'))return;`
+  + smyčka `const tech=findTech(techId); if(!tech)continue;`. Ověřeno: rebuildBuildingDerived běží z
+  createInitialState.js:133 bez katalogů; getCatalog (loader.js:48-52) HODÍ Error když nenačten → guard nutný.
+  Precedent hasId guard buildings.js:398. AC: createInitialState BEZ techs katalogu nesmí spadnout.
+- **m-3 (prokazatelná effective() cesta)**: §2.7 (nová). Ověřeno: jobsProduction (jobs.js:107-130) čte products
+  PŘÍMO + efficiency global (jobs.js:104) → job techy = tichý no-op (gap G-TECH-JOB-EFFECTIVE). Jediná
+  prokazatelná cesta = building agregáty recalcBuildingAggregates → effective() (buildings.js:411, agreguje
+  jen op:'add' u created>0). **Zvolené demo atributy: storage.food (target granary) + attractiveness (target
+  well)** — oba OVĚŘENY v buildings.json; pův. target:"house" byl chybný (house neexistuje) → opraveno na well.
 
 ## Klíčová rozhodnutí
 - **M6-D1 (techCap DOLOŽITELNÝ + JIŽ EXISTUJE)**: `formulas.js:31 techCap(level)=round(100×1.25^level)`,
