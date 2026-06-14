@@ -15,14 +15,14 @@
 - [x] T-006: coder – T5 hotový: processZone volá marketInject (produkční +floor(qty*0.1), válčící -warConsumption); signatury §8.2 beze změny; S-06 negativní→pozitivní; pořadí world.tick(30)<market.drift(35) ověřeno. ci 1179/1179, smoke OK, G1+M5+M6+M7a fresh-vs-load+M4b market nedotčen, 16 testů. M7a-1 implementace kompletní
 - [x] T-007: tester – Test loop M7a-1 GO: všech 9 AC PASS empiricky (1179/1179, smoke OK). Zone tick se REÁLNĚ tiká (M-1 fix: 12/12 ne-home zón má goldDemand po roce, round-robin 13 zón/13 dní), fresh-vs-load determinismus identický hashState (M-2), catch-up 1 rok 328500 kroků/143ms batch==incremental, market inject +/- clamp, recruitUnit+upkeep korektní, M7a-1 nerozbil M5/M6/M4b (44/44+19/19+62/62+16/16), persist round-trip 12 polí, jediný rng('world')
 - [x] T-008: reviewer – Review gate M7a-1 GO; DoD M7a-1 SPLNĚNO. Všech 6 tvrdých invariantů proti kódu (M-1 round-robin reálně tiká _absDay%slot, M-2 sdílená hydrateZones+id-merge bez load-only větve, §8.2 beze změny, battle.js nedotčen, reuse upkeep, jediný rng world). ci 1179/1179. 0 blocker/0 major/4 minor/2 nit. MINOR-1 mrtvý kód calcMilitary/EconomicRating; MINOR-2 goldDemand/goldProduction persist odchylka (chybí DR); MINOR-3/4 homeZone komentář + tickOrder.md STUB drift
-- [ ] T-008a: coder – Oprava minor: MINOR-1 odstranit mrtvý calcMilitaryRating/calcEconomicRating (world.js:299-328); MINOR-2 dokumentovat persist odchylku goldDemand/goldProduction (komentář v persistSchema.js + gap G-WORLD-PERSIST-DERIVED proč kvůli M-2 hash stabilitě); MINOR-3/4 opravit zavádějící homeZone komentář (world.js:179) + docs/tickOrder.md world.tick LIVE (ne STUB). Gate: ci zelené, smoke OK, determinismus nedotčen
-- [ ] T-009: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge
+- [x] T-008a: coder – Minor opraveny: MINOR-1 mrtvý kód calcMilitary/EconomicRating odstraněn (39 ř.); MINOR-2 persist odchylka dokumentována + gap G-WORLD-PERSIST-DERIVED; MINOR-3 homeZone komentář; MINOR-4 tickOrder.md world.tick LIVE. ci 1179/1179, determinismus 34/34, žádná logická změna
+- [x] T-009: human – Uzavření SCHVÁLENO stálým pověřením uživatele (DR-013-00). DoD M7a-1 splněn, reviewer GO + QA GO, minor vyřešeny → /close-iteration + PR + merge
 
 ## Quality Gates
-- [ ] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
-- [ ] Code review (Reviewer) – T-REV
-- [ ] QA validace (Tester) – T-TEST
-- [ ] Plán neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
+- [x] Code review (Reviewer) – T-008 GO (0 blocker/major)
+- [x] QA validace (Tester) – T-007 GO (9/9 AC)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
 
 ## Exit Criteria (DoD M7a)
 - AI svět tiká deterministicky: zóny (round-robin 5day), frakční automat (pokud v M7a-1 scope), jednotky existují + upkeep.

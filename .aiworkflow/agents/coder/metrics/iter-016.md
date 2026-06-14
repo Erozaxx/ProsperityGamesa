@@ -16,3 +16,9 @@
 - **tool_uses**: 69
 - **duration_ms**: 570712
 - **outcome**: ci 1179/1179, smoke OK; processZone marketInject +/-, S-06 pozitivní; M7a-1 impl kompletní
+## T-008a (minor fixes)
+- **Timestamp**: 2026-06-14T22:15Z
+- **total_tokens**: 67534
+- **tool_uses**: 57
+- **duration_ms**: 289295
+- **outcome**: 4 minor (mrtvý kód, persist dok, komentáře, tickOrder doc); ci 1179/1179, žádná logická změna
