@@ -1,12 +1,12 @@
 {
   "_meta": {
-    "iteration": "iter-014",
-    "milestone": "M5-2",
-    "notes": "Updated in iter-014 M5-2: added contract gaps (G-CONTRACTS-CATALOG, G-CONTRACT-GEN, G-CONTRACT-SCHED-CLEANUP, G-BUILD-CANCEL). Summary recomputed from actual gaps array. Updated in iter-013 M5-1: added M5-1 gaps for buildings/builder/cost/resistance/space/unlock/mulstack/techbonus/repair. G-LISTBUILDINGS status updated (resolved in M5-1). G-BUILDER-M5 resolved (buildings system live). Previous update: iter-009 M3 added M3 gaps for production/jobs/skills/forest/field/mine.",
+    "iteration": "iter-016",
+    "milestone": "M7a-1",
+    "notes": "Updated in iter-016 M7a-1: added G-WORLD-PERSIST-DERIVED (goldDemand/goldProduction persist deviation from design §8). Updated in iter-014 M5-2: added contract gaps (G-CONTRACTS-CATALOG, G-CONTRACT-GEN, G-CONTRACT-SCHED-CLEANUP, G-BUILD-CANCEL). Summary recomputed from actual gaps array. Updated in iter-013 M5-1: added M5-1 gaps for buildings/builder/cost/resistance/space/unlock/mulstack/techbonus/repair. G-LISTBUILDINGS status updated (resolved in M5-1). G-BUILDER-M5 resolved (buildings system live). Previous update: iter-009 M3 added M3 gaps for production/jobs/skills/forest/field/mine.",
     "provenance": "derived"
   },
   "summary": {
-    "total": 34,
+    "total": 35,
     "blocksMvp": 3,
     "byMilestone": {
       "M3/M6": 1,
@@ -18,7 +18,7 @@
       "M6": 6,
       "M7": 1,
       "M8": 1,
-      "M9": 12
+      "M9": 13
     }
   },
   "gaps": [
@@ -339,6 +339,16 @@
       "severity": "low",
       "blocksMvp": false,
       "provenance": "missing"
+    },
+    {
+      "id": "G-WORLD-PERSIST-DERIVED",
+      "catalog": "world",
+      "description": "goldDemand/goldProduction are classified as derived (re-derivable) in design §8, but are persisted in persistSchema.js to ensure fresh-vs-load hashState identity (M-2 hash stability). Pre-policy snapshot values must be present in both create and load paths for determinism; recalculating them identically on both paths without persisting would add complexity. Intentional deviation, low risk. Revisit during M9 persist audit to evaluate whether a shared re-derivation path can replace the persist.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "derived",
+      "designRef": "persistSchema.js:263-270, world.js hydrateZones, design §8"
     }
   ]
 }

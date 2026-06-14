@@ -176,7 +176,8 @@ export function processZone(state, zoneId, rng) {
 
         zone.warriors = Math.floor(zone.warriors || 0);
         zone.archers  = Math.floor(zone.archers  || 0);
-        // homeZone mirror: handled in §5.2 T4 (G-HOMEZONE-MIRROR), skip here
+        // homeZone units NOT mirrored in M7a-1 (single source = player.totWarriors/totArchers);
+        // mirror into homeZone.warriors/archers deferred to M7a-2 if processAI needs homeZone military rating
 
       } else {
         // Too few workers → switch to growth (orig ř.171-179)
@@ -286,45 +287,6 @@ export function processZone(state, zoneId, rng) {
 
   // ── Ratings (orig ř.490-493) — derived, not persisted ────────────────────
   // NOTE: ratings computed on-demand by selectors (not stored on zone to preserve hashState determinism)
-}
-
-// ─── Rating calc helpers ───────────────────────────────────────────────────────
-
-/**
- * Calculate military rating for a zone (derived, not persisted).
- * Source: world.js:607-618.
- * @param {GameState} state
- * @param {any} zone
- */
-function calcMilitaryRating(state, zone) {
-  if (zone.immunity > 0) {
-    zone.militaryRating = 99999999;
-    return;
-  }
-  // Get liege faction stats from catalog
-  const cat = hasCatalog('zones') ? /** @type {any} */ (getCatalog('zones')) : null;
-  const factions = cat && cat.zones && Array.isArray(cat.zones.factions) ? cat.zones.factions : [];
-  const liegeFaction = factions.find((/** @type {any} */ f) => f.id === zone.liege) || null;
-  const ws = liegeFaction && liegeFaction.unitStats ? liegeFaction.unitStats.warriors : { strength: 1, defense: 1 };
-  const as = liegeFaction && liegeFaction.unitStats ? liegeFaction.unitStats.archers  : { strength: 1, defense: 1 };
-  zone.militaryRating = (zone.warriors || 0) * (ws.strength * 2 + ws.defense) +
-                        (zone.archers  || 0) * (as.strength * 2 + as.defense) +
-                        BALANCE.world.baseMilitaryRating;
-}
-
-/**
- * Calculate economic rating for a zone (derived, not persisted).
- * Source: world.js:620-634.
- * @param {GameState} state
- * @param {any} zone
- */
-function calcEconomicRating(state, zone) {
-  if (zone.liege === 'player') {
-    // player zone: economicRating = player gold + inventory value
-    zone.economicRating = (state.player.gold || 0);
-  } else {
-    zone.economicRating = getGoldValue(state, zone.resources || {}) + (zone.numWorkers || 0) * 1000;
-  }
 }
 
 // ─── worldTick ────────────────────────────────────────────────────────────────

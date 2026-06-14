@@ -260,7 +260,11 @@ export function applyPersist(state) {
             goldStore:    z.goldStore   || 0,
             notEnoughGold:z.notEnoughGold || 0,
             curQuest:     z.curQuest   || null,
-            // goldDemand/goldProduction: persisted to preserve pre-policy snapshot for M-2 hashState determinism
+            // goldDemand/goldProduction: persisted despite design §8 classifying them as derived (re-derivable).
+            // Intentional deviation (G-WORLD-PERSIST-DERIVED, severity:low, M9): pre-policy snapshot values must
+            // survive save/load so fresh-vs-load hashState matches (M-2 hash stability). Removing persist would
+            // require recalculating them identically on both create and load paths before hash comparison, which
+            // adds complexity. Decision: keep persisted; revisit during M9 persist audit.
             goldDemand:    z.goldDemand    ?? 0,
             goldProduction:z.goldProduction ?? 0,
           })) : [];

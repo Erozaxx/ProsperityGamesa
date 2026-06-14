@@ -1,4 +1,4 @@
-# Tick Order – Living Artefact (iter-009 M3 / iter-013 M5-1 T1+T2)
+# Tick Order – Living Artefact (iter-009 M3 / iter-013 M5-1 T1+T2 / iter-016 M7a-1)
 
 Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `registerCorePeriodics`).
 
@@ -30,7 +30,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | workerEfficiency.daily | day | 5 | workerEfficiency.daily | LIVE (M3) |
 | food.meal1 | day | 10 | food.meal1 | LIVE |
 | housing.settlementLevel | day | 20 | housing.settlementLevel | LIVE |
-| world.tick | day | 30 | world.tick | STUB |
+| world.tick | day | 30 | world.tick | LIVE (M7a-1: day-index round-robin processZone + marketInject) |
 | market.drift | day | 35 | market.drift | LIVE (M4b) |
 | field.daily | day | 40 | field.daily | LIVE (M3) |
 | mine.daily | day | 50 | mine.daily | LIVE (M3) |
@@ -51,7 +51,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 step:       populationMigration → skillsProgress → battleTick(stub)
 quarterDay: jobsProduction → jobsAccidents → autoAssignWorkers → [buildersProcess]NEW(T2)
 noon:       healthBirths → populationRetirement → healthDisease → crimeDaily → meal2
-day:        workerEfficiency → meal1 → settlementLevel → worldTick(stub) → market.drift
+day:        workerEfficiency → meal1 → settlementLevel → worldTick(round-robin) → market.drift
             → field → mine → burnWood → [buildings.age]NEW(T1) → [research.daily]NEW(M6)
 10days:     forestRegen
 5days:      localTaxes
