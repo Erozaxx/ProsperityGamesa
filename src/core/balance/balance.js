@@ -297,5 +297,30 @@ export const BALANCE = Object.freeze({
     costScaleFactor: 1.0,
     /** Index of Winter season (0=spring,1=summer,2=autumn,3=winter). Source: types.d.ts. */
     winterSeasonIndex: 3,
+    /**
+     * Builder progress per quarterDay per project.
+     * Original: masonStep ran per-step; rebuilt on quarterDay (4×/day).
+     * Value = 1 quarterDay unit of progress (project.maxProgress is in days × quarterDaysPerDay).
+     * provenance: approximated, gap G-BUILD-TECHBONUS (M6 tech bonuses not included yet).
+     */
+    masonStep: 1,
+    /** Number of quarterDay slots per day (cadence with jobs system). */
+    quarterDaysPerDay: 4,
+    /**
+     * Default max concurrent active projects (overridden by builderHut effects).
+     * 0 = no projects possible without a builderHut. provenance: approximated.
+     */
+    maxActiveProjects: 0,
+    /**
+     * Default max project queue capacity (overridden by builderHut effects).
+     * 0 = cannot queue without builderHut. provenance: approximated.
+     */
+    maxProjectQueue: 0,
+    /**
+     * Number of consecutive quarterDay delay ticks before project is moved to end of queue.
+     * Source: home.js:1773 ~STEPSPERDAY/3 steps → 1 day / 3 ≈ 1.33 quarterDays → use 1.
+     * provenance: approximated.
+     */
+    requeueDelay: 2,
   },
 });

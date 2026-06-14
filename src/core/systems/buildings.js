@@ -1,14 +1,16 @@
 /**
- * Buildings system: ageBuildings (daily wear), repair enqueueing, rebuildBuildingDerived.
- * iter-013 M5-1 T1.
+ * Buildings system: ageBuildings (daily wear), repair enqueueing, rebuildBuildingDerived,
+ * buildersProcess (quarterDay builder advancement), completeBuild, applyRepair.
+ * iter-013 M5-1 T1+T2.
  *
- * Design source: design_iter-013_T-001.md §1, §4.6, §4.7 (M-2).
+ * Design source: design_iter-013_T-001.md §1, §2, §4.6, §4.7 (M-2).
  *
  * Key invariants:
  *   - state.home.buildings[id].created === state.home.buildings[id].instances.length
  *   - rebuildBuildingDerived is the ONLY derivation path (called from load Step 5 AND mutations)
  *   - No Date.now / Math.random in core; RNG via rng.stream('buildings')
  *   - Modifier/aggregate parts (T4) are stubbed as TODO placeholders here
+ *   - buildersProcess: deterministic, catch-up-safe (no RNG), quarterDay cadence
  */
 
 /**
@@ -20,12 +22,40 @@ import { BALANCE } from '../balance/balance.js';
 import { makeRng } from '../engine/rng.js';
 import { getGoldValue } from './market.js';
 import { byId, hasId } from '../catalog/loader.js';
+import { canAfford, pay } from '../resources/transactions.js';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const BAL = /** @type {any} */ (BALANCE).buildings;
+
+// ---------------------------------------------------------------------------
+// effectFromCatalog — read scalar effect values directly from effects[] (T2 helper)
+// ---------------------------------------------------------------------------
+
+/**
+ * Read the sum of all 'add' effect values for the given attr from the building's effects array.
+ * This is a T2 workaround: for T4, effective() will fold modifiers instead.
+ * Used for attrs that live ONLY in building.effects (not as top-level entry fields), e.g.
+ * 'maxProjectQueue' and 'maxActiveProjects' on builderHut.
+ *
+ * @param {string} buildingId
+ * @param {string} attr
+ * @returns {number}
+ */
+export function effectFromCatalog(buildingId, attr) {
+  if (!hasId(buildingId)) return 0;
+  const entry = /** @type {Record<string, any>} */ (byId(buildingId).entry);
+  const effects = /** @type {any[]} */ (Array.isArray(entry.effects) ? entry.effects : []);
+  let total = 0;
+  for (const fx of effects) {
+    if (fx.attr === attr && (fx.op === 'add' || fx.op === undefined)) {
+      total += (fx.value ?? 0);
+    }
+  }
+  return total;
+}
 
 // ---------------------------------------------------------------------------
 // Modifier helpers (T4 placeholder)
@@ -390,5 +420,195 @@ export function ageBuildings(state, _params, ctx) {
         // rebuildBuildingDerived is called inside destroyInstance
       }
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// completeBuild — finish a 'build' project (§2.2, §4.7)
+// ---------------------------------------------------------------------------
+
+/**
+ * Complete a build project: create new instance, update totalMade, rebuild derived.
+ * Called by buildersProcess when curProgress >= completionUnits.
+ * Design §2.2: instances.push + created++ + totalMade++ → addBuildingModifiers (T4 stub)
+ *   + invalidateModifiers + recalcBuildingAggregates.
+ *
+ * @param {GameState} state
+ * @param {any} project
+ * @param {TickContext} _ctx
+ */
+export function completeBuild(state, project, _ctx) {
+  const { buildingId } = project;
+  const buildings = /** @type {Record<string, any>} */ (state.home.buildings);
+
+  // Ensure building slot exists
+  if (!buildings[buildingId]) {
+    buildings[buildingId] = { created: 0, totalMade: 0, instances: [] };
+  }
+  const b = buildings[buildingId];
+
+  // instId = deterministc: `${buildingId}_${totalMade}` (home.js:284, no Date.now)
+  const instId = `${buildingId}_${b.totalMade}`;
+
+  // Get starting HP = effective resistance (use base for T2; T4 will add modifier fold)
+  const resistance = /** @type {number} */ (effective(buildingId, 'resistance', state)) || BAL.defaultResistance;
+
+  b.instances.push({ instId, hp: resistance, inRepair: false });
+  b.created = b.instances.length;
+  b.totalMade += 1;
+
+  // Shared derivation path (M-2 §4.7): re-derive modifiers (T4 stub) + aggregates
+  rebuildBuildingDerived(state);
+}
+
+// ---------------------------------------------------------------------------
+// applyRepair — finish a 'repair' project (§2.2, §4.7)
+// ---------------------------------------------------------------------------
+
+/**
+ * Apply a completed repair project: restore HP, clear inRepair flag.
+ * Called by buildersProcess when curProgress >= completionUnits.
+ * Design §2.2: inst.hp += resistance; inst.inRepair = false → recalcBuildingAggregates.
+ *
+ * @param {GameState} state
+ * @param {any} project
+ * @param {TickContext} _ctx
+ */
+export function applyRepair(state, project, _ctx) {
+  const { buildingId, instId } = project;
+  const buildings = /** @type {Record<string, any>} */ (state.home.buildings);
+  const b = buildings[buildingId];
+  if (!b) return;
+
+  const inst = b.instances.find(/** @param {any} i */ (i) => i.instId === instId);
+  if (!inst) return; // instance may have been destroyed while repair was in progress
+
+  const resistance = /** @type {number} */ (effective(buildingId, 'resistance', state)) || BAL.defaultResistance;
+  inst.hp = Math.min(inst.hp + resistance, resistance); // restore to full (capped at max)
+  inst.inRepair = false;
+
+  // Shared derivation path (M-2 §4.7): aggregates (repair does not change created/modifiers)
+  recalcBuildingAggregates(state);
+}
+
+// ---------------------------------------------------------------------------
+// buildersProcess — quarterDay builder advancement (§2.2, M5-D5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Builder system: advance building/repair projects each quarterDay.
+ * Registered as 'buildings.builders', edge 'quarterDay', order 40 (after jobs.autoAssign order 30).
+ *
+ * Design §2.2, home.js:1720-1840 (port, determinized):
+ *   - totalBuilders = state.home.jobs['builder']?.number ?? 0  (from M3 jobs)
+ *   - maxActiveProjects from builderHut.created × effective('builderHut','maxActiveProjects')
+ *   - masonStep = BALANCE.buildings.masonStep (progress per quarterDay)
+ *   - completionUnits = maxProgress × quarterDaysPerDay
+ *   - for each active project (up to maxActiveProjects):
+ *       if repair + !paid → try pay; else delay++
+ *       if builders <= totalBuilders → progress += masonStep; totalBuilders -= builders
+ *       else delay++
+ *       if delay > requeueDelay → move to end of queue
+ *       if progress >= completionUnits → completeBuild / applyRepair, remove from queue
+ *
+ * Catch-up-safe: no RNG, deterministic, runs cheaply 4×/day.
+ * G-BUILDER-COMPANIES: builder company logic deferred to T3. Uses basic builder job count only.
+ *
+ * @param {GameState} state
+ * @param {object} _params
+ * @param {TickContext} ctx
+ */
+export function buildersProcess(state, _params, ctx) {
+  const queue = /** @type {any[]} */ (state.home.projectQueue);
+  if (!queue || queue.length === 0) return;
+
+  const BAL_B = BAL;
+  const masonStep = BAL_B.masonStep;
+  const quarterDaysPerDay = BAL_B.quarterDaysPerDay;
+  const requeueDelay = BAL_B.requeueDelay;
+
+  // Total available builders from jobs (M3 builder job slot)
+  // G-BUILDER-COMPANIES (T3): firm-provided capacity deferred; use basic job count here
+  let totalBuilders = 0;
+  const builderJob = /** @type {any} */ (state.home.jobs?.['builder']);
+  if (builderJob) totalBuilders = builderJob.number || 0;
+
+  // maxActiveProjects from builderHut (builderHut.effects: maxActiveProjects per hut)
+  // T2: reads from effects[] directly (effectFromCatalog). T4 will use effective() modifier fold.
+  const builderHut = /** @type {any} */ (state.home.buildings?.['builderHut']);
+  const hutCreated = builderHut?.created ?? 0;
+  let maxActiveProjects = BAL_B.maxActiveProjects; // fallback: 0
+  if (hutCreated > 0) {
+    const perHut = effectFromCatalog('builderHut', 'maxActiveProjects');
+    maxActiveProjects = perHut * hutCreated;
+  }
+
+  if (maxActiveProjects <= 0) return; // no builder hut → nothing to process
+
+  // Process up to maxActiveProjects projects (rest wait)
+  // We need to iterate with possible removal/requeue — work on a stable copy of indices
+  // and track mutations carefully.
+  let activeSlot = 0;
+  let qi = 0;
+
+  while (qi < queue.length && activeSlot < maxActiveProjects) {
+    const project = queue[qi];
+    const completionUnits = project.maxProgress * quarterDaysPerDay;
+
+    // Repair: pay cost before progressing (deferred payment, home.js:1732)
+    if (project.type === 'repair' && !project.paid) {
+      if (canAfford(state, project.cost)) {
+        pay(state, project.cost, 'repair:' + project.buildingId);
+        project.paid = true;
+        project.delay = 0;
+      } else {
+        project.delay = (project.delay || 0) + 1;
+        if (project.delay > requeueDelay) {
+          // Move to end of queue
+          queue.splice(qi, 1);
+          queue.push({ ...project, delay: 0 });
+          // Don't advance qi — next element is now at qi
+          continue;
+        }
+        qi++;
+        activeSlot++;
+        continue;
+      }
+    }
+
+    // Check if enough builders for this project
+    if (project.builders <= totalBuilders) {
+      project.curProgress = (project.curProgress || 0) + masonStep;
+      totalBuilders -= project.builders;
+      project.delay = 0;
+    } else {
+      project.delay = (project.delay || 0) + 1;
+      if (project.delay > requeueDelay) {
+        // Move to end of queue
+        queue.splice(qi, 1);
+        queue.push({ ...project, delay: 0 });
+        continue; // next element is now at qi
+      }
+      qi++;
+      activeSlot++;
+      continue;
+    }
+
+    // Check completion
+    if (project.curProgress >= completionUnits) {
+      // Remove project from queue first, then complete
+      queue.splice(qi, 1);
+      if (project.type === 'build') {
+        completeBuild(state, project, ctx);
+      } else {
+        applyRepair(state, project, ctx);
+      }
+      // Don't increment qi — element at qi is now the next project
+      // Don't increment activeSlot — slot freed by completion
+      continue;
+    }
+
+    qi++;
+    activeSlot++;
   }
 }

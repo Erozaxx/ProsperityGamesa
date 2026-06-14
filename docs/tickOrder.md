@@ -1,4 +1,4 @@
-# Tick Order – Living Artefact (iter-009 M3 / iter-013 M5-1)
+# Tick Order – Living Artefact (iter-009 M3 / iter-013 M5-1 T1+T2)
 
 Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `registerCorePeriodics`).
 
@@ -21,6 +21,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | jobs.production | quarterDay | 10 | jobs.production | LIVE (M3 progress model) |
 | jobs.accidents | quarterDay | 20 | jobs.accidents | LIVE (M3) |
 | jobs.autoAssign | quarterDay | 30 | jobs.autoAssign | LIVE (M3) |
+| buildings.builders | quarterDay | 40 | buildings.builders | LIVE (M5-1 T2) |
 | health.births | noon | 10 | health.births | LIVE |
 | population.retirement | noon | 20 | population.retirement | LIVE |
 | health.disease | noon | 30 | health.disease | LIVE |
@@ -47,16 +48,16 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 
 ```
 step:       populationMigration → skillsProgress → battleTick(stub)
-quarterDay: jobsProduction → jobsAccidents → autoAssignWorkers
+quarterDay: jobsProduction → jobsAccidents → autoAssignWorkers → [buildersProcess]NEW(T2)
 noon:       healthBirths → populationRetirement → healthDisease → crimeDaily → meal2
 day:        workerEfficiency → meal1 → settlementLevel → worldTick(stub) → market.drift
-            → field → mine → burnWood → [buildings.age]NEW
+            → field → mine → burnWood → [buildings.age]NEW(T1)
 10days:     forestRegen
 5days:      localTaxes
 month:      food.spoilage → taxes.monthly → upkeep.military → council.closeMonth
 season:     noop
 schedule:   one-shot events by deadlineStep (e.g. future: contract.expire)
-event-driven (outside tick): completeBuild/destroyInstance → rebuildBuildingDerived
+event-driven (outside tick): completeBuild/destroyInstance/applyRepair → rebuildBuildingDerived
              → recalcBuildingAggregates → derived.{maxWorkers,storageCapacity,attractiveness}
 ```
 
@@ -116,7 +117,15 @@ event-driven (outside tick): completeBuild/destroyInstance → rebuildBuildingDe
 - Persist: `buildings/{created,totalMade,instances}` + `projectQueue` + `projectSeq` in allowlist; `derived` and `_effCache` NOT saved
 - RNG stream: `'buildings'` (new isolated stream, appended to STREAM_NAMES in rng.js)
 
-### T4 (TODO - iter-013 M5-1 placeholder)
+### T2: Builder System + build() command (iter-013 M5-1 T2)
+- `build(itemId)` command (`src/core/commands/build.js`, registered via `registerBuild`): validates existence/unlock/queue capacity; scales cost via `scaleCostByCount(baseCost, totalMade, scaleFactor)`; pays via `pay()` (no ctx — G-BUILD-TXAUDIT gap, M5-D11); pushes build project to `projectQueue` with deterministic ID via `projectSeq`
+- `buildersProcess` (quarterDay, order 40): advances projects in `projectQueue`. Builder count from `state.home.jobs['builder'].number` (M3 job slot). Queue capacity and maxActiveProjects from builderHut instances × per-hut effects. Repair projects: deferred payment in builder (`project.paid=false` until canAfford). Requeue heuristic: `delay > requeueDelay` → move to end. Completion: `completeBuild` (new instance, `totalMade++`, `rebuildBuildingDerived`) or `applyRepair` (restore HP, `inRepair=false`).
+- `completeBuild(state, project, ctx)`: push `{instId,hp,inRepair:false}` into `instances`; `created=instances.length`; `totalMade++`; call `rebuildBuildingDerived` (M-2 shared path)
+- `applyRepair(state, project, ctx)`: `inst.hp += resistance` (clamped to max); `inRepair=false`; call `recalcBuildingAggregates`
+- G-BUILDER-COMPANIES (T3): builder firm capacity/selection deferred to T-006. T2 uses only `state.home.jobs['builder'].number`.
+- Balance constants added: `masonStep=1`, `quarterDaysPerDay=4`, `maxActiveProjects=0`, `maxProjectQueue=0`, `requeueDelay=2`
+
+### T4 (TODO - iter-013 M5-1 placeholder, T-007)
 - `effective(id, attr, state)`: modifier fold (add→mul→set, deterministc sort by source+id) — `src/core/catalog/effective.js` [NOT YET IMPLEMENTED]
 - `addBuildingModifiers(state, buildingId)`: effects→modifier mapping with per-type aggregate (T4.3) [STUB in buildings.js]
 - `recalcBuildingAggregates`: currently uses base catalog values; T4 replaces with `effective()` calls

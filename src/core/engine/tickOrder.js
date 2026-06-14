@@ -34,7 +34,7 @@ import { localTaxes, monthlyTaxes } from '../systems/taxes.js';
 import { upkeepMilitary } from '../systems/upkeep.js';
 import { burnWood } from '../systems/burnWood.js';
 import { closeMonth } from '../resources/accounting.js';
-import { ageBuildings } from '../systems/buildings.js';
+import { ageBuildings, buildersProcess } from '../systems/buildings.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).
@@ -170,8 +170,10 @@ export function registerCorePeriodics(registry) {
   register(registry, 'upkeep.military', upkeepMilitary);
   register(registry, 'home.burnWood', burnWood);
   register(registry, 'council.closeMonth', closeMonth);
-  // iter-013 M5-1 T1: buildings systems
+  // iter-013 M5-1 T1+T2: buildings systems
   register(registry, 'buildings.age', ageBuildings);
+  // iter-013 M5-1 T2: builder advancement system (quarterDay, order 40 — after jobs.autoAssign order 30)
+  register(registry, 'buildings.builders', buildersProcess);
 
   /** @type {PeriodicTask[]} */
   const periodics = [
@@ -180,6 +182,9 @@ export function registerCorePeriodics(registry) {
     { id: 'jobs.production',         every: 'quarterDay', order: 10, systemFn: 'jobs.production' },
     { id: 'jobs.accidents',          every: 'quarterDay', order: 20, systemFn: 'jobs.accidents' },
     { id: 'jobs.autoAssign',         every: 'quarterDay', order: 30, systemFn: 'jobs.autoAssign' },
+    // iter-013 M5-1 T2: builder advancement (after autoAssign so builder job count is stable)
+    // Design §7: buildings.builders on 'quarterDay' edge, order 40.
+    { id: 'buildings.builders',      every: 'quarterDay', order: 40, systemFn: 'buildings.builders' },
     { id: 'health.births',           every: 'noon',       order: 10, systemFn: 'health.births' },
     { id: 'population.retirement',   every: 'noon',       order: 20, systemFn: 'population.retirement' },
     { id: 'health.disease',          every: 'noon',       order: 30, systemFn: 'health.disease' },

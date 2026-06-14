@@ -1,42 +1,46 @@
 # Current Task
 
-- **Task ID**: T-004 (iter-013 M5-1 T1 building instances + opotřebení + opravy + persist)
-- **Brief**: brief_coder_T-004_iter-013.md
+- **Task ID**: T-005 (iter-013 M5-1 T2: projectQueue stavba + builder + build() command + scaleCost)
+- **Brief**: brief_coder_T-005_iter-013.md
 - **Iteration**: iter-013
 - **Status**: done
 - **Started**: 2026-06-14
 - **Done**: 2026-06-14
 
-## Checklist (T-004)
+## Checklist (T-005)
 
-- [x] Stav budov: `state.home.buildings[id]={created,totalMade,instances:[{instId,hp,inRepair}]}` + projectQueue + projectSeq + derived
-- [x] `ageBuildings` systém (day edge, order 70): opotřebení, winter, repair trigger, destroy, rng.stream('buildings')
-- [x] enqueueRepair: repair projekt v projectQueue, cost přes getGoldValue, deterministické ID
-- [x] destroyInstance: odebere instanci, volá rebuildBuildingDerived
-- [x] Persist schéma budov: allowlist buildings/projectQueue/projectSeq v persistSchema.js + load.js
-- [x] rebuildBuildingDerived: created re-derivace + stub addBuildingModifiers + recalcBuildingAggregates (T4 placeholder)
-- [x] load.js Step 5: volání rebuildBuildingDerived PŘED deriveWorkforceTotal (M-2)
-- [x] Registrace buildings.age v tickOrder.js (day, order 70)
-- [x] BALANCE.buildings sekce v balance.js
-- [x] scaleCostByCount v formulas.js
-- [x] Přidání 'buildings' do RNG STREAM_NAMES (K16/D4)
-- [x] buildings.json rozšíření (M5-1 fields + workerHouse, well; workerHouse ne 'house' kvůli K10)
-- [x] extractors/buildings.mjs aktualizován (extraction reproducibility test)
-- [x] types.d.ts: BuildingInstance, BuildingState, ProjectState, BuildingDerived, HomeState rozšíření
-- [x] docs/tickOrder.md aktualizován (buildings.age, M5-1 sekce, ASCII diagram)
+- [x] build(itemId) command: validace, scaleCostByCount, pay, push do projectQueue
+- [x] Registrace build command v registerBuild (src/core/commands/build.js)
+- [x] Builder systém: buildersProcess (quarterDay, order 40) v buildings.js
+- [x] completeBuild: nová instance, totalMade++, rebuildBuildingDerived
+- [x] applyRepair: hp restore, inRepair=false, recalcBuildingAggregates
+- [x] Napojení builder slotu z jobs (state.home.jobs['builder'].number)
+- [x] effectFromCatalog helper (pro T2 čtení effect values z builderHut.effects[])
+- [x] BALANCE.buildings rozšíření: masonStep, quarterDaysPerDay, maxActiveProjects, maxProjectQueue, requeueDelay
+- [x] Registrace buildings.builders v tickOrder.js (quarterDay, order 40)
+- [x] docs/tickOrder.md aktualizován (buildings.builders + T2 sekce)
 - [x] precache regenerován (PRECACHE_VERSION aktualizován)
-- [x] test/m5-buildings-t1.test.js: 27 nových testů (scaleCostByCount, rebuildBuildingDerived, ageBuildings, persist round-trip, projectSeq, recalcBuildingAggregates)
-- [x] npm run ci ZELENÉ — 807 testů, 0 fail
+- [x] scaleCostByCount tabulkové testy (factor=1.0 konstantní, factor>1.0 geometrický)
+- [x] test/m5-buildings-t2.test.js: 33 nových testů
+- [x] npm run ci ZELENÉ — 840 testů, 0 fail
 - [x] npm run smoke OK
 - [x] G1 determinismus nedotčen
+- [x] Persist round-trip: rozestavěný projekt přežije save→load a pokračuje
+
+## Builder kapacita: co z jobs vs. odloženo na T3
+
+- **z jobs (implementováno T2)**: `state.home.jobs['builder'].number` — základní počet builderů přiřazených přes M3 job systém
+- **z builderHut effects (implementováno T2)**: `maxActiveProjects` a `maxProjectQueue` čteny přes `effectFromCatalog('builderHut', attr)` z builderHut.effects[] (T4 stub verze bez modifier fold)
+- **odloženo na T3**: builder company logika (selectBuilderCompany command, firm-provided capacity, companies.json `buildersProvided` field) — T-006
 
 ## T4 Placeholders (TODO pro T4/T-007)
-- `addBuildingModifiers` — stub, no-op (TODO T4.3: effects→modifier mapping)
-- `removeBuildingModifiers` — stub (TODO T4.3)
-- `invalidateModifiers` — stub (TODO T4.2: bump _modVersion)
-- `effective()` — vrací pouze base catalog hodnotu, bez modifier fold (TODO T4.1)
-- `recalcBuildingAggregates` — čte base catalog values; TODO T4.4: nahradit za `effective(id, attr, state)` calls
+
+- `effectFromCatalog` je T2 workaround — T4 nahradí za `effective('builderHut', attr, state)` s modifier fold
+- `addBuildingModifiers` — stub (TODO T4.3)
+- `invalidateModifiers` — stub (TODO T4.2)
+- `effective()` — base-only, bez modifier fold (TODO T4.1)
+- `recalcBuildingAggregates` — base catalog values (TODO T4.4)
 
 ## Výsledek
-T1 dokončen. 807 testů, 0 fail. Smoke OK. G1 determinismus nedotčen.
-Persist round-trip funguje. created re-derivováno ze instances.length po loadu.
+T2 dokončen. 840 testů, 0 fail. Smoke OK. G1 determinismus nedotčen.
+Persist round-trip funguje. Rozestavěný projekt přežije save→load a pokračuje.
