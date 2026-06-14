@@ -17,7 +17,8 @@ export type StreamName =
   | 'world'
   | 'battle'
   | 'events'
-  | 'buildings';
+  | 'buildings'
+  | 'contracts'; // iter-014 M5-2 T5: isolated contract generator stream (K16/D4, MUST be last)
 
 /** One building instance */
 export interface BuildingInstance {
@@ -242,6 +243,17 @@ export interface HomeState {
    * Optional enhancement (design §3.2, G-BUILDER-COMPANIES). iter-013 M5-1 T3.
    */
   ownedCompanies?: Record<string, boolean>;
+  /**
+   * Serialisable contract queue (iter-014 M5-2 T5).
+   * Entries: {id,type,status,cost,reward,deadlineStep,title,onComplete,onExpire,onReject}.
+   * Derivates (canComplete/daysLeft) are NOT stored (computed in selectors).
+   */
+  contractQueue: Record<string, unknown>[];
+  /**
+   * Monotonic counter for deterministic contract IDs (no Date.now). iter-014 M5-2 T5.
+   * Analogous to projectSeq (iter-013 M5-1).
+   */
+  contractSeq: number;
 }
 
 /** Player resource state */

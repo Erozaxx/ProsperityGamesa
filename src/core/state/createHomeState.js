@@ -47,6 +47,13 @@ export function createHomeState() {
     // Design §3.2: companies are an optional unlock/boost (G-BUILDER-COMPANIES).
     // Key = companyId, value = true (owned). Populated by buyCompany command.
     ownedCompanies: {},
+    // contractQueue: serialisable contract array (iter-014 M5-2 T5).
+    // Entries: {id,type,status,cost,reward,deadlineStep,title,onComplete,onExpire,onReject}.
+    // Derivates (canComplete/daysLeft/pctComplete) are NOT stored — computed in selectors.
+    contractQueue: [],
+    // contractSeq: monotonic counter for deterministic contract IDs (no Date.now).
+    // Analogous to projectSeq (iter-013 M5-1 T1).
+    contractSeq: 0,
   };
 }
 

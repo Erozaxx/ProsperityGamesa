@@ -10,6 +10,7 @@ import { loadCatalog, assertCatalogValid, buildById } from '../core/catalog/inde
 const CATALOG_NAMES = [
   'achievements',
   'buildings',
+  'contracts',
   'food',
   'goods',
   'houseTypes',

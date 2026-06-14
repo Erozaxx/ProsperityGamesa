@@ -1,11 +1,224 @@
 /**
- * Game UI screens: Forest, Field, Mine, Jobs, Skills.
+ * Game UI screens: Forest, Field, Mine, Jobs, Skills, Build, Contracts.
  * Uses preact+htm (vendored). No DOM imports – pure view components.
  * BLOCKER-2: T5 UI screens for M3 production loop.
+ * T6 (iter-014 M5-2): BuildScreen + ContractsScreen added.
  * Each screen is a pure component: receives snapshot + send, reads via selectors.
  */
 import { html } from '../vendor/preact.standalone.js';
-import { selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance, selectMarket } from './selectors.js';
+import {
+  selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance, selectMarket,
+  selectBuildableBuildings, selectProjectQueue, selectBuilderCapacity, selectBuilderCompanies,
+  selectContracts,
+} from './selectors.js';
+
+// ---------------------------------------------------------------------------
+// BuildScreen
+// ---------------------------------------------------------------------------
+
+/**
+ * Build screen: building cards, project queue, builder capacity, builder companies.
+ * Pure component — all reads via selectors, all writes via send(command, params).
+ * T6 (iter-014 M5-2).
+ * @param {{ snapshot: import('../core/state/types.js').GameState, send: (type: string, params?: object) => {ok: boolean, error?: string} }} props
+ */
+export function BuildScreen({ snapshot, send }) {
+  const buildings = selectBuildableBuildings(snapshot);
+  const queue = selectProjectQueue(snapshot);
+  const capacity = selectBuilderCapacity(snapshot);
+  const companies = selectBuilderCompanies(snapshot);
+
+  /**
+   * Format a cost basket as a short string.
+   * @param {Record<string, number>} cost
+   * @returns {string}
+   */
+  function formatCost(cost) {
+    const entries = Object.entries(cost);
+    if (entries.length === 0) return 'Zdarma';
+    return entries.map(([k, v]) => `${v} ${k}`).join(', ');
+  }
+
+  return html`
+    <div class="screen screen-build">
+      <h2>Stavba</h2>
+
+      <section class="build-section">
+        <h3>Kapacita stavitelů</h3>
+        <dl>
+          <dt>Přiřazení stavitelé</dt><dd>${capacity.assignedBuilders}</dd>
+          <dt>Firemní stavitelé</dt><dd>${capacity.companyBuilders}</dd>
+          <dt>Max aktivní projektů</dt><dd>${capacity.maxActiveProjects}</dd>
+          <dt>Max fronta projektů</dt><dd>${capacity.maxProjectQueue}</dd>
+          <dt>Fronta využita</dt><dd>${capacity.queueUsed}</dd>
+        </dl>
+      </section>
+
+      <section class="build-section">
+        <h3>Fronta projektů</h3>
+        ${queue.length === 0
+          ? html`<p class="empty-state">Žádné aktivní projekty.</p>`
+          : html`
+            <ul class="project-list">
+              ${queue.map(p => html`
+                <li key=${p.id} class="project-item project-${p.type}">
+                  <span class="project-name">${p.name}</span>
+                  <span class="project-type">${p.type === 'repair' ? '(oprava)' : '(stavba)'}</span>
+                  <progress value=${p.progressPct} max="100" title="${p.progressPct} %"></progress>
+                  <span class="project-pct">${p.progressPct} %</span>
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
+
+      <section class="build-section">
+        <h3>Budovy</h3>
+        ${buildings.length === 0
+          ? html`<p class="empty-state">Žádné budovy k dispozici.</p>`
+          : html`
+            <div class="building-cards">
+              ${buildings.map(b => html`
+                <div key=${b.id} class="building-card ${b.canAfford ? '' : 'unaffordable'}">
+                  <div class="building-name">${b.name}</div>
+                  <div class="building-meta">Postaveno: ${b.created} · Celkem: ${b.totalMade}</div>
+                  <div class="building-cost">Cena: ${formatCost(b.cost)}</div>
+                  <button
+                    onClick=${() => send('build', { itemId: b.id })}
+                    disabled=${!b.canAfford}
+                    title=${b.canAfford ? `Postavit ${b.name}` : 'Nedostatek zdrojů'}
+                  >Postavit</button>
+                </div>
+              `)}
+            </div>
+          `}
+      </section>
+
+      <section class="build-section">
+        <h3>Stavební firmy</h3>
+        ${companies.length === 0
+          ? html`<p class="empty-state">Žádné stavební firmy k dispozici.</p>`
+          : html`
+            <ul class="company-list">
+              ${companies.map(c => html`
+                <li key=${c.id} class="company-item ${c.owned ? 'owned' : ''}">
+                  <span class="company-name">${c.name}</span>
+                  ${c.buildersProvided > 0 ? html`<span class="company-builders">+${c.buildersProvided} stavitelů</span>` : null}
+                  ${c.masonProvided > 0 ? html`<span class="company-masons">+${c.masonProvided} mistrů</span>` : null}
+                  ${c.owned
+                    ? html`<span class="company-owned">Vlastníte</span>`
+                    : html`
+                      <span class="company-cost">Cena: ${formatCost(c.cost)}</span>
+                      <button
+                        onClick=${() => send('buyCompany', { companyId: c.id })}
+                        disabled=${!c.canAfford}
+                        title=${c.canAfford ? `Najmout ${c.name}` : 'Nedostatek zdrojů'}
+                      >Najmout</button>
+                    `}
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// ContractsScreen
+// ---------------------------------------------------------------------------
+
+/**
+ * Contracts screen: offered/active contracts, accept/reject/complete actions.
+ * Pure component — all reads via selectors, all writes via send(command, params).
+ * T6 (iter-014 M5-2).
+ * @param {{ snapshot: import('../core/state/types.js').GameState, send: (type: string, params?: object) => {ok: boolean, error?: string} }} props
+ */
+export function ContractsScreen({ snapshot, send }) {
+  const contracts = selectContracts(snapshot);
+
+  const offered = contracts.filter(c => c.status === 'offered');
+  const active = contracts.filter(c => c.status === 'active');
+
+  /**
+   * Format a basket {id: qty} as a short string.
+   * @param {Record<string, number>} basket
+   * @returns {string}
+   */
+  function formatBasket(basket) {
+    const entries = Object.entries(basket);
+    if (entries.length === 0) return '–';
+    return entries.map(([k, v]) => `${v} ${k}`).join(', ');
+  }
+
+  return html`
+    <div class="screen screen-contracts">
+      <h2>Kontrakty</h2>
+
+      <section class="contracts-section">
+        <h3>Nabídnuté kontrakty</h3>
+        ${offered.length === 0
+          ? html`<p class="empty-state">Žádné nabídnuté kontrakty.</p>`
+          : html`
+            <ul class="contract-list">
+              ${offered.map(c => html`
+                <li key=${c.id} class="contract-item contract-offered">
+                  <div class="contract-title">${c.title || c.type}</div>
+                  <div class="contract-details">
+                    <span class="contract-cost">Náklady: ${formatBasket(c.cost)}</span>
+                    <span class="contract-reward">Odměna: ${formatBasket(c.reward)}</span>
+                  </div>
+                  <div class="contract-actions">
+                    <button
+                      onClick=${() => send('acceptContract', { contractId: c.id })}
+                      title="Přijmout kontrakt"
+                    >Přijmout</button>
+                    <button
+                      onClick=${() => send('rejectContract', { contractId: c.id })}
+                      title="Odmítnout kontrakt"
+                    >Odmítnout</button>
+                  </div>
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
+
+      <section class="contracts-section">
+        <h3>Aktivní kontrakty</h3>
+        ${active.length === 0
+          ? html`<p class="empty-state">Žádné aktivní kontrakty.</p>`
+          : html`
+            <ul class="contract-list">
+              ${active.map(c => html`
+                <li key=${c.id} class="contract-item contract-active ${c.canComplete ? 'completable' : ''}">
+                  <div class="contract-title">${c.title || c.type}</div>
+                  <div class="contract-details">
+                    <span class="contract-cost">Náklady: ${formatBasket(c.cost)}</span>
+                    <span class="contract-reward">Odměna: ${formatBasket(c.reward)}</span>
+                    ${c.daysLeft !== null ? html`<span class="contract-deadline">Zbývá: ${c.daysLeft} dní</span>` : null}
+                    ${c.pctComplete !== null ? html`<progress value=${c.pctComplete} max="100" title="${c.pctComplete} % doby uplynulo"></progress>` : null}
+                    ${c.unaffordable.length > 0
+                      ? html`<span class="contract-warn">Chybí: ${c.unaffordable.join(', ')}</span>`
+                      : null}
+                  </div>
+                  <div class="contract-actions">
+                    <button
+                      onClick=${() => send('completeContract', { contractId: c.id })}
+                      disabled=${!c.canComplete}
+                      title=${c.canComplete ? 'Splnit kontrakt' : 'Nedostatek zdrojů'}
+                    >Splnit</button>
+                    <button
+                      onClick=${() => send('rejectContract', { contractId: c.id })}
+                      title="Zrušit kontrakt"
+                    >Zrušit</button>
+                  </div>
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
+    </div>`;
+}
 
 // ---------------------------------------------------------------------------
 // CouncilScreen

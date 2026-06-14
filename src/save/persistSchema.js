@@ -214,6 +214,18 @@ export function applyPersist(state) {
       home.ownedCompanies = s.home.ownedCompanies;
     }
 
+    // contractQueue: serialisable contract list (iter-014 M5-2 T5)
+    // Stored: id/type/status/cost/reward/deadlineStep/title/onComplete/onExpire/onReject (plain-data).
+    // NOT stored: canComplete/daysLeft (derivates — computed in selectors).
+    if (s.home.contractQueue !== undefined) {
+      home.contractQueue = s.home.contractQueue;
+    }
+
+    // contractSeq: monotonic counter for deterministic contract IDs (iter-014 M5-2 T5)
+    if (s.home.contractSeq !== undefined) {
+      home.contractSeq = s.home.contractSeq;
+    }
+
     payload.home = home;
   }
 

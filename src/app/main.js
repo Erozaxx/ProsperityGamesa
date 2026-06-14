@@ -21,6 +21,9 @@ import { registerBuyGoods } from '../core/commands/buyGoods.js';
 import { registerSellGoods } from '../core/commands/sellGoods.js';
 import { registerSendCaravan } from '../core/commands/sendCaravan.js';
 import { registerBuyCompany } from '../core/commands/buyCompany.js';
+import { registerBuild } from '../core/commands/build.js';
+import { registerContractCommands } from '../core/commands/contracts.js';
+import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
 import { marketInit } from '../core/systems/market.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
@@ -86,6 +89,8 @@ function buildCtxCatalog() {
 function bootstrapEngine() {
   const registry = createRegistry();
   const periodics = registerCorePeriodics(registry);
+  // iter-014 M5-2 T5 B1: register contract schedule handlers (§14.1)
+  registerContractEffects(registry);
   const creg = createCommandRegistry();
   registerSetSpeed(creg);
   registerAssignJob(creg);
@@ -97,6 +102,9 @@ function bootstrapEngine() {
   registerSendCaravan(creg);
   // iter-013 M5-1 T3: builder companies
   registerBuyCompany(creg);
+  // iter-014 M5-2 T5 B1: build command wired (was dark code M5-1) + contract commands (§14.1)
+  registerBuild(creg);
+  registerContractCommands(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };
@@ -178,6 +186,11 @@ export async function bootSequence(env) {
     // iter-011 M4b: Initialize market supply from goods catalog (idempotent – skips existing entries).
     // Runs after catalog load and after state is set, so works for fresh start and loaded save.
     marketInit(state, /** @type {any} */ ((ctx.catalog && ctx.catalog.goods) || []));
+
+    // iter-014 M5-2 T5 B2: Arm contract offer generator (idempotent re-arm, §14.2).
+    // Mirror of marketInit: runs fresh+after load, guard scheduleCountOf===0 prevents duplicates.
+    // Deterministické (žádný RNG/Date při armování), pokrývá fresh+M5-2 save+starý save.
+    armContractOffer(state);
 
     // B-3: Create autosave coordinator (periodic + hide bypass)
     const autosave = createAutosave({

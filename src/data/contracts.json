@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "provenance": "derived (model+lifecycle z originálu) / approximated (deadlineStep repr., min. sada, deterministická čísla)",
+    "gap": "G-CONTRACTS-CATALOG",
+    "source": "doc/original_source/.../events.js + home.js:2407 + config.js:3248"
+  },
+  "contracts": [
+    {
+      "id": "goodsSeller",
+      "title": "Kupec nabízí zboží k prodeji",
+      "provenance": "derived",
+      "_meta": { "source": "events.js:198-260 goodsSeller, config.js:3260 contractGoodsSellerComplete" },
+      "expirationDays": 15,
+      "kind": "supply",
+      "onComplete": { "effect": "contract.complete" },
+      "onExpire":   { "effect": "noop" },
+      "onReject":   { "effect": "noop" }
+    },
+    {
+      "id": "goodsBuyer",
+      "title": "Cestující obchodník chce koupit zboží",
+      "provenance": "derived",
+      "_meta": { "source": "events.js:123-197 goodsBuyer, config.js:3248 contractGoodsBuyerComplete" },
+      "expirationDays": 50,
+      "kind": "demand",
+      "onComplete": { "effect": "contract.complete" },
+      "onExpire":   { "effect": "noop" },
+      "onReject":   { "effect": "noop" }
+    }
+  ]
+}

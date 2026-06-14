@@ -74,3 +74,145 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 @media (max-width: 480px) {
   .market-actions { display: flex; flex-direction: column; gap: 0.25rem; }
 }
+
+/* ---- Build screen (iter-014 T6) ---- */
+.screen-build .build-section,
+.screen-contracts .contracts-section {
+  margin-top: 1rem;
+}
+.screen-build h3,
+.screen-contracts h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+/* Building cards */
+.building-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.building-card {
+  background: var(--surface);
+  border: 1px solid #2e4a35;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  min-width: 160px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.building-card.unaffordable { opacity: 0.6; }
+.building-name { font-weight: 600; }
+.building-meta { font-size: 0.75rem; opacity: 0.7; }
+.building-cost { font-size: 0.8rem; }
+.building-card button {
+  margin-top: 0.25rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.building-card button:hover:not(:disabled) { background: var(--btn-hover); }
+.building-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Project queue */
+.project-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+.project-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+.project-type { opacity: 0.65; font-size: 0.75rem; }
+.project-pct { min-width: 2.5rem; text-align: right; font-size: 0.75rem; }
+
+/* Company list */
+.company-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+.company-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+}
+.company-item.owned { border-color: var(--accent); }
+.company-owned { color: var(--accent); font-size: 0.8rem; }
+.company-builders, .company-masons { font-size: 0.75rem; opacity: 0.8; }
+.company-cost { font-size: 0.8rem; }
+.company-item button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.company-item button:hover:not(:disabled) { background: var(--btn-hover); }
+.company-item button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ---- Contracts screen (iter-014 T6) ---- */
+.contract-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.contract-item {
+  background: var(--surface);
+  border: 1px solid #2e4a35;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.contract-item.completable { border-color: var(--accent); }
+.contract-title { font-weight: 600; }
+.contract-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+.contract-cost, .contract-reward { opacity: 0.85; }
+.contract-deadline { color: var(--on); }
+.contract-warn { color: #ef9a9a; }
+.contract-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+.contract-actions button {
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.contract-actions button:hover:not(:disabled) { background: var(--btn-hover); }
+.contract-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Empty state */
+.empty-state { opacity: 0.6; font-size: 0.85rem; padding: 0.5rem 0; }
+
+/* Screen base */
+.screen { width: 100%; max-width: 700px; padding: 0.5rem 0; }
+
+@media (max-width: 480px) {
+  .building-cards { flex-direction: column; }
+  .building-card { max-width: 100%; }
+}

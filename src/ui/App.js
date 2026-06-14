@@ -12,7 +12,7 @@ import { useState } from '../vendor/preact.standalone.js';
 import { selectClock, selectSeason, selectSpeed } from './selectors.js';
 import { OfflineSummary } from './OfflineSummary.js';
 import { CatchupProgress } from './CatchupProgress.js';
-import { ForestScreen, JobsScreen, SkillsScreen, CouncilScreen, MarketScreen } from './screens.js';
+import { ForestScreen, JobsScreen, SkillsScreen, CouncilScreen, MarketScreen, BuildScreen, ContractsScreen } from './screens.js';
 
 const TABS = [
   { id: 'overview', label: 'Přehled' },
@@ -21,6 +21,8 @@ const TABS = [
   { id: 'skills', label: 'Dovednosti' },
   { id: 'council', label: 'Rada' },
   { id: 'market', label: 'Trh' },
+  { id: 'build', label: 'Stavba' },
+  { id: 'contracts', label: 'Kontrakty' },
 ];
 
 /**
@@ -108,6 +110,8 @@ export function App({ snapshot, send, offlineSummary, catchupProgress, onDismiss
         ${activeTab === 'skills' ? html`<${SkillsScreen} snapshot=${snapshot} send=${send} />` : null}
         ${activeTab === 'council' ? html`<${CouncilScreen} snapshot=${snapshot} send=${send} />` : null}
         ${activeTab === 'market' ? html`<${MarketScreen} snapshot=${snapshot} send=${send} />` : null}
+        ${activeTab === 'build' ? html`<${BuildScreen} snapshot=${snapshot} send=${send} />` : null}
+        ${activeTab === 'contracts' ? html`<${ContractsScreen} snapshot=${snapshot} send=${send} />` : null}
       </div>
     </div>`;
 }

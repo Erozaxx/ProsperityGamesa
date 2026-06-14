@@ -1,55 +1,76 @@
 # Current Task
 
-- **Task ID**: T-002a (iter-013) — revize designu M5 (po T-001)
-- **Brief**: context/inbox/brief_architect_T-002a_iter-013.md (BRIEF-013-002a)
-- **Iteration**: iter-013 (M5-1 – Budovy & modifikátory)
+- **Task ID**: T-002a (iter-014) — revize M5-2 designu (B1/B2/M1 z reviewer gate T-002)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-014.md (BRIEF-014-002a)
+- **Iteration**: iter-014 (M5-2 – Kontrakty & build UI)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – REVIZE designu M5 (T-002a): zapracovány 4 major podmínky z reviewer gate (T-002) +
-zúženo na M5-1 (T1–T4). Žádný kód. **Platný dokument: `artifacts/final/design_iter-013_T-001.md`**
-(in-place revize; žádný separátní `design_iter-013_T-002a.md` se nevytváří).
+Hotovo – revize T-002a. Doplněna chybějící **§14** (B1/B2/M1 + M2/minor/nit) do
+`design_iter-014_T-001.md` (in-place). §14 byla v changelogu/§0–§13 referencovaná, ale
+text chyběl → dopsána jako závazná sekce s přednastí. Ověřeno proti kódu (main.js, load.js,
+market.js, scheduler.js, schema.js, migrations.js, build.js, engine/index.js). Žádný kód.
+**Platný dokument: `artifacts/final/design_iter-014_T-001.md` (in-place; nový T-002a NEvznikl).**
 
-## Jak vyřešeny 4 major (T-002a)
-- **M-1** (effects→modifier mapování + JEDNA cesta agregátů): nová **§4.3** = úplné pravidlo
-  (op add/mul/set z dat, dot-path mapové attr, **per-TYP** modifikátor `id=bld:${buildingId}:${attr}:${op}`,
-  `source=building:${buildingId}`, **multiplicita `created` zapečená do `value`**). **§4.4 přepsána** =
-  JEDNA kanonická cesta `Σ effective(id,attr)` BEZ násobení `created`; druhá cesta (`created×effective`)
-  ODSTRANĚNA → žádné dvojí započtení.
-- **M-2** (sdílený rebuild, žádná load-only větev): nová **§4.6** `rebuildBuildingDerived(state)` =
-  created re-derivace + re-gen building modifikátorů + recalcAggregates; nová **§4.7** = mutace
-  (completeBuild/destroyInstance/applyRepair) volají TUTÉŽ fn. Volaná z load Step 5 I z mutací.
-  Load-only větev explicitně zakázána (M5-R1; reviewer grep). Ověřeno load.js:217-225 (dnes jen
-  workforce.total — stejná třída bugu jako DR-012-02).
-- **M-3** (deterministický fold): **§4.1 přepsána** = před foldem `sort by (source,id)` lexikograficky
-  (cmpModifier), `set` bere POSLEDNÍ po sortu (ne insertion order). Tabulkový test 2× set různého source.
-- **M-4** (build bez ctx → pay bez emitTx): **§2.3 přepsána** s ověřením kódu — `dispatch.js:44-59`
-  volá `handler(state,params)` (žádný ctx); Volba A (předat ctx) = změna arch command vrstvy iter-002 →
-  mimo scope, ZAMÍTNUTA. `transactions.js:45` potvrzuje ctx optional → **Volba B = vědomý gap
-  G-BUILD-TXAUDIT** (M5-2/M9).
+## Revize T-002a — výsledek
+- **B1 (blocker)**: §14.1 — import + `registerBuild(creg)` + `registerContractCommands(creg)`
+  za `main.js:99`; `registerContractEffects(registry)` za `main.js:88`. Ověřeno: registerBuild
+  (build.js:147) dnes NEimportován ani volán v main.js → build dark code. Fresh i po loadu.
+- **B2 (blocker)**: §14.2 — `armContractOffer(state)` za `marketInit` (main.js:180) v bootSequence;
+  guard `scheduleCountOf('contract.offer')===0`; insert na `max(curStep, firstOfferStep)`.
+  Deterministický (bez RNG/Date), idempotentní (2. volání no-op), jedna cesta pro fresh+M5-2+starý save.
+  Ověřeno: applyPayload (load.js:90) přepíše engine.schedule saved heapem → starý save bez offeru.
+- **M1 (major)**: §14.3 — SAVE_VERSION ZŮSTÁVÁ 3, žádná migrace polí (undefined-guard, precedent
+  projectQueue load.js:189). B2 je nutný NEZÁVISLE (schedule v engine ≠ home pole; migrace pole
+  schedule nepokrývá). Escape hatch: pokud bump z jiného důvodu → v3→v4 no-op migrace.
+- **M2 + minor/nit**: §14.4/§14.5 — init v createHomeState; firstOfferStep=1 sjednoceno;
+  registerEffects vynechán; title derivovat; G-CONTRACT-SCHED-CLEANUP backlog.
 
-## Scope (T-002a)
-- Zúženo na M5-1 (T1–T4). §5 (T5 kontrakty) + §6 (T6 build UI) označeny [ODLOŽENO M5-2],
-  přesunuty do nové **§13 Odloženo na M5-2/iter-014** (krátká poznámka). Coder M5-1 je IGNORUJE.
-- T4 dekompozice (§4.8, dříve §4.4): T4.1 (det. sort), T4.3 (mapování M-1), T4.4 (jedna cesta M-1),
-  T4.6 (sdílený rebuildBuildingDerived M-2 + persist blok) přepsány. Stále 6 Sonnet-kroků T4.1–T4.6.
-- Minor/nit: m-1 (dot-path zafixován), m-2 (payload grep test T4.6), m-5 (T4.5 ověřit fn za běhu),
-  n-2/n-3 (už v T-001).
+## Předchozí (T-001) — plný design M5-2 (T5 kontrakty + T6 build UI)
+Žádný kód. Žádná změna architektury iter-002 ani command vrstvy.
+**Výstup: `artifacts/final/design_iter-014_T-001.md`.**
+
+## Klíčová rozhodnutí
+- **M52-D1 (zdroj contract dat = DOLOŽITELNÝ)**: events.js + home.js:2407 insertContract +
+  config.js:3248 contract*Complete/Expire/Reject plně definují contract model i lifecycle.
+  Katalog src/data/contracts.json = přepis originálu, provenance:'derived'/'approximated'.
+  Gap G-CONTRACTS-CATALOG ZÚŽEN na "min. sada M5-2 nepokrývá všech 8 typů + deterministická
+  fixace náhodných rozsahů + kalibrace M9" (informativní, ne blocker, ne DR).
+- **M52-D2 (contractQueue)**: state.home.contractQueue (pole {id,type,status,cost,reward,
+  deadlineStep,title,onComplete,onExpire,onReject}) + contractSeq (čítač jako projectSeq).
+- **M52-D3/D4 (lifecycle přes registr efektů)**: onComplete/onExpire/onReject = data
+  {effect:string,...params} (string-ID, K14; originál UŽ string callbacky callFn). Expirace přes
+  scheduleInsert(deadlineStep,'contract.expire',{contractId}); handler v novém systems/contracts.js.
+  ABSOLUTNÍ deadlineStep (ne per-step countdown originálu).
+- **M52-D5 (generování)**: schedule-driven 'contract.offer' (re-schedule self, ne polling),
+  izolovaný rng stream 'contracts'. Min. sada: dodávkový (supply) kontrakt, oceňování getGoldValue.
+- **M52-D6 (commands)**: acceptContract/rejectContract/completeContract; completion přes
+  exportovanou applyContractComplete (import), NE přes ctx.registry → command vrstva beze změny.
+- **M52-D7 (build UI)**: selectBuildableBuildings/selectProjectQueue/selectBuilderCapacity/
+  selectBuilderCompanies/selectContracts + BuildScreen/ContractsScreen + taby. Jen selektory+commands.
+- **M52-D8 (boot wiring NUTNÉ)**: registerEffects DNES NEvolán v bootstrapEngine (main.js:86) →
+  contract.expire/offer by se neresolvovaly. M5-2 přidá registerContractEffects + registerContractCommands.
+
+## tickOrder dopady
+- ŽÁDNÉ nové periodikum. Kontrakty běží přes SCHEDULE fázi (runTick phase 2):
+  contract.offer (generátor, re-schedule) + contract.expire (one-shot na deadlineStep).
+  TICK_ORDER konstanta beze změny; tickOrder.md jen poznámka o schedule handlerech.
 
 ## Dílčí checklist
-- [x] Přečteno: AGENTS.md, brief BRIEF-013-002a, design T-001, review T-002 (4 major+minor/nit)
-- [x] Ověřeno proti kódu: load.js Step 5 (jen workforce.total), persistSchema.js:41 (catalogState celý,
-      applyPersist imperativní per doména), effects.js (registr string-ID), transactions.js (pay ctx optional),
-      dispatch.js (handler(state,params) bez ctx), createInitialState.js:115 (modifiers:[])
-- [x] M-1 vyřešen (§4.3 + §4.4, jedna cesta)
-- [x] M-2 vyřešen (§4.6 + §4.7, sdílená fn z load i mutací, load-only zakázána)
-- [x] M-3 vyřešen (§4.1 deterministický sort by source,id)
-- [x] M-4 vyřešen (§2.3 gap G-BUILD-TXAUDIT, Volba A zamítnuta z scope důvodů)
-- [x] Scope zúžen na M5-1; §5/§6 → §13 odloženo
-- [x] T4 dekompozice aktualizovaná, Sonnet-proveditelná
-- [x] Výstup in-place + changelog T-002a; handoff
+- [x] Přečteno: AGENTS.md, brief BRIEF-014-001, M5-1 design (§5/§6/§13), DR-013-00/01
+- [x] Architektura iter-002 §5.4 (K14)/§5.6/§8 (kontrakty)/§6 (persist)/§3.4 ověřena
+- [x] Kód prozkoumán: effects.js+registry, buildings.js, scheduler.js+tickOrder.js+rng.js,
+      load.js+persistSchema.js, screens.js+selectors.js+App.js, market.js (getGoldValue),
+      dispatch.js+build.js+buyCompany.js, transactions.js (pay/grant), main.js (boot wiring),
+      createInitialState.js, buildings.json+companies.json
+- [x] Originál events.js + home.js:2407 insertContract/1678 tick + config.js:3248 contract*
+      + contractcard.js prozkoumán → contract data DOLOŽITELNÁ
+- [x] T5 plný design (queue, lifecycle přes registr, generování, persist, determinismus)
+- [x] T6 plný design (build UI + kontrakty panel, selektory+commands)
+- [x] tickOrder/diagram dopady; rizika+mitigace; min. 1 alternativa (3 alternativy)
+- [x] Výstup design_iter-014_T-001.md; handoff
 
 ## Blockery
 –
