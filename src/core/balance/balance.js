@@ -166,6 +166,19 @@ export const BALANCE = Object.freeze({
     baseMilitaryRating: 10,
     /** Non-player worker bonus when below targetWorkerNum/3 (growth policy). Source: world.js:55. provenance: extracted. */
     growthUnderTargetBonus: 15,
+    /**
+     * War consumption: qty drained from market per resource key per zone tick for warring zones
+     * (liege != originalLiege). Injected as marketInject(state, goodsId, -warConsumption).
+     * Unknown goodsIds (not in market) are no-ops (marketInject guard).
+     * provenance: approximated (server-side not in dump), gap G-WORLD-INJECT-QTY, calibration M9.
+     */
+    warConsumption: 5,
+    /**
+     * Production inject fraction: productive zones (policy 0, liege==originalLiege) inject
+     * a fraction of their accumulated resources into market supply after tribute accumulation.
+     * qty injected = floor(goodsQty * injectFraction). provenance: approximated, calibration M9.
+     */
+    injectFraction: 0.1,
   },
 
   /** Offline simulation cap. Source: architecture §9.2a, confirmed M0 benchmark */

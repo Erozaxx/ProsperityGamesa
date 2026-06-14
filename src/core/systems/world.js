@@ -1,9 +1,11 @@
 /**
- * World system – zone tick (M7a-1 T1).
+ * World system – zone tick (M7a-1 T1+T5).
  * iter-016 M7a-1 T1: worldTick (day-edge round-robin), processZone (economy/policy),
  * hydrateZones (shared fresh+load path, id-based merge from catalog).
+ * iter-016 M7a-1 T5: marketInject wiring — productive zones inject supply (+),
+ * warring zones drain supply (−). Contract §8.2 beze změny signatur.
  *
- * Design source of truth: design_iter-016.md §2.1/§2.2/§8.1 (M-1/M-2 fixes).
+ * Design source of truth: design_iter-016.md §2.1/§2.2/§6/§8.1 (M-1/M-2 fixes, T5).
  * RNG: makeRng(state,'world') — SINGLE stream, no new streams (D6/§7.1).
  * Scope OUT: gatherTributes=M7a-2, processAI=M7a-2, revolts/quests=M7a-2.
  */
@@ -16,7 +18,7 @@
 import { BALANCE } from '../balance/balance.js';
 import { makeRng } from '../engine/rng.js';
 import { getCatalog, hasCatalog } from '../catalog/index.js';
-import { getGoldValue } from './market.js';
+import { getGoldValue, marketInject } from './market.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -193,10 +195,33 @@ export function processZone(state, zoneId, rng) {
         zone.resources[itemId] += Math.round(/** @type {number} */ (amount) * (zone.numWorkers || 0));
       }
 
-      // Convert resources to gold if liege == originalLiege (orig ř.191-197) — T5 napojení
+      // T5: market inject — productive and warring zones affect market supply (design §6.2).
+      // marketInject is safe for unknown goodsIds (no-op guard in market.js:106).
+      // Clamp [0,max] enforced by marketInject internally (market.js:107).
+      const bal5 = BALANCE.world;
       if (zone.liege === zone.originalLiege) {
+        // Productive zone (policy resource, liege==originalLiege):
+        // inject a fraction of accumulated resources into market supply (+qty).
+        // Increases available → pushes price down (more supply). After tribute accumulation. (§6.2)
+        const injectFrac = bal5.injectFraction;
+        for (const [goodsId, qty] of Object.entries(zone.resources)) {
+          const injectQty = Math.floor(/** @type {number} */ (qty) * injectFrac);
+          if (injectQty > 0) {
+            marketInject(state, goodsId, injectQty);
+          }
+        }
+
+        // Convert resources to gold if liege == originalLiege (orig ř.191-197)
         const goldVal = getGoldValue(state, zone.resources);
         zone.resources = { gold: goldVal };
+      } else {
+        // Warring zone (liege != originalLiege):
+        // drain market supply (−warConsumption per resource key). Decreases available → pushes price up.
+        // Approximated war drain (G-WORLD-INJECT-QTY). (§6.2)
+        const warDrain = bal5.warConsumption;
+        for (const goodsId of Object.keys(zone.resources)) {
+          marketInject(state, goodsId, -warDrain);
+        }
       }
 
       // Worker dynamics by gold (orig ř.200-210)
