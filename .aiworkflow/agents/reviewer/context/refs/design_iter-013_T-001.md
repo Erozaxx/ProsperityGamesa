@@ -1,11 +1,32 @@
-# Implementační design — M5: Budovy, stavba, kontrakty (iter-013, T-001)
+# Implementační design — M5: Budovy, stavba, kontrakty (iter-013, T-001 → revize T-002a)
 
-- **Task**: T-001, iter-013 (BRIEF-013-001)
+- **Task**: T-001 (orig.), revize **T-002a**, iter-013 (BRIEF-013-001 → BRIEF-013-002a)
 - **Autor**: architect
-- **Datum**: 2026-06-13
-- **Milník**: M5 (master plán iter-003 §3/iter-012, posunuto +1 dle DR-013-00 na iter-013) · K13 (modifikátory z budov), K14 (registr efektů)
-- **Vstupy**: architektura iter-002 (§5.3 K13, §5.4 K14, §6.3–6.4 persist, §7.1 transakce, §8 kontrakty), master plán §3/iter-012 + §1.2, DR-013-00, Q3/DR-001 (gap politika), reálný kód `src/core/*`, `src/data/*`, originál `doc/original_source/.../home.js`+`config.js`+`buildingcard.js`.
-- **Účel**: detailní design T1–T6 na úroveň, ze které Sonnet coder implementuje **bez dalšího architektonického rozhodnutí**. Žádný produkční kód. Žádná změna architektury iter-002 — pouze její konkretizace pro M5.
+- **Datum**: 2026-06-13 (orig.), revize 2026-06-14 (T-002a)
+- **Milník**: M5 (master plán iter-003 §3/iter-012, posunuto +1 dle DR-013-00 na iter-013) · K13 (modifikátory z budov), K14 (registr efektů). **Po splitu DR-013-01: tento dokument pokrývá M5-1 (T1–T4); T5/T6 = M5-2/iter-014 — viz §5–§6 (Odloženo).**
+- **Vstupy**: architektura iter-002 (§5.3 K13, §5.4 K14, §6.3–6.4 persist, §7.1 transakce, §8 kontrakty), master plán §3/iter-012 + §1.2, DR-013-00, DR-013-01 (split + 4 podmínky), Q3/DR-001 (gap politika), review `review_design_iter-013_T-002.md` (4 major + minor/nit), reálný kód `src/save/load.js`+`persistSchema.js`+`src/core/registry/effects.js`+`src/core/*`+`src/data/*`, originál `doc/original_source/.../home.js`+`config.js`+`buildingcard.js`.
+- **Účel**: detailní design **M5-1 (T1–T4)** na úroveň, ze které Sonnet coder implementuje **bez dalšího architektonického rozhodnutí**. Žádný produkční kód. Žádná změna architektury iter-002 — pouze její konkretizace pro M5.
+
+---
+
+## Changelog — Revize T-002a (2026-06-14)
+
+> Tato revize zapracovává **4 major podmínky** z reviewer gate (T-002, GO-s-podmínkami; DR-013-01) a **zužuje scope na M5-1 (T1–T4)**. Originální tělo designu T-001 zůstává; tato sekce je řízená diferenciace a vede čtenáře k upraveným sekcím. **Při rozporu má přednost tento changelog + revidované sekce §1.4, §2.3, §4.**
+
+**Platný dokument**: tento soubor (`design_iter-013_T-001.md`) je po revizi T-002a **jediný platný** design M5-1. Žádný separátní `design_iter-013_T-002a.md` se nevytváří.
+
+### Jak je vyřešeny 4 major (detail v sekcích)
+
+- **M-1 — effects→modifier mapování + JEDNA cesta agregátů** → nová **§4.3** (úplné mapovací pravidlo: op add/mul/set z dat, mapové attr přes dot-path, **per-typ** agregace, deterministické `modifier.id`/`source`) + **§4.4 přepsána**: kanonická cesta agregátů = **fold přes modifikátory** (`recalcBuildingAggregates` sčítá `effective(id,attr)` kde modifikátory už nesou `created×per-instance`). Druhá cesta (`created × effective` jako samostatný součin) **odstraněna** — eliminace rizika dvojího započtení. Viz §4.3 pravidlo „multiplicita instancí je v `value` modifikátoru, ne v agregační smyčce".
+- **M-2 — sdílený `rebuildBuildingDerived(state)`, žádná load-only větev** → **§1.4 + §4.6 přepsány** + nová **§4.7**: jediná fn `rebuildBuildingDerived(state)` (created re-derivace + fold modifikátorů z budov + agregáty), volaná z **load Step 5** I z **každé mutace budov** (`completeBuild`/`destroyInstance`/`applyRepair`). Load-only derivační větev **explicitně zakázána** (M5-R1, stejná třída bugu jako DR-012-02). Ověřeno proti `load.js:217-225` (Step 5 dnes počítá JEN `workforce.total`) — coder MUSÍ rozšířit, ne „doplnit jako jobs".
+- **M-3 — deterministický fold** → **§4.1 přepsána**: před foldem se modifikátory **řadí `sort by (source, id)` lexikograficky**; `set` bere **poslední po tomto řazení** (ne poslední v pořadí vložení do `modifiers[]`). Pořadí už NEzávisí na insertion order → fold je deterministický nová-hra i load (K16). Tabulkový test se dvěma `set` různého source.
+- **M-4 — build command bez ctx → pay bez emitTx** → **§2.3 přepsána** (s ověřením kódu): `dispatch.js:44-59` volá `handler(state, params)` → **commandu se ctx NEpředává**; předat ctx (Volba A) by vyžadovalo **změnu signatury `dispatch`/`registerCommand`** = změna architektury command vrstvy iter-002 → **mimo povolený scope**, NEDĚLÁ se. `transactions.js:29,45` potvrzuje `pay(...,ctx)` má ctx **optional** (`if(ctx&&ctx.emitTx)`) → `pay` bez ctx funguje korektně, jen vynechá audit. **Zvolena Volba B = vědomý gap G-BUILD-TXAUDIT** (M-4): stavba se neobjeví v měsíčním tx reportu (neblokuje hratelnost; gold se odečte), dořeší M5-2/M9 zavedením ctx do command vrstvy.
+
+### Scope změny
+
+- **Zúženo na M5-1 (T1–T4)**: §5 (T5 kontrakty) a §6 (T6 build UI) jsou **přesunuty do §13 „Odloženo na M5-2/iter-014"** (jen krátká poznámka, plný design udělá architekt v iter-014). Sekce §5/§6 v těle ponechány jako **archiv** pro M5-2 a označeny „[ODLOŽENO M5-2]" — coder M5-1 je IGNORUJE.
+- **T4 dekompozice (§4.8, dříve §4.4)** aktualizována tak, aby T4.3/T4.4/T4.6 reflektovaly sdílený `rebuildBuildingDerived` (M-2) a jednu cestu agregátů (M-1); přidána §4.6 (sdílená derivační fn) + §4.7 (mutace volají sdílenou cestu) + §4.3 (mapování effects→modifier).
+- Minor/nit zapracovány: m-1 (dot-path zafixován, §4.1/§4.3), n-2 (param `count`/`builtCount`, §2.4), m-2 (payload grep test, §4.5/§4.8 T4.6), n-3 (rozšířit i 4 existující budovy, §9), m-5 (T4.5 ověřit integrační body za běhu).
 
 ---
 
@@ -19,10 +40,13 @@
 | M5-D4 | `scaleCostByCount(base, created)` **nová** čistá fn ve `formulas.js`; geometrický růst `pct = scaleFactor^created`. Existující `scaleCost(base, pct)` zůstává beze změny. Vzorec je `provenance:'approximated'` (originál budovy neškáluje — §2.4). | §2.4 | formulas.js:54, config.js:1170 |
 | M5-D5 | `projectQueue` jako pole serializovatelných projektů ve `state.home.projectQueue`; builder postup na **quarterDay** slotu (sdílí cadence s jobs §M3). | §2 | tickOrder, home.js:1720-1840 |
 | M5-D6 | `build(itemId)` command: validace (unlock, space, canAfford, kapacita fronty) → `pay()` → push projektu do fronty. Žádná okamžitá instance — instance vzniká až po dokončení projektu. | §2.3 | dispatch.js, buildingcard.js:84-101 |
-| M5-D7 | Modifier vrstva (K13): `effective(itemId, attr, state)` čistá fold add→mul→set; memoizace v `state`-mimo cache objektu s verzí, invalidace bump verze při změně `catalogState.modifiers`; agregáty (maxWorkers, kapacity, attractiveness) event-driven přepočet. **Save = JEN `catalogState.modifiers`** (už existuje). | §4 | §5.3, createInitialState.js:115 |
-| M5-D8 | Kontrakty (K14): `state.home.contractQueue` = pole; `onComplete/onExpire/onReject` = **string-ID do registru efektů + params v datech**; expirace přes `scheduleInsert` (serializovatelné). | §5 | §5.4, effects.js, scheduler.js |
-| M5-D9 | **Split DOPORUČEN: ANO** → M5-1 (T1–T4) / M5-2 (T5–T6). | §8 | split-trigger §3/iter-012 |
-| M5-D10 | G-LISTBUILDINGS: doplnit buildings.json autonomně na ~10 budov, `provenance:'approximated'` per pole; min. hratelná sada v §9. | §9 | Q3/DR-001, gap-report |
+| M5-D7 | Modifier vrstva (K13): `effective(itemId, attr, state)` čistá fold add→mul→set s **deterministickým řazením `sort by (source,id)`** (M-3); memoizace mimo cache objektu s verzí, invalidace bump verze při změně `catalogState.modifiers`; **JEDNA cesta agregátů** = fold přes modifikátory (M-1), multiplicita instancí v `value` modifikátoru. **Save = JEN `catalogState.modifiers`** (ověřeno persistSchema.js:41 — `catalogState` ukládán celý). | §4 | §5.3, createInitialState.js:115, persistSchema.js:41 |
+| **M5-D7a (T-002a)** | **Sdílený `rebuildBuildingDerived(state)`** (M-2): created re-derivace + fold modifikátorů z budov do `catalogState.modifiers` + `recalcBuildingAggregates`. Volaný z **load Step 5 I z každé mutace budov** (complete/destroy/repair). **Load-only derivační větev zakázána.** | §1.4, §4.6, §4.7 | M-2, load.js:217-225 (Step 5 dnes jen workforce.total — DR-012-02) |
+| **M5-D7b (T-002a)** | **Mapování `building.effects → modifier`** (M-1): pravidlo op (add/mul/set), mapový attr přes dot-path, **per-typ** agregace (multiplicita v `value`), deterministické `modifier.id`/`source`. | §4.3 | M-1, §5.3 arch |
+| M5-D8 | **[ODLOŽENO M5-2]** Kontrakty (K14): `state.home.contractQueue` = pole; `onComplete/onExpire/onReject` = string-ID do registru efektů + params v datech; expirace přes `scheduleInsert`. | §13 (orig. §5) | §5.4, effects.js, scheduler.js |
+| M5-D9 | **Split POTVRZEN (DR-013-01): iter-013 = M5-1 (T1–T4) / iter-014 = M5-2 (T5–T6).** | §8, DR-013-01 | split-trigger §3/iter-012 |
+| M5-D10 | G-LISTBUILDINGS: doplnit buildings.json autonomně na ≥6 budov, `provenance:'approximated'` per pole; min. hratelná sada v §9; **rozšířit i 4 existující budovy o nová pole** (n-3). | §9 | Q3/DR-001, gap-report |
+| **M5-D11 (T-002a)** | **build command txAudit** (M-4): Volba A (předat ctx) zamítnuta — vyžaduje změnu signatury `dispatch`/`registerCommand` (arch iter-002, mimo scope). **Volba B zvolena**: `pay` bez ctx (ctx je optional, `transactions.js:45`), vědomý gap **G-BUILD-TXAUDIT** (audit dořeší M5-2/M9). | §2.3 | M-4, dispatch.js:44-59, transactions.js:29,45 |
 
 ---
 
@@ -76,7 +100,7 @@ for buildingId in state.home.buildings:
 - `buildingsAgeBias` = `0.2` (home.js:2320 `Math.random() + 0.2`), balance konstanta.
 - `repairThreshold` = `0.25` (home.js:2324), balance konstanta.
 - `WINTER_INDEX`: ověřit mapování season indexu (calendar.js používá 0=Spring..3=Winter; `BALANCE.season.startSeason='Winter'`). Coder čte aktuální index z `state.season.curSeason`.
-- `destroyInstance`: odebere instanci z pole, `created--`, **invaliduje modifier cache** (T4 §4.3) protože budovy nesou agregáty. Po destrukci se přepočtou event-driven agregáty.
+- `destroyInstance`: odebere instanci z pole, `created--`, **přepočítá modifikátory budovy + invaliduje cache + recalc agregátů přes sdílenou cestu** (§4.7, M-2) protože budovy nesou agregáty.
 - **Catch-up-safe**: vše přes `rng.stream('buildings')`, žádný DOM/Date.now/Math.random (S-05, §4.1 arch). Day-edge → levné v dávce (1× za herní den, ne per step).
 
 ### 1.3 Opravy (repair projekt) — M5-D3
@@ -118,7 +142,7 @@ Do `PERSIST_SCHEMA` přidat `home.buildings`:
 - **Ukládá se**: `created`, `totalMade`, `instances` (každá: `instId`, `hp`, `inRepair`). `projectQueue` celé (je serializovatelné).
 - **NEUKLÁDÁ se (derivované)**: `effective()` hodnoty, agregáty (maxWorkers, kapacity, attractiveness), `progressPct` projektu (derivát `curProgress/maxProgress`), modifikátory z budov (ty jsou v `catalogState.modifiers`, ukládají se tam — viz T4).
 - **Pozn. k `created` (invariant vs. derivace)**: `created === instances.length` je invariant. Architektura §6.3 dovoluje ukládat dynamiku; `created` ukládáme **explicitně** kvůli konzistenci s originálem (`created`/`totalMade` jsou kanonická perzistentní pole, T-001 §12) a `totalMade` se uložit **musí** (není odvoditelné z `instances`). Load-time se `created` re-derivuje z `instances.length` (load Step 5, jako `b.created = b.instances.length`) → ochrana proti driftu. Reviewer gate: pokud `created !== instances.length` po loadu → invariant violation.
-- Load Step 5 (recalculate, load.js:217): po `applyPayload` zavolat `rebuildBuildingDerived(state)` = (a) `created = instances.length` per budova, (b) **fold modifikátorů + event-driven agregáty** (T4 §4.4). To je jediná cesta výpočtu derivátů — shodná pro novou hru i load (žádná load-only větev, §6.4).
+- Load Step 5 (recalculate, `load.js:217-225` — dnes počítá JEN `workforce.total`, M-2): po `applyPayload` zavolat **sdílený `rebuildBuildingDerived(state)`** (§4.6) = (a) `created = instances.length` per budova, (b) re-gen building modifikátorů, (c) `recalcBuildingAggregates` (jedna cesta, §4.4). Tatáž fn volaná z mutací (§4.7) → **žádná load-only větev** (M5-R1, §6.4). Pořadí: `rebuildBuildingDerived` PŘED `deriveWorkforceTotal` (workforce čte `derived.maxWorkers`).
 
 ### 1.5 Balance konstanty → `balance.js`
 
@@ -224,7 +248,14 @@ build(state, params):
 ```
 
 - **Command vs. tick separace** (dispatch.js komentář): command **smí** mutovat (pay + push) — je to UI→core intent, ne tick fn. Platba je atomická (`pay` §7.1 — kontroluje canAfford před mutací).
-- Pozn.: command nemá `ctx` (dispatch signatura je `(state, params)`). `txCtx` pro emitTx: buď command registry rozšířit o ctx (mimo scope iter-002), NEBO `pay(state, cost, cause)` bez emitTx (audit tx pro stavbu lze odložit — accounting observer je K5/K18, ne blocker M5). **Rozhodnutí**: M5 volá `pay(state, cost, cause)` bez ctx (emitTx je optional v transactions.js:29). Gap `G-BUILD-TXAUDIT` (stavba se neobjeví v měsíčním reportu do doplnění ctx do command vrstvy — neblokuje hratelnost).
+
+**M-4 (T-002a) — build command bez `ctx` → `pay` bez `emitTx` audit. ROZHODNUTÍ + ověření kódu:**
+
+- **Ověřeno** (`dispatch.js:44-59`): `dispatch(creg, state, cmd)` volá `handler(state, params)` — **command handleru se NEpředává `ctx`**. Signatura command vrstvy je `(state, params)` (pevná v architektuře iter-002 command/snapshot hranice).
+- **Ověřeno** (`transactions.js:29,45`): `pay(state, cost, cause, ctx, step)` má `ctx` **optional** — řádek `if (ctx && ctx.emitTx) ctx.emitTx(...)`. Tedy `pay(state, cost, 'build:'+itemId)` **bez ctx funguje korektně** (žádný throw), jen tiše vynechá emitTx audit událost. Gold se odečte správně; chybí jen řádek v transakčním auditu/měsíčním reportu (K5/K18 observer).
+- **Volba A (preferovaná briefem) — předat ctx do build commandu**: vyžadovala by **rozšířit signaturu `dispatch`/`registerCommand` o ctx** (`handler(state, params, ctx)` + propagovat ctx z volajícího). To je **změna architektury command vrstvy iter-002** → **mimo povolený scope** ("žádná změna architektury iter-002"). **Proto Volba A se NEDĚLÁ v M5-1.**
+- **Volba B (zvolená) — vědomý gap `G-BUILD-TXAUDIT`**: M5-1 volá `pay(state, cost, 'build:'+itemId)` bez ctx → stavba se neodrazí v měsíčním tx reportu. **NEblokuje hratelnost** (gold se odečte; accounting je enhancement). Dořeší se v **M5-2/M9** zavedením ctx do command vrstvy (čistá změna arch, vlastní iterace). Gap zapsat do gap-reportu, `provenance:'approximated'`.
+- **Reviewer/coder ověří před implementací**: že `pay` s vynechaným ctx skutečně neháže (potvrzeno výše `transactions.js:45`) a že žádný jiný invariant accounting (K5/K18) nevyžaduje povinné emitTx pro korektnost stavu (jen pro report). Není blocker.
 
 ### 2.4 `scaleCostByCount(base, created)` — M5-D4 (čistá fn → formulas.js)
 
@@ -287,20 +318,29 @@ effective(itemId, attr, state):
   return fold(base, mods)
 ```
 
-**Fold pořadí (add → mul → set)** — striktní (§5.3 arch "add → mul → set"):
+**Fold pořadí (add → mul → set)** — striktní (§5.3 arch "add → mul → set") s **deterministickým řazením (M-3, T-002a)**:
 
 ```
 fold(base, mods):
-  add = sum(mods where op==='add' .value)
+  // M-3: PŘED foldem deterministicky seřaď, NE podle pořadí vložení do modifiers[]
+  sorted = mods.slice().sort(cmpModifier)          // cmpModifier viz níže
+  add = sum(sorted where op==='add' .value)
   result = base + add
-  for m in mods where op==='mul' (stable order by source): result *= m.value
-  setMods = mods where op==='set'
-  if setMods.length: result = last(setMods).value    // 'set' přepisuje vše; poslední dle source order vyhrává
+  for m in sorted where op==='mul' (v pořadí sorted): result *= m.value
+  setMods = sorted where op==='set'
+  if setMods.length: result = setMods[setMods.length-1].value   // POSLEDNÍ po sort vyhrává (ne insertion order)
   return result
+
+cmpModifier(a, b):
+  if a.source !== b.source: return a.source < b.source ? -1 : 1   // lexikograficky dle source string
+  if a.id     !== b.id:     return a.id     < b.id     ? -1 : 1   // tie-break dle id (taky lexikograficky)
+  return 0
 ```
 
 - `modifier = { id, source, target, attr, op:'add'|'mul'|'set', value }` (přesně tvar §5.3 arch).
-- Stabilní pořadí v rámci `op`: dle `source` string (deterministické, K16). Pro mapové atributy (`baseCost` = `{wood:30}`) fold pracuje per-resource klíč (attr `'baseCost.wood'`), nebo `effective` vrací celou mapu a fold se aplikuje per klíč — coder zvolí dot-path variantu (jednodušší, konzistentní s persistem).
+- **Deterministické řazení (M-3 — proč je nutné)**: `add` (součet) a `mul` (součin) jsou komutativní → pořadí výsledek nemění. ALE `set` (poslední vyhrává) je **pořadím rozhodnut**. `state.catalogState.modifiers` je pole; jeho insertion order se může lišit nová-hra vs. load (load aplikuje modifikátory přes `rebuildBuildingDerived` v jiném pořadí než postupná stavba) → bez řazení by `set` foldoval nedeterministicky (porušení K16). Proto se **vždy** řadí `sort by (source, id)` lexikograficky před foldem, pro VŠECHNY op (ne jen set), aby byl fold bit-identický nová-hra i load.
+- **Mapové atributy (m-1, dot-path ZAFIXOVÁN)**: pro mapový attr (`baseCost = {wood:30, stone:10}`) je **kanonický tvar attr = dot-path** (`'baseCost.wood'`, `'baseCost.stone'`). Modifikátor cílí na jeden listový klíč; `effective` voláné s `'baseCost'` (bez dot-path) vrací rekonstruovanou mapu = `{k: effective(id,'baseCost.'+k)}` přes všechny klíče base mapy. Coder NEVOLÍ — dot-path je fixní (konzistence T4.1 ↔ T4.3 ↔ persist).
+- **Tabulkový test (M-3)** — dva `set` různého `source`: mods `[{source:'B',op:'set',value:9},{source:'A',op:'set',value:5}]` (vloženo v tomto pořadí) → po sort `A` před `B` → `set` poslední = `B`(9). Otoč insertion order → výsledek STEJNÝ (9). Determinismus nezávislý na insertion order.
 
 ### 4.2 Memoizace + invalidace
 
@@ -315,43 +355,133 @@ state.catalogState._modVersion = number                                        /
 - **Invalidace = bump `_modVersion`** kdykoli se mění `catalogState.modifiers` (stavba/destrukce budovy, tech v M6, event). Helper `invalidateModifiers(state)`.
 - `_effCache`/`_modVersion` mají `_` prefix → **persist allowlist je nepokrývá** (§6.3, ukládá se jen deklarované). Po loadu se `_modVersion` resetuje na 0 a cache je prázdná → první `effective` přepočítá. **Save = JEN `catalogState.modifiers`** (M5-D7, už v allowlistu přes `catalogState`).
 
-### 4.3 Event-driven agregáty (maxWorkers, kapacity skladů, attractiveness)
+### 4.3 Mapování `building.effects → modifier` (M-1, T-002a — pravidlo jádra K13)
 
-Agregáty NEjsou per-attr `effective` — jsou **součty napříč budovami**. Přepočet **event-driven**, ne polling (§5.3 arch "ne pollingem"):
+**Toto je úplné mapovací pravidlo** (review M-1: dříve jen příklad). `building.effects` (data z `buildings.json`) → záznamy `modifier` v `state.catalogState.modifiers`. Žádné architektonické rozhodnutí pro codera.
+
+**Datový tvar `building.effects` v `buildings.json`** (kanonický, pole atomů — explicitní op):
+
+```
+"effects": [
+  { "attr": "workers",        "op": "add", "value": 5 },        // skalární atribut
+  { "attr": "storage.food",   "op": "add", "value": 200 },      // mapový atribut přes dot-path
+  { "attr": "attractiveness", "op": "add", "value": 3 },
+  { "attr": "marketSellMul",  "op": "mul", "value": 1.1 }        // multiplikativní
+]
+```
+
+- **op typy**: `'add'` (sčítá), `'mul'` (násobí), `'set'` (přepisuje, poslední po sort vyhrává — §4.1). Všechny tři přípustné z dat; `op` chybějící → default `'add'` (zpětně kompatibilní s legacy tvarem `{workers:5}`, viz níže).
+- **Mapové atributy**: cíl je listový klíč přes dot-path (`'storage.food'`, `'baseCost.wood'`) — shodné s fold dot-path konvencí §4.1. Nikdy se necíluje na celou mapu.
+- **Legacy/zkrácený tvar** (volitelná tolerance): `"effects": {"workers": 5, "attractiveness": 3}` → každý pár `(attr, num)` → atom `{attr, op:'add', value:num}`. Coder smí normalizovat oba tvary do kanonického pole atomů při generování modifikátorů.
+
+**Generování modifikátoru** `addBuildingModifiers(state, buildingId)` (volaný z `completeBuild`, T4.3):
+
+```
+for atom in normalizeEffects(byId(buildingId).effects):
+  mod = {
+    id:     `bld:${buildingId}:${atom.attr}:${atom.op}`,   // DETERMINISTICKÝ, per-TYP (ne per-instance) — viz níže
+    source: `building:${buildingId}`,                       // DETERMINISTICKÝ, per-budova-typ
+    target: buildingId,
+    attr:   atom.attr,
+    op:     atom.op,
+    value:  atom.value * created_pro_op_add_a_set ? ... viz "Per-typ agregace"
+  }
+```
+
+**Per-typ agregace (ROZHODNUTÍ M-1 — multiplicita instancí je v `value`, NE v agregační smyčce):**
+
+- Modifikátor je **JEDEN na (buildingId, attr, op)** — NE jeden per instance. `id`/`source` proto NEobsahují `instId` → žádná kolize, deterministické, stabilní napříč save/load.
+- **Multiplicita instancí (`created`) je zapečená do `value` modifikátoru** podle op:
+  - `op:'add'` → `value = atom.value * created` (5 workers/instance × 3 instance = modifier value 15).
+  - `op:'mul'` → `value = atom.value ^ created` (každá instance násobí; 1.1 × 1.1 × 1.1 pro 3 instance). *(Pozn.: pro M5 min. sadu §9 jsou per-typ mul efekty vzácné; pokud balancér nechce kumulativní mul per instance, alternativa `value = atom.value` nezávisle na created — coder řídí konstantou `BALANCE.buildings.mulPerInstance` default `false` = mul nezávislý na count; gap G-BUILD-MULSTACK, approximated.)*
+  - `op:'set'` → `value = atom.value` (set nezávisí na count — definuje absolutní hodnotu atributu).
+- Při změně počtu instancí (`completeBuild`/`destroyInstance`) se modifikátor **přepočítá** (znovu vygeneruje s aktuálním `created`) přes `addBuildingModifiers`/`removeBuildingModifiers` + `invalidateModifiers`. To je jediné místo, kde `created` vstupuje do agregátů.
+
+> **Důsledek pro M-1 (jedna cesta agregátů)**: protože `created` je už ve `value` modifikátoru, agregační smyčka §4.4 čte JEN `effective(id, attr)` a **NIKDY** ji nenásobí `created`. Tím je odstraněna druhá cesta (`created × effective`) → žádné dvojí započtení.
+
+### 4.4 Event-driven agregáty — JEDNA kanonická cesta (M-1, T-002a)
+
+Agregáty NEjsou per-attr `effective` na jedné budově — jsou **součty napříč budovami**. **JEDINÁ kanonická cesta = fold přes modifikátory** (`effective` už nese multiplicitu instancí ve `value`, §4.3). Přepočet **event-driven**, ne polling (§5.3 arch "ne pollingem"):
 
 ```
 recalcBuildingAggregates(state):
-  state.home.derived.maxWorkers      = Σ over buildings: created * effective(id,'workers',state)
-  state.home.derived.storageCapacity = Σ ... effective(id,'storage',state)
-  state.home.derived.attractiveness  = Σ ... effective(id,'attractiveness',state)
+  // JEDNA CESTA: effective(id, attr) už zahrnuje created (multiplicita je ve value modifikátoru, §4.3).
+  // NIKDY nenásob created v této smyčce → eliminace dvojího započtení (M-1).
+  state.home.derived.maxWorkers      = Σ over buildingId in state.home.buildings: effective(id,'workers',state)
+  state.home.derived.storageCapacity = Σ over buildingId: effective(id,'storage.<resource>',state)  // per-resource, dot-path
+  state.home.derived.attractiveness  = Σ over buildingId: effective(id,'attractiveness',state)
   // settlementLevel pak čte attractiveness (formulas.settlementLevel — už existuje)
 ```
 
-- `state.home.derived` = **neperzistentní** kontejner derivátů (jako `_effCache`). Allowlist ho NEzahrne; load Step 5 ho přepočítá.
-- **Triggery přepočtu** (event-driven): (1) `completeBuild`, (2) `destroyInstance`, (3) přidání/odebrání modifikátoru (M6 techy), (4) load Step 5. Žádný per-tick polling.
-- Napojení: `jobs.workerSlots` (jobs.js:45) dnes čte jen `houseTypes`; M5 rozšíří o `state.home.derived.maxWorkers` z budov (gap G-POP-WORKFORCE odkazuje na M5). `housing.settlementLevel` čte `derived.attractiveness`.
-
-### 4.4 POVINNÁ dekompozice L na Sonnet-proveditelné kroky (§1.2)
-
-T4 je **L** — rozpad na 6 atomických kroků, každý samostatně testovatelný, žádný nevyžaduje architektonické rozhodnutí:
-
-| Krok | Co | Soubor | Test (Sonnet) | Závisí |
-|---|---|---|---|---|
-| **T4.1** | `effective(itemId, attr, state)` + `fold(base, mods)` čistá fn (add→mul→set), dot-path pro mapové attr | `catalog/effective.js` | tabulkový: base bez mods = base; add+mul+set pořadí; set přepíše | — |
-| **T4.2** | Memoizace: `_effCache`/`_modVersion` + `invalidateModifiers(state)`; `effective` čte/plní cache | `catalog/effective.js` | cache hit po 2× volání; po `invalidate` přepočet; jiný výsledek po změně mods | T4.1 |
-| **T4.3** | Modifikátory z budov: `addBuildingModifiers(state, buildingId)` / `removeBuildingModifiers` — z `building.effects` (data) generuje `modifier` záznamy do `catalogState.modifiers` + `invalidate` | `systems/buildings.js` | postav budovu → modifier v seznamu; znič → zmizí; round-trip seznamu | T4.1, T4.2 |
-| **T4.4** | `recalcBuildingAggregates(state)` → `state.home.derived.{maxWorkers,storageCapacity,attractiveness}`; volat z complete/destroy | `systems/buildings.js` | 2 budovy → součet; po destrukci klesne | T4.3 |
-| **T4.5** | Napojení agregátů: `jobs.workerSlots` čte `derived.maxWorkers`; `housing.settlementLevel` čte `derived.attractiveness` | `systems/jobs.js`, `systems/housing.js` | maxWorkers ovlivní autoAssign; attractiveness ovlivní level | T4.4 |
-| **T4.6** | Load re-aplikace: load Step 5 `rebuildBuildingDerived(state)` = `created=instances.length` + `recalcBuildingAggregates` (fold ze seznamu modifikátorů). **Save = jen modifiers** (ověřit allowlist) | `save/load.js`, `save/persistSchema.js` | save (jen modifiers) → load → derived === před save (round-trip) | T4.4 |
+- **ODSTRANĚNÁ druhá cesta (M-1)**: dřívější `Σ created * effective(id,'workers')` je **zrušena**. `created × per-instance` je nyní výhradně ve `value` modifikátoru (§4.3). Smyčka sčítá pouze `effective(id, attr)`. Existuje tedy **jen jedna definice** "kolik workers dává budova X" = `effective(X,'workers')` (= base + Σ add-modifikátorů, kde building modifikátor už má `value = perInstance*created`).
+- `state.home.derived` = **neperzistentní** kontejner derivátů (jako `_effCache`). Allowlist ho NEzahrne; `rebuildBuildingDerived` (load Step 5) ho přepočítá.
+- **Triggery přepočtu** (event-driven): (1) `completeBuild`, (2) `destroyInstance`/`applyRepair` (mění modifikátory/HP), (3) přidání/odebrání modifikátoru (M6 techy), (4) load Step 5 přes `rebuildBuildingDerived`. Žádný per-tick polling. Všechny tyto cesty volají `recalcBuildingAggregates` přes sdílenou fn → viz §4.7.
+- Napojení: `jobs.workerSlots` (m-5: coder ověří aktuální fn/řádek, kód se posunul od extrakce arch) dnes čte jen `houseTypes`; M5 rozšíří o `state.home.derived.maxWorkers` z budov (gap G-POP-WORKFORCE odkazuje na M5). `housing.settlementLevel` čte `derived.attractiveness`.
 
 ### 4.5 Kritický invariant (review gate)
 
 - **Žádné in-place `applyUpgrade` mutace** katalogu: `effective` NIKDY nemutuje `byId(itemId).entry`. Katalog je immutable (`Object.freeze` v dev). Modifikátory jsou data v `state.catalogState.modifiers`, ne `base*` dvojníci.
-- **Derivovaná data se NEUKLÁDAJÍ**: `_effCache`, `_modVersion`, `home.derived`, `progressPct`, `created` (re-derived) — žádné v persist allowlistu. Reviewer grep: persist payload nesmí obsahovat `derived`/`_effCache`/`maxWorkers`.
+- **Derivovaná data se NEUKLÁDAJÍ**: `_effCache`, `_modVersion`, `home.derived`, `progressPct`, `created` (re-derived) — žádné v persist allowlistu. Reviewer grep (formalizovat jako test, m-2): persist payload nesmí obsahovat `derived`/`_effCache`/`maxWorkers`.
+
+### 4.6 `rebuildBuildingDerived(state)` — JEDINÁ sdílená derivační cesta (M-2, T-002a)
+
+**Toto je centrální anti-bug rozhodnutí (M-2).** Dnes `load.js` Step 5 (ověřeno `load.js:217-225`) počítá JEN `workforce.total` přes `deriveWorkforceTotal` — žádný obecný rebuild budov. Pokud coder "doplní blok jako jobs" a postaví load-only derivační větev, vznikne **přesně stejná třída bugu jako DR-012-02** (reload desync): nová hra a load se rozejdou. **Proto se zavádí JEDNA sdílená funkce.**
+
+```
+// src/core/systems/buildings.js (čistá vůči RNG; jen čte instances + katalog + přepisuje modifiers/derived)
+rebuildBuildingDerived(state):
+  // (a) created re-derivace z pravdy = instances.length (ochrana proti driftu, §1.4)
+  for buildingId in state.home.buildings:
+    b.created = b.instances.length
+
+  // (b) fold modifikátorů Z BUDOV do catalogState.modifiers
+  //     = odeber všechny modifikátory se source `building:*`, znovu je vygeneruj z aktuálního stavu budov
+  removeAllBuildingSourcedModifiers(state)              // filtr source.startsWith('building:')
+  for buildingId in state.home.buildings (created > 0):
+    addBuildingModifiers(state, buildingId)             // §4.3 — value už nese created
+  invalidateModifiers(state)                             // bump _modVersion (§4.2)
+
+  // (c) agregáty JEDNOU kanonickou cestou (§4.4)
+  recalcBuildingAggregates(state)
+```
+
+- **Volá se ze DVOU míst, jinak NIKDY**:
+  1. **load Step 5** (`load.js`, po `applyPayload`, vedle/po `workforce.total` — pořadí: nejdřív `rebuildBuildingDerived` pak `deriveWorkforceTotal`, protože workforce může číst `derived.maxWorkers`).
+  2. **každá mutace budov za běhu** přes §4.7 (`completeBuild`/`destroyInstance`/`applyRepair`).
+- **M5-R1 (zákaz load-only větve, T-002a)**: NEEXISTUJE žádná derivační logika, kterou by volal jen load a ne mutace (ani naopak). Reviewer gate: grep, že `recalcBuildingAggregates`/`addBuildingModifiers` nejsou volány přímo z `load.js` — pouze přes `rebuildBuildingDerived`. Round-trip test povinný (§4.8 T4.6).
+- **Proč fold idempotentní (b)**: `removeAllBuildingSourcedModifiers` + re-add zaručí, že opakované volání `rebuildBuildingDerived` dá stejný výsledek (žádná akumulace duplicit). Modifikátory z jiných zdrojů (M6 techy, eventy, `source` ≠ `building:*`) zůstanou nedotčené.
+- **Determinismus**: po (b) je `catalogState.modifiers` v pořadí generování, ALE fold (§4.1) řadí `sort by (source,id)` → výsledek `effective` je nezávislý na pořadí re-addu. Load i nová hra dají bit-identické agregáty.
+
+### 4.7 Mutace budov volají sdílenou cestu (M-2)
+
+Každá mutace, která mění počet/stav budov, **MUSÍ** projít sdílenou derivační cestou — buď celý `rebuildBuildingDerived(state)`, nebo (optimalizace) cílený delta přes stejné helpery `addBuildingModifiers`/`removeBuildingModifiers` + `recalcBuildingAggregates`. **Žádná mutace nesmí počítat deriváty vlastní logikou.**
+
+| Mutace | Kde (§) | Co volá | Pozn. |
+|---|---|---|---|
+| `completeBuild(state, project, ctx)` | §2.2 | `instances.push` + `created++` + `totalMade++` → `addBuildingModifiers(buildingId)` + `invalidateModifiers` + `recalcBuildingAggregates` | nová instance mění `created` → value modifikátorů (§4.3) se musí přepočítat |
+| `destroyInstance(state, buildingId, instId, ctx)` | §1.2 | odebrat instanci + `created--` → `addBuildingModifiers` (re-gen s novým created) nebo `removeBuildingModifiers` při created==0 + `invalidate` + `recalcBuildingAggregates` | |
+| `applyRepair(state, project, ctx)` | §2.2 | `inst.hp += resistance` + `inst.inRepair=false` → `recalcBuildingAggregates` (HP nemění modifikátory, ale držíme jednu cestu) | repair nemění `created`; agregáty se nemění, ale volání je levné a drží invariant |
+
+- **Doporučená implementace (M-2 jednoduchost)**: protože re-gen modifikátorů jedné budovy je levný a počet typů budov je malý (≤ desítky), coder smí v `completeBuild`/`destroyInstance` volat rovnou celé `rebuildBuildingDerived(state)` místo cíleného delta — kód je pak triviálně shodný s load Step 5 (jedna fn, jeden test). Delta optimalizace je volitelná a NESMÍ zavést druhou derivační logiku.
+
+### 4.8 POVINNÁ dekompozice L na Sonnet-proveditelné kroky (§1.2) — aktualizováno T-002a
+
+T4 je **L** — rozpad na 6 atomických kroků, každý samostatně testovatelný, žádný nevyžaduje architektonické rozhodnutí. **T-002a**: T4.3/T4.4/T4.6 přepsány tak, aby reflektovaly sdílený `rebuildBuildingDerived` (M-2), jednu cestu agregátů (M-1) a deterministický fold (M-3).
+
+| Krok | Co | Soubor | Test (Sonnet) | Závisí |
+|---|---|---|---|---|
+| **T4.1** | `effective(itemId, attr, state)` + `fold(base, mods)` čistá fn (add→mul→set) s **deterministickým `sort by (source,id)`** (M-3); dot-path pro mapové attr (m-1, ZAFIXOVÁN) | `catalog/effective.js` | tabulkový: base bez mods = base; add+mul+set pořadí; **dva `set` různého source → výsledek nezávislý na insertion order** (M-3) | — |
+| **T4.2** | Memoizace: `_effCache`/`_modVersion` + `invalidateModifiers(state)`; `effective` čte/plní cache | `catalog/effective.js` | cache hit po 2× volání; po `invalidate` přepočet; jiný výsledek po změně mods | T4.1 |
+| **T4.3** | **Mapování effects→modifier (M-1)**: `addBuildingModifiers(state, buildingId)` / `removeBuildingModifiers` dle §4.3 — op add/mul/set z dat, dot-path mapové attr, **per-typ** (`id=bld:${buildingId}:${attr}:${op}`, `source=building:${buildingId}`), **multiplicita `created` ve `value`** (NE per-instance modifikátor) | `systems/buildings.js` | postav budovu → 1 modifier per (attr,op) v seznamu; 2. instance → `value` se zdvojnásobí (add); znič → re-gen/zmizí; round-trip seznamu | T4.1, T4.2 |
+| **T4.4** | **`recalcBuildingAggregates(state)` JEDNA cesta (M-1)** → `state.home.derived.{maxWorkers,storageCapacity,attractiveness}` = `Σ effective(id,attr)` **bez násobení `created`** (created je ve value); volat jen přes §4.6/§4.7 | `systems/buildings.js` | 2 budovy → součet; po destrukci klesne; **assert: agregát = Σ effective (žádné dvojí ×created)** | T4.3 |
+| **T4.5** | Napojení agregátů: `jobs.workerSlots` čte `derived.maxWorkers`; `housing.settlementLevel` čte `derived.attractiveness`. **m-5: ověřit aktuální fn/řádek za běhu** (kód se posunul od extrakce arch, ne slepě jobs.js:45) | `systems/jobs.js`, `systems/housing.js` | maxWorkers ovlivní autoAssign; attractiveness ovlivní level | T4.4 |
+| **T4.6** | **Sdílený `rebuildBuildingDerived(state)` (M-2)** = `created=instances.length` + re-gen building modifikátorů + `recalcBuildingAggregates`; **volaný z load Step 5 I z mutací** (§4.7); **zákaz load-only větve** (reviewer grep: `recalcBuildingAggregates` nevolán přímo z `load.js`). **Save = jen `catalogState.modifiers`** (ověřit `persistSchema.js:41` ukládá `catalogState` celý). Persist blok pro `home.buildings`/`projectQueue`/`projectSeq` přidat do `applyPersist`/`applyPayload` (m-2: payload grep test) | `save/load.js`, `save/persistSchema.js`, `systems/buildings.js` | save (jen modifiers) → load → `derived` === před save (round-trip); `created===instances.length` po loadu; payload grep neobsahuje `derived`/`_effCache`/`maxWorkers` | T4.4, T4.3 |
+
+> **Pozn. k `applyPersist` (M-1 realizace, ověřeno)**: `applyPersist` (`persistSchema.js:36-195`) je psaný **imperativně per doména** (home má bloky pro population/housing/food/.../jobs/skills, NE generický loop). Coder MUSÍ přidat blok pro `home.buildings` (per id `{created,totalMade,instances:[{instId,hp,inRepair}]}`), `home.projectQueue`, `home.projectSeq` — analogicky k `jobs` bloku (ř. 150-158). Není to "jen řádek do allowlist tabulky".
 
 ---
 
-## 5. T5 — Kontrakty (K14)
+## 5. T5 — Kontrakty (K14)  **[ODLOŽENO M5-2 / iter-014 — viz §13. Coder M5-1 IGNORUJE §5–§6.]**
 
 ### 5.1 `contractQueue` struktura
 
@@ -399,7 +529,7 @@ register(reg, 'contract.penalty',     (state, params, ctx) => pay(state, params.
 
 ---
 
-## 6. T6 — UI build screen + kontrakty panel (data/selektory/commandy)
+## 6. T6 — UI build screen + kontrakty panel (data/selektory/commandy)  **[ODLOŽENO M5-2 / iter-014 — viz §13. Coder M5-1 IGNORUJE.]**
 
 Návrh rozhraní (ne pixely): selektory (core→UI, read-only, §3.4 arch) + commandy (UI→core, §3.3).
 
@@ -438,7 +568,7 @@ selectContracts(state):
 
 ---
 
-## 7. TickOrder dopady (živý artefakt §4.3) + diagram
+## 7. TickOrder dopady (živý artefakt §4.3 arch) + diagram
 
 Nové periodiky (registrovat v `registerCorePeriodics`, tickOrder.js):
 
@@ -483,7 +613,7 @@ event-driven (mimo tick): completeBuild/destroyInstance → addBuildingModifiers
 
 Odůvodnění (split-trigger §3/iter-012, master plán §A3 — iterace ~4–6 tasků + test + review):
 
-1. **T4 je L s povinnou 6-krokovou dekompozicí** (§4.4) — sám o sobě naplní kapacitu iterace. T1–T4 = T1(M)+T2(M)+T3(M)+T4(L=~6 sub-kroků) ≈ 9 efektivních jednotek práce + test loop + review. To je horní hranice jedné iterace.
+1. **T4 je L s povinnou 6-krokovou dekompozicí** (§4.8) — sám o sobě naplní kapacitu iterace. T1–T4 = T1(M)+T2(M)+T3(M)+T4(L=~6 sub-kroků) ≈ 9 efektivních jednotek práce + test loop + review. To je horní hranice jedné iterace.
 2. **T4 a T5 nesouzní do jedné iterace**: T4 (modifikátory, K13) je *infrastrukturní* (effective/fold/agregáty/cache/load round-trip) s vlastním náročným review gate (žádné in-place mutace, derivát se neukládá). T5 (kontrakty, K14) je *obsahový* systém s vlastním schedule/registr/persist. Mísení dvou nezávislých review gates v jedné iteraci zvyšuje riziko re-run celé iterace kvůli jednomu systému.
 3. **Čistá dependency hranice**: T5/T6 závisí na T2 (`pay`/transakce, fronty) a T4 (effective pro odměny/efekty), ne naopak. M5-1 dodá modifier vrstvu a stavbu jako stabilní základ; M5-2 staví kontrakty + UI nad hotovým a otestovaným základem. M5-1 je samostatně hratelné ("město roste, stavby mají scaling a opotřebení, modifikátory čistě") — splňuje podstatnou část DoD už po M5-1.
 4. **Bez dopadu na architekturu** (split-trigger to explicitně dovoluje): názvosloví `M5-1`/`M5-2` dle konvence (písmenné a/b vyhrazeny pro milníkové splity).
@@ -533,7 +663,7 @@ Odůvodnění (split-trigger §3/iter-012, master plán §A3 — iterace ~4–6 
 
 | # | Riziko | Mitigace |
 |---|---|---|
-| M5-R1 | `effective` fold se rozejde mezi novou hrou a loadem (load-only větev) | Jediná cesta `recalcBuildingDerived` volaná z complete/destroy I load Step 5; round-trip test T4.6 |
+| M5-R1 | `effective` fold se rozejde mezi novou hrou a loadem (load-only větev) | Jediná sdílená fn `rebuildBuildingDerived` (§4.6) volaná z complete/destroy/repair (§4.7) I load Step 5; load-only větev explicitně zakázána; round-trip test T4.6 (M-2) |
 | M5-R2 | `created` drift vůči `instances.length` po loadu | Load re-derivuje `created=instances.length`; reviewer invariant gate (§1.4) |
 | M5-R3 | Modifier cache se omylem uloží (derivát v savu) | `_`-prefix + `home.derived` mimo allowlist; reviewer grep na payload (§4.5) |
 | M5-R4 | Cena budov škáluje jinak než originál (originál neškáluje) | `costScaleFactor=1.0` default = věrné; `provenance:'approximated'`, gap G-BUILD-COSTSCALE, kalibrace M9 |
@@ -559,4 +689,19 @@ Odůvodnění (split-trigger §3/iter-012, master plán §A3 — iterace ~4–6 
 
 ---
 
-*Konec designu. Coder (Sonnet) implementuje T1–T6 z této úrovně bez dalšího architektonického rozhodnutí. Split DOPORUČEN (§8). G-LISTBUILDINGS řešen autonomně (§9). Kde dokument cituje K/D/§/home.js:NNNN, je zdrojem pravdy architektura iter-002 a originál `doc/original_source/`.*
+## 13. Odloženo na M5-2 / iter-014 (T-002a)
+
+> **Scope M5-1 (tento design, závazné pro codera) = T1, T2, T3, T4 (§1–§4, §7–§12).** Sekce **§5 (T5 kontrakty)** a **§6 (T6 build UI)** jsou ponechány v těle jako **archiv pro architekta iter-014** a označeny `[ODLOŽENO M5-2]`. **Coder M5-1 je NEimplementuje.**
+
+| Co | Sekce (archiv) | Kam | Pozn. |
+|---|---|---|---|
+| **T5 — Kontrakty (K14)**: `contractQueue`, onComplete/onExpire/onReject jako string-ID+params, expirace přes schedule, registr efektů rozšíření, persist kontraktů | §5 (§5.1–§5.4) | **M5-2 / iter-014** | Plný design udělá architekt v iter-014 (závisí na T2 pay/fronty + T4 effective). Archiv §5 je vstup, ne finální spec. |
+| **T6 — UI build screen + kontrakty panel**: selektory (`selectBuildableBuildings`/`selectProjectQueue`/`selectBuilderCapacity`/`selectContracts`), commandy (`build`/`cancelProject`/`assignBuilder`/`acceptContract`/...) | §6 (§6.1–§6.3) | **M5-2 / iter-014** | M5-1 je hratelné přes commandy/testy (build command §2.3 + builder + builderHut kapacita), ne přes obrazovku (review §4: build screen smí být až M5-2; m-4: DoD M5-1 to explicitně uvede). |
+
+**Dependency hranice (potvrzeno review §4)**: T5/T6 závisí na T2 (pay/fronty) a T4 (effective), ne naopak → M5-1 je samostatně koherentní a otestovatelný základ. Split DR-013-01 POTVRZEN (M5-D9).
+
+**Gapy přenesené do M5-2/iter-014/M9**: `G-BUILD-TXAUDIT` (M-4, emitTx pro stavbu — vyžaduje ctx v command vrstvě, M5-2/M9), `G-CONTRACT-GEN` (zdroj nabídek kontraktů, T5), `G-BUILDER-COMPANIES` (firmy jako enhancement, §3.2). M5-1 gapy (`G-LISTBUILDINGS`, `G-BUILD-COSTSCALE`, `G-BUILD-RESISTANCE`, `G-BUILD-SPACE`, `G-BUILD-TECHBONUS`, `G-REPAIR-RECYCLING`, `G-BUILDER-CAP`, `G-BUILD-MULSTACK`) řešeny `provenance:'approximated'` autonomně (Q3/DR-001).
+
+---
+
+*Konec designu. **Scope po revizi T-002a = M5-1 (T1–T4).** Coder (Sonnet) implementuje **T1–T4** (§1–§4) z této úrovně bez dalšího architektonického rozhodnutí; **§5/§6 (T5/T6) jsou ODLOŽENY na M5-2/iter-014 (§13) a coder je IGNORUJE.** 4 major podmínky vyřešeny: M-1 (§4.3 mapování + §4.4 jedna cesta), M-2 (§4.6 sdílený rebuildBuildingDerived + §4.7), M-3 (§4.1 deterministický sort), M-4 (§2.3 gap G-BUILD-TXAUDIT). Split DOPORUČEN/POTVRZEN (§8, DR-013-01). G-LISTBUILDINGS řešen autonomně (§9). Kde dokument cituje K/D/§/home.js:NNNN, je zdrojem pravdy architektura iter-002 a originál `doc/original_source/`.*
