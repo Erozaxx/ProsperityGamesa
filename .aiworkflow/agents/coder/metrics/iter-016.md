@@ -10,3 +10,9 @@
 - **tool_uses**: 69
 - **duration_ms**: 474620
 - **outcome**: ci 1163/1163, smoke OK; recruitUnit + registerRecruitUnit; reuse upkeep.military
+## T-006 (T5 napojení trhu)
+- **Timestamp**: 2026-06-14T14:20Z
+- **total_tokens**: 140052
+- **tool_uses**: 69
+- **duration_ms**: 570712
+- **outcome**: ci 1179/1179, smoke OK; processZone marketInject +/-, S-06 pozitivní; M7a-1 impl kompletní
