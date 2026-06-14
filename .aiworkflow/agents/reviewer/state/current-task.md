@@ -1,39 +1,39 @@
 # Current Task
 
-- **Task ID**: T-009 (Review GATE M5-1 iter-013 — budovy/builder/companies/modifikátory, závěrečný gate)
-- **Brief**: BRIEF-013-009
-- **Iteration**: iter-013
+- **Task ID**: T-002 (Review DESIGN M5-2 iter-014 — kontrakty K14 + build UI, architektonický gate před implementací)
+- **Brief**: BRIEF-014-002
+- **Iteration**: iter-014
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo: Závěrečný REVIEW GATE M5-1 (produkční diff 2e71c94..HEAD, 24 souborů, +4211).
-Ověřeno proti KÓDU (ne tvrzení): 5 tvrdých invariantů, soulad s designem §4.1-4.8 + arch iter-002
-(§5.3 K13/§6.3/§7.1), DR-013-01 (M-1..M-4). npm test = 906/906 pass.
-Výstup: agents/reviewer/artifacts/final/review_iter-013_T-009.md
+Hotovo: Architektonický REVIEW GATE designu M5-2 (design_iter-014_T-001.md) PŘED implementací.
+Ověřeno proti KÓDU (ne tvrzení): effects.js, main.js (bootstrapEngine), rng.js (STREAM_NAMES),
+tickOrder.js (runTick phase 2 resolve), scheduler.js, persistSchema.js, load.js, migrations.js,
+schema.js, dispatch.js, build.js, sendCaravan.js, createInitialState.js, createHomeState.js, ui/.
+Výstup: agents/reviewer/artifacts/final/review_design_iter-014_T-002.md
 
 ## Výsledek
-Verdikt: **GO — s podmínkami** (MINOR-1 gap-report + MINOR-2 tickOrder.md T4 sekce před close-iteration;
-zbytek backlog). BEZ re-run. Všech 5 tvrdých invariantů PLATÍ proti kódu.
+Verdikt: **GO — s podmínkami** (B1+B2+M1 zapracovat do designu PŘED kódem; M2 upřesnit init cestu).
 
 Klíčová zjištění:
-- Invariant 1 (save=minimal): persistSchema.js:52-54 jen modifiers; derived/_effCache/_modVersion ne-persist. ✓
-- Invariant 2 (sdílený rebuild): 5 call-sites (createInitialState:133, load:275, completeBuild:701,
-  destroyInstance:553, applyRepair:731→recalcAggregates delta). load NEvolá recalc/addMods přímo. ✓
-- Invariant 3 (det. fold): cmpModifier sort (source,id); set=poslední po sortu; add→mul→set. ✓
-- Invariant 4 (jedna cesta): recalcBuildingAggregates Σ effective bez ×created (created zapečen ve value). ✓
-- Invariant 5 (no Date.now/Math.random/DOM, catch-up): grep=0; rng stream 'buildings' na konci STREAM_NAMES
-  (G1 zachován); det. instId/projectSeq; requeue-smyčka terminuje (no infinite loop). ✓
-- effectFromCatalog (T2 workaround) NEnahrazen v T4 — ale legitimní (maxActiveProjects/maxProjectQueue
-  nemají top-level base, nejsou agregovány); není mrtvý kód, jen design slíbil náhradu + zavádějící komentáře.
+- M52-D8 KOREKTNÍ: bootstrapEngine (main.js:86-103) NEvolá registerEffects → potvrzeno proti kódu.
+  registerContractEffects v boot je nutný a správný, nerozbije existující schedule resolve (idempotent register).
+- Determinismus contract streamu KOREKTNÍ + G1-safe: 'contracts' na konec STREAM_NAMES — precedent 'buildings'
+  z M5-1 (rng.js:9). makeRng default 0 pro staré savy, seedy existujících streamů beze změny.
+- B1 (BLOCKER, navíc): registerBuild NENÍ wired v main.js (jen buyCompany) → build UI by nefungoval.
+- B2 (BLOCKER): contract.offer bootstrap se pro EXISTUJÍCÍ savy nikdy nenaplánuje (applyPayload přepíše
+  schedule saved heapem) → re-arm s scheduleCountOf guardem v load/boot (mirror marketInit).
+- Persist round-trip OK (engine.schedule persistován); migrace bez bumpu (M1 — rozhodnutí explicitně).
+- Build UI: čisté selektory+commands, žádná logika v UI (vzor CouncilScreen/MarketScreen) — soulad §3.4.
+- Split: NE — T5+T6 souzní do jedné iterace (lineární závislosti, oba uzavírají DoD M5).
 
 ## Nálezy (severity)
-- BLOCKER: 0
-- MAJOR: 0
-- MINOR: 4 (M1 gap-report neaktualizován; M2 tickOrder.md T4 sekce zastaralá+neexist. cesta effective.js;
-  M3 zavádějící komentář buildings.js:787-790; M4 effectFromCatalog nekonzistence+duplicita build.js/buildersProcess)
-- NIT: 4 (N1 dvojí workforce.total derivace; N2 latentní dvojí započtení při dup (attr,op);
-  N3 mrtvá build.js:getMaxActiveProjects; N4 cost:{} build projektu bez audit kopie)
+- BLOCKER: 2 (B1 registerBuild chybí; B2 offer bootstrap pro staré savy)
+- MAJOR: 2 (M1 migrace/bump rozhodnutí; M2 init contractQueue v createHomeState + cesta)
+- MINOR: 4 (contractSeq round-trip test; schedule cleanup gap; registerEffects jen pokud nutné; firstOfferStep ≥1)
+- NIT: 3 (fresh vs round-trip hash; title neukládat/derivovat; goodsBuyer dark katalog)
 
-## NEcommitnuto, NEopravoval kód (scope per brief).
+## NEcommitnuto (scope per brief). Žádný produkční kód neexistuje (čistý design review).
+</content>
