@@ -1,28 +1,28 @@
 # Current Task
 
-- **Task ID**: T-002 (REVIEW DESIGN M7a-2 — frakční automat/revolty/questy/tribute/UI, Opus)
-- **Brief**: BRIEF-017-002
+- **Task ID**: T-008 (REVIEW GATE M7a-2 + DoD M7a — frakční automat/revolty/questy/tribute/UI, Opus)
+- **Brief**: BRIEF-017-008
 - **Iteration**: iter-017
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-14
-- **Completed**: 2026-06-14
+- **Started**: 2026-06-15
+- **Completed**: 2026-06-15
 
 ## Co teď dělám
-Hotovo: Review DESIGNu M7a-2 (před implementací) PROTI KÓDU + originálu world.js.
-Ověřeno: armContractOffer vzor (contracts.js:262, main.js:199), scheduler indexace by-id (scheduler.js:82), hydrateZones/favour (world.js:335-417), persistSchema favour||0 (persistSchema.js:259), zones.json favour:number, load.js shared path, balance.world. Originál world.js: processAI ř.743-991, AI-AI bitva ř.952-984, revolt ř.282-369 (favour=OBJEKT), quest ř.371-487, gatherTributes ř.527-565 — ověřeno subagentem.
+Hotovo: Závěrečný REVIEW GATE M7a-2 + ověření DoD M7a (celý milník) PROTI KÓDU. QA (T-007) dala GO empiricky.
+Ověřeno proti kódu: processAI 0–7 (world.js:905–1139, jediný rng 'world', scheduleInsert, faction.state persist); processFaction nepodmíněný re-arm (world.js:1166–1168); armFactionAI set-difference guard (world.js:1245–1263, scheduleCountOf NEPOUŽITO), call-site JEDNOU z bootSequence (main.js:208); migrateFavour 4 větve (world.js:584–592) + persistSchema typeof guard (persistSchema.js:259); aiBattleResolve (formulas.js:380, 1:1 originál); battle.js NEDOTČEN (git: poslední commit iter-007 b7d638a); questy absolutní deadline + questSeq + persist; gatherTributes month order 25 (tickOrder.js:219); UI selektory ratingy/daysLeft on-demand.
+Vlastní běh testů: 110/110 PASS (t2/t3/t6/t1).
 
 ## Výsledek
-Verdikt: **GO-S-PODMÍNKAMI** (M-1 favour migrace + M-2 set-difference guard).
-- Self-rearm determinismus: vzor SPRÁVNÝ (nepodmíněný re-arm, boot-only arm, set-diff guard). DR-012-02 ošetřeno. Podmínka: set-difference guard závazný (scheduleCountOf nerozliší frakce — indexace by-id).
-- favour migrace: RIZIKO REGRESE M7a-1 ANO, řešitelné — persistSchema.js:259 `|| 0`→`?? {}` + hydrateZones number→{} migrace; revolt nebyl v M7a-1 aktivní → nedestruktivní.
-- Split NEsplit: SOUHLAS (kostra M7a-1 hotová, ověřeno proti kódu).
+Verdikt: **GO**. DoD M7a **SPLNĚNO**. Determinismus (processAI replay, self-rearm, favour migrace) POTVRZEN proti kódu. battle.js NEDOTČEN.
 
 ## Nálezy (severity)
 - BLOCKER: 0
-- MAJOR: 2 (M-1 favour persist `||0` + hydrateZones migrace = regrese M7a-1; M-2 armFactionAI set-difference guard závazný)
-- MINOR: 5 (state re-map ověř; redistributeForces jen AI-AI větev; state7 mimo enum; quest gating home.level/militaryCouncil chybí v state; capitalId schema validace)
-- NIT: 3 (favour selektor undefined-safe; tribute order 25 OK; immunity flag nevyužit)
+- MAJOR: 0
+- MINOR: 4 (F-1 zones.json favour stále number=0, ale migrateFavour absorbuje → fresh==load drží + QA tvrzení nepřesné; F-2 aiBattleResolve duplicita formulas.js vs inline processAI; F-3 docs/tickOrder.md neaktualizován o gatherTributes/handlery — gate §9.1; F-4 quests persist přes generický shallow fallback)
+- NIT: 1 (F-5 stuby jasně označené no-op — potvrzení)
 
-Výstup: agents/reviewer/artifacts/final/review_design_iter-017_T-002.md
+Doporučeno před close: doplnit F-3 (tickOrder.md). F-1/F-2/F-4 → M9.
+
+Výstup: agents/reviewer/artifacts/final/review_iter-017_T-008.md
 
 ## NEcommitnuto (per brief).
