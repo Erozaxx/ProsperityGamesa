@@ -125,10 +125,12 @@ event-driven (outside tick): completeBuild/destroyInstance/applyRepair → rebui
 - G-BUILDER-COMPANIES (T3): builder firm capacity/selection deferred to T-006. T2 uses only `state.home.jobs['builder'].number`.
 - Balance constants added: `masonStep=1`, `quarterDaysPerDay=4`, `maxActiveProjects=0`, `maxProjectQueue=0`, `requeueDelay=2`
 
-### T4 (TODO - iter-013 M5-1 placeholder, T-007)
-- `effective(id, attr, state)`: modifier fold (add→mul→set, deterministc sort by source+id) — `src/core/catalog/effective.js` [NOT YET IMPLEMENTED]
-- `addBuildingModifiers(state, buildingId)`: effects→modifier mapping with per-type aggregate (T4.3) [STUB in buildings.js]
-- `recalcBuildingAggregates`: currently uses base catalog values; T4 replaces with `effective()` calls
+### T4 (LIVE — iter-013 M5-1, T-005/T-006/T-007)
+- `effective(buildingId, attr, state)`: modifier fold (add→mul→set, deterministic sort by source+id) — implemented in `src/core/systems/buildings.js` (functions `fold`, `effective`, `baseAttr`). Note: `effective.js` does NOT exist as a separate file; the effective/modifier layer lives entirely in `buildings.js`.
+- `addBuildingModifiers(state, buildingId)`: effects→modifier mapping with per-type aggregate (T4.3) — live in `src/core/systems/buildings.js` (`addBuildingModifiers`, `removeAllBuildingSourcedModifiers`)
+- `recalcBuildingAggregates(state)`: iterates over placed buildings, calls `effective(buildingId, attr, state)` for each aggregated attr, accumulates into `home.derived` — live in `src/core/systems/buildings.js`
+- `rebuildBuildingDerived(state)`: shared re-derivation entry point (5 call-sites: fresh, load, completeBuild, destroyInstance, applyRepair) — live in `src/core/systems/buildings.js`
+- Modifier memoisation: `catalogState._effCache` / `_modVersion` (not persisted, re-derived on load/fresh)
 
 ## Bootstrap Sequence (reference, not a runtime file)
 

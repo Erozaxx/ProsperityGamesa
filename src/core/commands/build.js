@@ -28,8 +28,9 @@ const BAL = /** @type {any} */ (BALANCE).buildings;
 /**
  * Compute max project queue capacity from builderHut instances and catalog effects.
  * Home.js:84: mason.maxProjectQueue * mason.number (builder hut provides queue slots).
- * T2: reads directly from builderHut.effects[] (effectFromCatalog helper).
- * T4: will replace with effective('builderHut','maxProjectQueue',state) once modifier fold is live.
+ * effectFromCatalog is the permanent helper for maxProjectQueue/maxActiveProjects: these attrs
+ * have no top-level catalog base field and are not aggregated into home.derived, so effective()
+ * (baseAttr + modifier fold) returns 0 for them. Per-hut value is read directly from effects[].
  * @param {GameState} state
  * @returns {number}
  */
@@ -40,20 +41,9 @@ function getMaxProjectQueue(state) {
   const perHut = effectFromCatalog('builderHut', 'maxProjectQueue');
   return perHut * b.created;
 }
-
-/**
- * Compute max concurrent active projects from builderHut instances.
- * T2: reads directly from builderHut.effects[] (effectFromCatalog helper).
- * T4: will replace with effective('builderHut','maxActiveProjects',state).
- * @param {GameState} state
- * @returns {number}
- */
-function getMaxActiveProjects(state) {
-  const b = /** @type {any} */ (state.home.buildings['builderHut']);
-  if (!b || b.created <= 0) return BAL.maxActiveProjects; // 0 = cannot build without builderHut
-  const perHut = effectFromCatalog('builderHut', 'maxActiveProjects');
-  return perHut * b.created;
-}
+// NOTE: getMaxActiveProjects is intentionally not defined here — maxActiveProjects enforcement
+// happens in buildersProcess (buildings.js), which includes the masonProvided company bonus.
+// build.js only enforces the queue length gate (getMaxProjectQueue above).
 
 /**
  * build command handler.

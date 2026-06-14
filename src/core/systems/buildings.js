@@ -778,15 +778,16 @@ export function buildersProcess(state, _params, ctx) {
   totalBuilders += companyBuildersTotal(state);
 
   // maxActiveProjects from builderHut (builderHut.effects: maxActiveProjects per hut)
-  // T4.5: effective() now uses modifier fold (modifier has value = perHut * created for 'add')
   // G-BUILDER-MASON: add masonProvided from owned companies to maxActiveProjects
   const builderHut = /** @type {any} */ (state.home.buildings?.['builderHut']);
   const hutCreated = builderHut?.created ?? 0;
   let maxActiveProjects = BAL_B.maxActiveProjects; // fallback: 0
   if (hutCreated > 0) {
-    // T4.5: use effective() with modifier fold (replaces effectFromCatalog T2 workaround)
-    // effective('builderHut','maxActiveProjects',state) now reads from modifier fold
-    // Modifier value = effectAtom.value * created (baked in by addBuildingModifiers T4.3)
+    // effectFromCatalog is the permanent helper for maxActiveProjects/maxProjectQueue:
+    // these attrs have no top-level catalog base field and are not aggregated into home.derived,
+    // so effective() (which reads baseAttr + modifier fold) returns 0 for them.
+    // Per-hut capacity is read directly from effects[] and multiplied by instance count here.
+    // This is NOT a T2 workaround — it is the correct read path for non-aggregated effect attrs.
     const perHut = effectFromCatalog('builderHut', 'maxActiveProjects');
     maxActiveProjects = perHut * hutCreated;
   }

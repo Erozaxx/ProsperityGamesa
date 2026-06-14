@@ -1,33 +1,135 @@
 {
   "_meta": {
-    "iteration": "iter-009",
-    "milestone": "M3",
-    "notes": "Updated in iter-009 M3: added M3 gaps for production/jobs/skills/forest/field/mine. G-LISTJOB and G-LISTSKILL updated.",
+    "iteration": "iter-013",
+    "milestone": "M5-1",
+    "notes": "Updated in iter-013 M5-1: added M5-1 gaps for buildings/builder/cost/resistance/space/unlock/mulstack/techbonus/repair. G-LISTBUILDINGS status updated (resolved in M5-1). G-BUILDER-M5 resolved (buildings system live). Previous update: iter-009 M3 added M3 gaps for production/jobs/skills/forest/field/mine.",
     "provenance": "derived"
   },
   "summary": {
-    "total": 20,
+    "total": 30,
     "blocksMvp": 4,
     "byMilestone": {
       "M2": 0,
       "M3": 1,
       "M4": 2,
-      "M5": 6,
+      "M5": 7,
+      "M5-2": 6,
       "M6": 4,
       "M7": 1,
       "M8": 2,
-      "M9": 4
+      "M9": 7
     }
   },
   "gaps": [
     {
       "id": "G-LISTBUILDINGS",
       "catalog": "buildings",
-      "description": "Full building list (listBuildings.json) not found in extracted sources; only 4 buildings reconstructed from config.js references",
-      "milestone": "M5",
-      "severity": "high",
-      "blocksMvp": true,
-      "provenance": "missing"
+      "description": "Full building list (listBuildings.json) not found in extracted sources; only 4 buildings reconstructed from config.js references. M5-1: 6 approximated buildings delivered in buildings.json (well, farm, mine, builderHut, warehouse, workshop). Real list calibration M9.",
+      "milestone": "M9",
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "approximated",
+      "resolvedPartial": "iter-013 M5-1"
+    },
+    {
+      "id": "G-BUILD-TXAUDIT",
+      "catalog": "buildings",
+      "description": "build command calls pay() without ctx — tx audit log entry (emitTx) is skipped. Gold IS correctly deducted; only the audit trail is missing. Intentional gap per design §2.1 / M5-D11 (arch iter-002: dispatch.js calls handler(state,params), not handler(state,params,ctx)). Deferred to M5-2/M9 when ctx/audit layer is introduced.",
+      "milestone": "M5-2",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated",
+      "designRef": "design_iter-013_T-001.md §2.1, M5-D11, M-4"
+    },
+    {
+      "id": "G-BUILD-COSTSCALE",
+      "catalog": "buildings",
+      "description": "costScaleFactor (BALANCE.buildings.costScaleFactor) is approximated; real cost curve not extracted from original sources. scaleCostByCount formula: cost = baseCost * scaleFactor^totalMade. Calibration deferred to M9.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated",
+      "designRef": "design_iter-013_T-001.md §2.4"
+    },
+    {
+      "id": "G-BUILDER-CAP",
+      "catalog": "buildings",
+      "description": "maxActiveProjects and maxProjectQueue per builderHut (effects[]) are approximated values (perHut=2 and perHut=3 respectively). Real values not extracted from original home.js sources. Also: effectFromCatalog is a permanent helper for these attrs (not aggregated into home.derived); a future design may unify via modifier fold if top-level base fields are added to catalog.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated",
+      "designRef": "design_iter-013_T-001.md §4.5, buildings.js effectFromCatalog"
+    },
+    {
+      "id": "G-BUILDER-MASON",
+      "catalog": "buildings",
+      "description": "Company masonProvided bonus to maxActiveProjects is live (companies.json, buyCompany.js, getMasonProvided). Exact per-company masonProvided values are approximated; real original calibration unknown. Calibration M9.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated",
+      "designRef": "design_iter-013_T-001.md §4.5, companies.json _meta.gap:G-BUILDER-CAP"
+    },
+    {
+      "id": "G-BUILD-RESISTANCE",
+      "catalog": "buildings",
+      "description": "building.resistance (HP restored per repair project) is approximated per building type. Real resistance values not extractable from original sources. Calibration M9.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated",
+      "designRef": "design_iter-013_T-001.md §4.7, buildings.json _meta.provenance:approximated"
+    },
+    {
+      "id": "G-BUILD-SPACE",
+      "catalog": "buildings",
+      "description": "Space gate (spaceType/spaceAvailable) skipped in M5-1; all buildings are considered placeable. Validation TODO M5-2: spaceAvailable(spaceType) >= effective(itemId, spaceType).",
+      "milestone": "M5-2",
+      "severity": "medium",
+      "blocksMvp": false,
+      "provenance": "missing",
+      "designRef": "build.js TODO M5-2 comment"
+    },
+    {
+      "id": "G-BUILD-UNLOCK",
+      "catalog": "buildings",
+      "description": "Unlock gate (building.unlocked) defaults to true for all buildings in M5-1; tech-gated unlock system deferred to M6 when tech tree (G-LISTTECHS) is implemented.",
+      "milestone": "M6",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing",
+      "designRef": "build.js G-BUILD-UNLOCK comment"
+    },
+    {
+      "id": "G-BUILD-MULSTACK",
+      "catalog": "buildings",
+      "description": "Multi-instance stacking of building effects (created > 1 handled via addBuildingModifiers value = atom.value * created for op:add) is live in M5-1. Edge case: if a building type has two add atoms on the same attr, duplicate modifier ids cause double-counting (NIT-2 in review REVIEW-013-009). Not triggered by current buildings.json data; latent risk for future catalog additions.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated",
+      "designRef": "buildings.js addBuildingModifiers, REVIEW-013-009 NIT-2"
+    },
+    {
+      "id": "G-BUILD-TECHBONUS",
+      "catalog": "buildings",
+      "description": "Tech bonuses to building output/capacity (e.g. forester tech mods, future production multipliers) are not wired to the modifier system in M5-1. Modifier fold infrastructure is in place; tech sources deferred to M6.",
+      "milestone": "M6",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing",
+      "designRef": "G-FOREST-TECHMODS, design_iter-013_T-001.md §4.5"
+    },
+    {
+      "id": "G-REPAIR-RECYCLING",
+      "catalog": "buildings",
+      "description": "Repair project: deferred payment (project.paid=false until canAfford) is live. Recycling/refund on cancelled repair is not implemented in M5-1 (cancel not exposed as command). Deferred to M5-2/M9 with build cancel/audit layer.",
+      "milestone": "M5-2",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing",
+      "designRef": "design_iter-013_T-001.md §4.7, build.js NIT-4"
     },
     {
       "id": "G-LISTGOODS",
@@ -131,11 +233,12 @@
     {
       "id": "G-BUILDER-M5",
       "catalog": "jobs",
-      "description": "builder job slot is a stub (noProduction=true). Building construction mechanics are M5.",
+      "description": "builder job slot is a stub (noProduction=true). Building construction mechanics are M5. RESOLVED in iter-013 M5-1: buildersProcess, build command, completeBuild, applyRepair all live. Builder number drives construction speed. Company firm capacity (masonProvided) live via buyCompany.",
       "milestone": "M5",
       "severity": "medium",
       "blocksMvp": false,
-      "provenance": "missing"
+      "provenance": "missing",
+      "resolvedPartial": "iter-013 M5-1"
     },
     {
       "id": "G-JOB-TASKS",
