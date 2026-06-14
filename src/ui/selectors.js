@@ -6,7 +6,7 @@
 import { buyingPrice, sellingPrice } from '../core/systems/market.js';
 import { getCatalog, hasCatalog, byId, hasId } from '../core/catalog/loader.js';
 import { canAfford } from '../core/resources/transactions.js';
-import { scaleCostByCount } from '../core/balance/formulas.js';
+import { scaleCostByCount, techCap } from '../core/balance/formulas.js';
 import { effectiveMap, effectFromCatalog } from '../core/systems/buildings.js';
 import { companyBuildersTotal, companyMasonTotal } from '../core/commands/buyCompany.js';
 import { BALANCE } from '../core/balance/balance.js';
@@ -409,6 +409,109 @@ export function selectContracts(s) {
       unaffordable,
     };
   });
+}
+
+// ---------------------------------------------------------------------------
+// T4 — Tech tree selectors (iter-015 M6)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   sector: string,
+ *   level: number,
+ *   cost: number,
+ *   prereqs: string[],
+ *   unlocked: boolean,
+ *   available: boolean,
+ *   canAfford: boolean,
+ *   effects: Array<{target: string, attr: string, op: string, value: number}>
+ * }} TechViewItem
+ */
+
+/**
+ * Selects full tech tree with unlock status, cost and affordability.
+ * Pure selector: derives cost via techCap(level), prereqs from catalog, canAfford from techPt.
+ * Design: design_iter-015.md §5.1 (M6-D9).
+ * @param {GameState} s
+ * @returns {TechViewItem[]}
+ */
+export function selectTechTree(s) {
+  if (!hasCatalog('techs')) return [];
+  const cat = /** @type {Record<string, any>} */ (getCatalog('techs'));
+  const tree = /** @type {any[]} */ (cat.techs?.tree ?? []);
+  const unlocked = /** @type {Record<string, boolean>} */ (/** @type {any} */ (s.player).unlockedTechs ?? {});
+  const havePt = /** @type {number} */ (/** @type {any} */ (s.player).techPt ?? 0);
+
+  return tree.map(t => {
+    const level = typeof t.level === 'number' ? t.level : 0;
+    const cost = techCap(level);
+    const prereqs = Array.isArray(t.prereqs) ? /** @type {string[]} */ (t.prereqs) : [];
+    const prereqsMet = prereqs.every(p => unlocked[p] === true);
+    const isUnlocked = unlocked[t.id] === true;
+    return {
+      id: t.id,
+      name: t.name ?? t.id,
+      sector: t.sector ?? '',
+      level,
+      cost,
+      prereqs,
+      unlocked: isUnlocked,
+      available: !isUnlocked && prereqsMet,
+      canAfford: havePt >= cost,
+      effects: Array.isArray(t.effects) ? t.effects : [],
+    };
+  });
+}
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   level: number,
+ *   exp: number,
+ *   cap: number,
+ *   progPct: number
+ * }} ResearchProgressItem
+ */
+
+/**
+ * Selects research progress per sector.
+ * Pure selector: derives cap via techCap(level), progPct from exp/cap.
+ * Design: design_iter-015.md §5.1 (M6-D9).
+ * @param {GameState} s
+ * @returns {ResearchProgressItem[]}
+ */
+export function selectResearchProgress(s) {
+  if (!hasCatalog('techs')) return [];
+  const cat = /** @type {Record<string, any>} */ (getCatalog('techs'));
+  const catSectors = /** @type {any[]} */ (cat.techs?.sectors ?? []);
+  const sectors = /** @type {Record<string, {level: number, exp: number}> } */ (
+    /** @type {any} */ (s.player).research?.sectors ?? {}
+  );
+
+  return catSectors.map(sec => {
+    const st = sectors[sec.id] ?? { level: 0, exp: 0 };
+    const cap = techCap(st.level);
+    return {
+      id: sec.id,
+      name: sec.name ?? sec.id,
+      level: st.level,
+      exp: st.exp,
+      cap,
+      progPct: cap > 0 ? Math.min(100, Math.round(st.exp * 100 / cap)) : 0,
+    };
+  });
+}
+
+/**
+ * Selects current tech points balance.
+ * @param {GameState} s
+ * @returns {number}
+ */
+export function selectTechPoints(s) {
+  return /** @type {number} */ (/** @type {any} */ (s.player).techPt ?? 0);
 }
 
 /**

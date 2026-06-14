@@ -9,7 +9,7 @@ import { html } from '../vendor/preact.standalone.js';
 import {
   selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance, selectMarket,
   selectBuildableBuildings, selectProjectQueue, selectBuilderCapacity, selectBuilderCompanies,
-  selectContracts,
+  selectContracts, selectTechTree, selectResearchProgress, selectTechPoints,
 } from './selectors.js';
 
 // ---------------------------------------------------------------------------
@@ -336,6 +336,116 @@ export function MarketScreen({ snapshot, send }) {
           disabled=${caravan.onRoad}
           title="Koupit 10 tools (MVP preset)"
         >Poslat karavanu (koupit 10 tools)</button>
+      </section>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// TechScreen (iter-015 M6 T4)
+// ---------------------------------------------------------------------------
+
+/**
+ * Tech/Academy screen: tech tree grouped by sector + research progress per sector + techPt balance.
+ * Pure component — all reads via selectors, all writes via send('buyTech', { techId }).
+ * Design: design_iter-015.md §5.2 (M6-D9).
+ * @param {{ snapshot: import('../core/state/types.js').GameState, send: (type: string, params?: object) => {ok: boolean, error?: string} }} props
+ */
+export function TechScreen({ snapshot, send }) {
+  const techPt = selectTechPoints(snapshot);
+  const progress = selectResearchProgress(snapshot);
+  const techs = selectTechTree(snapshot);
+
+  // Group techs by sector
+  /** @type {Map<string, ReturnType<typeof selectTechTree>>} */
+  const bySector = new Map();
+  for (const t of techs) {
+    if (!bySector.has(t.sector)) bySector.set(t.sector, []);
+    const sectorList = bySector.get(t.sector);
+    if (sectorList) sectorList.push(t);
+  }
+
+  /**
+   * Render status text + action for a single tech.
+   * @param {import('./selectors.js').TechViewItem} t
+   */
+  function techAction(t) {
+    if (t.unlocked) {
+      return html`<span class="tech-status tech-unlocked">Odemceno</span>`;
+    }
+    if (t.available) {
+      return html`
+        <button
+          class="tech-buy-btn"
+          onClick=${() => send('buyTech', { techId: t.id })}
+          disabled=${!t.canAfford}
+          title=${t.canAfford ? `Odemknout ${t.name} za ${t.cost} tech. bodu` : 'Nedostatek tech. bodu'}
+        >${t.canAfford ? 'Odemknout' : 'Nedostatek bodu'}</button>`;
+    }
+    const prereqList = t.prereqs.join(', ');
+    return html`<span class="tech-status tech-locked" title="Vyzaduje: ${prereqList}">Vyzaduje: ${prereqList || '?'}</span>`;
+  }
+
+  return html`
+    <div class="screen screen-tech">
+      <h2>Veda &amp; Akademie</h2>
+
+      <section class="tech-section tech-points-header">
+        <strong>Tech. body: ${techPt}</strong>
+      </section>
+
+      <section class="tech-section">
+        <h3>Vyzkumny pokrok (per sektor)</h3>
+        ${progress.length === 0
+          ? html`<p class="empty-state">Ziadny katalog technologii.</p>`
+          : html`
+            <ul class="research-list">
+              ${progress.map(sec => html`
+                <li key=${sec.id} class="research-item">
+                  <span class="research-name">${sec.name}</span>
+                  <span class="research-level">Uroven ${sec.level}</span>
+                  <span class="research-exp">${sec.exp} / ${sec.cap} exp</span>
+                  <progress class="research-bar" value=${sec.progPct} max="100"
+                    title="${sec.progPct} % do dalsi urovne (${sec.exp}/${sec.cap} exp)"
+                  ></progress>
+                  <span class="research-pct">${sec.progPct} %</span>
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
+
+      <section class="tech-section">
+        <h3>Strom technologii</h3>
+        ${techs.length === 0
+          ? html`<p class="empty-state">Ziadny tech strom. Zkontrolujte katalog.</p>`
+          : html`
+            <div class="tech-sectors">
+              ${[...bySector.entries()].map(([sector, list]) => html`
+                <div key=${sector} class="tech-sector">
+                  <h4 class="tech-sector-name">${sector}</h4>
+                  <ul class="tech-list">
+                    ${list.map(t => html`
+                      <li key=${t.id}
+                        class=${'tech-item' +
+                          (t.unlocked ? ' tech-item-unlocked' : t.available ? ' tech-item-available' : ' tech-item-locked')}
+                      >
+                        <div class="tech-header">
+                          <span class="tech-name">${t.name}</span>
+                          <span class="tech-cost">${t.cost} TB</span>
+                        </div>
+                        ${t.effects.length > 0
+                          ? html`<div class="tech-effects">${t.effects.map(e =>
+                              html`<span class="tech-effect">${e.target} ${e.attr} ${e.op === 'add' ? '+' : e.op === 'mul' ? '×' : '='}${e.value}</span>`
+                            )}</div>`
+                          : null}
+                        <div class="tech-action">${techAction(t)}</div>
+                      </li>
+                    `)}
+                  </ul>
+                </div>
+              `)}
+            </div>
+          `}
       </section>
     </div>`;
 }
