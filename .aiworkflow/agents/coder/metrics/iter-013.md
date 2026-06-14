@@ -10,3 +10,9 @@
 - **tool_uses**: 99
 - **duration_ms**: 853866
 - **outcome**: ci 840/840, smoke OK, G1 pass; build.js + completeBuild/buildersProcess; firmy→T3
+## T-006 (T3 builder companies)
+- **Timestamp**: 2026-06-14T04:30Z
+- **total_tokens**: 166548
+- **tool_uses**: 176
+- **duration_ms**: 1262150
+- **outcome**: ci 862/862, smoke OK, G1 pass; buyCompany + ownedCompanies + companyBuildersTotal; G-BUILDER-MASON→T4
