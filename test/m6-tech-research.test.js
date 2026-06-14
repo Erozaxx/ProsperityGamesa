@@ -237,11 +237,14 @@ describe('research.daily — exp from academy/university buildings via effective
     const ctx = makeCtx();
     researchDaily(state, {}, ctx);
     const sectors = /** @type {any} */ (state.player.research.sectors);
-    // university researchExp=5, 2 buildings → 5*2=10 per sector
+    // university researchExp=5 per instance; addBuildingModifiers bakes created into modifier
+    // value (buildings.js §4.3: value = 5 * 2 = 10). effective() returns 10 (aggregate, not
+    // per-instance). research.daily uses effective() directly — no extra ×created multiply.
+    // Expected: exactly 10 per sector (5 * 2 instances = 10).
     const sectorIds = /** @type {any} */ (BALANCE).research.sectorIds;
     for (const sid of sectorIds) {
-      assert.ok(sectors[sid] && sectors[sid].exp >= 10,
-        `${sid} should have exp>=10 from 2 universities (got ${sectors[sid]?.exp ?? 0})`);
+      assert.strictEqual(sectors[sid]?.exp ?? 0, 10,
+        `${sid} should have exp===10 from 2 universities (got ${sectors[sid]?.exp ?? 0})`);
     }
   });
 

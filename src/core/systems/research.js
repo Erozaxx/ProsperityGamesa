@@ -78,22 +78,22 @@ export function researchDaily(state, _params, ctx) {
     expPoints[sectorId] += jobSt.number;
   }
 
-  // (2) Academy/university buildings → bonus exp per built instance via effective()
+  // (2) Academy/university buildings → bonus exp per tick via effective()
   //     effective(buildingId, 'researchExp', state) reads catalog base + modifier fold.
+  //     addBuildingModifiers already bakes `created` into the 'add' modifier value
+  //     (buildings.js §4.3: value = atom.value * created) — so effective() returns the
+  //     per-type aggregate (sum across all created instances), NOT a per-instance value.
+  //     Do NOT multiply by created here (mirrors recalcBuildingAggregates §T4.4 semantics).
   //     Distributed evenly to ALL sectors (min. sada — gap G-RESEARCH-ACADEMY-SECTOR).
-  //     Design §3.2 step 2: for each researchBuilding in ['academy','university'] where created>0:
-  //       perBuilding = effective(buildingId,'researchExp',state)
-  //       for sectorId in SECTOR_IDS: expPoints[sectorId] += perBuilding * created
 
   const buildings = /** @type {Record<string, any>} */ (state.home.buildings ?? {});
   for (const buildingId of RESEARCH_BUILDINGS) {
     const bSt = buildings[buildingId];
     if (!bSt || bSt.created <= 0) continue;
-    // effective() reads catalog base (researchExp) + any modifier (e.g. tech add on researchExp)
+    // effective() already aggregates across all created instances (created baked in).
     // Returns 0 if catalog not loaded or attribute missing (safe by design).
-    const perBuilding = /** @type {number} */ (effective(buildingId, 'researchExp', state));
-    if (perBuilding <= 0) continue;
-    const totalBonus = perBuilding * bSt.created;
+    const totalBonus = /** @type {number} */ (effective(buildingId, 'researchExp', state));
+    if (totalBonus <= 0) continue;
     for (const sectorId of SECTOR_IDS) {
       expPoints[sectorId] += totalBonus;
     }
