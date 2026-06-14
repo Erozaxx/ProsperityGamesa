@@ -1,76 +1,82 @@
 # Current Task
 
-- **Task ID**: T-002a (iter-014) — revize M5-2 designu (B1/B2/M1 z reviewer gate T-002)
-- **Brief**: context/inbox/brief_architect_T-002a_iter-014.md (BRIEF-014-002a)
-- **Iteration**: iter-014 (M5-2 – Kontrakty & build UI)
+- **Task ID**: T-001 (iter-015) — detailní DESIGN M6 (výzkum & tech strom; techy jako modifikátory K13 plně; academy; UI)
+- **Brief**: context/inbox/brief_architect_T-001_iter-015.md (BRIEF-015-001)
+- **Iteration**: iter-015 (M6 – Výzkum & tech strom)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – revize T-002a. Doplněna chybějící **§14** (B1/B2/M1 + M2/minor/nit) do
-`design_iter-014_T-001.md` (in-place). §14 byla v changelogu/§0–§13 referencovaná, ale
-text chyběl → dopsána jako závazná sekce s přednastí. Ověřeno proti kódu (main.js, load.js,
-market.js, scheduler.js, schema.js, migrations.js, build.js, engine/index.js). Žádný kód.
-**Platný dokument: `artifacts/final/design_iter-014_T-001.md` (in-place; nový T-002a NEvznikl).**
-
-## Revize T-002a — výsledek
-- **B1 (blocker)**: §14.1 — import + `registerBuild(creg)` + `registerContractCommands(creg)`
-  za `main.js:99`; `registerContractEffects(registry)` za `main.js:88`. Ověřeno: registerBuild
-  (build.js:147) dnes NEimportován ani volán v main.js → build dark code. Fresh i po loadu.
-- **B2 (blocker)**: §14.2 — `armContractOffer(state)` za `marketInit` (main.js:180) v bootSequence;
-  guard `scheduleCountOf('contract.offer')===0`; insert na `max(curStep, firstOfferStep)`.
-  Deterministický (bez RNG/Date), idempotentní (2. volání no-op), jedna cesta pro fresh+M5-2+starý save.
-  Ověřeno: applyPayload (load.js:90) přepíše engine.schedule saved heapem → starý save bez offeru.
-- **M1 (major)**: §14.3 — SAVE_VERSION ZŮSTÁVÁ 3, žádná migrace polí (undefined-guard, precedent
-  projectQueue load.js:189). B2 je nutný NEZÁVISLE (schedule v engine ≠ home pole; migrace pole
-  schedule nepokrývá). Escape hatch: pokud bump z jiného důvodu → v3→v4 no-op migrace.
-- **M2 + minor/nit**: §14.4/§14.5 — init v createHomeState; firstOfferStep=1 sjednoceno;
-  registerEffects vynechán; title derivovat; G-CONTRACT-SCHED-CLEANUP backlog.
-
-## Předchozí (T-001) — plný design M5-2 (T5 kontrakty + T6 build UI)
-Žádný kód. Žádná změna architektury iter-002 ani command vrstvy.
-**Výstup: `artifacts/final/design_iter-014_T-001.md`.**
+Hotovo – plný design M6 (T1–T4) pro Sonnet implementaci. Žádný kód, žádná změna
+architektury iter-002 (jen konkretizace). Ověřeno proti reálnému kódu.
+**Výstup: `artifacts/final/design_iter-015_T-001.md`.**
 
 ## Klíčová rozhodnutí
-- **M52-D1 (zdroj contract dat = DOLOŽITELNÝ)**: events.js + home.js:2407 insertContract +
-  config.js:3248 contract*Complete/Expire/Reject plně definují contract model i lifecycle.
-  Katalog src/data/contracts.json = přepis originálu, provenance:'derived'/'approximated'.
-  Gap G-CONTRACTS-CATALOG ZÚŽEN na "min. sada M5-2 nepokrývá všech 8 typů + deterministická
-  fixace náhodných rozsahů + kalibrace M9" (informativní, ne blocker, ne DR).
-- **M52-D2 (contractQueue)**: state.home.contractQueue (pole {id,type,status,cost,reward,
-  deadlineStep,title,onComplete,onExpire,onReject}) + contractSeq (čítač jako projectSeq).
-- **M52-D3/D4 (lifecycle přes registr efektů)**: onComplete/onExpire/onReject = data
-  {effect:string,...params} (string-ID, K14; originál UŽ string callbacky callFn). Expirace přes
-  scheduleInsert(deadlineStep,'contract.expire',{contractId}); handler v novém systems/contracts.js.
-  ABSOLUTNÍ deadlineStep (ne per-step countdown originálu).
-- **M52-D5 (generování)**: schedule-driven 'contract.offer' (re-schedule self, ne polling),
-  izolovaný rng stream 'contracts'. Min. sada: dodávkový (supply) kontrakt, oceňování getGoldValue.
-- **M52-D6 (commands)**: acceptContract/rejectContract/completeContract; completion přes
-  exportovanou applyContractComplete (import), NE přes ctx.registry → command vrstva beze změny.
-- **M52-D7 (build UI)**: selectBuildableBuildings/selectProjectQueue/selectBuilderCapacity/
-  selectBuilderCompanies/selectContracts + BuildScreen/ContractsScreen + taby. Jen selektory+commands.
-- **M52-D8 (boot wiring NUTNÉ)**: registerEffects DNES NEvolán v bootstrapEngine (main.js:86) →
-  contract.expire/offer by se neresolvovaly. M5-2 přidá registerContractEffects + registerContractCommands.
+- **M6-D1 (techCap DOLOŽITELNÝ + JIŽ EXISTUJE)**: `formulas.js:31 techCap(level)=round(100×1.25^level)`,
+  source config.js:1393-1394 + original_source_doc §6 + originál techs.js:37. Coder NEpřidává vzorec,
+  reuse + tabulkový test.
+- **M6-D2/D3 (T1 tech strom)**: `state.player.unlockedTechs={[id]:true}` (plain object, deterministické,
+  persistované raw); `buyTech(techId)` command (vzor buyCompany): validace+prereqs+canAfford(techPt)+
+  pay(techPt bez ctx, G-TECH-TXAUDIT třída M-4)+unlockedTechs[id]=true+applyTechModifiers. Cena=techCap(level).
+- **M6-D4/D5 (T2 KRITICKÉ — techy jako modifikátory K13 PLNĚ + generalizace)**: tech efekty výhradně přes
+  catalogState.modifiers, source='tech:<id>', id='tech:<id>:<target>:<attr>:<op>' (target v id kvůli kolizím),
+  tvar přesně arch §5.3:297. **Generalizace = rozšířit STÁVAJÍCÍ rebuildBuildingDerived o krok (b2)**
+  re-gen tech:* modifikátorů (sdílené helpery addTechModifiers/removeAllTechSourcedModifiers) → JEDNA cesta
+  re-aplikující budovy I techy (load Step 5 + mutace + createInitialState). applyTechModifiers = delta cesta
+  buyTech sdílí tytéž helpery. ŽÁDNÁ load-only/tech-only větev (DR-012-02). Jméno fn PONECHÁNO
+  (3 import-site ripple zbytečný; volitelný alias rebuildDerived). Round-trip budov M5-1 beze změny
+  (unlockedTechs={} → addTech no-op → bit-identické).
+- **M6-D6 (persist)**: save = jen unlockedTechs (raw, PERSIST_SCHEMA.player) + catalogState.modifiers
+  (už ukládán celý). Load přepočte fold jedinou cestou. SAVE_VERSION zůstává 3, undefined-guard.
+- **M6-D7 (T3 academy/research)**: state.player.research.sectors[id]={level,exp}; nový systém
+  research.daily (edge day, order 75, po buildings.age 70). Exp z jobů per kategorie + academy/university
+  (effective 'researchExp'); level-up while exp>=techCap(level) → grant(techPt+1, ctx — research je tick fn,
+  ctx k dispozici). Deterministický (originál Math.random university bonus VYNECHÁN, gap G-RESEARCH-UNIV-RNG),
+  catch-up-safe.
+- **M6-D8 (G-LISTTECHS)**: viz níže.
+- **M6-D9 (T4 UI)**: selectTechTree/selectResearchProgress/selectTechPoints (čisté) + TechScreen + tab
+  'Výzkum' v App.js + send('buyTech'). Boot wiring: registerBuyTech v bootstrapEngine (main.js), techs do
+  CATALOG_NAMES. Žádná logika v UI.
+- **M6-D10 (split)**: viz níže.
+- **M6-D11**: SAVE_VERSION 3, žádná migrace.
+
+## G-LISTTECHS postup (resolved)
+- Vzorec techCap = **DOLOŽITELNÝ** (existuje formulas.js:31). Tech strom = **approximovaný**
+  (provenance:'approximated', kalibrace M9). techs.json dnes kostra + NENÍ v CATALOG_NAMES/ID_CATALOGS.
+- Wiring: přidat 'techs' do CATALOG_NAMES (catalogs.js), schema validátor, `findTech(techId)` helper
+  čtoucí getCatalog('techs').techs.tree (místo měnit buildById — items pod cat.techs.tree).
+- Min. hratelná sada (§4.3): 6 sektorů (agriculture/civil/crafts/forestry/medicine/military z techs.js:70)
+  + ~6 techů s efekty jako modifikátory pokrývající mechaniky (add efficiency, add storage kapacita,
+  mul produkce/upkeep, add attractiveness). Každý tech: {id,sector,level,name,prereqs,effects:[{target,attr,op,value}],
+  provenance}. Cíle target ∈ známá ID (job/budova). Gap-report: G-LISTTECHS resolved approximací, žádná eskalace blokeru.
+
+## Split doporučení: NE
+- T1–T4 souzní do jedné iterace. Žádný task není L; T2 generalizace je nejrizikovější ale lokalizovaná
+  (1 fn rozšířená o (b2) + 2 helpery) nad HOTOVOU M5-1 modifier infrastrukturou. Split by přidal režii
+  (zdvojení techs.json/persist wiring T2↔T3) bez přínosu.
 
 ## tickOrder dopady
-- ŽÁDNÉ nové periodikum. Kontrakty běží přes SCHEDULE fázi (runTick phase 2):
-  contract.offer (generátor, re-schedule) + contract.expire (one-shot na deadlineStep).
-  TICK_ORDER konstanta beze změny; tickOrder.md jen poznámka o schedule handlerech.
+- **Nové periodikum**: research.daily (edge day, order 75, po buildings.age 70, před month systémy).
+  register + periodics[] v tickOrder.js. TICK_ORDER konstanta beze změny.
+- Žádný schedule handler, žádný nový RNG stream (research deterministický).
+- Tech modifikátory mimo tick — event-driven (buyTech→applyTechModifiers; load Step 5→rebuildBuildingDerived (b2)).
 
 ## Dílčí checklist
-- [x] Přečteno: AGENTS.md, brief BRIEF-014-001, M5-1 design (§5/§6/§13), DR-013-00/01
-- [x] Architektura iter-002 §5.4 (K14)/§5.6/§8 (kontrakty)/§6 (persist)/§3.4 ověřena
-- [x] Kód prozkoumán: effects.js+registry, buildings.js, scheduler.js+tickOrder.js+rng.js,
-      load.js+persistSchema.js, screens.js+selectors.js+App.js, market.js (getGoldValue),
-      dispatch.js+build.js+buyCompany.js, transactions.js (pay/grant), main.js (boot wiring),
-      createInitialState.js, buildings.json+companies.json
-- [x] Originál events.js + home.js:2407 insertContract/1678 tick + config.js:3248 contract*
-      + contractcard.js prozkoumán → contract data DOLOŽITELNÁ
-- [x] T5 plný design (queue, lifecycle přes registr, generování, persist, determinismus)
-- [x] T6 plný design (build UI + kontrakty panel, selektory+commands)
-- [x] tickOrder/diagram dopady; rizika+mitigace; min. 1 alternativa (3 alternativy)
-- [x] Výstup design_iter-014_T-001.md; handoff
+- [x] Přečteno: AGENTS.md, brief BRIEF-015-001, DR-013-00, M5-1 design §4 (modifier vrstva)
+- [x] Architektura iter-002 §5.3 (K13)/§5.4 (K14)/§6.3-6.4 (persist/load)/§7.1 (transakce) ověřena
+- [x] Master plán §3/iter-013(M6) T1–T4 (řádky 281-295)
+- [x] Kód prozkoumán: buildings.js (effective/addBuildingModifiers/rebuildBuildingDerived/invalidate),
+      handlers.js (techPt), formulas.js (techCap), load.js Step 5, persistSchema.js, registry/effects.js,
+      dispatch.js+build.js+buyCompany.js, tickOrder.js, createInitialState.js, catalog/loader.js,
+      app/catalogs.js+main.js, ui/App.js+selectors.js, systems/contracts.js+skills.js, techs.json
+- [x] Originál techs.js (calcCap/step/sektory) + original_source_doc §6 → techCap doložitelný
+- [x] T1 design (unlockedTechs, buyTech, techCap reuse, persist)
+- [x] T2 design (techy jako modifikátory K13 plně + generalizace rebuildu budovy+techy jedna cesta)
+- [x] T3 design (research.daily, techPt produkce, persist, determinismus, tickOrder)
+- [x] T4 design (selektory + TechScreen + tab + boot wiring)
+- [x] G-LISTTECHS postup; split rozhodnutí; rizika+mitigace; 4 alternativy
+- [x] Výstup design_iter-015_T-001.md; handoff
 
 ## Blockery
 –
