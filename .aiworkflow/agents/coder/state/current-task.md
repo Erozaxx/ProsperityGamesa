@@ -1,23 +1,42 @@
 # Current Task
 
-- **Task ID**: T-017 (iter-012 oprava review F-1 + F-2)
-- **Brief**: brief_coder_T-017_iter-012.md
-- **Iteration**: iter-012
+- **Task ID**: T-004 (iter-013 M5-1 T1 building instances + opotřebení + opravy + persist)
+- **Brief**: brief_coder_T-004_iter-013.md
+- **Iteration**: iter-013
 - **Status**: done
-- **Started**: 2026-06-13
-- **Done**: 2026-06-13
+- **Started**: 2026-06-14
+- **Done**: 2026-06-14
 
-## Checklist (T-017)
-- [x] F-1 health.js healthBirths: guard `pop >= sanityCap ? pop : Math.min(pop+actualBorn, sanityCap)` (neredukuje over-cap loaded total)
-- [x] F-1 population.js populationMigration: stejný guard (symetrie births<->migration, R-A4-3)
-- [x] F-2 health.js: import + použití `populationSanityCap(capacity)` místo inline `Math.max(capacity, BALANCE.population.sanityMaxPop)`
-- [x] Regress test test/population.test.js: over-cap total se po healthBirths i populationMigration nesnižuje ani nepřeroste cap (2/2 pass)
-- [x] npm run ci ZELENÉ — 780 testů, 0 fail (exit 0)
-- [x] npm run smoke OK (pop=50, exit 0)
-- [x] determinismus nedotčen: iter005-edge G1 + iter012-playability 25/25 pass
-- [x] precache regenerován (node tools/gen-precache.mjs) — deterministický, jen změna PRECACHE_VERSION
+## Checklist (T-004)
+
+- [x] Stav budov: `state.home.buildings[id]={created,totalMade,instances:[{instId,hp,inRepair}]}` + projectQueue + projectSeq + derived
+- [x] `ageBuildings` systém (day edge, order 70): opotřebení, winter, repair trigger, destroy, rng.stream('buildings')
+- [x] enqueueRepair: repair projekt v projectQueue, cost přes getGoldValue, deterministické ID
+- [x] destroyInstance: odebere instanci, volá rebuildBuildingDerived
+- [x] Persist schéma budov: allowlist buildings/projectQueue/projectSeq v persistSchema.js + load.js
+- [x] rebuildBuildingDerived: created re-derivace + stub addBuildingModifiers + recalcBuildingAggregates (T4 placeholder)
+- [x] load.js Step 5: volání rebuildBuildingDerived PŘED deriveWorkforceTotal (M-2)
+- [x] Registrace buildings.age v tickOrder.js (day, order 70)
+- [x] BALANCE.buildings sekce v balance.js
+- [x] scaleCostByCount v formulas.js
+- [x] Přidání 'buildings' do RNG STREAM_NAMES (K16/D4)
+- [x] buildings.json rozšíření (M5-1 fields + workerHouse, well; workerHouse ne 'house' kvůli K10)
+- [x] extractors/buildings.mjs aktualizován (extraction reproducibility test)
+- [x] types.d.ts: BuildingInstance, BuildingState, ProjectState, BuildingDerived, HomeState rozšíření
+- [x] docs/tickOrder.md aktualizován (buildings.age, M5-1 sekce, ASCII diagram)
+- [x] precache regenerován (PRECACHE_VERSION aktualizován)
+- [x] test/m5-buildings-t1.test.js: 27 nových testů (scaleCostByCount, rebuildBuildingDerived, ageBuildings, persist round-trip, projectSeq, recalcBuildingAggregates)
+- [x] npm run ci ZELENÉ — 807 testů, 0 fail
+- [x] npm run smoke OK
+- [x] G1 determinismus nedotčen
+
+## T4 Placeholders (TODO pro T4/T-007)
+- `addBuildingModifiers` — stub, no-op (TODO T4.3: effects→modifier mapping)
+- `removeBuildingModifiers` — stub (TODO T4.3)
+- `invalidateModifiers` — stub (TODO T4.2: bump _modVersion)
+- `effective()` — vrací pouze base catalog hodnotu, bez modifier fold (TODO T4.1)
+- `recalcBuildingAggregates` — čte base catalog values; TODO T4.4: nahradit za `effective(id, attr, state)` calls
 
 ## Výsledek
-Hotovo. F-1+F-2 opraveny v obou systémech, regress test přidán. Gate zelený.
-Determinismus (deriveWorkforceTotal, G1) nedotčen. Detaily v
-artifacts/final/impl_summary_iter-012_T-017.md.
+T1 dokončen. 807 testů, 0 fail. Smoke OK. G1 determinismus nedotčen.
+Persist round-trip funguje. created re-derivováno ze instances.length po loadu.

@@ -275,4 +275,27 @@ export const BALANCE = Object.freeze({
      */
     stepCompensation: 0.5,
   },
+
+  /**
+   * Buildings mechanic constants. iter-013 M5-1 T1.
+   * Source references: design_iter-013_T-001.md §1.2, §1.3, §1.5.
+   */
+  buildings: {
+    /** Daily RNG bias for probabilistic wear. Source: home.js:2320 (rng.next()+0.2 — original used Math.random, replaced with deterministic rng). provenance: extracted. */
+    ageBias: 0.2,
+    /** HP fraction threshold below which repair is enqueued. Source: home.js:2324. provenance: extracted. */
+    repairThreshold: 0.25,
+    /** HP lost per day in winter. Source: home.js:2318. provenance: extracted. */
+    winterHpLoss: 1,
+    /** Divisor applied to getGoldValue(baseCost) to get repair gold cost. Source: home.js:2356. provenance: extracted. */
+    repairCostDivisor: 4,
+    /** Divisor applied to maxProgress to get repair duration (in days). Source: home.js:2349. provenance: extracted. */
+    repairProgressDivisor: 4,
+    /** Fallback max HP when building lacks 'resistance' in catalog. provenance: approximated, gap G-BUILD-RESISTANCE. */
+    defaultResistance: 100,
+    /** Geometric cost-scale factor per additional instance. 1.0 = no scaling (faithful to original). provenance: approximated, gap G-BUILD-COSTSCALE. */
+    costScaleFactor: 1.0,
+    /** Index of Winter season (0=spring,1=summer,2=autumn,3=winter). Source: types.d.ts. */
+    winterSeasonIndex: 3,
+  },
 });

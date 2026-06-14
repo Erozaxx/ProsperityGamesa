@@ -1,43 +1,174 @@
 {
   "_meta": {
-    "notes": "Reconstructed from config.js building references; full list in G-LISTBUILDINGS",
-    "provenance": "derived",
+    "notes": "Reconstructed from config.js building references; M5-1 expansion: resistance/maxProgress/builders/effects added. G-LISTBUILDINGS autonomously extended per §9 (design_iter-013_T-001.md). New buildings (workerHouse, well) approximated.",
+    "provenance": "derived (existing 4 buildings) / approximated (new fields + new buildings)",
     "source": "doc/original_source/modules/prosperity/services/config.js"
   },
   "buildings": [
     {
+      "_meta": {
+        "builders": "approximated",
+        "effects": "approximated",
+        "gap": "G-LISTBUILDINGS",
+        "maxProgress": "approximated",
+        "resistance": "approximated"
+      },
       "baseCost": {
         "wood": 30
       },
+      "builders": 1,
       "category": "production",
+      "effects": [
+        {
+          "attr": "maxActiveProjects",
+          "op": "add",
+          "value": 1
+        },
+        {
+          "attr": "maxProjectQueue",
+          "op": "add",
+          "value": 3
+        }
+      ],
       "id": "builderHut",
-      "name": "Builder Hut"
+      "maxProgress": 5,
+      "name": "Builder Hut",
+      "resistance": 100,
+      "unlocked": true
     },
     {
+      "_meta": {
+        "builders": "approximated",
+        "effects": "approximated",
+        "gap": "G-LISTBUILDINGS",
+        "maxProgress": "approximated",
+        "resistance": "approximated"
+      },
       "baseCost": {
         "wood": 50
       },
+      "builders": 1,
       "category": "storage",
+      "effects": [
+        {
+          "attr": "storage.food",
+          "op": "add",
+          "value": 200
+        }
+      ],
       "id": "granary",
-      "name": "Granary"
+      "maxProgress": 7,
+      "name": "Granary",
+      "resistance": 100,
+      "unlocked": true
     },
     {
+      "_meta": {
+        "builders": "approximated",
+        "effects": "approximated",
+        "gap": "G-LISTBUILDINGS",
+        "maxProgress": "approximated",
+        "resistance": "approximated"
+      },
       "baseCost": {
         "gold": 500,
         "wood": 200
       },
+      "builders": 3,
       "category": "service",
+      "effects": [
+        {
+          "attr": "attractiveness",
+          "op": "add",
+          "value": 50
+        },
+        {
+          "attr": "workers",
+          "op": "add",
+          "value": 10
+        }
+      ],
       "id": "townCenter",
-      "name": "Town Center"
+      "maxProgress": 20,
+      "name": "Town Center",
+      "resistance": 150,
+      "unlocked": true
     },
     {
+      "_meta": {
+        "builders": "approximated",
+        "effects": "approximated",
+        "gap": "G-LISTBUILDINGS",
+        "maxProgress": "approximated",
+        "resistance": "approximated"
+      },
       "baseCost": {
         "ore": 20,
         "wood": 100
       },
+      "builders": 2,
       "category": "storage",
+      "effects": [
+        {
+          "attr": "storage.goods",
+          "op": "add",
+          "value": 500
+        }
+      ],
       "id": "warehouse",
-      "name": "Warehouse"
+      "maxProgress": 10,
+      "name": "Warehouse",
+      "resistance": 120,
+      "unlocked": true
+    },
+    {
+      "_meta": {
+        "gap": "G-LISTBUILDINGS",
+        "note": "id='workerHouse' (not 'house') to avoid K10 collision with houseTypes catalog",
+        "provenance": "approximated"
+      },
+      "baseCost": {
+        "ore": 5,
+        "wood": 40
+      },
+      "builders": 1,
+      "category": "housing",
+      "effects": [
+        {
+          "attr": "workers",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "id": "workerHouse",
+      "maxProgress": 5,
+      "name": "Worker House",
+      "resistance": 80,
+      "unlocked": true
+    },
+    {
+      "_meta": {
+        "gap": "G-LISTBUILDINGS",
+        "provenance": "approximated"
+      },
+      "baseCost": {
+        "ore": 10,
+        "wood": 15
+      },
+      "builders": 1,
+      "category": "service",
+      "effects": [
+        {
+          "attr": "attractiveness",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "id": "well",
+      "maxProgress": 3,
+      "name": "Well",
+      "resistance": 60,
+      "unlocked": true
     }
   ]
 }

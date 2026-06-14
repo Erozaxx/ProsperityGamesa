@@ -168,6 +168,39 @@ export function applyPersist(state) {
       home.skills = skills;
     }
 
+    // buildings: per id { created, totalMade, instances:[{instId,hp,inRepair}] } (iter-013 M5-1 T1)
+    // NOTE: created is ALSO saved for consistency with original (re-derived from instances.length on load).
+    // derived (maxWorkers/storageCapacity/attractiveness) and _effCache are NOT saved (derived on load).
+    if (s.home.buildings) {
+      /** @type {Record<string, unknown>} */
+      const buildings = {};
+      for (const [buildingId, bState] of Object.entries(s.home.buildings)) {
+        const b = /** @type {any} */ (bState);
+        /** @type {Array<{instId:string,hp:number,inRepair:boolean}>} */
+        const instances = (b.instances || []).map(/** @param {any} inst */ (inst) => ({
+          instId: inst.instId,
+          hp: inst.hp,
+          inRepair: inst.inRepair || false,
+        }));
+        buildings[buildingId] = {
+          created: b.created || 0,
+          totalMade: b.totalMade || 0,
+          instances,
+        };
+      }
+      home.buildings = buildings;
+    }
+
+    // projectQueue: serialisable repair/build project list (iter-013 M5-1 T1)
+    if (s.home.projectQueue !== undefined) {
+      home.projectQueue = s.home.projectQueue;
+    }
+
+    // projectSeq: monotonic counter for deterministic project IDs (iter-013 M5-1 T1)
+    if (s.home.projectSeq !== undefined) {
+      home.projectSeq = s.home.projectSeq;
+    }
+
     payload.home = home;
   }
 

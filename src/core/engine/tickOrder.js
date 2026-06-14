@@ -34,6 +34,7 @@ import { localTaxes, monthlyTaxes } from '../systems/taxes.js';
 import { upkeepMilitary } from '../systems/upkeep.js';
 import { burnWood } from '../systems/burnWood.js';
 import { closeMonth } from '../resources/accounting.js';
+import { ageBuildings } from '../systems/buildings.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).
@@ -169,6 +170,8 @@ export function registerCorePeriodics(registry) {
   register(registry, 'upkeep.military', upkeepMilitary);
   register(registry, 'home.burnWood', burnWood);
   register(registry, 'council.closeMonth', closeMonth);
+  // iter-013 M5-1 T1: buildings systems
+  register(registry, 'buildings.age', ageBuildings);
 
   /** @type {PeriodicTask[]} */
   const periodics = [
@@ -196,6 +199,9 @@ export function registerCorePeriodics(registry) {
     { id: 'upkeep.military',         every: 'month',      order: 30, systemFn: 'upkeep.military' },
     { id: 'council.closeMonth',      every: 'month',      order: 40, systemFn: 'council.closeMonth' },
     { id: 'home.burnWood',           every: 'day',        order: 60, systemFn: 'home.burnWood' },
+    // iter-013 M5-1 T1: daily building wear (after burnWood order 60; before month systems)
+    // Design §7: buildings.age on 'day' edge, order 70. RNG via stream 'buildings' (K16/D4).
+    { id: 'buildings.age',           every: 'day',        order: 70, systemFn: 'buildings.age' },
     { id: 'season.change',           every: 'season',     order: 10, systemFn: 'noop' },
     { id: 'battle.tick',             every: 'step',       order: 30, systemFn: 'battle.tick' },
   ];

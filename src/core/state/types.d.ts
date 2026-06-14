@@ -16,7 +16,44 @@ export type StreamName =
   | 'market'
   | 'world'
   | 'battle'
-  | 'events';
+  | 'events'
+  | 'buildings';
+
+/** One building instance */
+export interface BuildingInstance {
+  instId: string;
+  hp: number;
+  inRepair: boolean;
+}
+
+/** Per-building-type dynamic state */
+export interface BuildingState {
+  created: number;    // invariant: === instances.length (re-derived on load)
+  totalMade: number;  // cumulative builds; never decreases; input to scaleCost + instId
+  instances: BuildingInstance[];
+}
+
+/** One project in the projectQueue */
+export interface ProjectState {
+  id: string;
+  type: 'build' | 'repair';
+  buildingId: string;
+  instId?: string;       // only for 'repair'
+  curProgress: number;
+  maxProgress: number;
+  builders: number;
+  cost: Record<string, number>;
+  paid: boolean;
+  removable: boolean;
+  delay: number;
+}
+
+/** Derived (non-persisted) building aggregates */
+export interface BuildingDerived {
+  maxWorkers: number;
+  attractiveness: number;
+  storageCapacity: Record<string, number>;
+}
 
 /** One scheduled one-shot event in the scheduler heap. Serializable. */
 export interface ScheduleEntry {
@@ -192,6 +229,14 @@ export interface HomeState {
   notEnoughMilitaryFunding?: boolean;
   /** Firewood/resources stockpile (general). iter-010 M4a. */
   store?: Record<string, number>;
+  /** Buildings dynamic state – per buildingId. Lazy (empty until first build). iter-013 M5-1. */
+  buildings: Record<string, BuildingState>;
+  /** Serialisable project queue for build + repair. iter-013 M5-1. */
+  projectQueue: ProjectState[];
+  /** Monotonic counter for deterministic project IDs. iter-013 M5-1. */
+  projectSeq: number;
+  /** Non-persisted building aggregates. Rebuilt by rebuildBuildingDerived. iter-013 M5-1. */
+  derived: BuildingDerived;
 }
 
 /** Player resource state */

@@ -308,6 +308,21 @@ export function monthlyTaxAmount(curWorkers, taxRate, monthlyRate, centerBase, t
 }
 
 /**
+ * Cost of the (totalMade+1)-th building instance. Geometric growth per additional built.
+ * scaleFactor=1.0 → no scaling (faithful to original; original buildings have fixed cost).
+ * Source: design M5 §2.4 (original buildings have fixed cost; scaling is an approximated progression addition).
+ * provenance: approximated, gap G-BUILD-COSTSCALE (M9 calibration).
+ * @param {Record<string, number>} baseCost - Base cost map {resourceId: amount}
+ * @param {number} totalMade - Cumulative buildings built so far (use totalMade, NOT created)
+ * @param {number} scaleFactor - Geometric factor (e.g. 1.15); use BALANCE.buildings.costScaleFactor
+ * @returns {Record<string, number>}
+ */
+export function scaleCostByCount(baseCost, totalMade, scaleFactor) {
+  const pct = Math.pow(scaleFactor, Math.max(0, totalMade));
+  return scaleCost(baseCost, pct);
+}
+
+/**
  * Military upkeep cost.
  * Formula: warriors × warriorUpkeep + archers × archerUpkeep. iter-010 M4a.
  * @param {number} warriors

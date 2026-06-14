@@ -5,7 +5,8 @@
  */
 
 // Stream names in fixed order (determinism)
-const STREAM_NAMES = /** @type {StreamName[]} */ (['population','forest','mine','field','market','world','battle','events']);
+// iter-013 M5-1: added 'buildings' stream (ageBuildings RNG, K16/D4 isolated stream)
+const STREAM_NAMES = /** @type {StreamName[]} */ (['population','forest','mine','field','market','world','battle','events','buildings']);
 
 /**
  * Single step of mulberry32 PRNG.

@@ -2,6 +2,7 @@
  * Factory functions for HomeState and PlayerState.
  * iter-007 M2a-1: initial state factories.
  * iter-009 M3: added jobs/skills/workforce/workerEfficiency fields.
+ * iter-013 M5-1: added buildings/projectQueue/projectSeq/derived fields (T1).
  */
 
 /**
@@ -25,6 +26,22 @@ export function createHomeState() {
     // iter-010 M4a: economics
     notEnoughMilitaryFunding: false,
     store: {},
+    // iter-013 M5-1 T1: buildings state + project queue
+    // buildings: per buildingId { created, totalMade, instances:[{instId,hp,inRepair}] }
+    // Sub-tree is empty in new game; entries are created lazily on first build (like jobs).
+    buildings: {},
+    // projectQueue: serialisable project array (build/repair). Populated by build command (T2)
+    // and repair enqueue (T1 ageBuildings). Required for repair projects even in T1.
+    projectQueue: [],
+    // projectSeq: monotonic counter for deterministic project IDs (no Date.now).
+    projectSeq: 0,
+    // derived: non-persistent aggregates rebuilt by rebuildBuildingDerived.
+    // _-prefix sub-fields are excluded from persist allowlist (§4.5 design).
+    derived: {
+      maxWorkers: 0,        // Σ effective(id,'workers') across built buildings
+      storageCapacity: {},  // per resource: Σ effective(id,'storage.<resource>')
+      attractiveness: 0,    // Σ effective(id,'attractiveness')
+    },
   };
 }
 
