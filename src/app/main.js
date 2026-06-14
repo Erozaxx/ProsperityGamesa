@@ -26,6 +26,7 @@ import { registerBuyTech } from '../core/commands/buyTech.js';
 import { registerRecruitUnit } from '../core/commands/recruitUnit.js';
 import { registerContractCommands } from '../core/commands/contracts.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
+import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
 import { marketInit } from '../core/systems/market.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
@@ -93,6 +94,8 @@ function bootstrapEngine() {
   const periodics = registerCorePeriodics(registry);
   // iter-014 M5-2 T5 B1: register contract schedule handlers (§14.1)
   registerContractEffects(registry);
+  // iter-017 M7a-2 T2: world AI schedule handlers
+  registerWorldEffects(registry);
   const creg = createCommandRegistry();
   registerSetSpeed(creg);
   registerAssignJob(creg);

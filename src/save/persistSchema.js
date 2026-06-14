@@ -21,7 +21,7 @@ export const PERSIST_SCHEMA = {
   // home.jobs: per id { number, curStep }
   // home.workforce: { assigned } (total is derived from housing)
   // home.skills: per id { progressing, curStep } (progPct is DERIVED – not saved)
-  world:      ['zones', 'factions', 'forest', 'field', 'mine', 'marketState', 'caravan'],
+  world:      ['zones', 'factions', 'forest', 'field', 'mine', 'marketState', 'caravan', 'quests', 'questSeq'],
   // world.forest: { curTrees, curAnimals, saplings, health, timeSinceLastFire, lastFire, consecutiveNoAnimal }
   // world.field:  { curLivestock, rodentInfestation, usedFarmLand, inspectTime }
   // world.mine:   { curOres }
@@ -256,7 +256,7 @@ export function applyPersist(state) {
             archers:      z.archers,
             resources:    z.resources  || {},
             tribute:      z.tribute    || {},
-            favour:       z.favour     || 0,
+            favour:       (z.favour && typeof z.favour === 'object') ? { ...z.favour } : {},
             goldStore:    z.goldStore   || 0,
             notEnoughGold:z.notEnoughGold || 0,
             curQuest:     z.curQuest   || null,

@@ -21,7 +21,7 @@ import { crimeDaily } from '../systems/crime.js';
 import { meal1, meal2, foodSpoilage } from '../systems/food.js';
 import { jobsProduction, jobsAccidents, autoAssignWorkers } from '../systems/jobs.js';
 import { housingSettlementLevel } from '../systems/housing.js';
-import { worldTick } from '../systems/world.js';
+import { worldTick, registerWorldEffects } from '../systems/world.js';
 import { battleTick } from '../systems/battle.js';
 import { marketDailyDrift } from '../systems/market.js';
 import { caravanReturns } from '../systems/caravan.js';
@@ -182,6 +182,9 @@ export function registerCorePeriodics(registry) {
   // iter-014 M5-2 T5: contract schedule handlers (one-shot events, K17, §6.4)
   // Registered here so all test makeCtx() calls automatically include contract handlers.
   registerContractEffects(registry);
+
+  // iter-017 M7a-2 T2: world AI schedule handlers (processFaction, takeOver, stubs)
+  registerWorldEffects(registry);
 
   /** @type {PeriodicTask[]} */
   const periodics = [
