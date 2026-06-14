@@ -16,3 +16,9 @@
 - **tool_uses**: 176
 - **duration_ms**: 1262150
 - **outcome**: ci 862/862, smoke OK, G1 pass; buyCompany + ownedCompanies + companyBuildersTotal; G-BUILDER-MASON→T4
+## T-007 (T4 modifier vrstva)
+- **Timestamp**: 2026-06-14T05:30Z
+- **total_tokens**: 44127
+- **tool_uses**: 128
+- **duration_ms**: 1531851
+- **outcome**: ci 906/906, smoke OK, G1 pass, payload invariant ověřen; plný modifier fold+agregáty, sdílený rebuildBuildingDerived, round-trip identita
