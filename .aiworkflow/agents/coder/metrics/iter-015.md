@@ -22,3 +22,9 @@
 - **tool_uses**: 72
 - **duration_ms**: 426728
 - **outcome**: ci 1097/1097, smoke OK (tab Veda); TechScreen + selektory; M6 implementace kompletní
+## T-009a (M-A fix)
+- **Timestamp**: 2026-06-14T16:15Z
+- **total_tokens**: 52078
+- **tool_uses**: 48
+- **duration_ms**: 298955
+- **outcome**: M-A double-count opraveno (1 řádek+test exact-match), m-1 doc; ci 1097/1097, determinismus nedotčen

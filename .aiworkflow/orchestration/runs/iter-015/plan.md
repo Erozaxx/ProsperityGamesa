@@ -16,14 +16,14 @@
 - [x] T-007: coder – T4 hotový: TechScreen (tech body, research progres 6 sektorů, tech strom dle sektoru s odemčením/cenou/prereqs/efekty, buyTech tlačítka), tab 'Veda', selektory selectTechTree/selectResearchProgress/selectTechPoints. ci 1097/1097, smoke OK (tab renderuje), G1+M5-1+M6 nedotčeno. M6 implementace kompletní
 - [x] T-008: tester – Test loop M6 GO (DoD M6/K13 plně): všech 9 AC PASS empiricky (1097/1097, smoke OK tab Veda). buyTech lifecycle, tech round-trip bit-identický (payload bez derivovaných), K13 plně (building+tech ve stejné vrstvě jeden fold=600), research deterministický (400 dní sim 31 techPt, catch-up batch==incremental), M6 nerozbil M5 (44/44+G1 16/16), persist round-trip+undefined-guard, žádný Math.random/Date.now/DOM, UI bez logiky
 - [x] T-009: reviewer – Review gate M6 GO-s-podmínkami; DoD M6 (K13 plně) SPLNĚN. Všech 6 tvrdých invariantů platí proti kódu, determinismus tech modifikátorů+research PASS, reuse čistý. 0 blocker/1 major/1 minor/2 nit. M-A: double-count researchExp (effective vrací 2×created, research.js násobí created podruhé → kvadratická techPt produkce academy/university), oprava 1 řádek+test; m-1: tickOrder.md doc drift research.daily order 75
-- [ ] T-009a: coder – Oprava M-A (research.js:94-99 double-count researchExp: totalBonus=perBuilding bez ×created, protože effective už created bakuje; zpřísnit multi-building test na exact-match) + m-1 (tickOrder.md doplnit research.daily order 75 do tabulky+diagramu). Gate: ci zelené, smoke OK, determinismus G1+M5-1+M6 nedotčen
-- [ ] T-010: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge
+- [x] T-009a: coder – M-A opraveno (research.js: odstraněno dvojí ×created, effective už created bakuje; správně 2 univerzity→10 exp/sektor), test zpřísněn na strictEqual(10); m-1 tickOrder.md research.daily order 75 doplněn. ci 1097/1097, smoke OK, G1+M5-1+M6 nedotčeno
+- [x] T-010: human – Uzavření SCHVÁLENO stálým pověřením uživatele (DR-013-00). DoD M6/K13 plně splněn, reviewer GO + QA GO, M-A vyřešeno → /close-iteration + PR + merge
 
 ## Quality Gates
-- [ ] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
-- [ ] Code review (Reviewer) – T-009
-- [ ] QA validace (Tester) – T-008
-- [ ] Plán neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
+- [x] Code review (Reviewer) – T-009 GO (0 blocker/major po M-A fix)
+- [x] QA validace (Tester) – T-008 GO (9/9 AC)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
 
 ## Exit Criteria (DoD M6)
 - Tech strom funkční: buyTech, cena 100×1.25^level, unlockedTechs persistováno.
