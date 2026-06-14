@@ -1,53 +1,55 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-013)
-- **Brief**: context/inbox/brief_architect_T-001_iter-013.md (BRIEF-013-001)
-- **Iteration**: iter-013 (M5 – Budovy, stavba, kontrakty)
+- **Task ID**: T-002a (iter-013) — revize designu M5 (po T-001)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-013.md (BRIEF-013-002a)
+- **Iteration**: iter-013 (M5-1 – Budovy & modifikátory)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-13
+- **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – detailní implementační DESIGN M5 (T1–T6) pro Sonnet codera. Žádný kód.
-Výstup: `artifacts/final/design_iter-013_T-001.md`.
+Hotovo – REVIZE designu M5 (T-002a): zapracovány 4 major podmínky z reviewer gate (T-002) +
+zúženo na M5-1 (T1–T4). Žádný kód. **Platný dokument: `artifacts/final/design_iter-013_T-001.md`**
+(in-place revize; žádný separátní `design_iter-013_T-002a.md` se nevytváří).
 
-## Klíčová designová rozhodnutí
-- **Stav budov** (M5-D1): `state.home.buildings[id] = {created, totalMade, instances:[{instId,hp,inRepair}]}`;
-  `created===instances.length` (invariant, re-derived po loadu). `instId`/`projectId`/`contractId`
-  deterministické čítače (NE Date.now). `ageBuildings` na **day** edge přes nový `rng.stream('buildings')`.
-- **scaleCostByCount(base, created)** (M5-D4): NOVÁ čistá fn ve formulas.js, geometrický růst
-  `pct=scaleFactor^created`, default `scaleFactor=1.0` = věrné originálu (originál budovy NEškáluje —
-  doloženo buildingcard.js:88, config.js:1170). provenance:'approximated', gap G-BUILD-COSTSCALE, M9.
-- **Modifier fold** (M5-D7, K13): `effective(itemId,attr,state)` fold add→mul→set; memoizace přes
-  `_modVersion`/`_effCache` (neperzistentní, `_`-prefix); agregáty (maxWorkers/storage/attractiveness)
-  v `home.derived` event-driven (complete/destroy/load). **Save = JEN catalogState.modifiers**.
-  T4(L) rozložen na 6 Sonnet-kroků (T4.1–T4.6).
-- **Kontrakty** (M5-D8, K14): `contractQueue`; onComplete/onExpire/onReject = string-ID+params v datech
-  do registru efektů (NE imperativní háčky); expirace přes scheduleInsert (serializovatelné, přežije load).
-- **Persist**: budovy/projectQueue/contractQueue do allowlistu; derivát (effCache/derived/progressPct/
-  created) se NEUKLÁDÁ; load Step 5 rebuild = fold + recalcAggregates (jediná cesta, žádná load-only větev).
-- **TickOrder**: +`buildings.builders` quarterDay order 40 (po autoAssign), +`buildings.age` day order 70
-  (po burnWood); `contract.expire` one-shot schedule.
+## Jak vyřešeny 4 major (T-002a)
+- **M-1** (effects→modifier mapování + JEDNA cesta agregátů): nová **§4.3** = úplné pravidlo
+  (op add/mul/set z dat, dot-path mapové attr, **per-TYP** modifikátor `id=bld:${buildingId}:${attr}:${op}`,
+  `source=building:${buildingId}`, **multiplicita `created` zapečená do `value`**). **§4.4 přepsána** =
+  JEDNA kanonická cesta `Σ effective(id,attr)` BEZ násobení `created`; druhá cesta (`created×effective`)
+  ODSTRANĚNA → žádné dvojí započtení.
+- **M-2** (sdílený rebuild, žádná load-only větev): nová **§4.6** `rebuildBuildingDerived(state)` =
+  created re-derivace + re-gen building modifikátorů + recalcAggregates; nová **§4.7** = mutace
+  (completeBuild/destroyInstance/applyRepair) volají TUTÉŽ fn. Volaná z load Step 5 I z mutací.
+  Load-only větev explicitně zakázána (M5-R1; reviewer grep). Ověřeno load.js:217-225 (dnes jen
+  workforce.total — stejná třída bugu jako DR-012-02).
+- **M-3** (deterministický fold): **§4.1 přepsána** = před foldem `sort by (source,id)` lexikograficky
+  (cmpModifier), `set` bere POSLEDNÍ po sortu (ne insertion order). Tabulkový test 2× set různého source.
+- **M-4** (build bez ctx → pay bez emitTx): **§2.3 přepsána** s ověřením kódu — `dispatch.js:44-59`
+  volá `handler(state,params)` (žádný ctx); Volba A (předat ctx) = změna arch command vrstvy iter-002 →
+  mimo scope, ZAMÍTNUTA. `transactions.js:45` potvrzuje ctx optional → **Volba B = vědomý gap
+  G-BUILD-TXAUDIT** (M5-2/M9).
 
-## Povinná rozhodnutí
-- **SPLIT: ANO** → M5-1 (T1–T4) / M5-2 (T5–T6). Důvod: T4 je L s 6-krok dekompozicí (naplní iteraci);
-  T4(K13 infra) a T5(K14 obsah) mají oddělené review gates → mísení = riziko re-run; čistá dependency
-  hranice (T5/T6 staví na T2+T4). M5-1 je samostatně hratelné. Bez dopadu na architekturu.
-- **G-LISTBUILDINGS**: doplnit buildings.json autonomně (Q3/DR-001) na ≥6 budov,
-  `provenance:'approximated'` per pole, gap-report update, eskalace jen informativní (ne blocker, bez DR).
-  Min. sada: builderHut, granary, warehouse, townCenter, +house (maxWorkers), +levná service budova.
+## Scope (T-002a)
+- Zúženo na M5-1 (T1–T4). §5 (T5 kontrakty) + §6 (T6 build UI) označeny [ODLOŽENO M5-2],
+  přesunuty do nové **§13 Odloženo na M5-2/iter-014** (krátká poznámka). Coder M5-1 je IGNORUJE.
+- T4 dekompozice (§4.8, dříve §4.4): T4.1 (det. sort), T4.3 (mapování M-1), T4.4 (jedna cesta M-1),
+  T4.6 (sdílený rebuildBuildingDerived M-2 + persist blok) přepsány. Stále 6 Sonnet-kroků T4.1–T4.6.
+- Minor/nit: m-1 (dot-path zafixován), m-2 (payload grep test T4.6), m-5 (T4.5 ověřit fn za běhu),
+  n-2/n-3 (už v T-001).
 
 ## Dílčí checklist
-- [x] Přečteno: AGENTS.md, brief BRIEF-013-001
-- [x] Reference: DR-013-00, master plán §3/iter-012(M5)+§1.2+Q3/DR-001, architektura iter-002
-      (§5.3 K13, §5.4 K14, §6.3-6.4, §7.1, §8)
-- [x] Kód: registry/effects, market(getGoldValue), tickOrder, jobs(quarterDay/builder stub),
-      save(load/persistSchema), buildings.json/companies.json, balance/formulas, scheduler, dispatch,
-      handlers/transactions, createInitialState/createHomeState, catalog loader + originál home/config/buildingcard
-- [x] Design T1–T6 (Sonnet-implementable), T4(L) dekompozice 6 kroků, persist schémata,
-      tickOrder dopady + diagram, split rozhodnutí, G-LISTBUILDINGS gap
-- [x] Determinismus/catch-up-safe ověřeno (žádný DOM/Date.now/Math.random; izolovaný rng stream; levné v dávce)
-- [x] Výstup do artifacts/final + handoff
+- [x] Přečteno: AGENTS.md, brief BRIEF-013-002a, design T-001, review T-002 (4 major+minor/nit)
+- [x] Ověřeno proti kódu: load.js Step 5 (jen workforce.total), persistSchema.js:41 (catalogState celý,
+      applyPersist imperativní per doména), effects.js (registr string-ID), transactions.js (pay ctx optional),
+      dispatch.js (handler(state,params) bez ctx), createInitialState.js:115 (modifiers:[])
+- [x] M-1 vyřešen (§4.3 + §4.4, jedna cesta)
+- [x] M-2 vyřešen (§4.6 + §4.7, sdílená fn z load i mutací, load-only zakázána)
+- [x] M-3 vyřešen (§4.1 deterministický sort by source,id)
+- [x] M-4 vyřešen (§2.3 gap G-BUILD-TXAUDIT, Volba A zamítnuta z scope důvodů)
+- [x] Scope zúžen na M5-1; §5/§6 → §13 odloženo
+- [x] T4 dekompozice aktualizovaná, Sonnet-proveditelná
+- [x] Výstup in-place + changelog T-002a; handoff
 
 ## Blockery
 –
