@@ -1,39 +1,38 @@
 # Current Task
 
-- **Task ID**: T-002 (Review DESIGN M5-2 iter-014 — kontrakty K14 + build UI, architektonický gate před implementací)
-- **Brief**: BRIEF-014-002
+- **Task ID**: T-007 (Závěrečný review gate M5-2 iter-014 — kontrakty K14 + build UI + DoD M5, právo re-run)
+- **Brief**: BRIEF-014-007
 - **Iteration**: iter-014
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo: Architektonický REVIEW GATE designu M5-2 (design_iter-014_T-001.md) PŘED implementací.
-Ověřeno proti KÓDU (ne tvrzení): effects.js, main.js (bootstrapEngine), rng.js (STREAM_NAMES),
-tickOrder.js (runTick phase 2 resolve), scheduler.js, persistSchema.js, load.js, migrations.js,
-schema.js, dispatch.js, build.js, sendCaravan.js, createInitialState.js, createHomeState.js, ui/.
-Výstup: agents/reviewer/artifacts/final/review_design_iter-014_T-002.md
+Hotovo: Závěrečný REVIEW GATE M5-2 + ověření DoD M5 (celý milník) PROTI KÓDU (diff ecfb479..HEAD).
+Ověřeno: contracts.js (system+commands), main.js (B1 bootstrapEngine + B2 bootSequence/armContractOffer),
+rng.js (stream 'contracts' na konci), tickOrder.js (phase2 resolve), scheduler.js, registry.js (idempotent register),
+load.js/persistSchema.js (undefined-guard allowlist), createHomeState.js, transactions.js, market.js (getGoldValue),
+selectors.js + screens.js + App.js (zachráněná build UI), balance.js, schemas.js, gap-report.json.
+Nezávislý běh testů: m5-contracts 51/51, ui-selectors-t6 14/14, iter005-edge G1 16/16.
+Výstup: agents/reviewer/artifacts/final/review_iter-014_T-007.md
 
 ## Výsledek
-Verdikt: **GO — s podmínkami** (B1+B2+M1 zapracovat do designu PŘED kódem; M2 upřesnit init cestu).
+Verdikt: **GO** (jediná ne-funkční podmínka: doplnit gap-report — MINOR, neblokuje merge/hratelnost).
+DoD M5: **KOMPLETNÍ a hratelný.**
 
 Klíčová zjištění:
-- M52-D8 KOREKTNÍ: bootstrapEngine (main.js:86-103) NEvolá registerEffects → potvrzeno proti kódu.
-  registerContractEffects v boot je nutný a správný, nerozbije existující schedule resolve (idempotent register).
-- Determinismus contract streamu KOREKTNÍ + G1-safe: 'contracts' na konec STREAM_NAMES — precedent 'buildings'
-  z M5-1 (rng.js:9). makeRng default 0 pro staré savy, seedy existujících streamů beze změny.
-- B1 (BLOCKER, navíc): registerBuild NENÍ wired v main.js (jen buyCompany) → build UI by nefungoval.
-- B2 (BLOCKER): contract.offer bootstrap se pro EXISTUJÍCÍ savy nikdy nenaplánuje (applyPayload přepíše
-  schedule saved heapem) → re-arm s scheduleCountOf guardem v load/boot (mirror marketInit).
-- Persist round-trip OK (engine.schedule persistován); migrace bez bumpu (M1 — rozhodnutí explicitně).
-- Build UI: čisté selektory+commands, žádná logika v UI (vzor CouncilScreen/MarketScreen) — soulad §3.4.
-- Split: NE — T5+T6 souzní do jedné iterace (lineární závislosti, oba uzavírají DoD M5).
+- Všech 6 tvrdých invariantů PLATÍ proti kódu (K14 string-ID v datech; determinismus+serializace; B2 idempotentní
+  re-arm s scheduleCountOf guardem vedle marketInit; B1 registerBuild+contract commands/effects wired;
+  žádná logika v UI; žádný Date.now/Math.random/DOM, SAVE_VERSION=3).
+- Zachráněná build UI (T6): ÚPLNÁ a funkční — BuildScreen 4 sekce + ContractsScreen accept/reject/complete,
+  taby, deriváty v selektorech, pure komponenty. Žádný nález.
+- rng 'contracts' na konci STREAM_NAMES → seedy ostatních streamů beze změny; G1 hash nedotčen.
+- Persist round-trip OK; staré savy přes undefined-guard + B2 re-arm.
 
 ## Nálezy (severity)
-- BLOCKER: 2 (B1 registerBuild chybí; B2 offer bootstrap pro staré savy)
-- MAJOR: 2 (M1 migrace/bump rozhodnutí; M2 init contractQueue v createHomeState + cesta)
-- MINOR: 4 (contractSeq round-trip test; schedule cleanup gap; registerEffects jen pokud nutné; firstOfferStep ≥1)
-- NIT: 3 (fresh vs round-trip hash; title neukládat/derivovat; goodsBuyer dark katalog)
+- BLOCKER: 0
+- MAJOR: 0
+- MINOR: 1 (gap-report.json neaktualizován: 4 contract gapy chybí, summary.byMilestone nekonzistentní, _meta stale iter-013)
+- NIT: 2 (resolveEffect silent-fallback vs fail-fast; pctComplete heuristika bez acceptedStep reference)
 
-## NEcommitnuto (scope per brief). Žádný produkční kód neexistuje (čistý design review).
-</content>
+## NEcommitnuto, kód neopravován (per brief).

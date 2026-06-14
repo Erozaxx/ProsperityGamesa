@@ -1,23 +1,24 @@
 {
   "_meta": {
-    "iteration": "iter-013",
-    "milestone": "M5-1",
-    "notes": "Updated in iter-013 M5-1: added M5-1 gaps for buildings/builder/cost/resistance/space/unlock/mulstack/techbonus/repair. G-LISTBUILDINGS status updated (resolved in M5-1). G-BUILDER-M5 resolved (buildings system live). Previous update: iter-009 M3 added M3 gaps for production/jobs/skills/forest/field/mine.",
+    "iteration": "iter-014",
+    "milestone": "M5-2",
+    "notes": "Updated in iter-014 M5-2: added contract gaps (G-CONTRACTS-CATALOG, G-CONTRACT-GEN, G-CONTRACT-SCHED-CLEANUP, G-BUILD-CANCEL). Summary recomputed from actual gaps array. Updated in iter-013 M5-1: added M5-1 gaps for buildings/builder/cost/resistance/space/unlock/mulstack/techbonus/repair. G-LISTBUILDINGS status updated (resolved in M5-1). G-BUILDER-M5 resolved (buildings system live). Previous update: iter-009 M3 added M3 gaps for production/jobs/skills/forest/field/mine.",
     "provenance": "derived"
   },
   "summary": {
-    "total": 30,
-    "blocksMvp": 4,
+    "total": 34,
+    "blocksMvp": 3,
     "byMilestone": {
-      "M2": 0,
-      "M3": 1,
-      "M4": 2,
-      "M5": 7,
-      "M5-2": 6,
-      "M6": 4,
+      "M3/M6": 1,
+      "M3/M9": 2,
+      "M4": 1,
+      "M4/M9": 1,
+      "M5": 6,
+      "M5-2": 3,
+      "M6": 6,
       "M7": 1,
-      "M8": 2,
-      "M9": 7
+      "M8": 1,
+      "M9": 12
     }
   },
   "gaps": [
@@ -299,6 +300,42 @@
       "catalog": "skills",
       "description": "Skill discovery (sector/tech prerequisites) not implemented in M3. All skills in catalog are discoverable by default. Full discovery system M6.",
       "milestone": "M6",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-CONTRACTS-CATALOG",
+      "catalog": "contracts",
+      "description": "Contract catalog implements minimal playable set (goodsSeller/goodsBuyer). Remaining original types (ximniTrader/marbleSeller/mercenary/houseBuilder/mineBuilder) depend on M6/M7 systems. Derived from events.js. Calibration M9.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated"
+    },
+    {
+      "id": "G-CONTRACT-GEN",
+      "catalog": "contracts",
+      "description": "Contract generation cadence/selection (which types offered, frequency) approximated via schedule period + isolated rng stream. Original tuning calibrated in M9.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "approximated"
+    },
+    {
+      "id": "G-CONTRACT-SCHED-CLEANUP",
+      "catalog": "contracts",
+      "description": "Stale contract schedule events (offer/expire) are not proactively garbage-collected when a contract leaves the queue; expire handler is idempotent no-op. Cleanup optimization deferred.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "missing"
+    },
+    {
+      "id": "G-BUILD-CANCEL",
+      "catalog": "buildings",
+      "description": "Cancelling an in-progress build/project (refund partial cost) not implemented in M5. Build UI has no cancel action. Deferred to later polish.",
+      "milestone": "M9",
       "severity": "low",
       "blocksMvp": false,
       "provenance": "missing"
