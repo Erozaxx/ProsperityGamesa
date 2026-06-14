@@ -1,100 +1,63 @@
 # Current Task
 
-- **Task ID**: T-002a (iter-015) — REVIZE designu M6 (zapracování reviewer gate T-002: 2 major + 1 minor)
-- **Brief**: context/inbox/brief_architect_T-002a_iter-015.md (BRIEF-015-002a)
-- **Iteration**: iter-015 (M6 – Výzkum & tech strom)
+- **Task ID**: T-001 (iter-016) — Detailní design M7a (AI svět: zóny, frakční AI, revolty/questy/tribute, jednotky, napojení trhu)
+- **Brief**: context/inbox/brief_architect_T-001_iter-016.md (BRIEF-016-001)
+- **Iteration**: iter-016 (M7a – AI svět & jednotky)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – revize T-002a designu M6 in-place. Doplněny chybějící sekce §2.6 (catalog API
-kontrakt + M-2 guard) a §2.7 (prokazatelná effective() cesta + překalibrace demo techů),
-které changelog referencoval, ale v souboru nebyly. §1.3a (M-1) a §2.2 guard (M-2) ověřeny
-a ponechány. Vše ověřeno proti reálnému kódu. Žádný kód, žádná změna architektury iter-002.
-**Platný výstup: `artifacts/final/design_iter-015_T-001.md` (in-place, changelog "Revize T-002a").**
-
-## Revize T-002a — jak vyřešeno
-- **M-1 (player state init)**: §1.3a — `createPlayerState` (createHomeState.js:64-66, OVĚŘENO plochý objekt
-  bez unlockedTechs/research) MUSÍ init `unlockedTechs:{}` + `research:{sectors:{}}` (přesný tvar) na
-  `state.player`. Povinný fresh-vs-load determinismus test: `hashState(createInitialState()) ===
-  hashState(load(save(createInitialState())))` zelený i s 0 techy/0 research (jinak undefined vs {} desync,
-  třída DR-012-02). Hotovo (sekce už byla, ověřena proti kódu).
-- **M-2 (defenzivní guard)**: §2.6 (nová) + §2.2 — `addTechModifiers` early-return `if(!hasCatalog('techs'))return;`
-  + smyčka `const tech=findTech(techId); if(!tech)continue;`. Ověřeno: rebuildBuildingDerived běží z
-  createInitialState.js:133 bez katalogů; getCatalog (loader.js:48-52) HODÍ Error když nenačten → guard nutný.
-  Precedent hasId guard buildings.js:398. AC: createInitialState BEZ techs katalogu nesmí spadnout.
-- **m-3 (prokazatelná effective() cesta)**: §2.7 (nová). Ověřeno: jobsProduction (jobs.js:107-130) čte products
-  PŘÍMO + efficiency global (jobs.js:104) → job techy = tichý no-op (gap G-TECH-JOB-EFFECTIVE). Jediná
-  prokazatelná cesta = building agregáty recalcBuildingAggregates → effective() (buildings.js:411, agreguje
-  jen op:'add' u created>0). **Zvolené demo atributy: storage.food (target granary) + attractiveness (target
-  well)** — oba OVĚŘENY v buildings.json; pův. target:"house" byl chybný (house neexistuje) → opraveno na well.
+Hotovo – design M7a (T1–T6) na úroveň pro Sonnet. Zdroj pravdy mechanik = originál world.js.
+Žádný kód, žádná změna architektury iter-002 ani kontraktů §8 signatur.
+**Platný výstup: `artifacts/final/design_iter-016_T-001.md`.**
 
 ## Klíčová rozhodnutí
-- **M6-D1 (techCap DOLOŽITELNÝ + JIŽ EXISTUJE)**: `formulas.js:31 techCap(level)=round(100×1.25^level)`,
-  source config.js:1393-1394 + original_source_doc §6 + originál techs.js:37. Coder NEpřidává vzorec,
-  reuse + tabulkový test.
-- **M6-D2/D3 (T1 tech strom)**: `state.player.unlockedTechs={[id]:true}` (plain object, deterministické,
-  persistované raw); `buyTech(techId)` command (vzor buyCompany): validace+prereqs+canAfford(techPt)+
-  pay(techPt bez ctx, G-TECH-TXAUDIT třída M-4)+unlockedTechs[id]=true+applyTechModifiers. Cena=techCap(level).
-- **M6-D4/D5 (T2 KRITICKÉ — techy jako modifikátory K13 PLNĚ + generalizace)**: tech efekty výhradně přes
-  catalogState.modifiers, source='tech:<id>', id='tech:<id>:<target>:<attr>:<op>' (target v id kvůli kolizím),
-  tvar přesně arch §5.3:297. **Generalizace = rozšířit STÁVAJÍCÍ rebuildBuildingDerived o krok (b2)**
-  re-gen tech:* modifikátorů (sdílené helpery addTechModifiers/removeAllTechSourcedModifiers) → JEDNA cesta
-  re-aplikující budovy I techy (load Step 5 + mutace + createInitialState). applyTechModifiers = delta cesta
-  buyTech sdílí tytéž helpery. ŽÁDNÁ load-only/tech-only větev (DR-012-02). Jméno fn PONECHÁNO
-  (3 import-site ripple zbytečný; volitelný alias rebuildDerived). Round-trip budov M5-1 beze změny
-  (unlockedTechs={} → addTech no-op → bit-identické).
-- **M6-D6 (persist)**: save = jen unlockedTechs (raw, PERSIST_SCHEMA.player) + catalogState.modifiers
-  (už ukládán celý). Load přepočte fold jedinou cestou. SAVE_VERSION zůstává 3, undefined-guard.
-- **M6-D7 (T3 academy/research)**: state.player.research.sectors[id]={level,exp}; nový systém
-  research.daily (edge day, order 75, po buildings.age 70). Exp z jobů per kategorie + academy/university
-  (effective 'researchExp'); level-up while exp>=techCap(level) → grant(techPt+1, ctx — research je tick fn,
-  ctx k dispozici). Deterministický (originál Math.random university bonus VYNECHÁN, gap G-RESEARCH-UNIV-RNG),
-  catch-up-safe.
-- **M6-D8 (G-LISTTECHS)**: viz níže.
-- **M6-D9 (T4 UI)**: selectTechTree/selectResearchProgress/selectTechPoints (čisté) + TechScreen + tab
-  'Výzkum' v App.js + send('buyTech'). Boot wiring: registerBuyTech v bootstrapEngine (main.js), techs do
-  CATALOG_NAMES. Žádná logika v UI.
-- **M6-D10 (split)**: viz níže.
-- **M6-D11**: SAVE_VERSION 3, žádná migrace.
+- **D-SPLIT = ANO**: M7a-1 (iter-016a: T1 zone tick + T4 jednotky + T5 napojení trhu) /
+  M7a-2 (iter-016b: T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI).
+  Důvod: T1 a T2 jsou dva nezávislé L celky; M7a-1 samostatně hratelné (precedent M5-1);
+  2×L+3×M nad Sonnet kapacitu; izolace rizikového frakčního automatu pro samostatný review.
+  DoD M7a se vyhodnotí po M7a-2.
+- **Zone tick (T1)**: worldTick (day order 30, už registrován) → bezstavový round-robin
+  (zoneIndex z curStep, přežije save/load) přes 5denní periodu → processZone(state,zoneId,rng('world')).
+  Vzorce 1:1 z originálu (goldDemand 150×units, production 50×workers, policy switch) → balance.world.
+- **Frakční automat (T2)**: AISTATES 0–7 jako data (zones.json.aiStates) + deterministická processAI;
+  Math.random→rng('world'); Engine.insert→scheduleInsert (K17, serializovatelné); schedule self-rearm
+  world.processFaction; gate aiMechanicStart. Vzor contracts.js (registr efektů + seq + RNG izolace).
+- **AI-AI bitvy = RNG resolve VZORCEM** (formulas.aiBattleResolve, 1:1 orig ř.952–981), NE battle automat
+  (M7b/iter-017, battle.js NEDOTČEN). AI-vs-player = scheduleInsert('startBattle') → M7b stub.
+- **Jednotky (T4)**: player.totWarriors/totArchers UŽ existují, upkeep.military UŽ běží (M4a) → M7a-1
+  jen recruitUnit command (gold z military.json) + zónové jednotky v persist. homeZone = mirror player.tot*.
+- **Napojení trhu (T5)**: marketInject/getGoldValue BEZE ZMĚNY signatur (§8.2 kontrakt naplněn).
+  Produkční zóny inject(+) produkce, válčící inject(−). worldTick (order 30) PŘED market.drift (35).
+  Negativní S-06 → pozitivní kontrakt.
+- **Determinismus/catch-up-safe**: jediný rng stream 'world' (existuje, žádný nový); 'battle' rezervován M7b;
+  schedule one-shot serializovatelný; bezstavový round-robin; randRound deterministický; O(1) zone tick.
+- **Persist (D8)**: world.zones/factions už v allowlistu (jen naplnit); ratingy/goldDemand/production
+  derivované NEUKLÁDAT; re-hydratace static zón z katalogu na load (G-WORLD-ZONEHYDRATE).
+- **tickOrder**: world.tick beze změny pozice (přestane být no-op); NOVÉ world.gatherTributes (month order 25,
+  před upkeep.military 30); schedule handlery M7a-2 (registerWorldEffects vzor registerContractEffects).
 
-## G-LISTTECHS postup (resolved)
-- Vzorec techCap = **DOLOŽITELNÝ** (existuje formulas.js:31). Tech strom = **approximovaný**
-  (provenance:'approximated', kalibrace M9). techs.json dnes kostra + NENÍ v CATALOG_NAMES/ID_CATALOGS.
-- Wiring: přidat 'techs' do CATALOG_NAMES (catalogs.js), schema validátor, `findTech(techId)` helper
-  čtoucí getCatalog('techs').techs.tree (místo měnit buildById — items pod cat.techs.tree).
-- Min. hratelná sada (§4.3): 6 sektorů (agriculture/civil/crafts/forestry/medicine/military z techs.js:70)
-  + ~6 techů s efekty jako modifikátory pokrývající mechaniky (add efficiency, add storage kapacita,
-  mul produkce/upkeep, add attractiveness). Každý tech: {id,sector,level,name,prereqs,effects:[{target,attr,op,value}],
-  provenance}. Cíle target ∈ známá ID (job/budova). Gap-report: G-LISTTECHS resolved approximací, žádná eskalace blokeru.
-
-## Split doporučení: NE
-- T1–T4 souzní do jedné iterace. Žádný task není L; T2 generalizace je nejrizikovější ale lokalizovaná
-  (1 fn rozšířená o (b2) + 2 helpery) nad HOTOVOU M5-1 modifier infrastrukturou. Split by přidal režii
-  (zdvojení techs.json/persist wiring T2↔T3) bez přínosu.
-
-## tickOrder dopady
-- **Nové periodikum**: research.daily (edge day, order 75, po buildings.age 70, před month systémy).
-  register + periodics[] v tickOrder.js. TICK_ORDER konstanta beze změny.
-- Žádný schedule handler, žádný nový RNG stream (research deterministický).
-- Tech modifikátory mimo tick — event-driven (buyTech→applyTechModifiers; load Step 5→rebuildBuildingDerived (b2)).
+## G-LISTZONE postup (resolved)
+- **Resolved approximací, žádná eskalace** (DR Q3 autonomně). AISTATES 0–7 + capitals
+  (dickinsonLanding/castleGrey/hornCastle) + faction names + vzorce = DOLOŽITELNÉ z originálu.
+- Min. sada ~13 zón (capitals + princess region winisk/burwash/corbyville/lemieux/kitsilano +
+  warlord region pointAnne/redWater/tomiko/silverInslet + homeZone). Topologie/targetWorkerNum/
+  growth/stats/aggression = approximated (provenance flag, kalibrace M9).
+- Wiring: zones schema + validátor + zones do CATALOG_NAMES (vzor M6 G-LISTTECHS).
 
 ## Dílčí checklist
-- [x] Přečteno: AGENTS.md, brief BRIEF-015-001, DR-013-00, M5-1 design §4 (modifier vrstva)
-- [x] Architektura iter-002 §5.3 (K13)/§5.4 (K14)/§6.3-6.4 (persist/load)/§7.1 (transakce) ověřena
-- [x] Master plán §3/iter-013(M6) T1–T4 (řádky 281-295)
-- [x] Kód prozkoumán: buildings.js (effective/addBuildingModifiers/rebuildBuildingDerived/invalidate),
-      handlers.js (techPt), formulas.js (techCap), load.js Step 5, persistSchema.js, registry/effects.js,
-      dispatch.js+build.js+buyCompany.js, tickOrder.js, createInitialState.js, catalog/loader.js,
-      app/catalogs.js+main.js, ui/App.js+selectors.js, systems/contracts.js+skills.js, techs.json
-- [x] Originál techs.js (calcCap/step/sektory) + original_source_doc §6 → techCap doložitelný
-- [x] T1 design (unlockedTechs, buyTech, techCap reuse, persist)
-- [x] T2 design (techy jako modifikátory K13 plně + generalizace rebuildu budovy+techy jedna cesta)
-- [x] T3 design (research.daily, techPt produkce, persist, determinismus, tickOrder)
-- [x] T4 design (selektory + TechScreen + tab + boot wiring)
-- [x] G-LISTTECHS postup; split rozhodnutí; rizika+mitigace; 4 alternativy
-- [x] Výstup design_iter-015_T-001.md; handoff
+- [x] Přečteno: AGENTS.md, brief BRIEF-016-001, DR-013-00 (renumbering), DR-013-01/DR-015-01
+- [x] Master plán §3/iter-014(M7a) T1–T6 + §1.2 (split-trigger) + active.md plan
+- [x] Architektura iter-002 §8.2 (zone tick), §8/§9.1 (kontrakty/trh), §9.4 (R4/D12), K8/K16/K17 mapování
+- [x] Kód: world.js (stub), market.js (marketInject/getGoldValue), scheduler.js, rng.js (stream 'world'),
+      tickOrder.js, upkeep.js (vzor), persistSchema.js, contracts.js (vzor schedule+RNG+seq), balance.js,
+      zones.json (prázdné), military.json (extracted), createHomeState.js
+- [x] ORIGINÁL world.js (processZone, processAI AISTATES, redistributeForces, gatherTributes, ratingy) — zdroj pravdy
+- [x] T1 zone tick, T2 frakční automat, T3 revolty/questy/tribute/AI-AI bitvy, T4 jednotky, T5 trh, T6 UI
+- [x] SPLIT rozhodnutí (ANO) + odůvodnění; G-LISTZONE postup; determinismus/catch-up-safe; persist; tickOrder; diagram
+- [x] Rizika+mitigace; 4 alternativy; gap-list; Sonnet dekompozice L tasků
+- [x] Výstup design_iter-016_T-001.md; handoff
 
 ## Blockery
 –
