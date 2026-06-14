@@ -55,6 +55,13 @@ function workerSlots(state, ctx) {
   for (const ht of houseTypes) {
     slots += (ht.workers || 0) * (counts[ht.id] || 0);
   }
+
+  // T4.5 (iter-013 M5-1): add maxWorkers from buildings (derived aggregate, §4.4).
+  // derived.maxWorkers = Σ effective(buildingId,'workers',state) across built buildings.
+  // Gap G-POP-WORKFORCE: buildings add extra worker capacity on top of houseTypes slots.
+  const derivedMaxWorkers = /** @type {any} */ (state.home).derived?.maxWorkers ?? 0;
+  slots += derivedMaxWorkers;
+
   return slots;
 }
 

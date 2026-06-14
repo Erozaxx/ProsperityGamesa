@@ -1,23 +1,19 @@
 # Current Task
 
-- **Task ID**: T-017 (iter-012 oprava review F-1 + F-2)
-- **Brief**: brief_coder_T-017_iter-012.md
-- **Iteration**: iter-012
+- **Task ID**: T-009a (iter-013 M5-1 hygiene — 4 minor fixes from review gate)
+- **Brief**: brief_coder_T-009a_iter-013.md
+- **Iteration**: iter-013
 - **Status**: done
-- **Started**: 2026-06-13
-- **Done**: 2026-06-13
+- **Started**: 2026-06-14
+- **Done**: 2026-06-14
 
-## Checklist (T-017)
-- [x] F-1 health.js healthBirths: guard `pop >= sanityCap ? pop : Math.min(pop+actualBorn, sanityCap)` (neredukuje over-cap loaded total)
-- [x] F-1 population.js populationMigration: stejný guard (symetrie births<->migration, R-A4-3)
-- [x] F-2 health.js: import + použití `populationSanityCap(capacity)` místo inline `Math.max(capacity, BALANCE.population.sanityMaxPop)`
-- [x] Regress test test/population.test.js: over-cap total se po healthBirths i populationMigration nesnižuje ani nepřeroste cap (2/2 pass)
-- [x] npm run ci ZELENÉ — 780 testů, 0 fail (exit 0)
-- [x] npm run smoke OK (pop=50, exit 0)
-- [x] determinismus nedotčen: iter005-edge G1 + iter012-playability 25/25 pass
-- [x] precache regenerován (node tools/gen-precache.mjs) — deterministický, jen změna PRECACHE_VERSION
+## Checklist (T-009a)
 
-## Výsledek
-Hotovo. F-1+F-2 opraveny v obou systémech, regress test přidán. Gate zelený.
-Determinismus (deriveWorkforceTotal, G1) nedotčen. Detaily v
-artifacts/final/impl_summary_iter-012_T-017.md.
+- [x] MINOR-1: gap-report.json — verified already fully updated with all M5-1 gaps (no changes needed)
+- [x] MINOR-2: tickOrder.md T4 section — verified already updated to LIVE status with correct path (no changes needed)
+- [x] MINOR-3: buildings.js ~787-790 — fixed misleading comment (was claiming effective()/modifier fold; reality: effectFromCatalog permanent helper for non-aggregated effect attrs)
+- [x] MINOR-4: build.js — removed dead getMaxActiveProjects (NIT-3, trivial removal); updated getMaxProjectQueue comment to reflect effectFromCatalog as permanent helper; added note explaining why maxActiveProjects logic lives in buildersProcess (masonProvided bonus)
+- [x] npm run ci: 906/906 pass, 0 fail
+- [x] npm run smoke: OK
+- [x] Determinismus G1: unchanged (no logic changes)
+- [x] Precache: gap-report.json is in precache but file was not modified → no regen needed

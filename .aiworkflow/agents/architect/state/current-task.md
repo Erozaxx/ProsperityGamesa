@@ -1,124 +1,55 @@
 # Current Task
 
-- **Task ID**: T-015 (iter-012)
-- **Brief**: context/inbox/brief_architect_T-015_iter-012.md (BRIEF-012-015)
-- **Iteration**: iter-012 (Playability & onboarding hardening)
+- **Task ID**: T-002a (iter-013) — revize designu M5 (po T-001)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-013.md (BRIEF-013-002a)
+- **Iteration**: iter-013 (M5-1 – Budovy & modifikátory)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-13
-- **Completed**: 2026-06-13
+- **Started**: 2026-06-14
+- **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – ROZHODNUTÍ o DOTAŽENÍ fixu reload-determinismu (NE implementace; tu dělá coder v T-016).
+Hotovo – REVIZE designu M5 (T-002a): zapracovány 4 major podmínky z reviewer gate (T-002) +
+zúženo na M5-1 (T1–T4). Žádný kód. **Platný dokument: `artifacts/final/design_iter-013_T-001.md`**
+(in-place revize; žádný separátní `design_iter-013_T-002a.md` se nevytváří).
 
-Zvolená varianta dotažení: **Derive-on-init** (rozšíření Option A). V `createInitialState` se po
-sestavení stavu dopočítá `state.home.workforce.total = deriveWorkforceTotal(state)` (bez ctx) —
-stejnou kanonickou derivací jako load Step 5 i autoAssign. Tím spojitý sim vstupuje do kroku 1 s
-dopočítanou hodnotou (== load) → `jobsAccidents` (order 20) čerpá `'population'` RNG ve stejném
-okamžiku na obou cestách → žádný desync. 2 dříve failující testy (app-bootstrap, export-string,
-save na curStep=0) zezelenají.
+## Jak vyřešeny 4 major (T-002a)
+- **M-1** (effects→modifier mapování + JEDNA cesta agregátů): nová **§4.3** = úplné pravidlo
+  (op add/mul/set z dat, dot-path mapové attr, **per-TYP** modifikátor `id=bld:${buildingId}:${attr}:${op}`,
+  `source=building:${buildingId}`, **multiplicita `created` zapečená do `value`**). **§4.4 přepsána** =
+  JEDNA kanonická cesta `Σ effective(id,attr)` BEZ násobení `created`; druhá cesta (`created×effective`)
+  ODSTRANĚNA → žádné dvojí započtení.
+- **M-2** (sdílený rebuild, žádná load-only větev): nová **§4.6** `rebuildBuildingDerived(state)` =
+  created re-derivace + re-gen building modifikátorů + recalcAggregates; nová **§4.7** = mutace
+  (completeBuild/destroyInstance/applyRepair) volají TUTÉŽ fn. Volaná z load Step 5 I z mutací.
+  Load-only větev explicitně zakázána (M5-R1; reviewer grep). Ověřeno load.js:217-225 (dnes jen
+  workforce.total — stejná třída bugu jako DR-012-02).
+- **M-3** (deterministický fold): **§4.1 přepsána** = před foldem `sort by (source,id)` lexikograficky
+  (cmpModifier), `set` bere POSLEDNÍ po sortu (ne insertion order). Tabulkový test 2× set různého source.
+- **M-4** (build bez ctx → pay bez emitTx): **§2.3 přepsána** s ověřením kódu — `dispatch.js:44-59`
+  volá `handler(state,params)` (žádný ctx); Volba A (předat ctx) = změna arch command vrstvy iter-002 →
+  mimo scope, ZAMÍTNUTA. `transactions.js:45` potvrzuje ctx optional → **Volba B = vědomý gap
+  G-BUILD-TXAUDIT** (M5-2/M9).
 
-**Proč správnější (ne jen průchozí)**: odstraňuje root cause (stale workforce.total=0 = reálná
-invariantní díra), ne symptom. Seedovaná osada MÁ mít workforce od kroku 1. Init↔load = jeden
-invariant „po konstrukci stavu se workforce dopočítá".
-
-**User-gate**: DOPORUČUJI ESKALOVAT — je to behavior-change spojitého simu (RNG na kroku 1, mění
-průběh fresh běhu). Technicky nic v `npm run ci` nerozbije (žádné golden sim-hash fixtures), ale
-„měnit deterministický průběh hry kvůli korektnosti" je produktové rozhodnutí → orchestrátor gate.
-
-**Fixtures k regeneraci**: pro `npm run ci` ŽÁDNÉ (všechny determinismus testy porovnávají Path A vs
-Path B za běhu, ne proti uložené konstantě; `273280195` v repu nikde není). Volitelně mimo CI:
-`node tools/gen-precache.mjs` → `src/precache.js` (změna bajtů zdroje; není CI-gated). bench-step
-NEgenerovat (perf, není v CI). Riziko rozbití dalších golden testů: NÍZKÉ až nulové.
-
-Výstupy:
-- DR rozšířen + Status decided-extended: `orchestration/decisions/DR-012-02_reload-determinism-workforce-total.md`
-- Design pro codera (T-016): `artifacts/final/fix_reload_determinism_complete_iter-012_T-015.md`
-
-Zamítnuto pro dotažení: Varianta 2 (uznat testy jako křehké → posun save-pointu) — maskuje díru,
-křehkost se přesouvá; Option C (reorder) zamítnuta už v T-013.
-
-<details><summary>Předchozí (T-013) – archiv</summary>
-
-Hotovo – ROZHODNUTÍ k opravě reload-determinismus regresu `workforce.total` (NE implementace; tu dělá coder v T-014).
-
-Zvolená varianta: **Option A — rebuild-on-load**. Po načtení (`load.js` Step 5) se přepočítá
-`state.home.workforce.total = min(population.total, workerSlots)` přes sdílenou kanonickou derivaci.
-Tím první post-load tick čte čerstvou (ne stale-0) hodnotu → `jobsAccidents` čerpá RNG stream
-`'population'` ve stejném okamžiku jako spojitý sim → žádný desync.
-
-Výstupy:
-- DR doplněn + Status decided: `orchestration/decisions/DR-012-02_reload-determinism-workforce-total.md`
-- Design pro codera (T-014): `artifacts/final/fix_reload_determinism_iter-012_T-013.md`
-- Potvrzeno: G1 test (`test/iter005-edge.test.js`) se vrací na plný `hashState` a po fixu MUSÍ projít.
-
-Zamítnuto: Option B (jobsAccidents přes workerSlots → riziko změny frekvence nehod, duplikace derivace),
-Option C (reorder autoAssign před accidents → širší zásah do determinismu spojitého simu, přepsání fixtures).
-
-### Klíčová ověření z kódu (T-013)
-- `jobsAccidents` jobs.js:152-158: `workers=min(pop, workforce.total||0)`, `<=0` → early-return → nečerpá rng.
-- `workforce.total` NEperzistuje (persistSchema.js:7); load.js:126-130 obnoví jen `assigned`; default 0.
-- Refresh až v `autoAssignWorkers` jobs.js:204-206; tickOrder quarterDay order 30 (assign) vs 20 (accidents).
-- `workerSlots` jobs.js:44-58 funguje BEZ ctx přes globální katalog fallback → load cesta (bez ctx) ho použije.
-- load.js Step 5 (ř.216) je dnes prázdný no-op „recalculate derivates" → přesné místo přepočtu.
-
-</details>
-
-<details><summary>Předchozí (T-003) – archiv</summary>
-
-Hotovo – REVIZE návrhu dle review T-002 + DR-012-01 (NE implementace).
-Výstup: `artifacts/final/architecture_playability_iter-012_T-003.md` (supersedes T-001).
-
-Zapracováno (vše ověřeno proti reálnému kódu + empirický node probe):
-- A2: mylný BLOCKER narrativ odstraněn. gold/techPt JSOU v resources.json (kind), resources v
-  ID_CATALOGS → s katalogem resolver vrací 'gold'/'techPt', handler čte player.gold=500 (no-op fix).
-  Catalog-less mezera (resourceKindOf('gold')==='resource' → pay throw) potvrzena probe.
-- VOLBA: Option A (defensivní early-return v resourceKindOf pro gold/techPt) — robustnost > křehkost
-  testů; s katalogem no-op, chráněno testem invariance. (shoda s preferencí orchestrátora DR-012-01)
-- §7 accounting: invariant NEBYL porušen v běhu (gold teče do player.gold už dnes) – přepsáno.
-- §3 crime: clamp+guards správné samy o sobě (ne „po A2"); throw byl jen catalog-less – jen regress test.
-- §9 diagram: přepracován (s katalogem 'gold'→'gold'; bug větev jen catalog-less).
-- Playtest #2 „Zlato 0" re-diagnostikováno = A1 (fresh pop=0 → crime early-return, taxes 0), ne A2.
-- Fakta opravena: DAYS_PER_YEAR=364 (4×seasonDays 91); market 6 sloupců; load.js smazat ř.211-212;
-  sanity-cap i v migraci; rename test population.test.js:254 „allows unlimited growth…(tent)".
-- Pořadí: A1 → A4 → A3(jen test) → A5 → A2(Option A hardening).
-
-Pokrytí (čerpáno z REÁLNÝCH src/core/* + src/save/* + src/ui/*):
-- A1 Start seed: createInitialState seeduje z BALANCE.start (population/gold/food/housing);
-  createHomeState/createPlayerState přepsat aby četly správné klíče; load.js stejná cesta.
-- A2 Resolver gold/techPt: resourceKindOf early-return pro 'gold'/'techPt' (před byId lookup).
-- A3 Crime pay clamp: crimeDaily už má Math.min clamp; dodat allowDeficit/integer-floor pojistku.
-- A4 Sanity-cap populace: healthBirths aplikuje ROČNÍ matRate denně → exploze; přepočet na denní
-  sazbu + globální sanity housing cap (tent capacity null → fallback per-tent cap).
-- A5 Market UI overflow: .market-table wrap do scroll containeru + CSS v styles.css.
-- Dopad determinismus/save-hash: fresh-state hash testy se mění (nový start) – aktualizovat fixtures;
-  save/load nedotčen (persist allowlist + override v testech).
-- Dopad accounting invariant: gold přes handler nyní reálně teče do player.gold → Σtx==Δgold drží.
-
-## Klíčové nálezy z kódu
-- gold/techPt NEJSOU v ID_CATALOGS (loader.js) → byId() throw → resourceKindOf vrací 'resource' (čte
-  home.store, ne player.gold). Root cause #2.
-- createHomeState čte start['startTents']/['startPopulation'] – v balance.start NEEXISTUJÍ (jsou tam
-  population/gold/food/housing.tent) → default 0 pop / 5 tent; gold vždy 0 (createPlayerState natvrdo).
-- healthBirths: natality(pop, 0.04) volané každý DEN v noon → (1.04)^365 efekt; tent capacity=null →
-  getHousingCapacity=0 → birth cap se NEAPLIKUJE. Root cause #4.
-- crimeDaily UŽ clampuje goldLoss=Math.min(...,player.gold) – throw riziko je nízké, ale floor+guard.
-- styles.css (54 řádků) NEMÁ žádné .market-table pravidlo → tabulka v přirozené šířce přetéká.
+## Scope (T-002a)
+- Zúženo na M5-1 (T1–T4). §5 (T5 kontrakty) + §6 (T6 build UI) označeny [ODLOŽENO M5-2],
+  přesunuty do nové **§13 Odloženo na M5-2/iter-014** (krátká poznámka). Coder M5-1 je IGNORUJE.
+- T4 dekompozice (§4.8, dříve §4.4): T4.1 (det. sort), T4.3 (mapování M-1), T4.4 (jedna cesta M-1),
+  T4.6 (sdílený rebuildBuildingDerived M-2 + persist blok) přepsány. Stále 6 Sonnet-kroků T4.1–T4.6.
+- Minor/nit: m-1 (dot-path zafixován), m-2 (payload grep test T4.6), m-5 (T4.5 ověřit fn za běhu),
+  n-2/n-3 (už v T-001).
 
 ## Dílčí checklist
-- [x] Přečteno: AGENTS.md, brief BRIEF-012-001
-- [x] Prozkoumáno: createInitialState/createHomeState, balance.start, handlers/transactions,
-      crime, health/population (births), tickOrder, save/load + persistSchema, ui screens/styles, main.js
-- [x] Návrh 5 oblastí (soubory, funkce, varianta + alternativa, rizika)
-- [x] Dopad determinismus/save-hash + accounting invariant
-- [x] ASCII diagram (resource resolver + start-state cesta)
-- [x] Doporučené pořadí implementace + potřebné testy
-- [x] Výstup do artifacts/final + handoff
-
-## Předpoklady
-- Zero-build PWA, žádné nové runtime závislosti do src/. Populace jen sanity-cap (ne M9 tuning).
-- Implementaci dělá coder (T-005..T-009). Pouze NÁVRH.
+- [x] Přečteno: AGENTS.md, brief BRIEF-013-002a, design T-001, review T-002 (4 major+minor/nit)
+- [x] Ověřeno proti kódu: load.js Step 5 (jen workforce.total), persistSchema.js:41 (catalogState celý,
+      applyPersist imperativní per doména), effects.js (registr string-ID), transactions.js (pay ctx optional),
+      dispatch.js (handler(state,params) bez ctx), createInitialState.js:115 (modifiers:[])
+- [x] M-1 vyřešen (§4.3 + §4.4, jedna cesta)
+- [x] M-2 vyřešen (§4.6 + §4.7, sdílená fn z load i mutací, load-only zakázána)
+- [x] M-3 vyřešen (§4.1 deterministický sort by source,id)
+- [x] M-4 vyřešen (§2.3 gap G-BUILD-TXAUDIT, Volba A zamítnuta z scope důvodů)
+- [x] Scope zúžen na M5-1; §5/§6 → §13 odloženo
+- [x] T4 dekompozice aktualizovaná, Sonnet-proveditelná
+- [x] Výstup in-place + changelog T-002a; handoff
 
 ## Blockery
 –
-
-</details>

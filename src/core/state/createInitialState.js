@@ -7,6 +7,7 @@ import { createHomeState, createPlayerState } from './createHomeState.js';
 import { createCouncilState } from './createCouncilState.js';
 import { BALANCE } from '../balance/balance.js';
 import { deriveWorkforceTotal } from '../systems/jobs.js';
+import { rebuildBuildingDerived } from '../systems/buildings.js';
 
 /**
  * Creates the initial world sub-domain state.
@@ -123,6 +124,13 @@ export function createInitialState(opts = {}) {
     achievements: { unlocked: {} },
     council: createCouncilState(),
   };
+
+  // T4.6 (iter-013 M5-1): initialize building-derived state via the same shared path as load.js
+  // Step 5. This ensures _modVersion/_effCache/derived are in identical state regardless of
+  // whether we're starting fresh or loading a save. Without this, hashState differs because
+  // load calls rebuildBuildingDerived (which sets _modVersion) but fresh game does not.
+  // With 0 buildings, this is a no-op for aggregates but still initializes the cache version.
+  rebuildBuildingDerived(/** @type {any} */ (state));
 
   // A1/T-016 (DR-012-02 dotažení): workforce.total je odvozené pole (NEPERZISTUJE se).
   // Dopočítej ho už při konstrukci přes stejnou kanonickou derivaci jako load.js Step 5

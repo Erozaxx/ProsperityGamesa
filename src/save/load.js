@@ -8,6 +8,7 @@ import { PERSIST_SCHEMA } from './persistSchema.js';
 import { migrate } from './migrations.js';
 import { SAVE_VERSION } from './schema.js';
 import { deriveWorkforceTotal } from '../core/systems/jobs.js';
+import { rebuildBuildingDerived } from '../core/systems/buildings.js';
 
 /**
  * @typedef {import('../core/state/types.js').GameState} GameState
@@ -64,8 +65,22 @@ function validateInvariants(state) {
  * @param {Record<string, any>} payload
  */
 function applyPayload(state, payload) {
-  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'catalogState', 'story']) {
+  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'story']) {
     if (payload[key] !== undefined) state[key] = payload[key];
+  }
+
+  // catalogState: deep-clone to avoid reference aliasing.
+  // If we assign state.catalogState = payload.catalogState directly, then
+  // rebuildBuildingDerived (Step 5) mutates state.catalogState by adding _effCache/_modVersion,
+  // which would also mutate the caller's payload object (same reference) → round-trip test breaks.
+  // By cloning, state.catalogState is independent: mutations stay in state, not in payload.
+  // Only modifiers are saved (applyPersist strips _effCache/_modVersion), so only clone modifiers.
+  if (payload.catalogState !== undefined) {
+    state.catalogState = {
+      modifiers: Array.isArray(payload.catalogState.modifiers)
+        ? payload.catalogState.modifiers.slice()
+        : [],
+    };
   }
 
   if (payload.engine) {
@@ -151,6 +166,39 @@ function applyPayload(state, payload) {
         };
       }
     }
+
+    // buildings: per id { created, totalMade, instances:[{instId,hp,inRepair}] } (iter-013 M5-1 T1)
+    // created is re-derived in rebuildBuildingDerived (Step 5) from instances.length.
+    if (payload.home.buildings) {
+      state.home.buildings = state.home.buildings || {};
+      for (const [buildingId, bData] of Object.entries(payload.home.buildings)) {
+        const bd = /** @type {any} */ (bData);
+        state.home.buildings[buildingId] = {
+          created: bd.created || 0,
+          totalMade: bd.totalMade || 0,
+          instances: (bd.instances || []).map(/** @param {any} inst */ (inst) => ({
+            instId: inst.instId || '',
+            hp: typeof inst.hp === 'number' ? inst.hp : 0,
+            inRepair: inst.inRepair || false,
+          })),
+        };
+      }
+    }
+
+    // projectQueue: serialisable list of repair/build projects (iter-013 M5-1 T1)
+    if (payload.home.projectQueue !== undefined) {
+      state.home.projectQueue = payload.home.projectQueue;
+    }
+
+    // projectSeq: deterministic project ID counter (iter-013 M5-1 T1)
+    if (payload.home.projectSeq !== undefined) {
+      state.home.projectSeq = payload.home.projectSeq;
+    }
+
+    // ownedCompanies: purchased/hired builder companies (iter-013 M5-1 T3)
+    if (payload.home.ownedCompanies !== undefined) {
+      state.home.ownedCompanies = payload.home.ownedCompanies;
+    }
   }
 
   if (payload.world) {
@@ -215,7 +263,19 @@ export function loadAndReconstruct(rawPayload, _catalog) {
   applyPayload(state, payload);
 
   // Step 5: recalculate derived fields (architecture §9.1 K11 — derived, NEVER persisted).
-  // workforce.total is derived from population + housing.counts + houseTypes catalog.
+  //
+  // Order matters: rebuildBuildingDerived FIRST (may populate derived.maxWorkers which
+  // workforce derivation may eventually read), then deriveWorkforceTotal.
+  //
+  // (a) Buildings: re-derive created=instances.length, re-gen modifiers (TODO T4), recalc aggregates.
+  //     Design M5-R1: MUST call the SAME fn as mutations — no load-only derivation branch.
+  //     Reviewer gate: recalcBuildingAggregates/addBuildingModifiers must NOT be called
+  //     directly from load.js — only through rebuildBuildingDerived.
+  if (state.home) {
+    rebuildBuildingDerived(/** @type {any} */ (state));
+  }
+
+  // (b) workforce.total is derived from population + housing.counts + houseTypes catalog.
   // It is NOT persisted (persistSchema.js); applyPayload restores only workforce.assigned.
   // Without this rebuild the first post-load quarterDay tick reads a stale workforce.total=0,
   // making jobsAccidents skip its 'population' RNG draw → desync vs the continuous sim

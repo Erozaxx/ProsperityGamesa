@@ -1,4 +1,4 @@
-# Tick Order – Living Artefact (iter-009 M3)
+# Tick Order – Living Artefact (iter-009 M3 / iter-013 M5-1 T1+T2)
 
 Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `registerCorePeriodics`).
 
@@ -11,7 +11,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | 3 | periodics | Runs periodic tasks in declared order, filtered by active edge |
 | 4 | eventFlush | Dev invariant checks (NaN guard on curStep; full invariants in M2+) |
 
-## Core Periodics (iter-009 M3 – live systems)
+## Core Periodics (iter-009 M3 / iter-013 M5-1 – live systems)
 
 | ID | Edge | Order | SystemFn | Status |
 |----|------|-------|----------|--------|
@@ -21,6 +21,7 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | jobs.production | quarterDay | 10 | jobs.production | LIVE (M3 progress model) |
 | jobs.accidents | quarterDay | 20 | jobs.accidents | LIVE (M3) |
 | jobs.autoAssign | quarterDay | 30 | jobs.autoAssign | LIVE (M3) |
+| buildings.builders | quarterDay | 40 | buildings.builders | LIVE (M5-1 T2) |
 | health.births | noon | 10 | health.births | LIVE |
 | population.retirement | noon | 20 | population.retirement | LIVE |
 | health.disease | noon | 30 | health.disease | LIVE |
@@ -30,13 +31,35 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 | food.meal1 | day | 10 | food.meal1 | LIVE |
 | housing.settlementLevel | day | 20 | housing.settlementLevel | LIVE |
 | world.tick | day | 30 | world.tick | STUB |
+| market.drift | day | 35 | market.drift | LIVE (M4b) |
 | field.daily | day | 40 | field.daily | LIVE (M3) |
 | mine.daily | day | 50 | mine.daily | LIVE (M3) |
+| home.burnWood | day | 60 | home.burnWood | LIVE (M4a) |
+| buildings.age | day | 70 | buildings.age | LIVE (M5-1 T1) |
 | forest.regen | 10days | 10 | forest.regen | LIVE (M3) |
-| localTaxes | 5days | 10 | noop | M4 |
+| localTaxes | 5days | 10 | taxes.local | LIVE (M4a) |
 | food.spoilage | month | 10 | food.spoilage | LIVE |
-| taxes.monthly | month | 20 | noop | M4 |
-| season.change | season | 10 | noop | M3 (future) |
+| taxes.monthly | month | 20 | taxes.monthly | LIVE (M4a) |
+| upkeep.military | month | 30 | upkeep.military | LIVE (M4a) |
+| council.closeMonth | month | 40 | council.closeMonth | LIVE (M4a) |
+| season.change | season | 10 | noop | STUB |
+
+### ASCII Diagram (iter-013 M5-1 update)
+
+```
+step:       populationMigration → skillsProgress → battleTick(stub)
+quarterDay: jobsProduction → jobsAccidents → autoAssignWorkers → [buildersProcess]NEW(T2)
+noon:       healthBirths → populationRetirement → healthDisease → crimeDaily → meal2
+day:        workerEfficiency → meal1 → settlementLevel → worldTick(stub) → market.drift
+            → field → mine → burnWood → [buildings.age]NEW(T1)
+10days:     forestRegen
+5days:      localTaxes
+month:      food.spoilage → taxes.monthly → upkeep.military → council.closeMonth
+season:     noop
+schedule:   one-shot events by deadlineStep (e.g. future: contract.expire)
+event-driven (outside tick): completeBuild/destroyInstance/applyRepair → rebuildBuildingDerived
+             → recalcBuildingAggregates → derived.{maxWorkers,storageCapacity,attractiveness}
+```
 
 ## Edge Definitions
 
@@ -83,6 +106,31 @@ Source of truth: `src/core/engine/tickOrder.js` (`TICK_ORDER` export and `regist
 ### BL-3: ctx.catalog pre-load
 - `hasCatalog(ctx, name)` helper avoids per-step `getCatalog()` try/catch in hot-path
 - New M3 systems use `ctx.catalog.jobs`, `ctx.catalog.skills` (pre-loaded in app bootstrap)
+
+## M5-1 New Systems (iter-013)
+
+### T1: Building Instances + Wear (buildings.age)
+- State: `state.home.buildings[id] = { created, totalMade, instances:[{instId,hp,inRepair}] }`
+- `ageBuildings` (day, order 70): probabilistic HP wear via `rng.stream('buildings')` (isolated, K16/D4); winter +`winterHpLoss`; triggers repair projects when `hp/resistance <= 0.25`; destroys instance when `inRepair && hp <= 0`
+- `rebuildBuildingDerived(state)`: SINGLE shared derivation path (M-2). Called from load Step 5 AND from every mutation (completeBuild/destroyInstance/applyRepair). Steps: (a) `created = instances.length`, (b) re-gen building modifiers [TODO T4], (c) recalcBuildingAggregates
+- `recalcBuildingAggregates`: ONE canonical path (M-1): `derived.{maxWorkers, storageCapacity, attractiveness}` = Σ effective(id, attr) across buildings
+- Persist: `buildings/{created,totalMade,instances}` + `projectQueue` + `projectSeq` in allowlist; `derived` and `_effCache` NOT saved
+- RNG stream: `'buildings'` (new isolated stream, appended to STREAM_NAMES in rng.js)
+
+### T2: Builder System + build() command (iter-013 M5-1 T2)
+- `build(itemId)` command (`src/core/commands/build.js`, registered via `registerBuild`): validates existence/unlock/queue capacity; scales cost via `scaleCostByCount(baseCost, totalMade, scaleFactor)`; pays via `pay()` (no ctx — G-BUILD-TXAUDIT gap, M5-D11); pushes build project to `projectQueue` with deterministic ID via `projectSeq`
+- `buildersProcess` (quarterDay, order 40): advances projects in `projectQueue`. Builder count from `state.home.jobs['builder'].number` (M3 job slot). Queue capacity and maxActiveProjects from builderHut instances × per-hut effects. Repair projects: deferred payment in builder (`project.paid=false` until canAfford). Requeue heuristic: `delay > requeueDelay` → move to end. Completion: `completeBuild` (new instance, `totalMade++`, `rebuildBuildingDerived`) or `applyRepair` (restore HP, `inRepair=false`).
+- `completeBuild(state, project, ctx)`: push `{instId,hp,inRepair:false}` into `instances`; `created=instances.length`; `totalMade++`; call `rebuildBuildingDerived` (M-2 shared path)
+- `applyRepair(state, project, ctx)`: `inst.hp += resistance` (clamped to max); `inRepair=false`; call `recalcBuildingAggregates`
+- G-BUILDER-COMPANIES (T3): builder firm capacity/selection deferred to T-006. T2 uses only `state.home.jobs['builder'].number`.
+- Balance constants added: `masonStep=1`, `quarterDaysPerDay=4`, `maxActiveProjects=0`, `maxProjectQueue=0`, `requeueDelay=2`
+
+### T4 (LIVE — iter-013 M5-1, T-005/T-006/T-007)
+- `effective(buildingId, attr, state)`: modifier fold (add→mul→set, deterministic sort by source+id) — implemented in `src/core/systems/buildings.js` (functions `fold`, `effective`, `baseAttr`). Note: `effective.js` does NOT exist as a separate file; the effective/modifier layer lives entirely in `buildings.js`.
+- `addBuildingModifiers(state, buildingId)`: effects→modifier mapping with per-type aggregate (T4.3) — live in `src/core/systems/buildings.js` (`addBuildingModifiers`, `removeAllBuildingSourcedModifiers`)
+- `recalcBuildingAggregates(state)`: iterates over placed buildings, calls `effective(buildingId, attr, state)` for each aggregated attr, accumulates into `home.derived` — live in `src/core/systems/buildings.js`
+- `rebuildBuildingDerived(state)`: shared re-derivation entry point (5 call-sites: fresh, load, completeBuild, destroyInstance, applyRepair) — live in `src/core/systems/buildings.js`
+- Modifier memoisation: `catalogState._effCache` / `_modVersion` (not persisted, re-derived on load/fresh)
 
 ## Bootstrap Sequence (reference, not a runtime file)
 

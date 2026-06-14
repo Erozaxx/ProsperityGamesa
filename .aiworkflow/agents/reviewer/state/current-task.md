@@ -1,36 +1,39 @@
 # Current Task
 
-- **Task ID**: T-011 (Code review celé implementace iter-012, playability A1-A5 + reload-determinismus fix)
-- **Brief**: BRIEF-012-011
-- **Iteration**: iter-012
+- **Task ID**: T-009 (Review GATE M5-1 iter-013 — budovy/builder/companies/modifikátory, závěrečný gate)
+- **Brief**: BRIEF-013-009
+- **Iteration**: iter-013
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-13
-- **Completed**: 2026-06-13
+- **Started**: 2026-06-14
+- **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo: Code review produkčního diffu `1418072..HEAD` (src/ tools/ test/) — A1 seed,
-A2 resolver, A3 crime no-throw, A4 sanity-cap + denní sazba, A5 market CSS, reload-determinismus
-fix (deriveWorkforceTotal single source of truth). Ověřeno proti architektuře T-003, DR-012-01/02,
-impl summaries (T-005-009/T-014/T-016) a QA reportu T-010.
-Výstup: agents/reviewer/artifacts/final/code_review_iter-012_T-011.md
+Hotovo: Závěrečný REVIEW GATE M5-1 (produkční diff 2e71c94..HEAD, 24 souborů, +4211).
+Ověřeno proti KÓDU (ne tvrzení): 5 tvrdých invariantů, soulad s designem §4.1-4.8 + arch iter-002
+(§5.3 K13/§6.3/§7.1), DR-013-01 (M-1..M-4). npm test = 906/906 pass.
+Výstup: agents/reviewer/artifacts/final/review_iter-013_T-009.md
 
 ## Výsledek
-Verdikt: **GO** (žádný blocker ani major → orchestrátor nereopne).
+Verdikt: **GO — s podmínkami** (MINOR-1 gap-report + MINOR-2 tickOrder.md T4 sekce před close-iteration;
+zbytek backlog). BEZ re-run. Všech 5 tvrdých invariantů PLATÍ proti kódu.
 
 Klíčová zjištění:
-- Determinismus invariant DODRŽEN: deriveWorkforceTotal je single source of truth na 3 kanonických
-  místech (init/load/autoAssign), žádná 4. kopie, žádná změna RNG cesty, save tvar v3 zachován,
-  G1 plný hashState zelený.
-- A1 seed čistý (single source v createInitialState, žádný dvojí seed), A2 Option A early-return
-  přesně dle DR-012-01 (no-op s katalogem), A3 jen regress test, A4 ÷364 + symetrický hard-cap.
-- F-1 (minor): healthBirths clamp shrinkuje již-nad-cap loaded populaci → formálně odporuje R-A4-3
-  ("existující explodované savy zůstanou"). Nízký dopad (default seed sem nedojde).
+- Invariant 1 (save=minimal): persistSchema.js:52-54 jen modifiers; derived/_effCache/_modVersion ne-persist. ✓
+- Invariant 2 (sdílený rebuild): 5 call-sites (createInitialState:133, load:275, completeBuild:701,
+  destroyInstance:553, applyRepair:731→recalcAggregates delta). load NEvolá recalc/addMods přímo. ✓
+- Invariant 3 (det. fold): cmpModifier sort (source,id); set=poslední po sortu; add→mul→set. ✓
+- Invariant 4 (jedna cesta): recalcBuildingAggregates Σ effective bez ×created (created zapečen ve value). ✓
+- Invariant 5 (no Date.now/Math.random/DOM, catch-up): grep=0; rng stream 'buildings' na konci STREAM_NAMES
+  (G1 zachován); det. instId/projectSeq; requeue-smyčka terminuje (no infinite loop). ✓
+- effectFromCatalog (T2 workaround) NEnahrazen v T4 — ale legitimní (maxActiveProjects/maxProjectQueue
+  nemají top-level base, nejsou agregovány); není mrtvý kód, jen design slíbil náhradu + zavádějící komentáře.
 
 ## Nálezy (severity)
 - BLOCKER: 0
 - MAJOR: 0
-- MINOR: 3 (F-1 births shrink over-cap; F-2 duplikace sanity-cap výrazu vs populationSanityCap;
-  F-3 mrtvý _catalog param v load.js)
-- NIT: 4 (F-4 inline ÷DAYS_PER_YEAR; F-5 balance.json mirror; F-6 A3 test assert; F-7 hashA komentář)
+- MINOR: 4 (M1 gap-report neaktualizován; M2 tickOrder.md T4 sekce zastaralá+neexist. cesta effective.js;
+  M3 zavádějící komentář buildings.js:787-790; M4 effectFromCatalog nekonzistence+duplicita build.js/buildersProcess)
+- NIT: 4 (N1 dvojí workforce.total derivace; N2 latentní dvojí započtení při dup (attr,op);
+  N3 mrtvá build.js:getMaxActiveProjects; N4 cost:{} build projektu bez audit kopie)
 
-## Kód neměněn (scope OUT). Negitcommitnuto.
+## NEcommitnuto, NEopravoval kód (scope per brief).

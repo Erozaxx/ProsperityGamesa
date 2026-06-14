@@ -38,13 +38,20 @@ export function applyPersist(state) {
   const payload = {};
 
   // Infrastructure fields - always save entirely
-  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'catalogState', 'story']) {
+  for (const key of ['meta', 'season', 'rng', 'log', 'achievements', 'story']) {
     if (/** @type {Record<string, unknown>} */ (state)[key] !== undefined) {
       payload[key] = /** @type {Record<string, unknown>} */ (state)[key];
     }
   }
 
   const s = /** @type {Record<string, any>} */ (state);
+
+  // catalogState: save ONLY modifiers (never _effCache / _modVersion — those are derived).
+  // Design §4.2/§4.5/T4.6 invariant 1: "Save = JEN catalogState.modifiers".
+  // _effCache and _modVersion are rebuilt lazily on load via rebuildBuildingDerived (load Step 5).
+  if (s.catalogState) {
+    payload.catalogState = { modifiers: s.catalogState.modifiers ?? [] };
+  }
 
   // Engine - save specific fields only
   if (s.engine) {
@@ -166,6 +173,45 @@ export function applyPersist(state) {
         skills[skillId] = { progressing: sk.progressing || false, curStep: sk.curStep || 0 };
       }
       home.skills = skills;
+    }
+
+    // buildings: per id { created, totalMade, instances:[{instId,hp,inRepair}] } (iter-013 M5-1 T1)
+    // NOTE: created is ALSO saved for consistency with original (re-derived from instances.length on load).
+    // derived (maxWorkers/storageCapacity/attractiveness) and _effCache are NOT saved (derived on load).
+    if (s.home.buildings) {
+      /** @type {Record<string, unknown>} */
+      const buildings = {};
+      for (const [buildingId, bState] of Object.entries(s.home.buildings)) {
+        const b = /** @type {any} */ (bState);
+        /** @type {Array<{instId:string,hp:number,inRepair:boolean}>} */
+        const instances = (b.instances || []).map(/** @param {any} inst */ (inst) => ({
+          instId: inst.instId,
+          hp: inst.hp,
+          inRepair: inst.inRepair || false,
+        }));
+        buildings[buildingId] = {
+          created: b.created || 0,
+          totalMade: b.totalMade || 0,
+          instances,
+        };
+      }
+      home.buildings = buildings;
+    }
+
+    // projectQueue: serialisable repair/build project list (iter-013 M5-1 T1)
+    if (s.home.projectQueue !== undefined) {
+      home.projectQueue = s.home.projectQueue;
+    }
+
+    // projectSeq: monotonic counter for deterministic project IDs (iter-013 M5-1 T1)
+    if (s.home.projectSeq !== undefined) {
+      home.projectSeq = s.home.projectSeq;
+    }
+
+    // ownedCompanies: set of purchased/hired builder company IDs (iter-013 M5-1 T3)
+    // Key = companyId, value = true. Persisted as-is (plain serialisable object).
+    if (s.home.ownedCompanies !== undefined) {
+      home.ownedCompanies = s.home.ownedCompanies;
     }
 
     payload.home = home;
