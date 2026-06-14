@@ -16,3 +16,9 @@
 - **tool_uses**: 159
 - **duration_ms**: 874655
 - **outcome**: ci 1071/1071, smoke OK, G1+M5-1+M6 nedotčeno; research.js + techPt produkce + academy/university
+## T-007 (T4 UI academy/tech)
+- **Timestamp**: 2026-06-14T14:40Z
+- **total_tokens**: 105583
+- **tool_uses**: 72
+- **duration_ms**: 426728
+- **outcome**: ci 1097/1097, smoke OK (tab Veda); TechScreen + selektory; M6 implementace kompletní
