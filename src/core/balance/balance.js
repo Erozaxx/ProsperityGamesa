@@ -136,10 +136,36 @@ export const BALANCE = Object.freeze({
 
   /** World/game mechanic activation thresholds. Source: dump constants */
   world: {
-    /** Step at which AI mechanic activates. Source: dump.AIMechanicStart = 567000 */
-    aiMechanicStart: 567000,
-    /** Step at which revolt mechanic activates. Source: dump.revoltMechanicStart = 630000 */
-    revoltMechanicStart: 630000,
+    aiMechanicStart: 567000,      // Source: dump.AIMechanicStart = 567000
+    revoltMechanicStart: 630000,  // Source: dump.revoltMechanicStart = 630000
+    /** Zone processing period in days. Source: world.js:580 "period = STEPSPERDAY*5" converted to day-index. provenance: extracted. */
+    zonePeriodDays: 5,
+    /** Gold demand per military unit per zone tick. Source: world.js:38 goldDemand = 150 * (warriors+archers). provenance: extracted. */
+    goldDemandPerUnit: 150,
+    /** Gold production per worker per zone tick. Source: world.js:39 goldProduction = 50 * numWorkers. provenance: extracted. */
+    goldProdPerWorker: 50,
+    /** Worker growth base percentage for growth policy. Source: world.js:51 numWorkers*0.01+3. provenance: extracted. */
+    growthBasePct: 0.01,
+    /** Worker growth base addend for growth policy. Source: world.js:51. provenance: extracted. */
+    growthBaseAdd: 3,
+    /** Worker growth cap (numWorkers > this → random shrink). Source: world.js:48. provenance: extracted. */
+    growthWorkerCap: 3800,
+    /** Military policy minimum workers threshold. Source: world.js:97 numWorkers > 100. provenance: extracted. */
+    militaryWorkerThreshold: 100,
+    /** Faction-specific military growth multipliers. Source: world.js:108-120. provenance: extracted. */
+    factionGrowth: {
+      theWarlord:   { w: 1.5, a: 1.3 },
+      thePrincess:  { w: 0.6, a: 1.6 },
+      thePsychopath:{ w: 2.0, a: 0.5 },
+    },
+    /** Chance for non-player zone to buy additional units (military policy). Source: world.js:144. provenance: extracted. */
+    aiBuyUnitChance: 0.25,
+    /** Tribute growth divisor (growth policy). Source: world.js:86 amount*numWorkers/2. provenance: extracted. */
+    tributeGrowthDivisor: 2,
+    /** Base military rating offset. Source: world.js:610 baseMilitaryRating=10. provenance: extracted. */
+    baseMilitaryRating: 10,
+    /** Non-player worker bonus when below targetWorkerNum/3 (growth policy). Source: world.js:55. provenance: extracted. */
+    growthUnderTargetBonus: 15,
   },
 
   /** Offline simulation cap. Source: architecture §9.2a, confirmed M0 benchmark */

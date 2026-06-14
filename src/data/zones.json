@@ -5,18 +5,529 @@
     "source": "doc/original_source"
   },
   "zones": {
-    "aiStates": [],
+    "aiStates": [
+      {
+        "desc": "Neither friendly nor hostile.",
+        "id": 0,
+        "name": "Neutral"
+      },
+      {
+        "desc": "Willing to trade and cooperate.",
+        "id": 1,
+        "name": "Friendly"
+      },
+      {
+        "desc": "Suspicious; may turn hostile.",
+        "id": 2,
+        "name": "Tense"
+      },
+      {
+        "desc": "Actively opposing the player.",
+        "id": 3,
+        "name": "Hostile"
+      },
+      {
+        "desc": "In open conflict with the player.",
+        "id": 4,
+        "name": "AtWar"
+      },
+      {
+        "desc": "Under player control via tribute.",
+        "id": 5,
+        "name": "Subjugated"
+      },
+      {
+        "desc": "Full military alliance with player.",
+        "id": 6,
+        "name": "Allied"
+      },
+      {
+        "desc": "Owes tribute and follows orders.",
+        "id": 7,
+        "name": "Vassal"
+      }
+    ],
     "factions": [
-      "player",
-      "thePrincess",
-      "thePsychopath",
-      "theWarlord"
+      {
+        "aggression": 0,
+        "allies": [],
+        "backstab": 0,
+        "color": "#4CAF50",
+        "desc": "The player's home faction.",
+        "id": "player",
+        "name": "The Settlement",
+        "recallMin": {
+          "a": 0,
+          "w": 0
+        },
+        "unitStats": {
+          "archers": {
+            "defense": 1,
+            "strength": 1
+          },
+          "warriors": {
+            "defense": 1,
+            "strength": 1
+          }
+        }
+      },
+      {
+        "aggression": 0.7,
+        "allies": [],
+        "archerGrowthMulti": 1.3,
+        "backstab": 0.3,
+        "capitalId": "silverInslet",
+        "color": "#F44336",
+        "desc": "A ruthless military commander seeking domination.",
+        "id": "theWarlord",
+        "name": "The Warlord",
+        "recallMin": {
+          "a": 10,
+          "w": 20
+        },
+        "unitStats": {
+          "archers": {
+            "defense": 2,
+            "strength": 1
+          },
+          "warriors": {
+            "defense": 1,
+            "strength": 2
+          }
+        },
+        "workerGrowthMulti": 1.5
+      },
+      {
+        "aggression": 0.4,
+        "allies": [],
+        "archerGrowthMulti": 1.6,
+        "backstab": 0.5,
+        "capitalId": "kitsilano",
+        "color": "#9C27B0",
+        "desc": "A noble ruler balancing diplomacy and military strength.",
+        "id": "thePrincess",
+        "name": "The Princess",
+        "recallMin": {
+          "a": 20,
+          "w": 10
+        },
+        "unitStats": {
+          "archers": {
+            "defense": 1,
+            "strength": 2
+          },
+          "warriors": {
+            "defense": 2,
+            "strength": 1
+          }
+        },
+        "workerGrowthMulti": 0.6
+      },
+      {
+        "aggression": 0.9,
+        "allies": [],
+        "archerGrowthMulti": 0.5,
+        "backstab": 0.8,
+        "capitalId": "hornCastle",
+        "color": "#FF5722",
+        "desc": "An unpredictable warlord known for overwhelming force.",
+        "id": "thePsychopath",
+        "name": "The Psychopath",
+        "recallMin": {
+          "a": 10,
+          "w": 40
+        },
+        "unitStats": {
+          "archers": {
+            "defense": 1,
+            "strength": 1
+          },
+          "warriors": {
+            "defense": 1,
+            "strength": 3
+          }
+        },
+        "workerGrowthMulti": 2
+      }
     ],
     "policies": [
-      "Growth",
-      "Military",
-      "Resource"
+      {
+        "desc": "Focus on resource extraction and gold production.",
+        "id": 0,
+        "name": "Resource"
+      },
+      {
+        "desc": "Focus on population growth.",
+        "id": 1,
+        "name": "Growth"
+      },
+      {
+        "desc": "Focus on military recruitment.",
+        "id": 2,
+        "name": "Military"
+      }
     ],
-    "zones": []
+    "zones": [
+      {
+        "archerGrowth": 0,
+        "archers": 0,
+        "capital": true,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 0,
+        "id": "homeZone",
+        "immunity": false,
+        "liege": "player",
+        "name": "Home Settlement",
+        "neighbours": [],
+        "notEnoughGold": 0,
+        "numWorkers": 0,
+        "originalLiege": "player",
+        "policy": 0,
+        "provenance": "approximated",
+        "resources": {},
+        "targetWorkerNum": 0,
+        "tribute": {},
+        "warriorGrowth": 0,
+        "warriors": 0
+      },
+      {
+        "archerGrowth": 2,
+        "archers": 30,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 6000,
+        "id": "dickinsonLanding",
+        "immunity": false,
+        "liege": "theWarlord",
+        "name": "Dickinson Landing",
+        "neighbours": [
+          "pointAnne",
+          "homeZone"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 420,
+        "originalLiege": "theWarlord",
+        "policy": 2,
+        "provenance": "approximated",
+        "resources": {
+          "stone": 40,
+          "wood": 80
+        },
+        "targetWorkerNum": 500,
+        "tribute": {},
+        "warriorGrowth": 3,
+        "warriors": 55
+      },
+      {
+        "archerGrowth": 2,
+        "archers": 25,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 5500,
+        "id": "pointAnne",
+        "immunity": false,
+        "liege": "theWarlord",
+        "name": "Point Anne",
+        "neighbours": [
+          "dickinsonLanding",
+          "redWater"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 380,
+        "originalLiege": "theWarlord",
+        "policy": 0,
+        "provenance": "approximated",
+        "resources": {
+          "food": 60,
+          "gold": 20
+        },
+        "targetWorkerNum": 450,
+        "tribute": {},
+        "warriorGrowth": 2,
+        "warriors": 40
+      },
+      {
+        "archerGrowth": 2,
+        "archers": 40,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 7500,
+        "id": "redWater",
+        "immunity": false,
+        "liege": "theWarlord",
+        "name": "Red Water",
+        "neighbours": [
+          "pointAnne",
+          "tomiko"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 500,
+        "originalLiege": "theWarlord",
+        "policy": 2,
+        "provenance": "approximated",
+        "resources": {
+          "iron": 50,
+          "stone": 30
+        },
+        "targetWorkerNum": 600,
+        "tribute": {},
+        "warriorGrowth": 4,
+        "warriors": 70
+      },
+      {
+        "archerGrowth": 2,
+        "archers": 35,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 9000,
+        "id": "tomiko",
+        "immunity": false,
+        "liege": "theWarlord",
+        "name": "Tomiko",
+        "neighbours": [
+          "redWater",
+          "silverInslet"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 600,
+        "originalLiege": "theWarlord",
+        "policy": 1,
+        "provenance": "approximated",
+        "resources": {
+          "food": 80,
+          "wood": 100
+        },
+        "targetWorkerNum": 700,
+        "tribute": {},
+        "warriorGrowth": 3,
+        "warriors": 50
+      },
+      {
+        "archerGrowth": 3,
+        "archers": 50,
+        "capital": true,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 12000,
+        "id": "silverInslet",
+        "immunity": false,
+        "liege": "theWarlord",
+        "name": "Silver Inslet",
+        "neighbours": [
+          "tomiko"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 700,
+        "originalLiege": "theWarlord",
+        "policy": 0,
+        "provenance": "approximated",
+        "resources": {
+          "gold": 60,
+          "silver": 120
+        },
+        "targetWorkerNum": 800,
+        "tribute": {},
+        "warriorGrowth": 5,
+        "warriors": 80
+      },
+      {
+        "archerGrowth": 4,
+        "archers": 60,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 7000,
+        "id": "castleGrey",
+        "immunity": false,
+        "liege": "thePrincess",
+        "name": "Castle Grey",
+        "neighbours": [
+          "winisk",
+          "homeZone"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 450,
+        "originalLiege": "thePrincess",
+        "policy": 0,
+        "provenance": "approximated",
+        "resources": {
+          "stone": 90,
+          "wood": 50
+        },
+        "targetWorkerNum": 550,
+        "tribute": {},
+        "warriorGrowth": 2,
+        "warriors": 35
+      },
+      {
+        "archerGrowth": 4,
+        "archers": 55,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 8000,
+        "id": "winisk",
+        "immunity": false,
+        "liege": "thePrincess",
+        "name": "Winisk",
+        "neighbours": [
+          "castleGrey",
+          "burwash"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 520,
+        "originalLiege": "thePrincess",
+        "policy": 1,
+        "provenance": "approximated",
+        "resources": {
+          "food": 110,
+          "wood": 70
+        },
+        "targetWorkerNum": 620,
+        "tribute": {},
+        "warriorGrowth": 2,
+        "warriors": 30
+      },
+      {
+        "archerGrowth": 3,
+        "archers": 50,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 7200,
+        "id": "burwash",
+        "immunity": false,
+        "liege": "thePrincess",
+        "name": "Burwash",
+        "neighbours": [
+          "winisk",
+          "corbyville"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 480,
+        "originalLiege": "thePrincess",
+        "policy": 0,
+        "provenance": "approximated",
+        "resources": {
+          "iron": 60,
+          "stone": 45
+        },
+        "targetWorkerNum": 560,
+        "tribute": {},
+        "warriorGrowth": 2,
+        "warriors": 28
+      },
+      {
+        "archerGrowth": 5,
+        "archers": 70,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 8500,
+        "id": "corbyville",
+        "immunity": false,
+        "liege": "thePrincess",
+        "name": "Corbyville",
+        "neighbours": [
+          "burwash",
+          "lemieux"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 550,
+        "originalLiege": "thePrincess",
+        "policy": 2,
+        "provenance": "approximated",
+        "resources": {
+          "food": 65,
+          "wood": 85
+        },
+        "targetWorkerNum": 650,
+        "tribute": {},
+        "warriorGrowth": 3,
+        "warriors": 45
+      },
+      {
+        "archerGrowth": 5,
+        "archers": 75,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 9500,
+        "id": "lemieux",
+        "immunity": false,
+        "liege": "thePrincess",
+        "name": "Lemieux",
+        "neighbours": [
+          "corbyville",
+          "kitsilano"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 620,
+        "originalLiege": "thePrincess",
+        "policy": 1,
+        "provenance": "approximated",
+        "resources": {
+          "food": 130,
+          "gold": 40
+        },
+        "targetWorkerNum": 720,
+        "tribute": {},
+        "warriorGrowth": 2,
+        "warriors": 40
+      },
+      {
+        "archerGrowth": 6,
+        "archers": 90,
+        "capital": true,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 13000,
+        "id": "kitsilano",
+        "immunity": false,
+        "liege": "thePrincess",
+        "name": "Kitsilano",
+        "neighbours": [
+          "lemieux"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 750,
+        "originalLiege": "thePrincess",
+        "policy": 0,
+        "provenance": "approximated",
+        "resources": {
+          "gold": 80,
+          "silver": 100
+        },
+        "targetWorkerNum": 850,
+        "tribute": {},
+        "warriorGrowth": 3,
+        "warriors": 45
+      },
+      {
+        "archerGrowth": 3,
+        "archers": 60,
+        "capital": true,
+        "curQuest": null,
+        "favour": 0,
+        "goldStore": 20000,
+        "id": "hornCastle",
+        "immunity": true,
+        "liege": "thePsychopath",
+        "name": "Horn Castle",
+        "neighbours": [
+          "dickinsonLanding",
+          "castleGrey"
+        ],
+        "notEnoughGold": 0,
+        "numWorkers": 900,
+        "originalLiege": "thePsychopath",
+        "policy": 2,
+        "provenance": "approximated",
+        "resources": {
+          "iron": 200,
+          "stone": 150
+        },
+        "targetWorkerNum": 1000,
+        "tribute": {},
+        "warriorGrowth": 10,
+        "warriors": 150
+      }
+    ]
   }
 }

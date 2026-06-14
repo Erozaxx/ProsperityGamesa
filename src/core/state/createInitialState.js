@@ -8,6 +8,7 @@ import { createCouncilState } from './createCouncilState.js';
 import { BALANCE } from '../balance/balance.js';
 import { deriveWorkforceTotal } from '../systems/jobs.js';
 import { rebuildBuildingDerived } from '../systems/buildings.js';
+import { hydrateZones } from '../systems/world.js';
 
 /**
  * Creates the initial world sub-domain state.
@@ -45,6 +46,10 @@ function createWorldState() {
       sentOut: 0,                         // 0 = idle
       recGoods: {},                       // delivered on return
     },
+    /** Zone list — hydrated by hydrateZones after catalog load. iter-016 M7a-1. */
+    zones: [],
+    /** Faction map — hydrated by hydrateZones after catalog load. iter-016 M7a-1. */
+    factions: {},
   };
 }
 
@@ -131,6 +136,9 @@ export function createInitialState(opts = {}) {
   // load calls rebuildBuildingDerived (which sets _modVersion) but fresh game does not.
   // With 0 buildings, this is a no-op for aggregates but still initializes the cache version.
   rebuildBuildingDerived(/** @type {any} */ (state));
+
+  // iter-016 M7a-1: hydrate zones and factions from catalog (no-op if catalog not loaded).
+  hydrateZones(state);
 
   // A1/T-016 (DR-012-02 dotažení): workforce.total je odvozené pole (NEPERZISTUJE se).
   // Dopočítej ho už při konstrukci přes stejnou kanonickou derivaci jako load.js Step 5
