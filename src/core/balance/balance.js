@@ -179,6 +179,27 @@ export const BALANCE = Object.freeze({
      * qty injected = floor(goodsQty * injectFraction). provenance: approximated, calibration M9.
      */
     injectFraction: 0.1,
+    /**
+     * Faction AI turn period in steps. ~5 in-game days = 5 * 900 = 4500 steps.
+     * provenance: approximated (orig has no explicit AI period, called from events/UI), gap G-WORLD-AITURN, M9 calibration.
+     */
+    aiTurnPeriod: 4500,
+    /**
+     * Quest settlement level minimum. Replacement for home.level >= 2 (m-4 §5.1).
+     * home.settlementLevel >= questSettlementMin (default 1) gates quest generation.
+     * provenance: approximated, gap G-QUEST-SETTLEMENT, M9 calibration.
+     */
+    questSettlementMin: 1,
+    /**
+     * Quest generation chance per zone-tick. Original world.js ř.386 had < 1.20 (effectively 100%).
+     * provenance: extracted (orig = always true), gap G-QUEST-CHANCE.
+     */
+    questChance: 1.0,
+    /**
+     * Favour limits for fixFavourLimits clamping.
+     * provenance: approximated, gap G-FAVOUR-LIMITS, M9 calibration.
+     */
+    favourLimits: { min: -100, max: 100 },
   },
 
   /** Offline simulation cap. Source: architecture §9.2a, confirmed M0 benchmark */

@@ -21,7 +21,7 @@ import { crimeDaily } from '../systems/crime.js';
 import { meal1, meal2, foodSpoilage } from '../systems/food.js';
 import { jobsProduction, jobsAccidents, autoAssignWorkers } from '../systems/jobs.js';
 import { housingSettlementLevel } from '../systems/housing.js';
-import { worldTick } from '../systems/world.js';
+import { worldTick, registerWorldEffects, gatherTributes } from '../systems/world.js';
 import { battleTick } from '../systems/battle.js';
 import { marketDailyDrift } from '../systems/market.js';
 import { caravanReturns } from '../systems/caravan.js';
@@ -183,6 +183,12 @@ export function registerCorePeriodics(registry) {
   // Registered here so all test makeCtx() calls automatically include contract handlers.
   registerContractEffects(registry);
 
+  // iter-017 M7a-2 T2: world AI schedule handlers (processFaction, takeOver, stubs)
+  registerWorldEffects(registry);
+
+  // iter-017 M7a-2 T3: gatherTributes month periodic
+  register(registry, 'world.gatherTributes', gatherTributes);
+
   /** @type {PeriodicTask[]} */
   const periodics = [
     { id: 'population.migration',    every: 'step',       order: 10, systemFn: 'population.migration' },
@@ -209,6 +215,8 @@ export function registerCorePeriodics(registry) {
     { id: 'localTaxes',              every: '5days',      order: 10, systemFn: 'taxes.local' },
     { id: 'food.spoilage',           every: 'month',      order: 10, systemFn: 'food.spoilage' },
     { id: 'taxes.monthly',           every: 'month',      order: 20, systemFn: 'taxes.monthly' },
+    // iter-017 M7a-2 T3: tribute výběr (month, order 25 — tribute přijde před upkeep platbou, §6.2)
+    { id: 'world.gatherTributes',    every: 'month',      order: 25, systemFn: 'world.gatherTributes' },
     { id: 'upkeep.military',         every: 'month',      order: 30, systemFn: 'upkeep.military' },
     { id: 'council.closeMonth',      every: 'month',      order: 40, systemFn: 'council.closeMonth' },
     { id: 'home.burnWood',           every: 'day',        order: 60, systemFn: 'home.burnWood' },

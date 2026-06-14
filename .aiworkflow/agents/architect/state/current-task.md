@@ -1,77 +1,70 @@
 # Current Task
 
-- **Task ID**: T-002a (iter-016) — Revize designu M7a (zapracování 2 major podmínek z reviewer gate + zúžení na M7a-1 scope)
-- **Brief**: context/inbox/brief_architect_T-002a_iter-016.md (BRIEF-016-002a)
-- **Iteration**: iter-016 (M7a-1 – zone tick + jednotky + market.inject)
+- **Task ID**: T-002a (iter-017) — Revize designu M7a-2 (zapracování 2 major + 1 minor z reviewer gate REVIEW-017-002)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-017.md (BRIEF-017-002a)
+- **Iteration**: iter-017 (M7a-2 – Frakční AI & svět ožívá; dokončuje M7a)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
-- **Started**: 2026-06-14
-- **Completed**: 2026-06-14
+- **Started**: 2026-06-15
+- **Completed**: 2026-06-15
 
-## Co teď dělám
-Hotovo – revize T-002a designu M7a IN-PLACE (žádný nový doc). Ověřeno proti kódu
-(createInitialState.js, createHomeState.js, load.js, calendar.js _absDay:53, balance.js
-stepsPerDay:14, persistSchema.js world allowlist:24, zones.json prázdné).
-**Platný výstup: `artifacts/final/design_iter-016_T-001.md` (revize T-002a, changelog na začátku).**
+## Revize T-002a (M-1/M-2/m-4) — platný doc: `artifacts/final/design_iter-017_T-001.md` (in-place)
+- **M-1 (favour migrace)**: §3.1 přepsán na přesnou deterministickou migraci number→{} (NE {originalLiege}, §3.1.1 s odůvodněním). Helper `migrateFavour(saved,def)` se závazným pořadím větví. 3 místa: hydrateZones (world.js:377), persistSchema.js:259 (`|| 0`→typeof-object deep-copy guard), zones.json favour:0→{} (13 zón). Povinný fresh-vs-load + starý-save + neprázdný round-trip test (§7.5, 3 body).
+- **M-2 (armFactionAI guard)**: §2.4 — set-difference scan `schedule.filter(id==='world.processFaction').params.factionId` je ZÁVAZNÝ kontrakt (ne alternativa). scheduleCountOf NEPOUŽÍT (scheduler.js:82 indexuje jen podle id). Idempotentní při libovolném stavu schedule (fresh/plný/částečný). [už bylo binding v T-001, ověřeno proti kódu]
+- **m-4 (quest gating)**: §5.1 — home.level/militaryCouncil.discovered NEEXISTUJÍ (ověřeno) → existující pole: `home.settlementLevel >= questSettlementMin` + `(player.totWarriors+totArchers)>0` proxy pro hasMilitary. Deterministické fresh==load.
+- Minor/nit: n-1 (selektor favour `?.player ?? 0` undefined-safe) zapracován.
 
-## Revize T-002a — vyřešeno
-- **M-1 (round-robin day-edge)** §2.1: přepočítáno na day-index přes `state.season._absDay`
-  (monotónní, persistovaný, calendar.js:53). Vzorec: `daysPerZoneSlot=max(1,ceil(zonePeriodDays/len))`,
-  gate `day % daysPerZoneSlot===0`, `zoneIndex=floor(day/daysPerZoneSlot)%len`,
-  `zonePeriodDays=BALANCE.world.zonePeriodDays=5`. Bezstavový, přežije save/load. Nahrazuje mrtvý `curStep%dist`.
-- **M-2 (re-hydratace, DR-012-02)** NOVÁ §8.1: (a) createWorldState init zones=[]/factions={};
-  (b) sdílená `hydrateZones(state)` volaná z createInitialState i load (M5-R1 gate, no load-only branch);
-  (c) id-based merge (NE Object.assign na pole — load.js:217-226), zones/factions vyjmuty z generického merge;
-  (d) persist DYNAMIKY vs re-hydratace STATIKY z katalogu oddělena tabulkou §8.1.a;
-  (e) povinný fresh-vs-load hashState test + round-trip §8.1.c.
-- **Tribute split** §16.1: M7a-1 jen AKUMULUJE do zone.resources (processZone); výběr gatherTributes = M7a-2.
-- **Scope** §16: T2/T3/T6 odloženo na M7a-2/iter-017 (tabulka + wiring bez logiky). M7a-1 = §2/§5/§6/§7/§8.1/§9.
+## Výstup
+**`artifacts/final/design_iter-017_T-001.md`** — pokrývá T2/T3/T6 pro Sonnet codera.
+Navazuje na M7a-1 design (§3/§4/§16 = základ), dotahuje na implementační úroveň.
+Ověřeno proti kódu (world.js processZone/hydrateZones, contracts.js armContractOffer/contractOffer
+vzor self-rearm, scheduler.js scheduleInsert/scheduleCountOf, rng.js makeRng 'world', zones.json
+aiStates/factions, persistSchema.js world allowlist:24, load.js+createInitialState hydrateZones,
+tickOrder.js periodics, App.js/screens.js/selectors.js UI) a originálu (processAI ř.743–991,
+redistributeForces ř.636–742, revolt ř.282–369, quest ř.371–487, gatherTributes ř.527–565).
 
 ## Klíčová rozhodnutí
-- **D-SPLIT = ANO**: M7a-1 (iter-016a: T1 zone tick + T4 jednotky + T5 napojení trhu) /
-  M7a-2 (iter-016b: T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI).
-  Důvod: T1 a T2 jsou dva nezávislé L celky; M7a-1 samostatně hratelné (precedent M5-1);
-  2×L+3×M nad Sonnet kapacitu; izolace rizikového frakčního automatu pro samostatný review.
-  DoD M7a se vyhodnotí po M7a-2.
-- **Zone tick (T1)**: worldTick (day order 30, už registrován) → bezstavový round-robin
-  (zoneIndex z curStep, přežije save/load) přes 5denní periodu → processZone(state,zoneId,rng('world')).
-  Vzorce 1:1 z originálu (goldDemand 150×units, production 50×workers, policy switch) → balance.world.
-- **Frakční automat (T2)**: AISTATES 0–7 jako data (zones.json.aiStates) + deterministická processAI;
-  Math.random→rng('world'); Engine.insert→scheduleInsert (K17, serializovatelné); schedule self-rearm
-  world.processFaction; gate aiMechanicStart. Vzor contracts.js (registr efektů + seq + RNG izolace).
-- **AI-AI bitvy = RNG resolve VZORCEM** (formulas.aiBattleResolve, 1:1 orig ř.952–981), NE battle automat
-  (M7b/iter-017, battle.js NEDOTČEN). AI-vs-player = scheduleInsert('startBattle') → M7b stub.
-- **Jednotky (T4)**: player.totWarriors/totArchers UŽ existují, upkeep.military UŽ běží (M4a) → M7a-1
-  jen recruitUnit command (gold z military.json) + zónové jednotky v persist. homeZone = mirror player.tot*.
-- **Napojení trhu (T5)**: marketInject/getGoldValue BEZE ZMĚNY signatur (§8.2 kontrakt naplněn).
-  Produkční zóny inject(+) produkce, válčící inject(−). worldTick (order 30) PŘED market.drift (35).
-  Negativní S-06 → pozitivní kontrakt.
-- **Determinismus/catch-up-safe**: jediný rng stream 'world' (existuje, žádný nový); 'battle' rezervován M7b;
-  schedule one-shot serializovatelný; bezstavový round-robin; randRound deterministický; O(1) zone tick.
-- **Persist (D8)**: world.zones/factions už v allowlistu (jen naplnit); ratingy/goldDemand/production
-  derivované NEUKLÁDAT; re-hydratace static zón z katalogu na load (G-WORLD-ZONEHYDRATE).
-- **tickOrder**: world.tick beze změny pozice (přestane být no-op); NOVÉ world.gatherTributes (month order 25,
-  před upkeep.military 30); schedule handlery M7a-2 (registerWorldEffects vzor registerContractEffects).
+- **SPLIT M7a-2 = NE**: T2(L)+T3(M)+T6(M) do jedné iterace. Datová/wiring kostra hotová v M7a-1
+  (world.zones/factions/hydrateZones/katalog/BALANCE.world) → M7a-2 jen čte a mutuje, žádný nový L.
+  1×L+2×M pod kapacitou (vzor M5-2). DoD M7a se vyhodnotí po iter-017.
+- **Frakční automat (T2)**: AISTATES 0–7 přechodová tabulka jako data (zones.json, přepis placeholderů
+  na originál semantiku) + deterministická processAI (1:1 originál); Math.random→rng('world');
+  Engine.insert→scheduleInsert (K17). Capital = zóna přes faction.capitalId (katalog = zdroj pravdy).
+- **Self-rearm (KRITICKÉ, anti-DR-012-02)**: world.processFaction se re-schedulí NEPODMÍNĚNĚ
+  (i pod prahem/incapacitated). Boot/load arm přes armFactionAI(state) se set-difference guardem
+  (mirror armContractOffer, main.js:199) — ŽÁDNÁ load-only ani init-only větev. faction.state
+  persistován = jádro replay-determinismu.
+- **AI-AI bitvy = RNG vzorec** (aiBattleResolve ve formulas.js, 1:1 originál ř.952–981); battle.js
+  NEDOTČEN. AI-vs-player → scheduleInsert('startBattle') = M7b stub.
+- **Revolty**: favour-drain gated revoltMechanicStart; favour = OBJEKT {factionId:number}
+  (oprava M7a-1 number, G-FAVOUR-SHAPE, migrace v hydrateZones).
+- **Questy**: deterministicky (questSeq, rng 'world'), getGoldValue oceňování, deadlineStep absolutní;
+  acceptQuest/rejectQuest commands; world.quests+questSeq do persist (G-QUEST-PERSIST).
+- **Tribute výběr**: world.gatherTributes month edge order 25 (před upkeep.military 30); player grant,
+  AI capital gold += getGoldValue.
+- **UI (T6)**: WorldZonesScreen (mapa zón/frakce/diplomacie/policy/questy panel) + selektory
+  (selectWorldZones/Factions/Quests) + tab. Žádná logika v UI; accept/reject přes commands.
 
-## G-LISTZONE postup (resolved)
-- **Resolved approximací, žádná eskalace** (DR Q3 autonomně). AISTATES 0–7 + capitals
-  (dickinsonLanding/castleGrey/hornCastle) + faction names + vzorce = DOLOŽITELNÉ z originálu.
-- Min. sada ~13 zón (capitals + princess region winisk/burwash/corbyville/lemieux/kitsilano +
-  warlord region pointAnne/redWater/tomiko/silverInslet + homeZone). Topologie/targetWorkerNum/
-  growth/stats/aggression = approximated (provenance flag, kalibrace M9).
-- Wiring: zones schema + validátor + zones do CATALOG_NAMES (vzor M6 G-LISTTECHS).
+## tickOrder dopady
+- world.tick (day 30) beze změny pozice — revolt/quest logika dovnitř processZone (gated bloky).
+- NOVÉ periodikum world.gatherTributes (month order 25). NOVÉ schedule handlery (registerWorldEffects):
+  world.processFaction/takeOver/AIIsAttacking/questExpire + M7b/M8 stuby (startBattle/warning/danger/
+  loadImportantEvent). Boot: armFactionAI za armContractOffer.
+
+## Determinismus
+- Jediný makeRng(state,'world'); rng závisí jen na perzistovaném state+curStep.
+- Idempotentní self-rearm bez load-only/init-only větve (DR-012-02 třída).
+- Replay test (stejný seed → stejné AISTATES přechody) + save/load round-trip uprostřed AI aktivity
+  (faction.state + schedule entries přežijí, armFactionAI nevloží duplikát) + fresh-vs-load hashState.
 
 ## Dílčí checklist
-- [x] Přečteno: AGENTS.md, brief BRIEF-016-001, DR-013-00 (renumbering), DR-013-01/DR-015-01
-- [x] Master plán §3/iter-014(M7a) T1–T6 + §1.2 (split-trigger) + active.md plan
-- [x] Architektura iter-002 §8.2 (zone tick), §8/§9.1 (kontrakty/trh), §9.4 (R4/D12), K8/K16/K17 mapování
-- [x] Kód: world.js (stub), market.js (marketInject/getGoldValue), scheduler.js, rng.js (stream 'world'),
-      tickOrder.js, upkeep.js (vzor), persistSchema.js, contracts.js (vzor schedule+RNG+seq), balance.js,
-      zones.json (prázdné), military.json (extracted), createHomeState.js
-- [x] ORIGINÁL world.js (processZone, processAI AISTATES, redistributeForces, gatherTributes, ratingy) — zdroj pravdy
-- [x] T1 zone tick, T2 frakční automat, T3 revolty/questy/tribute/AI-AI bitvy, T4 jednotky, T5 trh, T6 UI
-- [x] SPLIT rozhodnutí (ANO) + odůvodnění; G-LISTZONE postup; determinismus/catch-up-safe; persist; tickOrder; diagram
-- [x] Rizika+mitigace; 4 alternativy; gap-list; Sonnet dekompozice L tasků
-- [x] Výstup design_iter-016_T-001.md; handoff
+- [x] AGENTS.md + brief + M7a-1 design (§3/§4/§16) + DR-016-01/DR-013-00/DR-012-02
+- [x] Architektura iter-002 §8/§8.2 + master plán §3/iter-014 T2/T3/T6
+- [x] Kód: world.js, zones.json, scheduler.js, rng.js, contracts.js, persistSchema.js, load.js,
+      createInitialState.js, tickOrder.js, main.js, UI; originál world.js (zdroj pravdy)
+- [x] Design napsán (T2/T3/T6, determinismus/self-rearm/replay, persist, AI-AI vzorec, split=NE,
+      tickOrder + diagram, kontrakty §8 beze změny, 5 alternativ, rizika, gap-list, dekompozice)
+- [x] current-task.md → done
+- [x] handoff-out.sh T-001
 
 ## Blockery
 –

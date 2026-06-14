@@ -25,7 +25,9 @@ import { registerBuild } from '../core/commands/build.js';
 import { registerBuyTech } from '../core/commands/buyTech.js';
 import { registerRecruitUnit } from '../core/commands/recruitUnit.js';
 import { registerContractCommands } from '../core/commands/contracts.js';
+import { registerQuestCommands } from '../core/commands/quests.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
+import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
 import { marketInit } from '../core/systems/market.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
@@ -93,6 +95,8 @@ function bootstrapEngine() {
   const periodics = registerCorePeriodics(registry);
   // iter-014 M5-2 T5 B1: register contract schedule handlers (§14.1)
   registerContractEffects(registry);
+  // iter-017 M7a-2 T2: world AI schedule handlers
+  registerWorldEffects(registry);
   const creg = createCommandRegistry();
   registerSetSpeed(creg);
   registerAssignJob(creg);
@@ -111,6 +115,8 @@ function bootstrapEngine() {
   registerBuyTech(creg);
   // iter-016 M7a-1 T4: recruitUnit command (anti-dark-code B1 — registered here, not dark code)
   registerRecruitUnit(creg);
+  // iter-017 M7a-2 T3: quest commands (acceptQuest/rejectQuest)
+  registerQuestCommands(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };
@@ -197,6 +203,9 @@ export async function bootSequence(env) {
     // Mirror of marketInit: runs fresh+after load, guard scheduleCountOf===0 prevents duplicates.
     // Deterministické (žádný RNG/Date při armování), pokrývá fresh+M5-2 save+starý save.
     armContractOffer(state);
+
+    // iter-017 M7a-2 T2: Arm faction AI schedulers (per-faction set-difference guard).
+    armFactionAI(state);
 
     // B-3: Create autosave coordinator (periodic + hide bypass)
     const autosave = createAutosave({

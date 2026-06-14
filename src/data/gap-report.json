@@ -1,12 +1,12 @@
 {
   "_meta": {
-    "iteration": "iter-016",
-    "milestone": "M7a-1",
-    "notes": "Updated in iter-016 M7a-1: added G-WORLD-PERSIST-DERIVED (goldDemand/goldProduction persist deviation from design §8). Updated in iter-014 M5-2: added contract gaps (G-CONTRACTS-CATALOG, G-CONTRACT-GEN, G-CONTRACT-SCHED-CLEANUP, G-BUILD-CANCEL). Summary recomputed from actual gaps array. Updated in iter-013 M5-1: added M5-1 gaps for buildings/builder/cost/resistance/space/unlock/mulstack/techbonus/repair. G-LISTBUILDINGS status updated (resolved in M5-1). G-BUILDER-M5 resolved (buildings system live). Previous update: iter-009 M3 added M3 gaps for production/jobs/skills/forest/field/mine.",
+    "iteration": "iter-017",
+    "milestone": "M7a-2",
+    "notes": "Updated in iter-017 M7a-2: added G-AIBATTLE-DEDUP (processAI inline battle resolve duplicates formulas.aiBattleResolve; dedup deferred to M9). Updated in iter-016 M7a-1: added G-WORLD-PERSIST-DERIVED (goldDemand/goldProduction persist deviation from design §8). Updated in iter-014 M5-2: added contract gaps (G-CONTRACTS-CATALOG, G-CONTRACT-GEN, G-CONTRACT-SCHED-CLEANUP, G-BUILD-CANCEL). Summary recomputed from actual gaps array. Updated in iter-013 M5-1: added M5-1 gaps for buildings/builder/cost/resistance/space/unlock/mulstack/techbonus/repair. G-LISTBUILDINGS status updated (resolved in M5-1). G-BUILDER-M5 resolved (buildings system live). Previous update: iter-009 M3 added M3 gaps for production/jobs/skills/forest/field/mine.",
     "provenance": "derived"
   },
   "summary": {
-    "total": 35,
+    "total": 37,
     "blocksMvp": 3,
     "byMilestone": {
       "M3/M6": 1,
@@ -18,7 +18,7 @@
       "M6": 6,
       "M7": 1,
       "M8": 1,
-      "M9": 13
+      "M9": 15
     }
   },
   "gaps": [
@@ -349,6 +349,16 @@
       "blocksMvp": false,
       "provenance": "derived",
       "designRef": "persistSchema.js:263-270, world.js hydrateZones, design §8"
+    },
+    {
+      "id": "G-AIBATTLE-DEDUP",
+      "catalog": "world",
+      "description": "processAI inline battle resolve (world.js:1096-1132, state 6) duplicates formulas.aiBattleResolve (formulas.js:380-429). formulas.aiBattleResolve is called only from tests; production processAI uses an inline copy. Both are 1:1 identical to the original (warrResults/archResults formula + win/loss branches). Risk: dual maintenance point — divergence on M9 balance calibration. NErefaktorovat (determinismus-citlivý processAI). Sjednotit v M9 cleanup.",
+      "milestone": "M9",
+      "severity": "low",
+      "blocksMvp": false,
+      "provenance": "derived",
+      "designRef": "world.js:1096-1132, formulas.js:380-429, review_iter-017_T-008.md F-2"
     }
   ]
 }
