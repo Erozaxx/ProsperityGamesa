@@ -8,7 +8,10 @@
  */
 
 export const PERSIST_SCHEMA = {
-  player:     ['gold', 'techPt', 'inventory', 'taxRate', 'totWarriors', 'totArchers', 'diseaseFromColdChance'],
+  // iter-015 M6 T1: added 'unlockedTechs' and 'research' to player allowlist (M6-D6, §1.5).
+  // unlockedTechs: plain {[techId]:true} — serialisable as-is; derivates (modifiers) re-gen on load.
+  // research: {sectors:{[sectorId]:{level,exp}}} — only level/exp saved; cap/progPct are derived.
+  player:     ['gold', 'techPt', 'inventory', 'taxRate', 'totWarriors', 'totArchers', 'diseaseFromColdChance', 'unlockedTechs', 'research'],
   population: ['total', 'migrationAcc', 'bornTotal', 'diedTotal'],
   housing:    ['counts'],
   food:       ['store'],

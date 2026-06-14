@@ -406,6 +406,7 @@ describe('extraction reproducibility: second run = identical catalogs', () => {
    * Using a constant instead of a disk backup so that restore is always correct
    * regardless of what extract.mjs wrote to disk during a previous CI run.
    * Gap G-LISTGOODS: listGoods not in extracted sources → goods seeded in iter-011 M4b.
+   * Gap G-LISTTECHS: listTechs not in extracted sources → techs seeded in iter-015 M6 T1.
    */
   const SEEDED_CATALOG_CONTENT = {
     'goods': JSON.stringify({
@@ -422,16 +423,47 @@ describe('extraction reproducibility: second run = identical catalogs', () => {
         { 'id': 'silk',  'kind': 'goods', 'basePrice': 80,  'max': 800,  'baselineFraction': 0.5 },
       ],
     }, null, 2) + '\n',
+    'techs': JSON.stringify({
+      '_meta': {
+        'provenance': 'approximated',
+        'notes': 'G-LISTTECHS resolved M6 iter-015; approximated tree, M9 calibration. Wired as catalog \'techs\'. findTech helper reads .techs.tree.',
+        'source': 'doc/original_source/modules/prosperity/services/techs.js',
+      },
+      'techs': {
+        'techBase': 100,
+        'techScale': 1.25,
+        'sectors': [
+          { 'id': 'agriculture', 'name': 'Agriculture' },
+          { 'id': 'civil',       'name': 'Civil' },
+          { 'id': 'crafts',      'name': 'Crafts' },
+          { 'id': 'forestry',    'name': 'Forestry' },
+          { 'id': 'medicine',    'name': 'Medicine' },
+          { 'id': 'military',    'name': 'Military' },
+        ],
+        'tree': [
+          { 'id': 'agriculture_irrigation',  'sector': 'agriculture', 'level': 0, 'name': 'Irrigation',      'prereqs': [], 'provenance': 'approximated', 'effects': [{ 'target': 'farmer',    'attr': 'efficiency',     'op': 'add', 'value': 0.1  }] },
+          { 'id': 'agriculture_crop_rotation','sector': 'agriculture', 'level': 1, 'name': 'Crop Rotation',   'prereqs': ['agriculture_irrigation'], 'provenance': 'approximated', 'effects': [{ 'target': 'granary',   'attr': 'storage.food',   'op': 'add', 'value': 100  }] },
+          { 'id': 'agriculture_granaries',   'sector': 'agriculture', 'level': 1, 'name': 'Larger Granaries','prereqs': [], 'provenance': 'approximated', 'effects': [{ 'target': 'granary',   'attr': 'storage.food',   'op': 'add', 'value': 200  }] },
+          { 'id': 'crafts_bookkeeping',      'sector': 'crafts',      'level': 0, 'name': 'Bookkeeping',     'prereqs': [], 'provenance': 'approximated', 'effects': [{ 'target': 'baker',     'attr': 'products.bread', 'op': 'mul', 'value': 1.15 }] },
+          { 'id': 'forestry_axes',           'sector': 'forestry',    'level': 0, 'name': 'Better Axes',     'prereqs': [], 'provenance': 'approximated', 'effects': [{ 'target': 'lumberjack','attr': 'efficiency',     'op': 'add', 'value': 0.15 }] },
+          { 'id': 'civil_attractiveness',    'sector': 'civil',       'level': 0, 'name': 'Civic Pride',     'prereqs': [], 'provenance': 'approximated', 'effects': [{ 'target': 'well',      'attr': 'attractiveness', 'op': 'add', 'value': 3    }] },
+          { 'id': 'military_drill',          'sector': 'military',    'level': 0, 'name': 'Drill',           'prereqs': [], 'provenance': 'approximated', 'effects': [{ 'target': 'warrior',   'attr': 'upkeep',         'op': 'mul', 'value': 0.9  }] },
+        ],
+      },
+    }, null, 2) + '\n',
   };
 
   before(() => {
-    // Snapshot current state of extracted catalogs
-    for (const name of CATALOG_FILES) {
-      beforeSnapshots[name] = readFileSync(join(DATA_DIR, `${name}.json`), 'utf8');
-    }
-    // Ensure seeded catalogs are correctly written before any extraction runs
+    // Ensure seeded catalogs are correctly written BEFORE snapshotting.
+    // This guarantees beforeSnapshots[name] === seeded content for seeded catalogs,
+    // so the reproducibility comparison is stable regardless of prior disk state.
+    // (Previously only goods was seeded; techs added in iter-015 M6 T1 — G-LISTTECHS resolved.)
     for (const [name, content] of Object.entries(SEEDED_CATALOG_CONTENT)) {
       writeFileSync(join(DATA_DIR, `${name}.json`), content, 'utf8');
+    }
+    // Snapshot current state of extracted catalogs (after seeded catalogs are in place)
+    for (const name of CATALOG_FILES) {
+      beforeSnapshots[name] = readFileSync(join(DATA_DIR, `${name}.json`), 'utf8');
     }
   });
 

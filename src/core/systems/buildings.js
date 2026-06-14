@@ -22,7 +22,7 @@
 import { BALANCE } from '../balance/balance.js';
 import { makeRng } from '../engine/rng.js';
 import { getGoldValue } from './market.js';
-import { byId, hasId } from '../catalog/loader.js';
+import { byId, hasId, hasCatalog, getCatalog } from '../catalog/loader.js';
 import { canAfford, pay } from '../resources/transactions.js';
 import { companyBuildersTotal, companyMasonTotal } from '../commands/buyCompany.js';
 import { deriveWorkforceTotal } from './jobs.js';
@@ -369,6 +369,115 @@ function removeAllBuildingSourcedModifiers(state) {
 }
 
 // ---------------------------------------------------------------------------
+// M6 T1/T2 — Tech modifier helpers (addTechModifiers, removeAllTechSourcedModifiers, applyTechModifiers)
+// ---------------------------------------------------------------------------
+
+/**
+ * Find a tech entry by id from the 'techs' catalog.
+ * Returns null when catalog is not loaded or techId is not found.
+ * Design §4.2 + §2.6 M-2 guard (belt-and-suspenders: addTechModifiers also has its own guard).
+ *
+ * @param {string} techId
+ * @returns {Record<string, any> | null}
+ */
+export function findTech(techId) {
+  if (!hasCatalog('techs')) return null;
+  const cat = /** @type {Record<string, any>} */ (getCatalog('techs'));
+  const tree = /** @type {any[]} */ (cat.techs?.tree ?? []);
+  return tree.find((t) => t.id === techId) ?? null;
+}
+
+/**
+ * Remove ALL modifier entries with source starting with 'tech:'.
+ * Used by rebuildBuildingDerived (b2) and applyTechModifiers for idempotent re-gen.
+ * Analogous to removeAllBuildingSourcedModifiers.
+ * @param {GameState} state
+ */
+function removeAllTechSourcedModifiers(state) {
+  const mods = /** @type {any[]} */ (state.catalogState.modifiers);
+  let wi = 0;
+  for (let ri = 0; ri < mods.length; ri++) {
+    if (typeof mods[ri].source === 'string' && mods[ri].source.startsWith('tech:')) {
+      continue; // drop
+    }
+    mods[wi++] = mods[ri];
+  }
+  mods.length = wi;
+}
+
+/**
+ * Add modifier entries for all currently unlocked techs.
+ * Reads state.player.unlockedTechs and techs catalog to push modifier atoms.
+ *
+ * M-2 (MANDATORY T-002a) defencive guard: if techs catalog not loaded → no-op.
+ * Also guards each individual tech (null-safe: if(!tech)continue).
+ *
+ * Modifier id includes target to guarantee uniqueness per (tech,target,attr,op):
+ *   id = 'tech:<techId>:<target>:<attr>:<op>'
+ *
+ * Called ONLY from:
+ *   (1) rebuildBuildingDerived krok (b2)
+ *   (2) applyTechModifiers (delta path from buyTech)
+ * Never inline elsewhere — single source of truth for tech fold.
+ *
+ * @param {GameState} state
+ */
+export function addTechModifiers(state) {
+  // M-2 guard: no-op when techs catalog not loaded (createInitialState/boot/tests without catalog)
+  if (!hasCatalog('techs')) return;
+
+  const unlocked = /** @type {Record<string, boolean>} */ (
+    /** @type {any} */ (state.player).unlockedTechs ?? {}
+  );
+  const mods = /** @type {any[]} */ (state.catalogState.modifiers);
+
+  for (const techId of Object.keys(unlocked)) {
+    if (!unlocked[techId]) continue;
+    const tech = findTech(techId);
+    if (!tech) continue; // M-2: skip missing/renamed techs — never read tech.effects on null
+    const effects = Array.isArray(tech.effects) ? tech.effects : [];
+    for (const atom of effects) {
+      if (!atom || typeof atom.target !== 'string' || typeof atom.attr !== 'string') continue;
+      const op = atom.op === 'mul' ? 'mul' : atom.op === 'set' ? 'set' : 'add';
+      const value = typeof atom.value === 'number' ? atom.value : 0;
+      mods.push({
+        // id includes target → unique per (tech,target,attr,op); deterministic, stable
+        id: `tech:${techId}:${atom.target}:${atom.attr}:${op}`,
+        source: `tech:${techId}`,
+        target: atom.target,
+        attr: atom.attr,
+        op,
+        value,
+      });
+    }
+  }
+}
+
+/**
+ * Delta re-derivation for tech modifiers: remove all tech-sourced, re-add, invalidate cache,
+ * recalc aggregates. Called from buyTech command immediately after odemčení.
+ *
+ * This is a subset of what rebuildBuildingDerived (b2) does; uses the SAME helpers
+ * to avoid a second implementation (DR-012-02 principle).
+ *
+ * DETERMINISM: resets _modVersion to 0 before invalidateModifiers (same as rebuildBuildingDerived)
+ * so that hashState(state after N buyTech) === hashState(load(save(state after N buyTech))).
+ * Without the reset, each buyTech increments _modVersion by 1 → diverges from load path
+ * which always yields _modVersion=1 after rebuildBuildingDerived (DR-012-02 class).
+ *
+ * @param {GameState} state
+ */
+export function applyTechModifiers(state) {
+  removeAllTechSourcedModifiers(state);
+  addTechModifiers(state);
+  // Reset _modVersion to 0 → invalidateModifiers yields version=1 always (same as rebuildBuildingDerived)
+  const cs = /** @type {any} */ (state.catalogState);
+  cs._modVersion = 0;
+  invalidateModifiers(state);
+  recalcBuildingAggregates(state);
+}
+
+// ---------------------------------------------------------------------------
 // T4.4 — recalcBuildingAggregates — ONE canonical path (M-1)
 // ---------------------------------------------------------------------------
 
@@ -493,6 +602,13 @@ export function rebuildBuildingDerived(state) {
       addBuildingModifiers(state, buildingId);
     }
   }
+
+  // (b2) M6 T1: re-gen tech modifiers (idempotent: remove-all then re-add).
+  //      Uses shared helpers removeAllTechSourcedModifiers + addTechModifiers —
+  //      same fns as applyTechModifiers delta path (single source of truth, DR-012-02).
+  //      addTechModifiers is a no-op when techs catalog not loaded (M-2 guard).
+  removeAllTechSourcedModifiers(state);
+  addTechModifiers(state);
 
   // (c) Reset _modVersion to 0 then invalidate → always version=1 after full rebuild.
   // This ensures that hashState is IDENTICAL whether this is the N-th rebuild (mutation path)

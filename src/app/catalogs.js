@@ -19,6 +19,7 @@ const CATALOG_NAMES = [
   'resources',
   'companies',
   'skills',
+  'techs',
 ];
 
 /**

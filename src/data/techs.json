@@ -1,13 +1,153 @@
 {
   "_meta": {
-    "notes": "listTechs not found in extracted sources; gap G-LISTTECHS",
     "provenance": "approximated",
-    "source": "doc/original_source"
+    "notes": "G-LISTTECHS resolved M6 iter-015; approximated tree, M9 calibration. Wired as catalog 'techs'. findTech helper reads .techs.tree.",
+    "source": "doc/original_source/modules/prosperity/services/techs.js"
   },
   "techs": {
-    "sectors": [],
     "techBase": 100,
     "techScale": 1.25,
-    "tree": []
+    "sectors": [
+      {
+        "id": "agriculture",
+        "name": "Agriculture"
+      },
+      {
+        "id": "civil",
+        "name": "Civil"
+      },
+      {
+        "id": "crafts",
+        "name": "Crafts"
+      },
+      {
+        "id": "forestry",
+        "name": "Forestry"
+      },
+      {
+        "id": "medicine",
+        "name": "Medicine"
+      },
+      {
+        "id": "military",
+        "name": "Military"
+      }
+    ],
+    "tree": [
+      {
+        "id": "agriculture_irrigation",
+        "sector": "agriculture",
+        "level": 0,
+        "name": "Irrigation",
+        "prereqs": [],
+        "provenance": "approximated",
+        "effects": [
+          {
+            "target": "farmer",
+            "attr": "efficiency",
+            "op": "add",
+            "value": 0.1
+          }
+        ]
+      },
+      {
+        "id": "agriculture_crop_rotation",
+        "sector": "agriculture",
+        "level": 1,
+        "name": "Crop Rotation",
+        "prereqs": [
+          "agriculture_irrigation"
+        ],
+        "provenance": "approximated",
+        "effects": [
+          {
+            "target": "granary",
+            "attr": "storage.food",
+            "op": "add",
+            "value": 100
+          }
+        ]
+      },
+      {
+        "id": "agriculture_granaries",
+        "sector": "agriculture",
+        "level": 1,
+        "name": "Larger Granaries",
+        "prereqs": [],
+        "provenance": "approximated",
+        "effects": [
+          {
+            "target": "granary",
+            "attr": "storage.food",
+            "op": "add",
+            "value": 200
+          }
+        ]
+      },
+      {
+        "id": "crafts_bookkeeping",
+        "sector": "crafts",
+        "level": 0,
+        "name": "Bookkeeping",
+        "prereqs": [],
+        "provenance": "approximated",
+        "effects": [
+          {
+            "target": "baker",
+            "attr": "products.bread",
+            "op": "mul",
+            "value": 1.15
+          }
+        ]
+      },
+      {
+        "id": "forestry_axes",
+        "sector": "forestry",
+        "level": 0,
+        "name": "Better Axes",
+        "prereqs": [],
+        "provenance": "approximated",
+        "effects": [
+          {
+            "target": "lumberjack",
+            "attr": "efficiency",
+            "op": "add",
+            "value": 0.15
+          }
+        ]
+      },
+      {
+        "id": "civil_attractiveness",
+        "sector": "civil",
+        "level": 0,
+        "name": "Civic Pride",
+        "prereqs": [],
+        "provenance": "approximated",
+        "effects": [
+          {
+            "target": "well",
+            "attr": "attractiveness",
+            "op": "add",
+            "value": 3
+          }
+        ]
+      },
+      {
+        "id": "military_drill",
+        "sector": "military",
+        "level": 0,
+        "name": "Drill",
+        "prereqs": [],
+        "provenance": "approximated",
+        "effects": [
+          {
+            "target": "warrior",
+            "attr": "upkeep",
+            "op": "mul",
+            "value": 0.9
+          }
+        ]
+      }
+    ]
   }
 }

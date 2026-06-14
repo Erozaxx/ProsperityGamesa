@@ -59,8 +59,17 @@ export function createHomeState() {
 
 /**
  * Creates a fresh PlayerState with default values.
+ * iter-015 M6 T1: added unlockedTechs and research fields (M-1 determinism — §1.3a design).
+ * Both fields must be initialized here (not just on load) so that:
+ *   hashState(createInitialState()) === hashState(load(save(createInitialState())))
+ * Without these keys, fresh state has undefined where load produces {} / {sectors:{}}.
  * @returns {import('./types.js').PlayerState}
  */
 export function createPlayerState() {
-  return { gold: 0, techPt: 0, inventory: {}, taxRate: 1, totWarriors: 0, totArchers: 0, diseaseFromColdChance: 0 };
+  return {
+    gold: 0, techPt: 0, inventory: {}, taxRate: 1,
+    totWarriors: 0, totArchers: 0, diseaseFromColdChance: 0,
+    unlockedTechs: {},               // M6 T1 — { [techId]: true }; plain object (serialisable, deterministic)
+    research: { sectors: {} },       // M6 T3 — { sectors: { [sectorId]: { level, exp } } }; lazy per sector
+  };
 }
