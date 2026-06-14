@@ -382,75 +382,75 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-13T23:52:31Z",
+  "generated": "2026-06-14T02:34:24Z",
   "iteration": {
     "id": "iter-013",
-    "goal": "M5 – Budovy, stavba, kontrakty: město roste – building instances + opotřebení/opravy, projectQueue/builder (quarterDay slot z M3), scaleCost, builder companies, vrstva modifikátorů z budov (K13), kontraktové eventy. Dle master plánu §3/iter-012(M5). Posun číslování viz DR-013-00.",
+    "goal": "M5-1 – Budovy & modifikátory: building instances + opotřebení/opravy, projectQueue/builder (quarterDay slot z M3), scaleCost, builder companies, vrstva modifikátorů z budov (K13). Kontrakty + build UI (T5–T6) jsou M5-2/iter-014 (split dle DR-013-01). Dle master plánu §3/iter-012(M5). Posun číslování viz DR-013-00.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Detailní design M5 dle master plánu §3/iter-012(M5) + architektury §5.3 (modifier vrstva K13), §5.4 (registr efektů K14): (1) building instances created/totalMade + opotřebení (ageBuildings, day) + opravy (oceňování getGoldValue) + persist schéma; (2) projectQueue + builder systém (quarterDay slot) + `build(itemId)` command + `scaleCost(base, created)` čistá fn; (3) builder companies (katalog + logika výběru/kapacit); (4) modifier vrstva plně pro budovy: `effective(itemId, attr)`, fold add→mul→set, memoizace + event-driven agregáty, save = jen seznam modifikátorů; (5) kontrakty: contractQueue, onComplete/onExpire/onReject přes registr efektů, eventy přes schedule. Rozhodnout split M5-1(T1–T4)/M5-2(T5–T6). Výstup: design doc + tickOrder/diagram dopady",
-        "done": false
+        "text": "architect – Detailní design M5 hotový (design_iter-013_T-001.md). Stav budov {created,totalMade,instances}; scaleCost = approximated addice (originál neškáluje, default faithful, gap G-BUILD-COSTSCALE); modifier fold K13 (save=jen modifikátory, T4 dekomponován na 6 kroků); kontrakty přes registr K14; doporučuje SPLIT M5-1(T1–T4)/M5-2(T5–T6); G-LISTBUILDINGS → doplnit ≥6 budov approximated. [orig. brief] Detailní design M5 dle master plánu §3/iter-012(M5) + architektury §5.3 (modifier vrstva K13), §5.4 (registr efektů K14): (1) building instances created/totalMade + opotřebení (ageBuildings, day) + opravy (oceňování getGoldValue) + persist schéma; (2) projectQueue + builder systém (quarterDay slot) + `build(itemId)` command + `scaleCost(base, created)` čistá fn; (3) builder companies (katalog + logika výběru/kapacit); (4) modifier vrstva plně pro budovy: `effective(itemId, attr)`, fold add→mul→set, memoizace + event-driven agregáty, save = jen seznam modifikátorů; (5) kontrakty: contractQueue, onComplete/onExpire/onReject přes registr efektů, eventy přes schedule. Rozhodnout split M5-1(T1–T4)/M5-2(T5–T6). Výstup: design doc + tickOrder/diagram dopady",
+        "done": true
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review designu M5 (correctness, soulad s architekturou D/K, kontrakty §8, žádné in-place applyUpgrade mutace, derivovaná data se neukládají) + challenger oponentura rizik",
-        "done": false
+        "text": "reviewer – Review designu M5: GO-s-podmínkami; split ANO (M5-1/M5-2); 0 blocker/4 major/5 minor/3 nit; všechna tvrzení designu ověřena proti zdroji. Podmínky: M-2 sdílený rebuildBuildingDerived (load+complete/destroy), M-1 effects→modifier mapování + jedna cesta agregátů, M-3 deterministické řazení set, M-4 G-BUILD-TXAUDIT gap. Viz DR-013-01",
+        "done": true
+      },
+      {
+        "id": "",
+        "text": "T-002a: architect – Revize designu hotová (design_iter-013_T-001.md, changelog T-002a). M-1: §4.3 effects→modifier (per-typ, value=created) + §4.4 JEDNA cesta agregátů Σeffective bez ×created; M-2: §4.6/§4.7 sdílený rebuildBuildingDerived z load Step5 i mutací (load-only zakázána); M-3: §4.1 fold sort by (source,id), set=poslední; M-4: §2.3 ctx se commandu nepředává → G-BUILD-TXAUDIT gap (Volba B). T5/T6 → §13 odloženo M5-2. T4 = 6 kroků T4.1–T4.6",
+        "done": true
       },
       {
         "id": "T-003",
-        "text": "tom-proxy – Human gate: schválení architektury M5 (zastupuje uživatele dle DR-013-00)",
-        "done": false
+        "text": "tom-proxy – Human gate SCHVÁLENO (jménem uživatele): scaleCost default=1.0 OK, G-LISTBUILDINGS approx OK, G-BUILD-TXAUDIT odloženo OK (s pozn.), split M5-1/M5-2 OK. Žádná blokující výhrada → implementace M5-1 může běžet",
+        "done": true
       },
       {
         "id": "T-004",
-        "text": "coder – T1: building instances (created/totalMade), ageBuildings (day) opotřebení + opravy (getGoldValue), persist schéma budov; balanc čísla do balance.js",
-        "done": false
+        "text": "coder – T1 hotový: buildings.js (ageBuildings day/order70, enqueueRepair, destroyInstance, rebuildBuildingDerived s created re-derivací; modifier/agregát část stub pro T4), stav home.buildings+projectQueue+projectSeq+derived, scaleCostByCount formula, BALANCE.buildings, persist (created derivován, derived mimo payload), load Step 5, buildings.json→6 budov approximated. ci 807/807, smoke OK, G1 pass, precache regen",
+        "done": true
       },
       {
         "id": "T-005",
-        "text": "coder – T2: projectQueue + builder systém (quarterDay) + `build(itemId)` command + `scaleCost(base, created)` čistá fn (formulas.js) + tabulkové testy scaleCost",
-        "done": false
+        "text": "coder – T2 hotový: build.js command (validace, scaleCostByCount, pay, projekt do projectQueue), completeBuild/applyRepair/buildersProcess (quarterDay order40, builder count z jobs.builder), effectFromCatalog (T2 workaround→T4). ci 840/840, smoke OK, G1 pass, persist round-trip OK. Firemní logika → T3 (G-BUILDER-COMPANIES)",
+        "done": true
       },
       {
         "id": "T-006",
-        "text": "coder – T3: builder companies (katalogová data + logika výběru/kapacit)",
-        "done": false
+        "text": "coder – T3 hotový: buyCompany.js command + companyBuildersTotal, ownedCompanies stav (persistovaný), buildersProcess přičítá buildersProvided z owned firem; companies.json buildersProvided/masonProvided (approximated). ci 862/862, smoke OK, G1 pass. G-BUILDER-MASON → T4",
+        "done": true
       },
       {
         "id": "T-007",
-        "text": "coder – T4 (L): modifier vrstva plně pro budovy (K13): `effective(itemId, attr)`, fold add→mul→set, memoizace + event-driven agregáty (maxWorkers, kapacity, attractiveness), save = jen seznam modifikátorů, re-aplikace po loadu",
-        "done": false
+        "text": "coder – T4 hotový: buildings.js plná modifier vrstva (effective+memoizace, fold deterministický sort (source,id) add→mul→set, addBuildingModifiers value=created, recalcBuildingAggregates Σeffective bez ×created, rebuildBuildingDerived = jediná sdílená cesta z load i mutací). Napojení jobs.workerSlots/housing/G-BUILDER-MASON. createInitialState volá rebuild (fresh==load). Persist jen modifikátory (ověřeno: payload bez derived/_effCache/_modVersion). ci 906/906, smoke OK, G1 pass, 44 testů round-trip identita",
+        "done": true
       },
       {
         "id": "T-008",
-        "text": "coder – T5: kontrakty – contractQueue, onComplete/onExpire/onReject přes registr efektů (K14), kontraktové eventy přes schedule + persist",
-        "done": false
+        "text": "tester – Test loop M5-1 GO: všech 9 AC PASS empiricky (906+31 testů, 0 fail). Round-trip hashState identita (deepStrictEqual, 4 scénáře), save=jen modifikátory, fold deterministický, agregáty lineární (bez dvojího započtení), catch-up-safe 365 dní (seed determinismus h1=h2), persist všech domén, G1 + grep gate čisté, build flow e2e",
+        "done": true
       },
       {
         "id": "T-009",
-        "text": "coder – T6: UI build screen (karty budov, ceny se scalingem, fronta) + kontrakty panel",
-        "done": false
+        "text": "reviewer – Review gate M5-1 GO-s-podmínkami (BEZ re-run): 0 blocker/0 major/4 minor/4 nit; všech 5 tvrdých invariantů ověřeno proti kódu (save=jen modifikátory, sdílený rebuild v 5 call-sites, deterministický fold, jedna cesta agregátů, žádný Date.now/Math.random/DOM). Podmínky: MINOR-1 gap-report M5-1 gapy, MINOR-2 (N-04) stale tickOrder T4 sekce, MINOR-3/4 effectFromCatalog komentáře/duplicita",
+        "done": true
+      },
+      {
+        "id": "",
+        "text": "T-009a: coder – Oprava minor hotová: MINOR-3 komentáře effectFromCatalog opraveny, MINOR-4 mrtvá fce getMaxActiveProjects odstraněna (dedup neproveden – jiné zodpovědnosti); MINOR-1/2 ověřeny jako už vyřešené. Žádná logická změna; ci 906/906, smoke OK, G1 nedotčen",
+        "done": true
       },
       {
         "id": "T-010",
-        "text": "tester – Test loop (sada §1.3): scaleCost/effective tabulkové testy, modifikátory round-trip (save jen modifikátory → load → přepočet), catch-up-safe invariant nových systémů, persist round-trip, PWA smoke, plné `npm run ci` + `npm run smoke`",
-        "done": false
-      },
-      {
-        "id": "T-011",
-        "text": "reviewer – Review gate M5: DoD bod po bodu, žádné `applyUpgrade` in-place mutace, derivovaná data se neukládají, tickOrder+diagram aktuální ve stejných commitech (právo re-run)",
-        "done": false
-      },
-      {
-        "id": "T-012",
-        "text": "human – Schválení uzavření iterace (zastupuje tom-proxy dle DR-013-00) → /close-iteration + PR + merge",
-        "done": false
+        "text": "human – Uzavření M5-1 SCHVÁLENO stálým pověřením uživatele (DR-013-00 + explicitní direktiva \"uzavřít, pr, mergnout, dojeď celý master plán do konce\"). QA GO (T-008) + reviewer GO (T-009) + všechny exit criteria splněny → /close-iteration + PR + merge",
+        "done": true
       }
     ],
     "total": 12,
-    "done_count": 0
+    "done_count": 12
   },
   "closed_iterations": [
     "iter-001",
@@ -470,11 +470,11 @@ const DATA = {
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-015 (iter-012)",
-      "brief": "context/inbox/brief_architect_T-015_iter-012.md (BRIEF-012-015)",
-      "iteration": "iter-012 (Playability & onboarding hardening)",
-      "started": "2026-06-13",
-      "completed": "2026-06-13"
+      "task_id": "T-002a (iter-013) — revize designu M5 (po T-001)",
+      "brief": "context/inbox/brief_architect_T-002a_iter-013.md (BRIEF-013-002a)",
+      "iteration": "iter-013 (M5-1 – Budovy & modifikátory)",
+      "started": "2026-06-14",
+      "completed": "2026-06-14"
     },
     {
       "slug": "audience-adapter",
@@ -524,10 +524,10 @@ const DATA = {
     {
       "slug": "coder",
       "status": "done",
-      "task_id": "T-017 (iter-012 oprava review F-1 + F-2)",
-      "brief": "brief_coder_T-017_iter-012.md",
-      "iteration": "iter-012",
-      "started": "2026-06-13",
+      "task_id": "T-009a (iter-013 M5-1 hygiene — 4 minor fixes from review gate)",
+      "brief": "brief_coder_T-009a_iter-013.md",
+      "iteration": "iter-013",
+      "started": "2026-06-14",
       "completed": ""
     },
     {
@@ -641,11 +641,11 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-011 (Code review celé implementace iter-012, playability A1-A5 + reload-determinismus fix)",
-      "brief": "BRIEF-012-011",
-      "iteration": "iter-012",
-      "started": "2026-06-13",
-      "completed": "2026-06-13"
+      "task_id": "T-009 (Review GATE M5-1 iter-013 — budovy/builder/companies/modifikátory, závěrečný gate)",
+      "brief": "BRIEF-013-009",
+      "iteration": "iter-013",
+      "started": "2026-06-14",
+      "completed": "2026-06-14"
     },
     {
       "slug": "security",
@@ -668,20 +668,20 @@ const DATA = {
     {
       "slug": "tester",
       "status": "done",
-      "task_id": "T-010",
-      "brief": "BRIEF-012-010",
-      "iteration": "iter-012",
-      "started": "2026-06-13",
-      "completed": "2026-06-13"
+      "task_id": "T-008",
+      "brief": "BRIEF-013-008",
+      "iteration": "iter-013",
+      "started": "2026-06-14",
+      "completed": "2026-06-14"
     },
     {
       "slug": "tom-proxy",
-      "status": "idle",
-      "task_id": "",
-      "brief": "",
-      "iteration": "",
-      "started": "",
-      "completed": ""
+      "status": "done",
+      "task_id": "T-003",
+      "brief": "BRIEF-013-003 (human gate M5-1 design)",
+      "iteration": "iter-013",
+      "started": "2026-06-14",
+      "completed": "2026-06-14"
     },
     {
       "slug": "workshop-facilitator",
@@ -700,8 +700,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -727,8 +727,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_playability_iter-012_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -745,8 +745,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_proposal_iter-002_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -754,8 +754,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-004_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -763,8 +763,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-005_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -772,8 +772,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-006_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -781,8 +781,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-007_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -790,8 +790,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-008_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -799,8 +799,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-009_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -808,8 +808,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-010_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -817,8 +817,17 @@ const DATA = {
       "type": "final",
       "name": "design_iter-011_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-13T16:53:21Z",
-      "description": "architektura playability hardeningu hotová"
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-013_T-001.md",
+      "type": "final",
+      "name": "design_iter-013_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-14T00:04:10Z",
+      "description": "Design M5 (iter-013) hotov: artifacts/final/design_iter-013_T-001.md pokrývá T1-T6 na Sonnet-implementable úroveň. SPLIT DOPORUČEN: ANO -> M5-1 (T1-T4: budovy+stavba+companies+modifikatory K13) / M5-2 (T5-T6: kontrakty K14 + UI); T4 je L se 6-krokovou dekompozici, T4(K13 infra)+T5(K14 obsah) maji oddelene review gates -> miseni = riziko re-run. Klicova rozhodnuti: stav budov {created,totalMade,instances[{instId,hp,inRepair}]}; ageBuildings na day edge pres novy rng.stream('buildings'); scaleCostByCount(base,created) nova cista fn (geom. rust, default scaleFactor=1.0=verne originalu, gap G-BUILD-COSTSCALE); modifier fold add->mul->set + memoizace _modVersion + save=JEN catalogState.modifiers; kontrakty onComplete/onExpire/onReject pres registr efektu (string-ID+params), expirace pres scheduleInsert. G-LISTBUILDINGS: doplnit buildings.json autonomne (Q3/DR-001) na >=6 budov, provenance:'approximated', eskalace jen informativni. Determinismus/catch-up-safe drzeno (zadny Date.now/Math.random, deterministicke cital projectSeq/contractSeq). NEcommitovano."
     },
     {
       "agent": "architect",
@@ -943,8 +952,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-012_T-005-009.md",
       "task": "T-005",
-      "completed": "2026-06-13T18:46:57Z",
-      "description": "implementace A1-A5 hotová, ci+smoke zelené (778 testů pass, smoke OK); deviace: balance.json sanityMaxPop nezrcadleno (gen. soubor), smoke.mjs type-only unblock (pre-existing red), latent jobsAccidents workforce.total nález pro architekta"
+      "completed": "2026-06-14T01:08:42Z",
+      "description": "T2 M5-1 dokončen: build() command + buildersProcess + completeBuild/applyRepair + scaleCost testy. CI: 840 testů, 0 fail. Smoke OK. G1 OK. Persist round-trip OK. Builder kapacita z jobs (basic slot), builderHut effects. Firmy odloženy na T3."
     },
     {
       "agent": "coder",
@@ -972,6 +981,51 @@ const DATA = {
       "task": "T-017",
       "completed": "2026-06-13T22:59:01Z",
       "description": "F-1+F-2 opraveny: guard proti shrinku over-cap loaded total v healthBirths i populationMigration (R-A4-3, symetricky), health.js reuse populationSanityCap helperu. Regress test (2/2). Gate: ci 780/0 fail, smoke exit 0, determinismus iter005-edge G1 + iter012-playability 25/25, precache regen (jen PRECACHE_VERSION). Necommitováno."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-013_T-004.md",
+      "type": "final",
+      "name": "impl_summary_iter-013_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-14T00:51:44Z",
+      "description": "T1 M5-1 building instances+opotřebení+opravy+persist. 807 testů 0 fail, smoke OK, G1 determinismus OK, persist round-trip OK, precache regenerován. T4 stubs nachystány."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-013_T-005.md",
+      "type": "final",
+      "name": "impl_summary_iter-013_T-005.md",
+      "task": "T-005",
+      "completed": "2026-06-14T01:08:42Z",
+      "description": "T2 M5-1 dokončen: build() command + buildersProcess + completeBuild/applyRepair + scaleCost testy. CI: 840 testů, 0 fail. Smoke OK. G1 OK. Persist round-trip OK. Builder kapacita z jobs (basic slot), builderHut effects. Firmy odloženy na T3."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-013_T-006.md",
+      "type": "final",
+      "name": "impl_summary_iter-013_T-006.md",
+      "task": "T-006",
+      "completed": "2026-06-14T01:31:14Z",
+      "description": "T3 builder companies implementován: buyCompany command, ownedCompanies persist, companyBuildersTotal integrace v buildersProcess, companies.json buildersProvided/masonProvided doplněno přes extractor. Gate: ci 862 testů 0 fail, smoke OK, G1 determinismus nedotčen."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-013_T-007.md",
+      "type": "final",
+      "name": "impl_summary_iter-013_T-007.md",
+      "task": "T-007",
+      "completed": "2026-06-14T01:59:49Z",
+      "description": "T4 modifier layer full impl (T4.1-T4.6): effective/fold/memoization/addBuildingModifiers/recalcAggregates/rebuildBuildingDerived. Gate: 906 tests 0 fail, smoke OK. Invariants verified: save=only modifiers, single rebuildBuildingDerived, deterministic fold, no ×created in aggregates."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-013_T-009a.md",
+      "type": "final",
+      "name": "impl_summary_iter-013_T-009a.md",
+      "task": "T-009",
+      "completed": "2026-06-14T02:32:26Z",
+      "description": ""
     },
     {
       "agent": "project-manager",
@@ -1006,8 +1060,17 @@ const DATA = {
       "type": "final",
       "name": "review_architecture_iter-012_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T17:02:36Z",
-      "description": "review architektury hotové"
+      "completed": "2026-06-14T00:13:19Z",
+      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_design_iter-013_T-002.md",
+      "type": "final",
+      "name": "review_design_iter-013_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-14T00:13:19Z",
+      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
     },
     {
       "agent": "reviewer",
@@ -1024,8 +1087,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T17:02:36Z",
-      "description": "review architektury hotové"
+      "completed": "2026-06-14T00:13:19Z",
+      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
     },
     {
       "agent": "reviewer",
@@ -1119,12 +1182,21 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-013_T-009.md",
+      "type": "final",
+      "name": "review_iter-013_T-009.md",
+      "task": "T-009",
+      "completed": "2026-06-14T02:25:21Z",
+      "description": "GO-s-podmínkami (bez re-run): 0 blocker, 0 major, 4 minor, 4 nit. Všech 5 tvrdých invariantů platí proti kódu; 906/906 testů. Podmínky před close: MINOR-1 doplnit M5-1 gapy do gap-report.json, MINOR-2 aktualizovat tickOrder.md T4 sekci (N-04). Zbytek backlog."
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md",
       "type": "final",
       "name": "review_iteration_master_plan_iter-003_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-13T17:02:36Z",
-      "description": "review architektury hotové"
+      "completed": "2026-06-14T00:13:19Z",
+      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
     },
     {
       "agent": "reviewer",
@@ -1132,8 +1204,8 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-13T17:02:36Z",
-      "description": "review architektury hotové"
+      "completed": "2026-06-14T00:13:19Z",
+      "description": "GO-s-podmínkami; split ANO M5-1(T1-T4)/M5-2(T5-T6) hranice beze změny; 0 blocker / 4 major / 5 minor / 3 nit. Hl. major: M-1 effects→modifier mapping (T4.3) nedospecif. + dvojí cesta agregátů; M-2 load Step 5 dnes jen workforce.total, nutný obecný rebuildBuildingDerived (jinak load-only drift). Tvrzení designu o originálu/kódu ověřena proti zdroji – sedí."
     },
     {
       "agent": "tester",
@@ -1143,6 +1215,15 @@ const DATA = {
       "task": "T-010",
       "completed": "2026-06-13T21:44:20Z",
       "description": "GO — všech 6 AC iter-012 PASS empiricky (CI 778/778, smoke OK, 2roky sim bez crashe+cap drží, accounting Σtx==Δgold diff=0, G1 plný hashState bit-shoda na 10 save-pointech vč. krok0/1, save v3 bez workforce.total)"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-013_T-008.md",
+      "type": "final",
+      "name": "qa_report_iter-013_T-008.md",
+      "task": "T-008",
+      "completed": "2026-06-14T02:15:28Z",
+      "description": "GO — M5-1 všechny AC PASS: 906 testů/0 fail, modifier round-trip hashState identita, catch-up deterministický, G1 nedotčen"
     },
     {
       "agent": "tester",
@@ -1215,6 +1296,15 @@ const DATA = {
       "task": "T-003",
       "completed": "2026-06-13T14:19:16Z",
       "description": "test loop iter-011 M4b/MVP: PASS"
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-013_T-003.md",
+      "type": "final",
+      "name": "gate_iter-013_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-14T00:29:39Z",
+      "description": "SCHVALENO (proceed M5-1 impl). 4/4 produktovych rozhodnuti OK: (1) scaleCost default=1.0 verne originalu; (2) G-LISTBUILDINGS >=6 budov approximated dle Q3/DR-001; (3) G-BUILD-TXAUDIT odlozeno OK-s-poznamkou (gold se odecte, tx report do M5-2/M9); (4) split M5-1/M5-2 OK. Zadne blokujici vyhrady, nic mimo mandat. Verdikt: artifacts/final/gate_iter-013_T-003.md"
     }
   ],
   "metrics": {
@@ -1255,7 +1345,13 @@ const DATA = {
       "raw": "# Orchestration Metrics: iter-012\n\n- **Closed**: 2026-06-13\n- **Goal**: Playability hardening (A1–A5) + reload-determinismus fix\n- **Outcome**: MERGED do main (PR #15, 2baffaa); ci 780/780, smoke OK\n\n## Per-Agent Metrics\n\n| Agent | Task | total_tokens | tool_uses | duration_ms |\n|-------|------|-------------|-----------|-------------|\n| coder | T-005..T-009 (A1-A5) | (viz coder/metrics) | – | – |\n| coder | T-014 (Option A) | – | – | – |\n| coder | T-016 (derive-on-init) | 53956 | 41 | 286209 |\n| coder | T-017 (F-1+F-2) | 56655 | 42 | 286545 |\n| tester | T-010 (plná QA) | 115119 | 62 | 433657 |\n| reviewer | T-011 (code review) | 114654 | 53 | 382217 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A). Architekt T-013/T-015 a A1-A5 coder metriky viz agents/*/metrics/iter-012.md.\n"
     }
   },
-  "agent_tokens": {}
+  "agent_tokens": {
+    "architect": 280922,
+    "coder": 582296,
+    "reviewer": 263874,
+    "tester": 151467,
+    "tom-proxy": 64437
+  }
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

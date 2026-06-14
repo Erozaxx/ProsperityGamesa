@@ -22,3 +22,9 @@
 - **tool_uses**: 128
 - **duration_ms**: 1531851
 - **outcome**: ci 906/906, smoke OK, G1 pass, payload invariant ověřen; plný modifier fold+agregáty, sdílený rebuildBuildingDerived, round-trip identita
+## T-009a (minor fixes)
+- **Timestamp**: 2026-06-14T07:35Z
+- **total_tokens**: 62117
+- **tool_uses**: 50
+- **duration_ms**: 304680
+- **outcome**: ci 906/906, smoke OK; komentáře+mrtvý kód, žádná logická změna

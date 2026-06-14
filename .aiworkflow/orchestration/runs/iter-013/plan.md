@@ -16,14 +16,14 @@
 - [x] T-007: coder – T4 hotový: buildings.js plná modifier vrstva (effective+memoizace, fold deterministický sort (source,id) add→mul→set, addBuildingModifiers value=created, recalcBuildingAggregates Σeffective bez ×created, rebuildBuildingDerived = jediná sdílená cesta z load i mutací). Napojení jobs.workerSlots/housing/G-BUILDER-MASON. createInitialState volá rebuild (fresh==load). Persist jen modifikátory (ověřeno: payload bez derived/_effCache/_modVersion). ci 906/906, smoke OK, G1 pass, 44 testů round-trip identita
 - [x] T-008: tester – Test loop M5-1 GO: všech 9 AC PASS empiricky (906+31 testů, 0 fail). Round-trip hashState identita (deepStrictEqual, 4 scénáře), save=jen modifikátory, fold deterministický, agregáty lineární (bez dvojího započtení), catch-up-safe 365 dní (seed determinismus h1=h2), persist všech domén, G1 + grep gate čisté, build flow e2e
 - [x] T-009: reviewer – Review gate M5-1 GO-s-podmínkami (BEZ re-run): 0 blocker/0 major/4 minor/4 nit; všech 5 tvrdých invariantů ověřeno proti kódu (save=jen modifikátory, sdílený rebuild v 5 call-sites, deterministický fold, jedna cesta agregátů, žádný Date.now/Math.random/DOM). Podmínky: MINOR-1 gap-report M5-1 gapy, MINOR-2 (N-04) stale tickOrder T4 sekce, MINOR-3/4 effectFromCatalog komentáře/duplicita
-- [ ] T-009a: coder – Oprava 4 minor z review (před close): MINOR-1 doplnit M5-1 gapy do gap-report.json; MINOR-2 (N-04) opravit docs/tickOrder.md T4 sekci (implementováno, effective v buildings.js); MINOR-3/4 opravit zavádějící komentáře effectFromCatalog (buildings.js:787-790) + zvážit deduplikaci build.js↔buildersProcess. Gate: ci zelené, smoke OK, determinismus G1 nedotčen
-- [ ] T-010: human – Schválení uzavření iterace (zastupuje tom-proxy dle DR-013-00) → /close-iteration + PR + merge
+- [x] T-009a: coder – Oprava minor hotová: MINOR-3 komentáře effectFromCatalog opraveny, MINOR-4 mrtvá fce getMaxActiveProjects odstraněna (dedup neproveden – jiné zodpovědnosti); MINOR-1/2 ověřeny jako už vyřešené. Žádná logická změna; ci 906/906, smoke OK, G1 nedotčen
+- [x] T-010: human – Uzavření M5-1 SCHVÁLENO stálým pověřením uživatele (DR-013-00 + explicitní direktiva "uzavřít, pr, mergnout, dojeď celý master plán do konce"). QA GO (T-008) + reviewer GO (T-009) + všechny exit criteria splněny → /close-iteration + PR + merge
 
 ## Quality Gates
-- [ ] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
-- [ ] Code review (Reviewer) – T-011
-- [ ] QA validace (Tester) – T-010
-- [ ] Plán neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
+- [x] Code review (Reviewer) – T-009 GO-s-podmínkami (0 blocker/major), podmínky vyřešeny T-009a
+- [x] QA validace (Tester) – T-008 GO (9/9 AC empiricky)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
 
 ## Exit Criteria (DoD M5-1)
 - Stavby se staví (build command + projectQueue + builder quarterDay), mají scaling cen (scaleCostByCount) a opotřebení (ageBuildings + opravy přes getGoldValue).
