@@ -1,16 +1,30 @@
 # Current Task
 
-- **Task ID**: T-001 (iter-016) — Detailní design M7a (AI svět: zóny, frakční AI, revolty/questy/tribute, jednotky, napojení trhu)
-- **Brief**: context/inbox/brief_architect_T-001_iter-016.md (BRIEF-016-001)
-- **Iteration**: iter-016 (M7a – AI svět & jednotky)
+- **Task ID**: T-002a (iter-016) — Revize designu M7a (zapracování 2 major podmínek z reviewer gate + zúžení na M7a-1 scope)
+- **Brief**: context/inbox/brief_architect_T-002a_iter-016.md (BRIEF-016-002a)
+- **Iteration**: iter-016 (M7a-1 – zone tick + jednotky + market.inject)
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-14
 - **Completed**: 2026-06-14
 
 ## Co teď dělám
-Hotovo – design M7a (T1–T6) na úroveň pro Sonnet. Zdroj pravdy mechanik = originál world.js.
-Žádný kód, žádná změna architektury iter-002 ani kontraktů §8 signatur.
-**Platný výstup: `artifacts/final/design_iter-016_T-001.md`.**
+Hotovo – revize T-002a designu M7a IN-PLACE (žádný nový doc). Ověřeno proti kódu
+(createInitialState.js, createHomeState.js, load.js, calendar.js _absDay:53, balance.js
+stepsPerDay:14, persistSchema.js world allowlist:24, zones.json prázdné).
+**Platný výstup: `artifacts/final/design_iter-016_T-001.md` (revize T-002a, changelog na začátku).**
+
+## Revize T-002a — vyřešeno
+- **M-1 (round-robin day-edge)** §2.1: přepočítáno na day-index přes `state.season._absDay`
+  (monotónní, persistovaný, calendar.js:53). Vzorec: `daysPerZoneSlot=max(1,ceil(zonePeriodDays/len))`,
+  gate `day % daysPerZoneSlot===0`, `zoneIndex=floor(day/daysPerZoneSlot)%len`,
+  `zonePeriodDays=BALANCE.world.zonePeriodDays=5`. Bezstavový, přežije save/load. Nahrazuje mrtvý `curStep%dist`.
+- **M-2 (re-hydratace, DR-012-02)** NOVÁ §8.1: (a) createWorldState init zones=[]/factions={};
+  (b) sdílená `hydrateZones(state)` volaná z createInitialState i load (M5-R1 gate, no load-only branch);
+  (c) id-based merge (NE Object.assign na pole — load.js:217-226), zones/factions vyjmuty z generického merge;
+  (d) persist DYNAMIKY vs re-hydratace STATIKY z katalogu oddělena tabulkou §8.1.a;
+  (e) povinný fresh-vs-load hashState test + round-trip §8.1.c.
+- **Tribute split** §16.1: M7a-1 jen AKUMULUJE do zone.resources (processZone); výběr gatherTributes = M7a-2.
+- **Scope** §16: T2/T3/T6 odloženo na M7a-2/iter-017 (tabulka + wiring bez logiky). M7a-1 = §2/§5/§6/§7/§8.1/§9.
 
 ## Klíčová rozhodnutí
 - **D-SPLIT = ANO**: M7a-1 (iter-016a: T1 zone tick + T4 jednotky + T5 napojení trhu) /
