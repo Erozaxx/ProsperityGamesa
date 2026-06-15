@@ -1,27 +1,34 @@
 # Current Task
 
-- **Task ID**: T-002 (REVIEW DESIGN M7b — battle automat, iter-018, Opus)
-- **Brief**: BRIEF-018-002
+- **Task ID**: T-009 (REVIEW GATE M7b + DoD M7, iter-018, Opus, právo re-run)
+- **Brief**: BRIEF-018-009
 - **Iteration**: iter-018
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-15
 - **Completed**: 2026-06-15
 
 ## Co teď dělám
-Hotovo: Review DESIGNu M7b (DESIGN-018-001) PŘED implementací, ověřeno PROTI KÓDU.
-Ověřeno: G2 (advance clock.js:75 i runCatchupBatch catchup.js:50 volají identický step()→runTick→battle.tick; tickOrder.js:230 every:'step' order 30) → auto-resolve == live STRUKTURÁLNĚ ZADARMO. Serializovatelnost: persistSchema.js:300 + load.js:247 plný passthrough state.battle; rng stream 'battle' (rng.js:10) v save; makeRng vytváří rng lokálně (žádné closury v state.battle) → kill-resume dosažitelný. baseRevival NEEXISTUJE v src (gap). military.json bez combat statů (gap). startBattleStub world.js:1189, registr 'startBattle' world.js:1228 == schedule insert 1083. Originál battle.js ověřen (cd double-decrement ř.274-290, crit uvnitř getDamage ř.443, units.army cyklus ř.249).
+Hotovo: Závěrečný review gate M7b + ověření DoD M7, ověřeno PROTI KÓDU i PROTI ORIGINÁLU (doc/original_source battle.js ř.54-629).
 
 ## Výsledek
-Verdikt: **GO s podmínkami**. G2 == live ZADARMO POTVRZENO. Serializovatelnost kill-resume DOSAŽITELNÁ (podmíněno F-1: žádné closury/cykly/units.army). Split=NE SOUHLASÍM. G-MILITARY-STATS approx OK.
+Verdikt: **GO**. DoD M7 **SPLNĚN** — milník kompletní. CI 1385/1385 (ověřeno reviewerem).
+
+Tvrdé invarianty 1-6 všechny ✓:
+1. Kontrakt §8.1 beze změny (battleStep PURE, cloneBs).
+2. Serializovatelnost F-1: liege=string, lastAttackId=string|null, žádný army self-ref, žádné closury (rng lokálně v battleTick), žádné undefined. JSON round-trip OK.
+3. G2 == live: battle.tick every:'step' order 30; advance(clock.js:44) i runCatchupBatch(catchup.js:50) volají identický step(). Žádná druhá implementace. Offline=prázdná queue→obranná AI.
+4. Determinismus 1:1: jediný rng('battle'), žádný Math.random. M-1 (?? ne ||, fallback 0.25), M-2 (opponent double cd-decrement 1:1 orig ř.265-291, ověřeno řádek-po-řádku), M-3 (crit 1× po guardu, NE per cíl, NE 2×).
+5. battle.js stub plně nahrazen (862 ř.), startBattle/banditRaid/armBanditRaid wired (main.js:216, world.js:1229-1230).
+6. UI bez logiky: BattleScreen pure, deriváty v selectBattle.
 
 ## Nálezy (severity)
 - BLOCKER: 0
-- MAJOR: 3 (M-1 baseRevival fallback gap; M-2 opponent AI double cd-decrement 1:1; M-3 crit rng pořadí 1×/útok) + ostraha F-1 serializovatelnost (žádné neserializovatelné v state.battle)
-- MINOR: 5 (military combat staty gap; invasion forces zdroj; outcome API mapping; tick/reaction init; load battle sanitizace)
-- NIT: 3 (runtime pole vs kontrakt; hluboký klon battleStep; konstanty místo)
+- MAJOR: 0
+- MINOR: 2 (MIN-1 player-ATTACKING outcome větev neaktivní cesta nad rámec orig; MIN-2 atStep=startedAtStep hraniční offline filtr)
+- NIT: 4 (validace battleCommand vs getAttacks DRY; lastMaxCD magic; thumbRing obě strany 1:1; bandit numbers inline)
 
-Povinné gate testy: §10.3 (kill-resume nenulový subAccMs) + §10.4 (G2 advance vs runCatchupBatch).
+Žádný nález nebrání GO. Determinismus (replay+kill-resume+G2+1:1) POTVRZEN.
 
-Výstup: agents/reviewer/artifacts/final/review_design_iter-018_T-002.md
+Výstup: agents/reviewer/artifacts/final/review_iter-018_T-009.md
 
 ## NEcommitnuto (per brief).

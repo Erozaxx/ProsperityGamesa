@@ -15,14 +15,14 @@
 - [x] T-006: coder – T4 dotažení hotové: battleLog→OfflineSummary (selectOfflineBattles, battles agregát, formatOfflineSummary battle text, selectBattleLog newest-first); banditRaid schedule už z T-004 (armBanditRaid); invaze frakční AI→startBattle→bitva. ci 1362/1362, smoke OK, G1+M7b+M7a nedotčen, 30 testů, zpětná kompat
 - [x] T-007: coder – T5 hotový: BattleScreen+selectBattle (z dřívějška), tab 'Bitva' v App.js, styly mobile-first, 23 selektor testů. ci 1385/1385, smoke OK (renderuje), G1+M7b+M7a nedotčen; playtest feel R-D poznámky M9. M7b implementace kompletní
 - [x] T-008: tester – Test loop M7b GO (DoD M7 SPLNĚN): klíčové PASS empiricky (1385/1385, smoke OK tab Bitva). battleStep replay deepStrictEqual, kill-resume bit-identický (save tick20→load→deepEqual), G2 auto-resolve==live (5000 battleTick live==catchup hashState identický), vzorce 1:1 orig (cd double-decrement warriors79/archers119, crit rng 1×, baseRevival ?? 0.25), catch-up 1 rok 328500 kroků 50 bitev bez NaN, M7b nerozbil M7a/M5/M6/M4b (316/316+G1 16/16)
-- [ ] T-009: reviewer – Review gate M7b + DoD M7: kontrakt §8.1 beze změny signatury, determinismus bitvy + G2 auto-resolve == live, serializovatelnost (žádné cyklické/funkční ref v state.battle), 1:1 originál (cd/crit/revival), stuby z M2a plně nahrazeny, derivovaná data se neukládají, tickOrder aktuální (právo re-run)
-- [ ] T-010: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → **M7 hotov** (AI svět + bitvy)
+- [x] T-009: reviewer – Review gate M7b GO; DoD M7 SPLNĚN (milník kompletní). Determinismus ověřen proti kódu i originálu řádek-po-řádku (M-1/M-2/M-3 přesně), kill-resume/F-1 serializovatelnost čistá, G2 auto-resolve==live strukturálně potvrzeno. ci 1385/1385. 0 blocker/0 major/2 minor/4 nit (MIN-1 player-ATTACKING větev neaktivní v M7b→neškodí; backlog)
+- [x] T-010: human – Uzavření SCHVÁLENO stálým pověřením uživatele (DR-013-00). DoD M7 komplet splněn, reviewer GO + QA GO, 0 blocker/major → /close-iteration + PR + merge → M7 hotov
 
 ## Quality Gates
-- [ ] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
-- [ ] Code review (Reviewer) – T-REV
-- [ ] QA validace (Tester) – T-TEST
-- [ ] Plán neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
+- [x] Code review (Reviewer) – T-009 GO (0 blocker/major)
+- [x] QA validace (Tester) – T-008 GO (DoD M7)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
 
 ## Exit Criteria (DoD M7b = DoD M7 komplet)
 - Pozdní hra funguje: invaze, bitvy live (battleCommand) i offline auto-resolve (stejný automat G2); battleState serializovatelný (kill-resume).
@@ -38,3 +38,4 @@
 - M7b naplňuje poslední stub z M2a (battle.js) → M7 hotov.
 - Carry-overy na M9: G-BUILD-TXAUDIT, G-RECRUIT-TXAUDIT, V1 tech→joby, V2 univ RNG, G-WORLD-*, G-AIBATTLE-DEDUP, G-MILITARY-STATS (kalibrace bitev).
 - LL-005 (monitor živost přes working-tree mtime), LL-006 (duplicitní spawny – ověřuj working tree, ne tvrzení; TaskStop redundantní agenty).
+- M7b reviewer backlog (M9): MIN-1 player-ATTACKING outcome větev (battle.js:556-563) přidává zone.liege='player' nad rámec orig (neaktivní v M7b – startBattle jen player-DEFENDING); MIN-2 + 4 nit kvalita. Detail: review_iter-018_T-009.md.
