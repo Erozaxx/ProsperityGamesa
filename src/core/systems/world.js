@@ -22,6 +22,7 @@ import { getGoldValue, marketInject } from './market.js';
 import { register } from '../registry/registry.js';
 import { scheduleInsert } from '../engine/scheduler.js';
 import { grant } from '../resources/transactions.js';
+import { startBattle } from './battle.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -1185,8 +1186,8 @@ function takeOver(state, params, _ctx) {
   zone.curQuest = null;
 }
 
-/** M7b stub: startBattle — AI vs player, battle automat is M7b. No-op until M7b. */
-function startBattleStub(/** @type {any} */ _state, /** @type {any} */ _params, /** @type {any} */ _ctx) { /* M7b stub */ }
+/** M7b: startBattle — AI vs player battle handler (implemented in battle.js). */
+const startBattleHandler = startBattle;
 /** M8 stub: warningAIAttacking — spy warning. No-op until M8. */
 function warningAIAttackingStub(/** @type {any} */ _state, /** @type {any} */ _params, /** @type {any} */ _ctx) { /* M8 stub */ }
 /** M8 stub: dangerAIAttacking — spy danger. No-op until M8. */
@@ -1225,7 +1226,7 @@ export function registerWorldEffects(reg) {
   register(reg, 'world.processFaction', processFaction);
   register(reg, 'world.takeOver', takeOver);
   register(reg, 'AIIsAttacking', AIIsAttackingStub);
-  register(reg, 'startBattle', startBattleStub);
+  register(reg, 'startBattle', startBattleHandler);
   register(reg, 'warningAIAttacking', warningAIAttackingStub);
   register(reg, 'dangerAIAttacking', dangerAIAttackingStub);
   register(reg, 'loadImportantEvent', loadImportantEventStub);

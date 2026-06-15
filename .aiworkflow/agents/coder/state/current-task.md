@@ -1,9 +1,10 @@
 # Current Task
-- **Task ID**: T-008a (iter-017)
-- **Iteration**: iter-017
-- **Milestone**: M7a-2 — hygiena před close (minor opravy z review gate T-008)
+- **Task ID**: T-004 (iter-018)
+- **Iteration**: iter-018
+- **Milestone**: M7b — Battle automat T1+T2 (jádro + damage/revival vzorce)
 - **Status**: done
-- **Done**: 2026-06-14
-- **CI**: 1260 tests, 0 fail
+- **Done**: 2026-06-15
+- **CI**: 1297 tests, 0 fail (37 new: test/m7b-battle-t1.test.js)
 - **Smoke**: OK
-- **Determinismus**: m7a-world-t1 + m7a2-world-t2/t3 = 82/82 pass
+- **Determinismus**: G1 + M7a2-world-t2/t3 = 48/48 pass (nedotčené)
+- **Invarianty**: M-1 (baseRevival ??) / M-2 (cd double-decrement) / M-3 (crit 1×/útok) / F-1 (JSON round-trip) / G2 (auto-resolve==live) — všechny splněny
