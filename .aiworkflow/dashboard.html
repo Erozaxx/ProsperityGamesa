@@ -382,45 +382,45 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-14T23:45:25Z",
+  "generated": "2026-06-15T05:19:09Z",
   "iteration": {
-    "id": "iter-018",
-    "goal": "M7b – Bitvy: battle automat (battleState + battleStep, sub-step 30ms, cooldowny charge/volley 1:1), damage/revival vzorce, battleCommand + obranná AI (auto-resolve v catch-upu = stejný automat G2), invaze + bandité, battle UI. Naplňuje battle.js stub + startBattle stub z M7a-2. Dle master plánu §3/iter-015(M7b). Posun číslování viz DR-013-00/016-01.",
+    "id": "iter-019",
+    "goal": "M8 – Příběh & meta vrstva: importantEvent systém + story progres, intro/tutoriál + dialogy, achievementy deklarativně (K18), notifikace/gamelog (efemérní UI event bus). Dle master plánu §3/iter-016(M8). Posun číslování viz DR-013-00/016-01.",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Detailní design M7b dle master plánu §3/iter-015(M7b) + architektury §8.1 (battle automat), K8/D8/G2: (1) battle automat battleState + battleStep(state, commands, rng('battle')) sub-step 30ms z hlavního akumulátoru, cooldowny v ticích 1:1 (charge 80/volley 120…), serializovatelný v state.battle (naplňuje §8.1 kontrakt stub); (2) damage/revival vzorce do formulas.js + tabulkové testy vs originál; (3) battleCommand commands + obranná AI politika (skriptované akce dle cooldownů) = auto-resolve v catch-upu BEZ druhé implementace (G2); (4) invaze + bandité (spouštění přes schedule/frakční automat – napojit startBattle stub z M7a-2, výsledky do offline summary); (5) battle UI (commands, progress, log). **Determinismus**: rng('battle') už existuje, sub-step deterministický, serializovatelný (kill-resume uprostřed bitvy), catch-up auto-resolve == live automat. Doplnit combat staty do military.json (G-MILITARY-STATS approx z originálu). ROZHODNOUT SPLIT. Výstup: design doc",
+        "text": "architect – Detailní design M8 dle master plánu §3/iter-016(M8) + architektury §3.4 (engine-stopping eventy/acknowledge), §7.2 (achievementy deklarativně K18), K14 (registr efektů, obsah jako data), D10 (catch-up pauza): (1) importantEvent systém + story progres ve stavu (story.*), engine-stopping eventy jako doménová událost + acknowledgeEvent command, interakce s catch-up pauzou; (2) intro/tutoriál + dialogy (obsah jako data přes registr efektů K14, vlastní texty – R-G licence); (3) achievementy deklarativně {id, when: predicate-as-data}, vyhodnocení na denním ticku + tx/doménových událostech, unlock mechanismus; (4) notifikace/confetti/hudba/devlog: efemérní UI event bus (engine NIKDY nesahá na DOM), gamelog ring buffer UI. Determinismus/catch-up-safe. Rozhodnout split. Výstup: design doc",
         "done": false
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review designu M7b (battle automat deterministický+serializovatelný, kill-resume, auto-resolve catch-up == live G2, kontrakt §8.1, rng('battle') izolovaný, napojení startBattle z M7a-2) + posouzení splitu",
+        "text": "reviewer – Review designu M8 (achievementy deklarativní bez imperativních háčků rozsetých po mechanikách C4, engine-stopping eventy serializovatelné + acknowledge, UI event bus efemérní mimo determinismus, story progres persist, soulad s architekturou) + posouzení splitu",
         "done": false
       },
       {
         "id": "T-003",
-        "text": "tom-proxy – Human gate: schválení M7b designu + splitu (mandát dle DR-013-00, auto-ano v rámci scope)",
+        "text": "tom-proxy – Human gate: schválení M8 designu + R-G (vlastní texty intro/dialogy, ne 1:1 převzetí originálu) (mandát dle DR-013-00)",
         "done": false
       },
       {
         "id": "",
-        "text": "T-004..T-00x: coder – implementační tasky dle schváleného designu/splitu (orchestrátor doplní po T-003: battle automat, damage vzorce, battleCommand+obranná AI, invaze/bandité, UI)",
+        "text": "T-004..T-00x: coder – implementační tasky dle schváleného designu/splitu (orchestrátor doplní po T-003: importantEvent+story, intro/tutoriál+dialogy, achievementy K18, notifikace/gamelog UI)",
         "done": false
       },
       {
         "id": "",
-        "text": "T-TEST: tester – Test loop M7b (sada §1.3): determinismus bitvy (replay), kill-resume uprostřed bitvy, auto-resolve v catch-up dávce = stejný automat, tabulkové damage testy vs originál, invaze/bandité, persist round-trip state.battle, M7b nerozbil M7a/M5/M6, plné `npm run ci` + `npm run smoke`",
+        "text": "T-TEST: tester – Test loop M8 (sada §1.3): story event uprostřed catch-upu (pauza→pokračování), achievementy deterministické + save round-trip, tutoriál e2e, gamelog/notifikace UI bez chyb, M8 nerozbil M7/M5/M6, plné `npm run ci` + `npm run smoke`",
         "done": false
       },
       {
         "id": "",
-        "text": "T-REV: reviewer – Review gate M7b: DoD bod po bodu, kontrakt §8.1 dodržen, determinismus bitvy + auto-resolve, stuby z M2a plně nahrazeny, derivovaná data se neukládají, tickOrder+diagram aktuální (právo re-run)",
+        "text": "T-REV: reviewer – Review gate M8: DoD bod po bodu, žádné imperativní achievement háčky rozseté po mechanikách (C4), texty bez 1:1 převzetí (R-G evidence), engine nikdy nesahá na DOM, derivovaná data se neukládají, tickOrder+diagram aktuální (právo re-run)",
         "done": false
       },
       {
         "id": "",
-        "text": "T-CLOSE: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → **M7 hotov** (battle automat live i offline)",
+        "text": "T-CLOSE: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → **M8 hotov** (obsahová vrstva kompletní)",
         "done": false
       }
     ],
@@ -444,15 +444,16 @@ const DATA = {
     "iter-014",
     "iter-015",
     "iter-016",
-    "iter-017"
+    "iter-017",
+    "iter-018"
   ],
   "agents": [
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-002a (iter-017) — Revize designu M7a-2 (zapracování 2 major + 1 minor z reviewer gate REVIEW-017-002)",
-      "brief": "context/inbox/brief_architect_T-002a_iter-017.md (BRIEF-017-002a)",
-      "iteration": "iter-017 (M7a-2 – Frakční AI & svět ožívá; dokončuje M7a)",
+      "task_id": "T-002a (iter-018) — Revize DESIGN M7b (3 major + serializovatelnost ostraha z reviewer gate)",
+      "brief": "context/inbox/brief_architect_T-002a_iter-018.md (BRIEF-018-002a)",
+      "iteration": "iter-018 (M7b – Bitvy; dokončuje M7)",
       "started": "2026-06-15",
       "completed": "2026-06-15"
     },
@@ -504,9 +505,9 @@ const DATA = {
     {
       "slug": "coder",
       "status": "done",
-      "task_id": "T-008a (iter-017)",
+      "task_id": "T-007 (iter-018)",
       "brief": "",
-      "iteration": "iter-017",
+      "iteration": "iter-018",
       "started": "",
       "completed": ""
     },
@@ -621,9 +622,9 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-008 (REVIEW GATE M7a-2 + DoD M7a — frakční automat/revolty/questy/tribute/UI, Opus)",
-      "brief": "BRIEF-017-008",
-      "iteration": "iter-017",
+      "task_id": "T-009 (REVIEW GATE M7b + DoD M7, iter-018, Opus, právo re-run)",
+      "brief": "BRIEF-018-009",
+      "iteration": "iter-018",
       "started": "2026-06-15",
       "completed": "2026-06-15"
     },
@@ -648,9 +649,9 @@ const DATA = {
     {
       "slug": "tester",
       "status": "done",
-      "task_id": "T-007",
-      "brief": "BRIEF-017-007",
-      "iteration": "iter-017",
+      "task_id": "T-008",
+      "brief": "BRIEF-018-008",
+      "iteration": "iter-018",
       "started": "2026-06-15",
       "completed": "2026-06-15"
     },
@@ -658,8 +659,8 @@ const DATA = {
       "slug": "tom-proxy",
       "status": "done",
       "task_id": "T-003",
-      "brief": "BRIEF-017-003 (human gate M7a-2 design)",
-      "iteration": "iter-017",
+      "brief": "BRIEF-018-003 (human gate M7b design)",
+      "iteration": "iter-018",
       "started": "2026-06-15",
       "completed": "2026-06-15"
     },
@@ -680,8 +681,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -707,8 +708,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_playability_iter-012_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -725,8 +726,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_proposal_iter-002_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -734,8 +735,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-004_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -743,8 +744,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-005_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -752,8 +753,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-006_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -761,8 +762,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-007_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -770,8 +771,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-008_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -779,8 +780,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-009_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -788,8 +789,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-010_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -797,8 +798,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-011_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -806,8 +807,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-013_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -815,8 +816,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-014_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -824,8 +825,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-015_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -833,8 +834,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-016_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -842,8 +843,17 @@ const DATA = {
       "type": "final",
       "name": "design_iter-017_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T22:03:45Z",
-      "description": "Design M7a-2 (iter-017) hotov: artifacts/final/design_iter-017_T-001.md pokrývá T2 frakční automat + T3 revolty/questy/tribute/AI-AI bitvy + T6 UI pro Sonnet. SPLIT=NE (1xL+2xM, datová/wiring kostra hotová z M7a-1, dokončuje M7a). Self-rearm determinismus: world.processFaction se re-schedulí NEPODMÍNĚNĚ (i pod prahem/incapacitated); boot/load arm armFactionAI(state) se set-difference guardem (mirror armContractOffer) — ZADNA load-only ani init-only vetev = anti-DR-012-02; faction.state persistovan = jadro replay-determinismu. AISTATES 0-7 data+processAI 1:1 originál (rng world, scheduleInsert K17). AI-AI bitvy RNG vzorcem (aiBattleResolve formulas), battle.js NEDOTCEN, AI-vs-player=startBattle M7b stub. Revolty favour-drain (favour=objekt, oprava M7a-1), questy questSeq+commands+getGoldValue, tribute gatherTributes month order 25. Kontrakty §8 beze zmeny. tickOrder: world.tick beze zmeny pozice + nove world.gatherTributes (month 25) + registerWorldEffects handlery. Replay+round-trip+fresh-vs-load testy povinne."
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-018_T-001.md",
+      "type": "final",
+      "name": "design_iter-018_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-14T23:55:28Z",
+      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
     },
     {
       "agent": "architect",
@@ -968,8 +978,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-012_T-005-009.md",
       "task": "T-005",
-      "completed": "2026-06-14T22:59:49Z",
-      "description": "T3 M7a-2 done: revolty favour-drain, quest gen+accept/reject, gatherTributes month order 25, aiBattleResolve formulas.js 1:1 orig; battle.js nedotcen; CI 1227/1227 pass, smoke OK, G1+M7a-1+T2+M5/M6 passing"
+      "completed": "2026-06-15T00:51:06Z",
+      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
     },
     {
       "agent": "coder",
@@ -1004,8 +1014,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-14T13:06:31Z",
-      "description": "M7a-1 zone tick implementace hotova: worldTick round-robin, processZone economy/policy, hydrateZones shared path, zones.json 13 zon, persist schema aktualizovan. CI 1131/1131 pass, 0 fail. NEcommitováno."
+      "completed": "2026-06-15T00:42:26Z",
+      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
     },
     {
       "agent": "coder",
@@ -1013,8 +1023,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-14T22:59:49Z",
-      "description": "T3 M7a-2 done: revolty favour-drain, quest gen+accept/reject, gatherTributes month order 25, aiBattleResolve formulas.js 1:1 orig; battle.js nedotcen; CI 1227/1227 pass, smoke OK, G1+M7a-1+T2+M5/M6 passing"
+      "completed": "2026-06-15T00:51:06Z",
+      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
     },
     {
       "agent": "coder",
@@ -1022,8 +1032,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-14T23:10:25Z",
-      "description": "T6 UI world/zones screen hotový: selectWorldZones/Factions/Quests selektory + WorldZonesScreen + tab Svět + 28 testů. CI: 1255 tests 0 fail, smoke OK bez console chyb, precache regenerován."
+      "completed": "2026-06-15T01:02:10Z",
+      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
     },
     {
       "agent": "coder",
@@ -1031,8 +1041,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-007.md",
       "task": "T-007",
-      "completed": "2026-06-14T11:20:06Z",
-      "description": "T4 UI hotovo: TechScreen + tab Veda + 26 selektorovych testu; CI 1097/1097 pass, smoke OK 0 chyb, precache regen. M6 kompletni."
+      "completed": "2026-06-15T01:10:49Z",
+      "description": "T5 battle UI: selectBattle selektor (23 testů, pure), BattleScreen komponenta, tab 'Bitva' v App.js, CSS styly mobile-first. CI: 1385 tests 0 fail. Smoke OK, 0 console errors, Bitva tab viditelný. M7b done."
     },
     {
       "agent": "coder",
@@ -1049,8 +1059,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-014_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-14T13:06:31Z",
-      "description": "M7a-1 zone tick implementace hotova: worldTick round-robin, processZone economy/policy, hydrateZones shared path, zones.json 13 zon, persist schema aktualizovan. CI 1131/1131 pass, 0 fail. NEcommitováno."
+      "completed": "2026-06-15T00:42:26Z",
+      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
     },
     {
       "agent": "coder",
@@ -1058,8 +1068,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-014_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-14T22:59:49Z",
-      "description": "T3 M7a-2 done: revolty favour-drain, quest gen+accept/reject, gatherTributes month order 25, aiBattleResolve formulas.js 1:1 orig; battle.js nedotcen; CI 1227/1227 pass, smoke OK, G1+M7a-1+T2+M5/M6 passing"
+      "completed": "2026-06-15T00:51:06Z",
+      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
     },
     {
       "agent": "coder",
@@ -1067,8 +1077,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-015_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-14T13:06:31Z",
-      "description": "M7a-1 zone tick implementace hotova: worldTick round-robin, processZone economy/policy, hydrateZones shared path, zones.json 13 zon, persist schema aktualizovan. CI 1131/1131 pass, 0 fail. NEcommitováno."
+      "completed": "2026-06-15T00:42:26Z",
+      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
     },
     {
       "agent": "coder",
@@ -1076,8 +1086,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-015_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-14T22:59:49Z",
-      "description": "T3 M7a-2 done: revolty favour-drain, quest gen+accept/reject, gatherTributes month order 25, aiBattleResolve formulas.js 1:1 orig; battle.js nedotcen; CI 1227/1227 pass, smoke OK, G1+M7a-1+T2+M5/M6 passing"
+      "completed": "2026-06-15T00:51:06Z",
+      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
     },
     {
       "agent": "coder",
@@ -1085,8 +1095,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-015_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-14T23:10:25Z",
-      "description": "T6 UI world/zones screen hotový: selectWorldZones/Factions/Quests selektory + WorldZonesScreen + tab Svět + 28 testů. CI: 1255 tests 0 fail, smoke OK bez console chyb, precache regenerován."
+      "completed": "2026-06-15T01:02:10Z",
+      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
     },
     {
       "agent": "coder",
@@ -1094,8 +1104,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-015_T-007.md",
       "task": "T-007",
-      "completed": "2026-06-14T11:20:06Z",
-      "description": "T4 UI hotovo: TechScreen + tab Veda + 26 selektorovych testu; CI 1097/1097 pass, smoke OK 0 chyb, precache regen. M6 kompletni."
+      "completed": "2026-06-15T01:10:49Z",
+      "description": "T5 battle UI: selectBattle selektor (23 testů, pure), BattleScreen komponenta, tab 'Bitva' v App.js, CSS styly mobile-first. CI: 1385 tests 0 fail. Smoke OK, 0 console errors, Bitva tab viditelný. M7b done."
     },
     {
       "agent": "coder",
@@ -1112,8 +1122,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-016_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-14T13:06:31Z",
-      "description": "M7a-1 zone tick implementace hotova: worldTick round-robin, processZone economy/policy, hydrateZones shared path, zones.json 13 zon, persist schema aktualizovan. CI 1131/1131 pass, 0 fail. NEcommitováno."
+      "completed": "2026-06-15T00:42:26Z",
+      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
     },
     {
       "agent": "coder",
@@ -1121,8 +1131,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-016_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-14T22:59:49Z",
-      "description": "T3 M7a-2 done: revolty favour-drain, quest gen+accept/reject, gatherTributes month order 25, aiBattleResolve formulas.js 1:1 orig; battle.js nedotcen; CI 1227/1227 pass, smoke OK, G1+M7a-1+T2+M5/M6 passing"
+      "completed": "2026-06-15T00:51:06Z",
+      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
     },
     {
       "agent": "coder",
@@ -1130,8 +1140,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-016_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-14T23:10:25Z",
-      "description": "T6 UI world/zones screen hotový: selectWorldZones/Factions/Quests selektory + WorldZonesScreen + tab Svět + 28 testů. CI: 1255 tests 0 fail, smoke OK bez console chyb, precache regenerován."
+      "completed": "2026-06-15T01:02:10Z",
+      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
     },
     {
       "agent": "coder",
@@ -1148,8 +1158,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-017_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-14T13:06:31Z",
-      "description": "M7a-1 zone tick implementace hotova: worldTick round-robin, processZone economy/policy, hydrateZones shared path, zones.json 13 zon, persist schema aktualizovan. CI 1131/1131 pass, 0 fail. NEcommitováno."
+      "completed": "2026-06-15T00:42:26Z",
+      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
     },
     {
       "agent": "coder",
@@ -1157,8 +1167,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-017_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-14T22:59:49Z",
-      "description": "T3 M7a-2 done: revolty favour-drain, quest gen+accept/reject, gatherTributes month order 25, aiBattleResolve formulas.js 1:1 orig; battle.js nedotcen; CI 1227/1227 pass, smoke OK, G1+M7a-1+T2+M5/M6 passing"
+      "completed": "2026-06-15T00:51:06Z",
+      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
     },
     {
       "agent": "coder",
@@ -1166,8 +1176,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-017_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-14T23:10:25Z",
-      "description": "T6 UI world/zones screen hotový: selectWorldZones/Factions/Quests selektory + WorldZonesScreen + tab Svět + 28 testů. CI: 1255 tests 0 fail, smoke OK bez console chyb, precache regenerován."
+      "completed": "2026-06-15T01:02:10Z",
+      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
     },
     {
       "agent": "coder",
@@ -1177,6 +1187,42 @@ const DATA = {
       "task": "T-008",
       "completed": "2026-06-14T23:43:56Z",
       "description": ""
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-018_T-004.md",
+      "type": "final",
+      "name": "impl_summary_iter-018_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-15T00:42:26Z",
+      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-018_T-005.md",
+      "type": "final",
+      "name": "impl_summary_iter-018_T-005.md",
+      "task": "T-005",
+      "completed": "2026-06-15T00:51:06Z",
+      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-018_T-006.md",
+      "type": "final",
+      "name": "impl_summary_iter-018_T-006.md",
+      "task": "T-006",
+      "completed": "2026-06-15T01:02:10Z",
+      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-018_T-007.md",
+      "type": "final",
+      "name": "impl_summary_iter-018_T-007.md",
+      "task": "T-007",
+      "completed": "2026-06-15T01:10:49Z",
+      "description": "T5 battle UI: selectBattle selektor (23 testů, pure), BattleScreen komponenta, tab 'Bitva' v App.js, CSS styly mobile-first. CI: 1385 tests 0 fail. Smoke OK, 0 console errors, Bitva tab viditelný. M7b done."
     },
     {
       "agent": "project-manager",
@@ -1211,8 +1257,8 @@ const DATA = {
       "type": "final",
       "name": "review_architecture_iter-012_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1220,8 +1266,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-013_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1229,8 +1275,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-014_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1238,8 +1284,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-015_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1247,8 +1293,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-016_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1256,8 +1302,17 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-017_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_design_iter-018_T-002.md",
+      "type": "final",
+      "name": "review_design_iter-018_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1274,8 +1329,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1373,8 +1428,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-013_T-009.md",
       "task": "T-009",
-      "completed": "2026-06-14T11:39:36Z",
-      "description": "GO-s-podminkami | DoD M6 (K13 plne budovy+techy) SPLNEN s podminkou M-A | nalezy: 0 blocker, 1 major (M-A double-count researchExp research.js:94-99 pri created>1), 1 minor (tickOrder.md drift), 2 nit | CI 1097/1097 | invarianty 1-6 PASS"
+      "completed": "2026-06-15T05:15:37Z",
+      "description": "GO — DoD M7 SPLNĚN (milník kompletní). 0 blocker, 0 major, 2 minor, 4 nit. Determinismus (replay+kill-resume F-1+G2==live+1:1 orig M-1/M-2/M-3) potvrzen proti kódu i originálu. CI 1385/1385."
     },
     {
       "agent": "reviewer",
@@ -1391,8 +1446,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-015_T-009.md",
       "task": "T-009",
-      "completed": "2026-06-14T11:39:36Z",
-      "description": "GO-s-podminkami | DoD M6 (K13 plne budovy+techy) SPLNEN s podminkou M-A | nalezy: 0 blocker, 1 major (M-A double-count researchExp research.js:94-99 pri created>1), 1 minor (tickOrder.md drift), 2 nit | CI 1097/1097 | invarianty 1-6 PASS"
+      "completed": "2026-06-15T05:15:37Z",
+      "description": "GO — DoD M7 SPLNĚN (milník kompletní). 0 blocker, 0 major, 2 minor, 4 nit. Determinismus (replay+kill-resume F-1+G2==live+1:1 orig M-1/M-2/M-3) potvrzen proti kódu i originálu. CI 1385/1385."
     },
     {
       "agent": "reviewer",
@@ -1414,12 +1469,21 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-018_T-009.md",
+      "type": "final",
+      "name": "review_iter-018_T-009.md",
+      "task": "T-009",
+      "completed": "2026-06-15T05:15:37Z",
+      "description": "GO — DoD M7 SPLNĚN (milník kompletní). 0 blocker, 0 major, 2 minor, 4 nit. Determinismus (replay+kill-resume F-1+G2==live+1:1 orig M-1/M-2/M-3) potvrzen proti kódu i originálu. CI 1385/1385."
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md",
       "type": "final",
       "name": "review_iteration_master_plan_iter-003_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "reviewer",
@@ -1427,8 +1491,8 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-14T22:12:35Z",
-      "description": "GO-S-PODMINKAMI (M-1 favour migrace persistSchema||0->??{} + hydrateZones number->{}; M-2 armFactionAI set-difference guard zavazny). Self-rearm determinismus OK (vzor armContractOffer spravny). favour migrace = riziko regrese M7a-1 ANO ale resitelne (revolt nebyl aktivni->nedestruktivni). Split NEsplit=SOUHLAS. Nalezy: 0 blocker, 2 major, 5 minor, 3 nit."
+      "completed": "2026-06-15T00:03:49Z",
+      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
     },
     {
       "agent": "tester",
@@ -1445,8 +1509,8 @@ const DATA = {
       "type": "final",
       "name": "qa_report_iter-013_T-008.md",
       "task": "T-008",
-      "completed": "2026-06-14T11:34:57Z",
-      "description": "GO — DoD M6 splněn: 1097/1097 CI, K13 plně (building+tech jedna modifier vrstva, BIT-IDENTICKÝ round-trip), research deterministický (365 dní), M6 nerozbil M5"
+      "completed": "2026-06-15T05:05:13Z",
+      "description": "GO — DoD M7 splněn: CI 1385/1385, smoke OK, battleStep replay+kill-resume bit-identické, G2 auto-resolve==live, vzorce 1:1 originál, M7b nerozbitý M7a/M5/M6/M4b"
     },
     {
       "agent": "tester",
@@ -1463,8 +1527,8 @@ const DATA = {
       "type": "final",
       "name": "qa_report_iter-015_T-008.md",
       "task": "T-008",
-      "completed": "2026-06-14T11:34:57Z",
-      "description": "GO — DoD M6 splněn: 1097/1097 CI, K13 plně (building+tech jedna modifier vrstva, BIT-IDENTICKÝ round-trip), research deterministický (365 dní), M6 nerozbil M5"
+      "completed": "2026-06-15T05:05:13Z",
+      "description": "GO — DoD M7 splněn: CI 1385/1385, smoke OK, battleStep replay+kill-resume bit-identické, G2 auto-resolve==live, vzorce 1:1 originál, M7b nerozbitý M7a/M5/M6/M4b"
     },
     {
       "agent": "tester",
@@ -1483,6 +1547,15 @@ const DATA = {
       "task": "T-007",
       "completed": "2026-06-14T23:23:00Z",
       "description": "GO — DoD M7a. CI 1255/1255, catch-up deterministický (1 rok sim), processAI replay PASS, armFactionAI self-rearm PASS, favour migrace PASS bez M7a-1 regrese, battle.js nedotčen, M7a-2 nerozbilo M7a-1/M5/M6/M4b."
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-018_T-008.md",
+      "type": "final",
+      "name": "qa_report_iter-018_T-008.md",
+      "task": "T-008",
+      "completed": "2026-06-15T05:05:13Z",
+      "description": "GO — DoD M7 splněn: CI 1385/1385, smoke OK, battleStep replay+kill-resume bit-identické, G2 auto-resolve==live, vzorce 1:1 originál, M7b nerozbitý M7a/M5/M6/M4b"
     },
     {
       "agent": "tester",
@@ -1562,8 +1635,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-013_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-14T22:25:04Z",
-      "description": "SCHVALENO: M7a-2 design (iter-017) proceed na implementaci. 4 produktova rozhodnuti: (1) svet plne ozivá processAI 1:1 original OK; (2) favour migrace number->objekt {factionId:number} OK (verna oprava, bezztratova deterministicka migrace); (3) AI-AI bitvy RNG vzorcem, plny battle automat M7b/iter-018 OK; (4) approximace G-CAPITAL-MISMATCH/quest-gating OK s pozn. (kalibrace M9). Vse v mandatu DR-013-00, bez eskalace. Verdikt+stanoviska: artifacts/final/gate_iter-017_T-003.md"
+      "completed": "2026-06-15T00:16:26Z",
+      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
     },
     {
       "agent": "tom-proxy",
@@ -1571,8 +1644,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-014_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-14T22:25:04Z",
-      "description": "SCHVALENO: M7a-2 design (iter-017) proceed na implementaci. 4 produktova rozhodnuti: (1) svet plne ozivá processAI 1:1 original OK; (2) favour migrace number->objekt {factionId:number} OK (verna oprava, bezztratova deterministicka migrace); (3) AI-AI bitvy RNG vzorcem, plny battle automat M7b/iter-018 OK; (4) approximace G-CAPITAL-MISMATCH/quest-gating OK s pozn. (kalibrace M9). Vse v mandatu DR-013-00, bez eskalace. Verdikt+stanoviska: artifacts/final/gate_iter-017_T-003.md"
+      "completed": "2026-06-15T00:16:26Z",
+      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
     },
     {
       "agent": "tom-proxy",
@@ -1580,8 +1653,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-015_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-14T22:25:04Z",
-      "description": "SCHVALENO: M7a-2 design (iter-017) proceed na implementaci. 4 produktova rozhodnuti: (1) svet plne ozivá processAI 1:1 original OK; (2) favour migrace number->objekt {factionId:number} OK (verna oprava, bezztratova deterministicka migrace); (3) AI-AI bitvy RNG vzorcem, plny battle automat M7b/iter-018 OK; (4) approximace G-CAPITAL-MISMATCH/quest-gating OK s pozn. (kalibrace M9). Vse v mandatu DR-013-00, bez eskalace. Verdikt+stanoviska: artifacts/final/gate_iter-017_T-003.md"
+      "completed": "2026-06-15T00:16:26Z",
+      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
     },
     {
       "agent": "tom-proxy",
@@ -1589,8 +1662,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-016_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-14T22:25:04Z",
-      "description": "SCHVALENO: M7a-2 design (iter-017) proceed na implementaci. 4 produktova rozhodnuti: (1) svet plne ozivá processAI 1:1 original OK; (2) favour migrace number->objekt {factionId:number} OK (verna oprava, bezztratova deterministicka migrace); (3) AI-AI bitvy RNG vzorcem, plny battle automat M7b/iter-018 OK; (4) approximace G-CAPITAL-MISMATCH/quest-gating OK s pozn. (kalibrace M9). Vse v mandatu DR-013-00, bez eskalace. Verdikt+stanoviska: artifacts/final/gate_iter-017_T-003.md"
+      "completed": "2026-06-15T00:16:26Z",
+      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
     },
     {
       "agent": "tom-proxy",
@@ -1598,8 +1671,17 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-017_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-14T22:25:04Z",
-      "description": "SCHVALENO: M7a-2 design (iter-017) proceed na implementaci. 4 produktova rozhodnuti: (1) svet plne ozivá processAI 1:1 original OK; (2) favour migrace number->objekt {factionId:number} OK (verna oprava, bezztratova deterministicka migrace); (3) AI-AI bitvy RNG vzorcem, plny battle automat M7b/iter-018 OK; (4) approximace G-CAPITAL-MISMATCH/quest-gating OK s pozn. (kalibrace M9). Vse v mandatu DR-013-00, bez eskalace. Verdikt+stanoviska: artifacts/final/gate_iter-017_T-003.md"
+      "completed": "2026-06-15T00:16:26Z",
+      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-018_T-003.md",
+      "type": "final",
+      "name": "gate_iter-018_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-15T00:16:26Z",
+      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
     }
   ],
   "metrics": {
