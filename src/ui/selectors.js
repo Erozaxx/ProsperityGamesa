@@ -760,6 +760,155 @@ export function selectQuests(s) {
 }
 
 // ---------------------------------------------------------------------------
+// M7b T-007 — Battle selector (iter-018 T5)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{
+ *   number: number,
+ *   startingNumber: number,
+ *   casualties: number,
+ *   cd: number,
+ *   lastMaxCD: number,
+ *   type: string
+ * }} UnitView
+ *
+ * @typedef {{
+ *   liege: string,
+ *   action: string,
+ *   warriors: UnitView,
+ *   archers: UnitView,
+ *   number: number
+ * }} SideView
+ *
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   cdPct: number,
+ *   available: boolean,
+ *   side: 'warriors' | 'archers'
+ * }} BattleActionView
+ *
+ * @typedef {{
+ *   active: boolean,
+ *   state: 'running' | 'done' | 'setup' | null,
+ *   zoneId: string | null,
+ *   player: SideView | null,
+ *   opponent: SideView | null,
+ *   actions: BattleActionView[],
+ *   log: [string, string|null][],
+ *   progressPct: number,
+ *   summary: object | null
+ * }} BattleView
+ */
+
+/** Inline action catalog — mirrors ATTACKS_FALLBACK in battle.js */
+const BATTLE_ACTIONS = [
+  { id: 'charge',     name: 'Charge',      side: 'warriors' },
+  { id: 'shieldWall', name: 'Shield Wall', side: 'warriors' },
+  { id: 'flank',      name: 'Flank',       side: 'warriors' },
+  { id: 'volley',     name: 'Volley',      side: 'archers'  },
+  { id: 'fireArrows', name: 'Fire Arrows', side: 'archers'  },
+];
+
+/**
+ * Selects active battle state for the BattleScreen.
+ * Deriváty (dostupnost akce, %progress) computed HERE, not in UI.
+ * Pure read — no mutations, no DOM.
+ * @param {GameState} s
+ * @returns {BattleView}
+ */
+export function selectBattle(s) {
+  const st = /** @type {any} */ (s);
+  const bs = st.battle ?? null;
+
+  if (!bs || typeof bs !== 'object') {
+    return {
+      active:      false,
+      state:       null,
+      zoneId:      null,
+      player:      null,
+      opponent:    null,
+      actions:     [],
+      log:         [],
+      progressPct: 0,
+      summary:     null,
+    };
+  }
+
+  const player   = bs.sides?.player   ?? null;
+  const opponent = bs.sides?.opponent ?? null;
+
+  /** @param {any} u @returns {UnitView} */
+  function mapUnit(u) {
+    return {
+      number:         u?.number         ?? 0,
+      startingNumber: u?.startingNumber ?? 0,
+      casualties:     u?.casualties     ?? 0,
+      cd:             u?.cd             ?? 0,
+      lastMaxCD:      u?.lastMaxCD      ?? 100,
+      type:           u?.type           ?? '',
+    };
+  }
+
+  /** @param {any} side @returns {SideView | null} */
+  function mapSide(side) {
+    if (!side) return null;
+    return {
+      liege:    side.liege    ?? '',
+      action:   side.action   ?? '',
+      warriors: mapUnit(side.warriors),
+      archers:  mapUnit(side.archers),
+      number:   side.number   ?? 0,
+    };
+  }
+
+  const playerView   = mapSide(player);
+  const opponentView = mapSide(opponent);
+
+  // Compute available actions: action is available when the unit cd === 0 and number > 0
+  /** @type {BattleActionView[]} */
+  const actions = BATTLE_ACTIONS.map(a => {
+    const unit = player?.[a.side];
+    const cd       = unit?.cd         ?? 0;
+    const lastMax  = unit?.lastMaxCD  ?? 1;
+    const number   = unit?.number     ?? 0;
+    const cdPct    = lastMax > 0 ? Math.round((cd / lastMax) * 100) : 0;
+    return {
+      id:        a.id,
+      name:      a.name,
+      side:      /** @type {'warriors' | 'archers'} */ (a.side),
+      cdPct,
+      available: (number > 0) && (cd === 0) && (bs.state === 'running'),
+    };
+  });
+
+  // Progress: based on casualties as fraction of total starting units
+  const pStart = (player?.warriors?.startingNumber ?? 0) + (player?.archers?.startingNumber ?? 0);
+  const oStart = (opponent?.warriors?.startingNumber ?? 0) + (opponent?.archers?.startingNumber ?? 0);
+  const totalStart = pStart + oStart;
+  const totalAlive = (player?.number ?? 0) + (opponent?.number ?? 0);
+  const progressPct = totalStart > 0
+    ? Math.min(100, Math.round(((totalStart - totalAlive) / totalStart) * 100))
+    : 0;
+
+  // Log: ring buffer, newest first (already unshift in battle.js — index 0 is newest)
+  const log = Array.isArray(bs.log) ? bs.log.slice(0, 30) : [];
+
+  return {
+    active:      true,
+    state:       bs.state ?? null,
+    zoneId:      bs.zoneId ?? null,
+    player:      playerView,
+    opponent:    opponentView,
+    actions,
+    log,
+    progressPct,
+    summary:     bs.summary ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // M7b T-006 — Battle log selector (iter-018)
 // ---------------------------------------------------------------------------
 

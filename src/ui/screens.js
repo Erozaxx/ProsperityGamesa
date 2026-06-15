@@ -10,7 +10,7 @@ import {
   selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance, selectMarket,
   selectBuildableBuildings, selectProjectQueue, selectBuilderCapacity, selectBuilderCompanies,
   selectContracts, selectTechTree, selectResearchProgress, selectTechPoints,
-  selectWorldZones, selectFactions, selectQuests,
+  selectWorldZones, selectFactions, selectQuests, selectBattle,
 } from './selectors.js';
 
 // ---------------------------------------------------------------------------
@@ -730,4 +730,187 @@ export function WorldZonesScreen({ snapshot, send }) {
           `}
       </section>
     </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// BattleScreen (iter-018 M7b T5)
+// ---------------------------------------------------------------------------
+
+/**
+ * Battle screen: live battle with unit display (player/opponent, casualties),
+ * action buttons (charge/volley/shieldWall/flank/fireArrows disabled by cooldown),
+ * battle log, and outcome summary.
+ * Pure component — all reads via selectBattle selector, all writes via send('battleCommand',{side,action}).
+ * ŽÁDNÁ herní logika v UI — veškerá derivace v selectBattle selektoru.
+ *
+ * Playtest feel notes (R-D, for M9 calibration):
+ *   - battle tick = 30 ms, STEP_MS = 50 ms → ~1.67 battle-ticks per herní step
+ *   - cooldown feedback needs to be visible; cdPct bar helps
+ *   - log ring-buffer (30 newest entries) — check if 30 is enough for playtest visibility
+ *   - action buttons grouped by unit type (warriors / archers) — clearer than flat list
+ *   - progress bar shows casualties/(total starting) — consider showing as "dead/started" for M9
+ *
+ * @param {{ snapshot: import('../core/state/types.js').GameState, send: (type: string, params?: object) => {ok: boolean, error?: string} }} props
+ */
+export function BattleScreen({ snapshot, send }) {
+  const battle = selectBattle(snapshot);
+
+  // ── No active battle ─────────────────────────────────────────────────────
+  if (!battle.active) {
+    return html`
+      <div class="screen screen-battle">
+        <h2>Bitva</h2>
+        <p class="empty-state">Žádná aktivní bitva. Bitva začne automaticky při napadení vaší zóny nebo vpádu banditů.</p>
+        ${battle.summary ? html`
+          <div class="battle-outcome battle-outcome-done">
+            <h3>Výsledek poslední bitvy</h3>
+            <div class="battle-summary-detail">${_renderSummary(battle.summary)}</div>
+          </div>
+        ` : null}
+      </div>`;
+  }
+
+  // ── Active (or just finished) battle ────────────────────────────────────
+
+  /** @param {import('./selectors.js').BattleActionView} a */
+  function renderAction(a) {
+    const isOnCd = !a.available && (a.cdPct > 0);
+    const noUnits = !a.available && a.cdPct === 0;
+    let title = '';
+    if (a.available)  title = `Použít ${a.name}`;
+    else if (isOnCd)  title = `${a.name} – nabíjení (${a.cdPct} %)`;
+    else if (noUnits) title = `${a.name} – žádné jednotky`;
+    else              title = `${a.name} – bitva ukončena`;
+
+    return html`
+      <div key=${a.id} class="battle-action ${a.available ? 'battle-action-ready' : 'battle-action-disabled'}">
+        <button
+          onClick=${() => send('battleCommand', { side: a.side, action: a.id })}
+          disabled=${!a.available}
+          title=${title}
+          class="battle-action-btn"
+        >${a.name}</button>
+        ${isOnCd ? html`
+          <progress class="battle-cd-bar" value=${100 - a.cdPct} max="100"
+            title="Nabíjení: ${a.cdPct} % zbývá"
+          ></progress>
+        ` : null}
+      </div>`;
+  }
+
+  const warriorActions = battle.actions.filter(a => a.side === 'warriors');
+  const archerActions  = battle.actions.filter(a => a.side === 'archers');
+  const isDone = battle.state === 'done';
+
+  return html`
+    <div class="screen screen-battle">
+      <h2>Bitva${battle.zoneId ? ` — zóna: ${battle.zoneId}` : ''}</h2>
+
+      <!-- ── Status + progress ── -->
+      <div class="battle-status-row">
+        <span class="battle-state-badge battle-state-${battle.state ?? 'unknown'}">
+          ${isDone ? 'Ukončeno' : 'Probíhá'}
+        </span>
+        <span class="battle-progress-label">${battle.progressPct} % ztráty</span>
+        <progress class="battle-progress-bar" value=${battle.progressPct} max="100"
+          title="${battle.progressPct} % celkových ztrát"
+        ></progress>
+      </div>
+
+      <!-- ── Sides ── -->
+      <div class="battle-sides">
+        <!-- Player -->
+        ${battle.player ? html`
+          <div class="battle-side battle-side-player">
+            <h3>Hráč (${battle.player.action === 'Defending' ? 'Obrana' : 'Útok'})</h3>
+            <dl class="battle-units">
+              <dt>Válečníci</dt>
+              <dd>${battle.player.warriors.number} / ${battle.player.warriors.startingNumber}
+                <span class="battle-casualties">(−${battle.player.warriors.casualties})</span>
+              </dd>
+              <dt>Lučištníci</dt>
+              <dd>${battle.player.archers.number} / ${battle.player.archers.startingNumber}
+                <span class="battle-casualties">(−${battle.player.archers.casualties})</span>
+              </dd>
+            </dl>
+          </div>
+        ` : null}
+
+        <div class="battle-vs">VS</div>
+
+        <!-- Opponent -->
+        ${battle.opponent ? html`
+          <div class="battle-side battle-side-opponent">
+            <h3>${battle.opponent.liege === 'bandits' ? 'Bandité' : battle.opponent.liege}
+              (${battle.opponent.action === 'Attacking' ? 'Útok' : 'Obrana'})</h3>
+            <dl class="battle-units">
+              <dt>Válečníci</dt>
+              <dd>${battle.opponent.warriors.number} / ${battle.opponent.warriors.startingNumber}
+                <span class="battle-casualties">(−${battle.opponent.warriors.casualties})</span>
+              </dd>
+              <dt>Lučištníci</dt>
+              <dd>${battle.opponent.archers.number} / ${battle.opponent.archers.startingNumber}
+                <span class="battle-casualties">(−${battle.opponent.archers.casualties})</span>
+              </dd>
+            </dl>
+          </div>
+        ` : null}
+      </div>
+
+      <!-- ── Actions (only while battle is running) ── -->
+      ${!isDone ? html`
+        <section class="battle-actions-section">
+          <h3>Akce válečníků</h3>
+          <div class="battle-actions-row">
+            ${warriorActions.map(a => renderAction(a))}
+          </div>
+          <h3>Akce lučištníků</h3>
+          <div class="battle-actions-row">
+            ${archerActions.map(a => renderAction(a))}
+          </div>
+        </section>
+      ` : null}
+
+      <!-- ── Outcome summary (when done) ── -->
+      ${isDone && battle.summary ? html`
+        <div class="battle-outcome">
+          <h3>Výsledek</h3>
+          ${_renderSummary(battle.summary)}
+        </div>
+      ` : null}
+
+      <!-- ── Battle log ── -->
+      ${battle.log.length > 0 ? html`
+        <section class="battle-log-section">
+          <h3>Průběh bitvy</h3>
+          <ul class="battle-log-list">
+            ${battle.log.map((/** @type {[string, string|null]} */ entry, idx) => html`
+              <li key=${idx} class="battle-log-entry ${entry[1] ? 'battle-log-' + entry[1] : ''}">
+                ${entry[0]}
+              </li>
+            `)}
+          </ul>
+        </section>
+      ` : null}
+    </div>`;
+}
+
+/**
+ * Render battle outcome summary details (pure helper, no DOM, no state).
+ * @param {any} summary
+ */
+function _renderSummary(summary) {
+  if (!summary) return null;
+  const winner = summary.winner === 'player' ? 'Hráč' : (summary.winner ?? '?');
+  const pw = summary.p_warriors ?? { kills: 0, casualties: 0 };
+  const pa = summary.p_archers  ?? { kills: 0, casualties: 0 };
+  const ow = summary.o_warriors ?? { kills: 0, casualties: 0 };
+  const oa = summary.o_archers  ?? { kills: 0, casualties: 0 };
+  return html`
+    <dl class="battle-summary-dl">
+      <dt>Vítěz</dt><dd class=${summary.winner === 'player' ? 'battle-win' : 'battle-loss'}>${winner}</dd>
+      <dt>Ztráty hráče</dt><dd>${pw.casualties + pa.casualties} (válečníci: ${pw.casualties}, lučišt.: ${pa.casualties})</dd>
+      <dt>Ztráty soupeře</dt><dd>${ow.casualties + oa.casualties} (válečníci: ${ow.casualties}, lučišt.: ${oa.casualties})</dd>
+      <dt>Zabití hráčem</dt><dd>${pw.kills + pa.kills}</dd>
+    </dl>`;
 }
