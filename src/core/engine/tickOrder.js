@@ -37,6 +37,7 @@ import { closeMonth } from '../resources/accounting.js';
 import { ageBuildings, buildersProcess } from '../systems/buildings.js';
 import { researchDaily } from '../systems/research.js';
 import { registerContractEffects } from '../systems/contracts.js';
+import { storyCheck, storyApplyEffects } from '../systems/story.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).

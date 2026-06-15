@@ -1,0 +1,92 @@
+{
+  "_meta": { "provenance": "original-paraphrased", "source": "config.js/home.js triggers; text vlastní (R-G)" },
+  "events": {
+    "introWelcome": {
+      "speakerId": "advisor",
+      "text": "Vítejte, pane! Tato země čeká na svého vůdce. Jste připraveni vybudovat prosperující osadu z ničeho?",
+      "stopsEngine": true,
+      "trigger": { "kind": "gameStart" },
+      "onShow": [{ "effect": "noop", "params": {} }],
+      "options": [
+        { "text": "Jasně, začneme!", "effects": [], "next": "introWorld", "nextDelaySteps": 0 }
+      ]
+    },
+    "introWorld": {
+      "speakerId": "advisor",
+      "text": "Svět kolem nás skýtá les, pole i doly. Vaši lidé potřebují střechu nad hlavou, jídlo na stole a práci. Začněme skromně — jeden přístřešek, jedna sklizeň, jeden krok vpřed.",
+      "stopsEngine": true,
+      "trigger": null,
+      "options": [{ "text": "Rozumím.", "effects": [] }]
+    },
+    "firstSettlement": {
+      "speakerId": "advisor",
+      "text": "Tábor roste! Máme dost duší na to, abychom se mohli nazývat osadou. Základy jsou položeny — teď záleží jen na nás.",
+      "stopsEngine": true,
+      "trigger": { "kind": "settlementLevel", "atLeast": 1 },
+      "options": [{ "text": "Výborně!", "effects": [] }]
+    },
+    "firstVillage": {
+      "speakerId": "advisor",
+      "text": "Osada se proměnila ve vesnici. Lidé se stahují z okolí, lákáni naší slávou. Musíme zajistit, aby se jim u nás líbilo.",
+      "stopsEngine": true,
+      "trigger": { "kind": "settlementLevel", "atLeast": 2 },
+      "options": [{ "text": "Úžasné.", "effects": [] }]
+    },
+    "firstTown": {
+      "speakerId": "advisor",
+      "text": "Naše vesnice se povýšila na městečko! Obchodníci začínají projevovat zájem. Je čas rozšířit trh a posílit řemesla.",
+      "stopsEngine": true,
+      "trigger": { "kind": "settlementLevel", "atLeast": 3 },
+      "options": [{ "text": "Pozoruhodné.", "effects": [] }]
+    },
+    "firstCity": {
+      "speakerId": "advisor",
+      "text": "Jsme město! Tisíce duší nás nazývají domovem. Naše jméno rezonuje po celém regionu — ale odpovědnost roste spolu s velikostí.",
+      "stopsEngine": true,
+      "trigger": { "kind": "settlementLevel", "atLeast": 4 },
+      "options": [{ "text": "Jsme město!", "effects": [] }]
+    },
+    "firstStarve": {
+      "speakerId": "advisor",
+      "text": "Špatné zprávy, pane! Naši lidé trpí hladem. Sklady jsou prázdné a dítky pláčí. Musíme okamžitě zajistit zásoby potravin, jinak nás opustí.",
+      "stopsEngine": true,
+      "trigger": { "kind": "flagTrue", "path": "home.food.starvation" },
+      "options": [{ "text": "Musíme jednat.", "effects": [] }]
+    },
+    "firstSick": {
+      "speakerId": "advisor",
+      "text": "Nemoc se rozlézá osadou jako temný mor! Lidé kašlají a padají. Bez léčitelů a léků nás tato pohroma může připravit o polovinu lidu.",
+      "stopsEngine": true,
+      "trigger": { "kind": "flagTrue", "path": "home.health.diseaseActive" },
+      "options": [{ "text": "Prokleli nás bohové.", "effects": [] }]
+    },
+    "firstHovel": {
+      "speakerId": "advisor",
+      "text": "První chatrč je postavena! Skromný přístřešek, to je pravda, ale pro bezdomovce je to palác. Naši stavitelé jsou připraveni budovat dál.",
+      "stopsEngine": true,
+      "trigger": { "kind": "buildingBuilt", "id": "hovel" },
+      "options": [{ "text": "Pokrok!", "effects": [] }]
+    },
+    "firstHouse": {
+      "speakerId": "advisor",
+      "text": "Postavili jsme první dům! Solidní stavba s pořádnou střechou a okny. Naši obyvatelé budou spokojeni a přivedou nové rodiny.",
+      "stopsEngine": true,
+      "trigger": { "kind": "buildingBuilt", "id": "house" },
+      "options": [{ "text": "Náš lid bude spokojený.", "effects": [] }]
+    },
+    "firstMansion": {
+      "speakerId": "advisor",
+      "text": "Přepych! Velkolepé sídlo zdobí naše město. Bohatí kupci a šlechtici se sjíždějí, aby viděli tuto nádheru. Naše pověst vzrostla.",
+      "stopsEngine": true,
+      "trigger": { "kind": "buildingBuilt", "id": "mansion" },
+      "options": [{ "text": "Přepych.", "effects": [] }]
+    },
+    "survivedWinter": {
+      "speakerId": "advisor",
+      "text": "Přežili jsme další zimu! Mráz byl krutý, zásoby skromné — ale naši lidé jsou silní. Každý rok, který překonáme, nás činí odolnějšími.",
+      "stopsEngine": true,
+      "trigger": { "kind": "calendar", "every": "year" },
+      "options": [{ "text": "Přežili jsme.", "effects": [] }]
+    }
+  }
+}
