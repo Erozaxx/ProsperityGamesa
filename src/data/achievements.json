@@ -1,98 +1,185 @@
 {
   "_meta": {
-    "provenance": "extracted",
-    "source": "doc/original_source/extracted/config-extract.json"
+    "note": "Numeric thresholds (army 100/500/5000, gold 1M, year >=2) = factual data, preserved as-is. Names and descriptions rewritten.",
+    "provenance": "original-paraphrased",
+    "source": "doc/original_source/extracted/config-extract.json (IDs, numeric thresholds); texty vlastní parafrázované (R-G)"
   },
   "achievements": [
     {
-      "description": "Your camp has become a settlement through the hard work of you and your people",
+      "description": "Tábor přerostl v usedlost. Váš lid zapustil kořeny — a nic už nebude jako dřív.",
       "id": "achieveSettlement",
       "level": 0,
-      "name": "Settled Down"
+      "name": "Zárodek civilizace",
+      "onUnlock": [],
+      "when": {
+        "atLeast": 1,
+        "kind": "settlementLevel"
+      }
     },
     {
-      "description": "Your settlement has become a village, complete with thriving economy and sturdy infrastructure",
+      "description": "Usedlost vyrostla ve vesnici s fungující ekonomikou a pevnými základy. Hrdost přichází sama.",
       "id": "achieveVillage",
       "level": 1,
-      "name": "Village Life"
+      "name": "Vesnické zátiší",
+      "onUnlock": [],
+      "when": {
+        "atLeast": 2,
+        "kind": "settlementLevel"
+      }
     },
     {
-      "description": "Your village has earned a spot on the map thanks to your hard work",
+      "description": "Vaše sídlo si vydobylo místo na obchodních mapách. Svět o vás ví.",
       "id": "achieveTown",
       "level": 2,
-      "name": "Town Status"
+      "name": "Město na mapě",
+      "onUnlock": [],
+      "when": {
+        "atLeast": 3,
+        "kind": "settlementLevel"
+      }
     },
     {
-      "description": "Not only have you thwarted threats, but have continually improved your town into a city",
+      "description": "Přes všechny překážky jste vybudovali skutečné město. Legendy se rodí takto.",
       "id": "achieveCity",
       "level": 3,
-      "name": "City Builder"
+      "name": "Stavitel města",
+      "onUnlock": [],
+      "when": {
+        "atLeast": 4,
+        "kind": "settlementLevel"
+      }
     },
     {
-      "description": "You have amassed an army of 100 units",
+      "description": "Sto ostří pod vaším velením. Nepřátelé váš pochod začínají brát vážně.",
       "id": "achieveCenturion",
       "level": 1,
-      "name": "Centurion"
+      "name": "Centurion",
+      "onUnlock": [],
+      "when": {
+        "kind": "sumGte",
+        "paths": [
+          "player.totWarriors",
+          "player.totArchers"
+        ],
+        "value": 100
+      }
     },
     {
-      "description": "You have amassed an army of 500 units",
+      "description": "Pět set vojáků pochoduje pod vaší zástavou. Menší království se radí, zda raději vyjednávat.",
       "id": "achieveCohort",
       "level": 2,
-      "name": "Cohort"
+      "name": "Kohorta",
+      "onUnlock": [],
+      "when": {
+        "kind": "sumGte",
+        "paths": [
+          "player.totWarriors",
+          "player.totArchers"
+        ],
+        "value": 500
+      }
     },
     {
-      "description": "You have amassed an army of 5000 units, go forth and dominate!",
+      "description": "Pět tisíc hrdel. Jděte a podrobte si svět — nikdo vám nestojí v cestě.",
       "id": "achieveLegion",
       "level": 3,
-      "name": "Legion"
+      "name": "Legie",
+      "onUnlock": [],
+      "when": {
+        "kind": "sumGte",
+        "paths": [
+          "player.totWarriors",
+          "player.totArchers"
+        ],
+        "value": 5000
+      }
     },
     {
-      "description": "You have won the heart and minds of your enemies, acquiring them through non-lethal means",
+      "description": "Dobyli jste srdce svých protivníků. Mír přišel bez jediné zbytečně prolité kapky krve.",
       "id": "achieveBenevolence",
       "level": 2,
-      "name": "Benevolent Leader"
+      "name": "Laskavý vůdce",
+      "onUnlock": [],
+      "when": {
+        "kind": "never"
+      }
     },
     {
-      "description": "Your ruthlessness has opened the doors to many cities without struggle out of respect, or fear, of you",
+      "description": "Vaše pověst otevírá brány dříve, než k nim dorazíte. Nikdo se neopováží klást odpor.",
       "id": "achieveFeared",
       "level": 2,
-      "name": "Feared Leader"
+      "name": "Obávaný vůdce",
+      "onUnlock": [],
+      "when": {
+        "kind": "never"
+      }
     },
     {
-      "description": "Your military prowess has forced your opponents into obedience, and with no alternatives, join your side",
+      "description": "Vojenská síla promluvila za všechno. Váš protivník nemá na výběr — složí zbraně.",
       "id": "achieveMight",
       "level": 2,
-      "name": "Mighty Leader"
+      "name": "Mocný vůdce",
+      "onUnlock": [],
+      "when": {
+        "kind": "never"
+      }
     },
     {
-      "description": "Careful economic management has amassed you a fortune over 1 million gold",
+      "description": "Milion zlatých. Vaše truhly se pod tíhou mincí prohýbají — snad to zvládnou.",
       "id": "achieveGoldHoarder",
       "level": 2,
-      "name": "Gold Hoarder"
+      "name": "Zlatý hromadič",
+      "onUnlock": [],
+      "when": {
+        "kind": "stateGte",
+        "path": "player.gold",
+        "value": 1000000
+      }
     },
     {
-      "description": "Manors are for plebs, you moved into a chateau overlooking the city",
+      "description": "Panský dům byl pro vás příliš skromný. Přesunuli jste se do zámečku s výhledem na celé město.",
       "id": "achieveLuxury",
       "level": 3,
-      "name": "Luxury"
+      "name": "Luxusní bydlení",
+      "onUnlock": [],
+      "when": {
+        "id": "chateau",
+        "kind": "buildingBuilt"
+      }
     },
     {
-      "description": "Being too good for the city, you moved out to the country in your very own Estate",
+      "description": "Město je příliš hlučné pro vás. Přestěhovali jste se na venkovské sídlo — s veškerým přepychem.",
       "id": "achieveExtravagance",
       "level": 4,
-      "name": "Extravagance"
+      "name": "Nóbl extravagance",
+      "onUnlock": [],
+      "when": {
+        "id": "estate",
+        "kind": "buildingBuilt"
+      }
     },
     {
-      "description": "Well done, everyone is sick, even the cows",
+      "description": "Epidemie nezná hranic — nakažení jsou lidé i dobytek. Příště možná zkuste mýdlo.",
       "id": "achieveUnhygienic",
       "level": 0,
-      "name": "Unhygienic"
+      "name": "Šiřitel nákazy",
+      "onUnlock": [],
+      "when": {
+        "kind": "flagTrue",
+        "path": "home.health.diseaseActive"
+      }
     },
     {
-      "description": "A year has passed and you have not given up, kudos",
+      "description": "Celý rok přišel a odešel, a vy jste stále tady. To se počítá.",
       "id": "achievementSurvivedWinter",
       "level": 0,
-      "name": "Survived Winter"
+      "name": "Přežili jsme zimu",
+      "onUnlock": [],
+      "when": {
+        "kind": "stateGte",
+        "path": "season.curYear",
+        "value": 2
+      }
     }
   ]
 }

@@ -28,6 +28,7 @@ import { registerContractCommands } from '../core/commands/contracts.js';
 import { registerQuestCommands } from '../core/commands/quests.js';
 import { registerBattleCommands } from '../core/commands/battleCommand.js';
 import { registerStoryCommands } from '../core/commands/story.js';
+import { registerEffects } from '../core/registry/effects.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
 import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
 import { armBanditRaid } from '../core/systems/battle.js';
@@ -88,6 +89,11 @@ function buildCtxCatalog() {
     const cat = getCatalog('story');
     catalog['story'] = cat; // entire catalog object (events map)
   }
+  // iter-019 M8 T3: achievements catalog (entire object for achievementsEval)
+  if (hasCatalog('achievements')) {
+    const cat = getCatalog('achievements');
+    catalog['achievements'] = cat;
+  }
   return /** @type {import('../core/state/types.js').CatalogCache} */ (catalog);
 }
 
@@ -129,6 +135,8 @@ function bootstrapEngine() {
   registerBattleCommands(creg);
   // iter-019 M8 T1: story commands (acknowledgeEvent)
   registerStoryCommands(creg);
+  // iter-019 M8 T3: register K14 effects (unlockMap, grantResource real mutations — MIN-2)
+  registerEffects(registry);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };
