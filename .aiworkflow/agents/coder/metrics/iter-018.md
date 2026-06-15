@@ -16,3 +16,9 @@
 - **tool_uses**: 81
 - **duration_ms**: 542941
 - **outcome**: ci 1362/1362, smoke OK; battleLog→OfflineSummary; banditRaid z T-004; 30 testů
+## T-007 (T5 battle UI)
+- **Timestamp**: 2026-06-15T10:45Z
+- **total_tokens**: 121867
+- **tool_uses**: 65
+- **duration_ms**: 407085
+- **outcome**: ci 1385/1385, smoke OK (tab Bitva); BattleScreen+selektory; M7b impl kompletní
