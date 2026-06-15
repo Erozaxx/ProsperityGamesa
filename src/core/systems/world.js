@@ -22,7 +22,7 @@ import { getGoldValue, marketInject } from './market.js';
 import { register } from '../registry/registry.js';
 import { scheduleInsert } from '../engine/scheduler.js';
 import { grant } from '../resources/transactions.js';
-import { startBattle } from './battle.js';
+import { startBattle, banditRaid } from './battle.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -1227,6 +1227,7 @@ export function registerWorldEffects(reg) {
   register(reg, 'world.takeOver', takeOver);
   register(reg, 'AIIsAttacking', AIIsAttackingStub);
   register(reg, 'startBattle', startBattleHandler);
+  register(reg, 'banditRaid', banditRaid);
   register(reg, 'warningAIAttacking', warningAIAttackingStub);
   register(reg, 'dangerAIAttacking', dangerAIAttackingStub);
   register(reg, 'loadImportantEvent', loadImportantEventStub);

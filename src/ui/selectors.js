@@ -758,3 +758,33 @@ export function selectQuests(s) {
     };
   });
 }
+
+// ---------------------------------------------------------------------------
+// M7b T-006 — Battle log selector (iter-018)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{
+ *   zoneId: string,
+ *   winner: string | null,
+ *   playerCasualties: number,
+ *   playerKills: number,
+ *   loot: object | null,
+ *   atStep: number
+ * }} BattleLogEntry
+ */
+
+/**
+ * Selects battle log entries for display (e.g. offline summary, history panel).
+ * Reads state.world.battleLog (populated by resolveBattleOutcome §9.3, max 50 records).
+ * Returns newest-first (original push order reversed).
+ * No logic — pure read + reverse.
+ * @param {GameState} s
+ * @returns {BattleLogEntry[]}
+ */
+export function selectBattleLog(s) {
+  const log = /** @type {BattleLogEntry[] | undefined} */ (/** @type {any} */ (s).world?.battleLog);
+  if (!Array.isArray(log)) return [];
+  // Newest first (battleLog is push-ordered, oldest first)
+  return log.slice().reverse();
+}

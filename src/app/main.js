@@ -29,6 +29,7 @@ import { registerQuestCommands } from '../core/commands/quests.js';
 import { registerBattleCommands } from '../core/commands/battleCommand.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
 import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
+import { armBanditRaid } from '../core/systems/battle.js';
 import { marketInit } from '../core/systems/market.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
@@ -210,6 +211,10 @@ export async function bootSequence(env) {
     // iter-017 M7a-2 T2: Arm faction AI schedulers (per-faction set-difference guard).
     armFactionAI(state);
 
+    // iter-018 M7b T4: Arm bandit raid scheduler (idempotent, anti-DR-012-02).
+    // Mirror of armContractOffer/armFactionAI: guard scheduleCountOf===0, covers fresh+old saves.
+    armBanditRaid(state);
+
     // B-3: Create autosave coordinator (periodic + hide bypass)
     const autosave = createAutosave({
       doSave: async () => { await env.saveGame(state); },
@@ -326,11 +331,14 @@ export async function bootSequence(env) {
       }
 
       // Build and store offline summary
+      // iter-018 M7b T-006: pass state + startStep for battleLog integration (§9.3)
       offlineSummary = buildOfflineSummary({
         missedMs,
         wasCapped: result.capped,
         stepsRun: result.stepsRun,
         interrupted: result.interrupted,
+        state,
+        startStep: state.engine.curStep - result.stepsRun,
       });
       catchupProgress = null;
       requestRender();

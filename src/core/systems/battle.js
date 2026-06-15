@@ -19,7 +19,7 @@ import { BALANCE } from '../balance/balance.js';
 import { battleDamage, battleDefense, revivePlayer, reviveAI } from '../balance/formulas.js';
 import { makeRng } from '../engine/rng.js';
 import { STEP_MS } from '../engine/clock.js';
-import { scheduleInsert } from '../engine/scheduler.js';
+import { scheduleInsert, scheduleCountOf } from '../engine/scheduler.js';
 import { getCatalog, hasCatalog } from '../catalog/index.js';
 import { grant, pay, canAfford } from '../resources/transactions.js';
 
@@ -804,6 +804,23 @@ export function banditRaid(state, params, _ctx) {
   const nextStep = (st.engine?.curStep ?? 0) + BALANCE.battle.banditPeriod;
   if (st.engine && nextStep >= st.engine.curStep) {
     scheduleInsert(state, nextStep, 'banditRaid', {});
+  }
+}
+
+/**
+ * Idempotent arm of the bandit raid scheduler (anti-DR-012-02).
+ * Mirror of armContractOffer / armFactionAI pattern.
+ * Called ONCE from bootSequence after armFactionAI.
+ * Guard: scheduleCountOf('banditRaid')===0 → insert first event; else no-op.
+ * Covers fresh start + old saves without banditRaid in schedule.
+ * Deterministic — no RNG at arm time (jitter is M9 calibration).
+ * @param {GameState} state
+ */
+export function armBanditRaid(state) {
+  if (scheduleCountOf(state, 'banditRaid') === 0) {
+    const st = /** @type {any} */ (state);
+    const step = Math.max(st.engine?.curStep ?? 0, 1) + BALANCE.battle.banditPeriod;
+    scheduleInsert(state, step, 'banditRaid', {});
   }
 }
 
