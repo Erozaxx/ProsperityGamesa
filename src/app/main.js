@@ -468,6 +468,12 @@ export async function boot() {
       root,
       raf: requestAnimationFrame.bind(globalThis),
       getExtraProps: deps.getExtraProps,
+      // iter-021 T1 UX-3: UI-layer clock for render throttle (performance.now, never core).
+      now: (typeof performance !== 'undefined' && performance.now)
+        ? performance.now.bind(performance)
+        : Date.now.bind(Date),
+      setTimeoutFn: (cb, ms) => setTimeout(cb, ms),
+      clearTimeoutFn: (id) => clearTimeout(/** @type {any} */ (id)),
     }),
     loadCatalogs: () => loadAllCatalogs(),
     loadGame: (slotId, catalog) => loadGame(slotId, catalog),
