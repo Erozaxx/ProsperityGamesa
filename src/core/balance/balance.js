@@ -76,7 +76,15 @@ export const BALANCE = Object.freeze({
     haggleBuy: 1.35,
     /** Haggle multiplier for selling. Source: config.js:417 */
     haggleSell: 0.6,
-    /** Daily mean-reversion drift rate toward baseline. provenance: approximated, gap G-MARKET-DRIFT (M9). */
+    /**
+     * Daily mean-reversion drift rate toward baseline (available += k·(baseline−available)).
+     * provenance: calibrated (iter-020 M9a, G-MARKET-DRIFT closed). Was approximated (M4b).
+     * Confirmed = 0.2 against playability goals CÍL-1/CÍL-3 (design_iter-020_T-001.md §1):
+     *   - CÍL-1 (recovery, dolní strážce): N(5% návrat k baseline) = 14 dní (0.8^14≈0.044<0.05).
+     *   - CÍL-3 (impact persistence, horní strážce): retention(1 den) = 1−k = 0.80 ≥ 0.60.
+     *   → 0.2 je bezpečný střed přípustného okna [0.10, 0.40]; mimo něj jeden z cílů padá.
+     * Sweep audit + asserty: test/m9a-market.test.js (T2). Drift vzorec se NEMĚNÍ (kalibrace = data).
+     */
     driftK: 0.2,
   },
 
@@ -204,8 +212,29 @@ export const BALANCE = Object.freeze({
 
   /** Offline simulation cap. Source: architecture §9.2a, confirmed M0 benchmark */
   offline: {
-    /** Max real hours of offline progress to simulate. */
+    /**
+     * Technical cap: max real hours of offline progress the engine can simulate
+     * (8 h ≈ 576 000 kroků). Hypothesis confirmed by M0 benchmark. This is what the
+     * engine can BEAR — not a balance value. Do NOT lower as balance tuning; use
+     * capBalanceRealHours for that. provenance: confirmed (M0 benchmark, §9.2a).
+     */
     capTechRealHours: 8,
+    /**
+     * Balance cap: how much offline progress is HEALTHY for the game (UX/balance, §9.2b).
+     * iter-020 M9a T3 (DR-020-01 §2): separated from capTechRealHours to keep the (a) tech
+     * / (b) balance distinction (§9.2a, N-01). Engine applies the effective cap =
+     * min(capTechRealHours, capBalanceRealHours) — see src/app/main.js (MINOR-1 wiring),
+     * so this constant is NOT a latent no-op.
+     *
+     * Value = 8 h, variant A from tom-proxy gate T-003 (idle-friendly: "vrátíš se po
+     * pracovním dni a vše doženeš"; ~640 herních dní). Reversible config — lowering to
+     * 2 h (var B) / 0.5 h (var C) later is a pure data change, no architecture impact.
+     *
+     * provenance: calibrated (tom-proxy gate T-003 → var A=8h).
+     * MINOR-4 (DR-020-01): name diverges from architektura's `capRealHours` (§9.2b) —
+     * intentional, the tech/balance separation is by design.
+     */
+    capBalanceRealHours: 8,
   },
 
   /** Starting values for a new game. provenance: approximated */
@@ -232,6 +261,27 @@ export const BALANCE = Object.freeze({
     diseaseBaseChancePer20kPop: 0.01,
     diseaseDurationDays: 14,
     diseaseDeathFraction: 0.05,
+    /**
+     * VĚDOMÁ ODCHYLKA (home.js:970, DR-020-01 §3 / design §4.4) — EVIDENCE, ZATÍM BEZ LOGIKY.
+     *
+     * Originál `services/home.js:970` natural-healing šance (rng < ...):
+     *   rng < consecutiveDiseased * (0.02 + p_innoculation.running ? 0.01 : 0)
+     * JS precedence-bug: `?:` má NIŽŠÍ prioritu než `+`, takže se vyhodnotí jako
+     *   (0.02 + p_innoculation.running) ? 0.01 : 0  → vždy truthy → vždy 0.01
+     * ⇒ inoculation tech je v originálu BEZCENNÝ (nemá žádný efekt na uzdravení).
+     *
+     * ROZHODNUTÍ (DR-020-01 §3): až se consecutiveDiseased/inoculation mechanika do core přidá,
+     * použij ZAMÝŠLENOU variantu `consecutiveDiseased * (0.02 + (inoculation ? 0.01 : 0))`
+     * (věrný rebuild = věrnost ZÁMĚRU hry, ne reprodukce precedence-bugu; inoculation musí mít efekt;
+     * baseline 0.02 vs 0.01 ovlivňuje délku epidemií → balanc regression "ne >30 dní"). provenance: original-intended.
+     *
+     * POZN.: tato mechanika v current core NEEXISTUJE (grep consecutiveDiseased/inoculation = 0),
+     * proto se zde konstanty pouze evidují a NEZAPOJUJÍ (žádná změna logiky v M9a):
+     *   diseaseRecoveryBase: 0.02  (baseline natural-healing per consecutiveDiseased)
+     *   inoculationBonus: 0.01     (přídavek, KDYŽ inoculation tech běží — zamýšleně, ne dle bugu)
+     */
+    diseaseRecoveryBase: 0.02,
+    inoculationBonus: 0.01,
   },
 
   /** Crime mechanic constants. provenance: approximated */

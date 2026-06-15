@@ -1,33 +1,36 @@
 # Current Task
 
-- **Task ID**: T-008 (REVIEW GATE M8 + DoD M8, iter-019, Opus, závěrečný review poslední obsahové vrstvy)
-- **Brief**: BRIEF-019-008
-- **Iteration**: iter-019
+- **Task ID**: T-007 (FINAL REVIEW GATE M9a + DoD M9a, iter-020, Opus, právo re-run)
+- **Brief**: BRIEF-020-007
+- **Iteration**: iter-020
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-15
 - **Completed**: 2026-06-15
 
 ## Co teď dělám
-Hotovo: Závěrečný review gate M8 (produkční diff adef6d3..HEAD -- src/ test/, 25 souborů) + ověření DoD M8. Hodnoceno PROTI KÓDU (story.js, achievements.js, predicate.js, commands/story.js, effects.js, uiEventBus.js, main.js:356-419, clock.js:64, catchup.js:46-59, tickOrder.js, selectors.js, GamelogScreen.js, persistSchema.js:44, load.js:283, createInitialState.js:123, story.json/achievements.json/dialogues.json/tutorials.json), grep gate (C4/DOM/RNG), proti designu DESIGN-019-001 (T1-T4) + architektuře (§3.4/§7.2/K14/K18/D10/C4).
+Hotovo: závěrečný review gate M9a + ověření DoD M9a. Hodnoceno PROTI KÓDU (produkční diff
+`merge-base HEAD main..HEAD -- src/ test/`): main.js:64 cap derivace + 256-257 živé použití,
+balance.js driftK provenance/capBalanceRealHours/home.js:970 evidence, market.js (jen komentář),
+formulas.js marketPrice, catchup.js catchupStepCount + grep verifikace (cap usages, catchupStepCount
+callers, consecutiveDiseased/inoculation=0, diseaseRecoveryBase readers=0) + body-level diff market.js=0
++ DR-020-01 podmínky (MINOR-1/2/4 + home.js:970).
 
 ## Výsledek
-Verdikt: **GO-s-podmínkami**. DoD M8 splněn (s 1 data-gapem k opravě). Žádný blocker.
+Verdikt: **GO**. Žádný blocker, major ani minor; 2 nity (nezávazné).
 
-- **C4 fix: PASS bez výhrad ✓** — grep gate čistý, jediný `unlocked[id]=true` zápis = achievements.js:61 (unlockAchievement). Deklarativní predikáty + 1 evaluator. Žádné imperativní háčky.
-- **emitEvent EFEMÉRNÍ: PASS bez výhrad ✓** — bus mimo state/hashState, optional ctx.emitEvent?.(), grep document|window v src/core/ = NONE, T4-1 test reálně porovnává hashState s/bez busu.
-- **Engine-stopping serializovatelnost (D10): PASS bez výhrad ✓** — story.* plain-data, speaker=speakerId string (resolve v selektoru), ack NELOSUJE RNG, advance() zahodí akumulátor při running===false, save round-trip bit-identický.
-- **Catch-up pauza MAJ-1: PASS bez výhrad ✓** — main.js:370-395 while-smyčka remaining, autosave/buildOfflineSummary ZA smyčkou, cap neporušen, UI eventy agregovány.
-- **Determinismus + UI bez logiky: PASS ✓**
+- INV-1 kalibrace=data: PASS — formulas/drift/catchup signatury i těla NEMĚNĚNY (body-diff market.js=0).
+- INV-2 MINOR-1 cap z BALANCE: PASS — odvozen z BALANCE (main.js:64), ŽIVĚ zapojen do catch-up (main.js:256-257), ne no-op; D10 zachováno.
+- INV-3 cíle-proti-referenci (R-C): PASS — harness na core+goods.json, žádná serverová data; N=14 korektní.
+- INV-4 determinismus+dekompozice: PASS — kvartální 81 900 kroků it(), save/load bit-identické, golden-hash deterministický/regenerovatelný (ne flaky).
+- INV-5 vědomé odchylky: PASS — home.js:970 grep=0 deferred evidence, MINOR-4 název, driftK calibrated — zapsané ne skryté.
+- DoD M9a: SPLNĚNO; G-MARKET-DRIFT uzavřen.
 
 ## Nálezy (severity)
 - BLOCKER: 0
-- MAJOR: 1 (MAJ-1: `firstStarve` story trigger `flagTrue:home.food.starvation` je DEAD — state field neexistuje (jen lokální `starved` ve food.js), event nedosažitelný; data+1řádek-core fix, řešit M9, NEblokuje GO M8)
-- MINOR: 2 (survivedWinter jednorázový + mrtvý yearKey kód v storyCheck; chained event z queue přeskočí loadStoryEvent onShow/log/used — dnes neškodí, latentní past)
-- NIT: 3 (unlockAchievement tichý prázdný catch; K14 createScholars/unlockBuilding/insertInventory stále console.log stuby; 3× achievement when:never = M9 wiring per design)
+- MAJOR: 0
+- MINOR: 0
+- NIT: 2 (cap-test importuje CATCHUP_CAP_MS z app/main.js; sweep analytický model paralelně k empirickému — oba nezávazné)
 
-## Stanovisko k tvrdým invariantům
-C4 fix + engine-stopping serializovatelnost + catch-up pauza determinismus + UI event bus efemérnost = VŠECHNY PASS bez výhrad proti kódu. DoD M8 splněn (obsahová vrstva mechanicky kompletní/hratelná, 1 MVP event firstStarve nedosažitelný = podmínka k M9).
-
-Výstup: agents/reviewer/artifacts/final/review_iter-019_T-008.md
+Výstup: agents/reviewer/artifacts/final/review_iter-020_T-007.md
 
 ## NEcommitnuto (per brief).
