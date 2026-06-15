@@ -1,47 +1,47 @@
-# Brief
+# Brief (RE-DISPATCH — dokončení T-004)
 
-- **Brief ID**: BRIEF-019-004
+- **Brief ID**: BRIEF-019-004b
 - **Iteration**: iter-019 (M8)
-- **Task**: T-004 = T1 (importantEvent + story progres)
+- **Task**: T-004 = T1 (importantEvent + story) — DOKONČENÍ (předchozí běh uříznut, CI RED)
 - **From**: Orchestrator
 - **To**: coder (Sonnet)
 - **Date**: 2026-06-15
 
-## Goal
-Implementuj **T1 (importantEvent + story progres)** dle designu — engine-stopping eventy + acknowledgeEvent + catch-up pauza. Nejcitlivější task M8 (determinismus + jediná core engine změna). Design je source of truth. Drž invarianty.
+## ⚠️ Kontext re-dispatch
+Předchozí běh T-004 byl **uříznut** s **rozbitým typecheckem** (CI RED). Hotovo a commitnuto (WIP checkpoint `501afed`):
+- ✅ NOVÉ soubory: `src/core/systems/story.js` (storyCheck/storyApplyEffects), `src/core/commands/story.js` (acknowledgeEvent), `src/core/systems/predicate.js` (evalPredicate — sdílí T3), `src/data/story.json`; `clock.js` advance running===false; `tickOrder.js`; `createInitialState.js` story init.
+- ❌ **ROZBITÉ/CHYBÍ (tvůj úkol):**
 
-## Source of truth
-`agents/coder/context/refs/design_iter-019.md` — čti **T1 (importantEvent/story, engine-stopping, catch-up pauza)**. DR-019-01 (MAJ-1). Originál `doc/original_source/.../events.js`+`game.js`.
+## Scope IN (dokončení)
+1. **Oprav typecheck RED** (`npm run ci` typecheck musí projít) — ověř `tsc --noEmit`:
+   - `src/core/systems/predicate.js`: chybí JSDoc typy (obj/path/acc/p params `any`; predikát-data tvar `kind/path/value/paths/all/any/atLeast/id`) → přidej `@typedef` pro predikát-data + parametr typy.
+   - `src/core/systems/story.js:22,66`: `getCatalog('story')` → `CatalogCache` typ nemá `story` → přidej `story` do CatalogCache type (`src/core/catalog/` types) a registruj story do CATALOG_NAMES/loader (jako jiné katalogy).
+   - `src/core/systems/story.js:89`: `ctx.emitEvent` → `TickContext` nemá `emitEvent`. emitEvent je T4 (UI event bus). Pro T1: přidej `emitEvent?` (optional) do `TickContext` typu (`types.d.ts`) jako minimal stub; reálnou implementaci dodá T4 (T-006). NEBO odlož emitEvent z T1 (story log do state.log/queue). Zvol dle designu, vyjasni v summary.
+   - `src/core/engine/clock.js:84`: TS2367 (`running === false` kde typ je narrowed na `true`) → oprav typ/guard (např. typovat `running: boolean` nebo restrukturalizovat).
+2. **MAJ-1 catch-up re-vstup while-smyčka** (main.js, NOVÝ): main.js dnes má jen `if (!result.interrupted)` (ř.329) — jednorázové. Zaveď **while-smyčku** re-vstupu `runCatchupBatch` s `remaining` dokud není `interrupted=false` NEBO čeká na ack (engine-stopping event uprostřed → smyčka skončí, čeká na acknowledgeEvent, po acku pokračuje). **autosave/buildOfflineSummary AŽ ZA smyčkou** (ne uprostřed). Cap NEporušen. Dle DR-019-01 MAJ-1.
+3. **Testy** (NOVÝ soubor např. `test/m8-story-t1.test.js`): story event→engine-stop (running=false), acknowledgeEvent→running=true+effects, save uprostřed eventu→identický load (hashState), catch-up pauza (event uprostřed dávky→interrupted→re-vstup remaining→pokračování, cap neporušen), ack nelosuje RNG.
 
-## ⚠️ Tvrdé invarianty
-1. **state.story.* plain-data serializovatelné**: `{event, queue, used, lines, tutorials, pendingEffects}` — žádné closury, žádné katalog-ref/funkce (orig pasti `evt.speaker=itemList[]`, `options[].fn` — vyhni se; speaker resolve v SELEKTORU, ne ve stavu). Save uprostřed eventu → identický load.
-2. **Engine-stopping eventy přes EXISTUJÍCÍ `running===false` break** (clock.js advance + catchup.js runCatchupBatch — kontrakt už v repu, beze změny). `acknowledgeEvent` command nastaví `running=true` + spustí pendingEffects.
-3. **Jediná core engine změna (advance)**: `advance()` MUSÍ **zahodit akumulátor při `running===false`** (paralela existující `factor===0` pauzy) — jinak zastavený engine po acku přeskočí. Přesně dle designu.
-4. **MAJ-1 catch-up re-vstup (main.js, NOVÝ kód)**: `runCatchupBatch` vrací `interrupted` při engine-stopping eventu → zaveď **while-smyčku** v main.js (re-vstup s `remaining`, cap NEporušen — byl ořezán předem). **autosave/buildOfflineSummary PŘESUNOUT ZA smyčku** (ne uprostřed přerušeného catch-upu).
-5. **Determinismus**: `acknowledgeEvent` NELOSUJE RNG (stream nezměněn); žádný Date.now/Math.random/DOM v core; catch-up cap-safe.
-
-## Scope IN (T1)
-- `state.story.*` init (createInitialState — pokud už existuje, jen rozšiř dle designu) + persist (persistSchema).
-- importantEvent systém (`src/core/systems/story.js` nebo dle designu): `storyCheck` (day order 90) — deklarativní triggery (sdílí predikát-cestu s achievementy T3, NE imperativní), `storyApplyEffects` (step order 5).
-- `acknowledgeEvent` command + registrace v bootstrapu (anti-dark-code).
-- `advance()` akumulátor-zahození při running===false.
-- main.js catch-up re-vstup while-smyčka (MAJ-1) + přesun autosave/offline summary.
+## ⚠️ Invarianty (drž)
+- state.story.* plain-data (žádné closury/funkce/katalog-ref ve stavu; speaker resolve v selektoru).
+- acknowledgeEvent NELOSUJE RNG; žádný Date.now/Math.random/DOM v core.
+- Engine-stopping přes EXISTUJÍCÍ running===false break (beze změny kontraktu); advance() zahodí akumulátor při running===false.
 
 ## Scope OUT
-- Achievementy = T3 (T-005) — ale predikát-cesta sdílená; pokud zavádíš `evalPredicate`/`predicate.js`, koordinuj (T3 ho dokončí). Intro/tutoriál obsah + gamelog UI = T2+T4 (T-006). NEsahej M7 battle/world automaty.
+- Achievementy = T3 (predikát-cesta sdílená — predicate.js dokonči pro T1 potřeby, T3 rozšíří). Intro/tutoriál obsah + gamelog UI + reálný emitEvent = T2+T4 (T-006). NEsahej M7.
 
-## Gate (Definition of Done)
-- `npm run ci` ZELENÉ (0 fail) — uveď počet testů. Přidej testy: story event spustí engine-stop (running=false), acknowledgeEvent → running=true + effects, save uprostřed eventu → identický load (hashState), **catch-up pauza** (engine-stopping event uprostřed dávky → interrupted → re-vstup remaining → pokračování, cap neporušen), ack nelosuje RNG.
+## Gate (DoD)
+- `npm run ci` ZELENÉ (0 fail, **typecheck projde**) — uveď počet testů.
 - `npm run smoke` OK.
-- **Determinismus G1** + **M7 (m7b-battle, m7a2-world) + M5/M6** nedotčené; žádný Date.now/Math.random/DOM v core.
+- Determinismus G1 + M7 (m7b-battle, m7a2-world) + M5/M6 nedotčené; žádný Date.now/Math.random/DOM v core.
 - Precache regen jen při změně zdroje ovlivňujícího manifest.
 
 ## Inputs
 - Design: `context/refs/design_iter-019.md`, DR-019-01
-- Kód: `src/core/engine/clock.js` (advance, running break ~77, factor===0 ~64), `src/core/engine/catchup.js` (runCatchupBatch ~51), `src/app/main.js` (catch-up volání ~315-345, autosave/buildOfflineSummary, ctx.emitTx ~200), `src/core/state/createInitialState.js` (story stav), `src/save/persistSchema.js`, `src/core/commands/` (vzor), `src/core/engine/tickOrder.js`, originál `events.js`/`game.js`
+- WIP soubory: `src/core/systems/story.js`, `commands/story.js`, `systems/predicate.js`, `data/story.json`, `clock.js`, `tickOrder.js`
+- Kód: `src/app/main.js` (catch-up ~315-345, interrupted ~329), `src/core/state/types.d.ts` (TickContext, CatalogCache), `src/core/catalog/loader.js`+`index.js` (CATALOG_NAMES), `src/save/persistSchema.js`
 
 ## Workflow po dokončení (POVINNÉ — všechny 3)
 - `agents/coder/state/current-task.md` → **Task ID: T-004 (iter-019)**, status: done
-- `agents/coder/artifacts/final/impl_summary_iter-019_T-004.md` (soubor:funkce, gate výstup, jak vyřešeny engine-stopping/MAJ-1/determinismus, sdílená predikát-cesta pro T3)
+- `agents/coder/artifacts/final/impl_summary_iter-019_T-004.md`
 - `bash agents/coder/scripts/handoff-out.sh T-004 "<stručně + gate výsledek>"`
 - NEcommituj (git).
