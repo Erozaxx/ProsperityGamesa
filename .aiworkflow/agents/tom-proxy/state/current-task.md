@@ -1,33 +1,33 @@
 # Current Task
 
 - **Task ID**: T-003
-- **Brief**: BRIEF-017-003 (human gate M7a-2 design)
-- **Iteration**: iter-017
+- **Brief**: BRIEF-018-003 (human gate M7b design)
+- **Iteration**: iter-018
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-15
 - **Completed**: 2026-06-15
 
 ## Co teď dělám
-Hotovo — human gate na M7a-2 design (frakční AI automat + revolty/questy/tribute + AI-AI bitvy + UI) vydán jménem Toma.
+Hotovo — human gate na M7b design (battle automat: live battleCommand + offline auto-resolve G2, invaze + bandité) vydán jménem Toma.
 
 ## Dílčí checklist
 - [x] Přečíst AGENTS.md + brief
-- [x] Přečíst design (rev. T-002a: changelog M-1/M-2/m-4, §3.1 favour migrace, §2.4 armFactionAI, §5.1 quest gating) + DR-017-01 + DR-016-01 + DR-013-00
+- [x] Přečíst design (rev. T-002a: changelog M-1/M-2/M-3/F-1, §6.1a baseRevival, §7.3 double cd-decrement, §4 crit, §8.1a serializovatelnost) + DR-018-01 + DR-013-00
 - [x] Přečíst zadani_projektu.md + done-criteria.md
 - [x] Posoudit 4 produktová rozhodnutí jménem Toma
-- [x] Vydat verdikt → artifacts/final/gate_iter-017_T-003.md
+- [x] Vydat verdikt → artifacts/final/gate_iter-018_T-003.md
 
 ## Verdikt
-SCHVÁLENO (proceed na implementaci M7a-2).
-1. Svět plně ožívá (processAI 1:1 originál, revolty/questy/tribute, AI-AI bitvy) — OK (účel M7a, Scope IN, jádro věrného rebuildu; kostra hotová v M7a-1)
-2. favour migrace number→objekt {factionId:number} (G-FAVOUR-SHAPE) — OK (oprava na originálovou věrnost; bezztrátová deterministická migrace number→{}, revolt nebyl aktivní; povinný migrační test)
-3. AI-AI bitvy RNG vzorcem, plný battle automat = M7b/iter-018 — OK (1:1 originál, levné/deterministické pro catch-up; battle.js nedotčen; konzistentní s gate iter-016)
-4. Approximace (G-CAPITAL-MISMATCH katalog; quest gating přes existující pole) — OK s pozn. (věrnost mechanik zachována, deterministické náhrady odstraňují tichý no-op; kalibrace gapů M9)
+SCHVÁLENO (proceed na implementaci M7b, SPLIT=NE, fallback M7b-1/M7b-2 otevřen).
+1. Bitvy dokončují M7 (live + offline auto-resolve, invaze + bandité) — OK (účel M7b, Scope IN, jádro věrného rebuildu; kostra hotová z M2a/M7a-2)
+2. G2 auto-resolve == live (zdarma, stejný automat, deterministické) — OK (strukturálně zadarmo přes battle.tick every:'step', jedna implementace; věrné + jednoduché)
+3. G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (analogické G-LIST*/G-CAPITAL-MISMATCH, fallback vzor DR-017-01 m-4; provenance flag, M9 ladí feel)
+4. battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd, pevný crit rng) — OK (přesně "věrný rebuild"; odchylka by rozbila balanc + referenční testy)
 
 ## Předpoklady
 - Mandát DR-013-00 (delegace human gatů na tom-proxy v autonomním doběhu M5–M9).
-- Technický review hotový (reviewer T-002 GO-s-podmínkami, architekt T-002a zapracoval M-1/M-2/m-4).
-- Precedens gate iter-016 T-003 (SCHVÁLENO).
+- Technický review hotový (reviewer T-002 GO-s-podmínkami, architekt T-002a zapracoval M-1/M-2/M-3/F-1).
+- Precedens gatů iter-016 / iter-017 T-003 (oba SCHVÁLENO).
 
 ## Blockery
 –

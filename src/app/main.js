@@ -26,8 +26,10 @@ import { registerBuyTech } from '../core/commands/buyTech.js';
 import { registerRecruitUnit } from '../core/commands/recruitUnit.js';
 import { registerContractCommands } from '../core/commands/contracts.js';
 import { registerQuestCommands } from '../core/commands/quests.js';
+import { registerBattleCommands } from '../core/commands/battleCommand.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
 import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
+import { armBanditRaid } from '../core/systems/battle.js';
 import { marketInit } from '../core/systems/market.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
@@ -117,6 +119,8 @@ function bootstrapEngine() {
   registerRecruitUnit(creg);
   // iter-017 M7a-2 T3: quest commands (acceptQuest/rejectQuest)
   registerQuestCommands(creg);
+  // iter-018 M7b T3: battleCommand (hráčské bojové akce → battle queue; anti-dark-code B1)
+  registerBattleCommands(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };
@@ -206,6 +210,10 @@ export async function bootSequence(env) {
 
     // iter-017 M7a-2 T2: Arm faction AI schedulers (per-faction set-difference guard).
     armFactionAI(state);
+
+    // iter-018 M7b T4: Arm bandit raid scheduler (idempotent, anti-DR-012-02).
+    // Mirror of armContractOffer/armFactionAI: guard scheduleCountOf===0, covers fresh+old saves.
+    armBanditRaid(state);
 
     // B-3: Create autosave coordinator (periodic + hide bypass)
     const autosave = createAutosave({
@@ -323,11 +331,14 @@ export async function bootSequence(env) {
       }
 
       // Build and store offline summary
+      // iter-018 M7b T-006: pass state + startStep for battleLog integration (§9.3)
       offlineSummary = buildOfflineSummary({
         missedMs,
         wasCapped: result.capped,
         stepsRun: result.stepsRun,
         interrupted: result.interrupted,
+        state,
+        startStep: state.engine.curStep - result.stepsRun,
       });
       catchupProgress = null;
       requestRender();

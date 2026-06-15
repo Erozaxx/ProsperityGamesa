@@ -1,28 +1,34 @@
 # Current Task
 
-- **Task ID**: T-008 (REVIEW GATE M7a-2 + DoD M7a — frakční automat/revolty/questy/tribute/UI, Opus)
-- **Brief**: BRIEF-017-008
-- **Iteration**: iter-017
+- **Task ID**: T-009 (REVIEW GATE M7b + DoD M7, iter-018, Opus, právo re-run)
+- **Brief**: BRIEF-018-009
+- **Iteration**: iter-018
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-15
 - **Completed**: 2026-06-15
 
 ## Co teď dělám
-Hotovo: Závěrečný REVIEW GATE M7a-2 + ověření DoD M7a (celý milník) PROTI KÓDU. QA (T-007) dala GO empiricky.
-Ověřeno proti kódu: processAI 0–7 (world.js:905–1139, jediný rng 'world', scheduleInsert, faction.state persist); processFaction nepodmíněný re-arm (world.js:1166–1168); armFactionAI set-difference guard (world.js:1245–1263, scheduleCountOf NEPOUŽITO), call-site JEDNOU z bootSequence (main.js:208); migrateFavour 4 větve (world.js:584–592) + persistSchema typeof guard (persistSchema.js:259); aiBattleResolve (formulas.js:380, 1:1 originál); battle.js NEDOTČEN (git: poslední commit iter-007 b7d638a); questy absolutní deadline + questSeq + persist; gatherTributes month order 25 (tickOrder.js:219); UI selektory ratingy/daysLeft on-demand.
-Vlastní běh testů: 110/110 PASS (t2/t3/t6/t1).
+Hotovo: Závěrečný review gate M7b + ověření DoD M7, ověřeno PROTI KÓDU i PROTI ORIGINÁLU (doc/original_source battle.js ř.54-629).
 
 ## Výsledek
-Verdikt: **GO**. DoD M7a **SPLNĚNO**. Determinismus (processAI replay, self-rearm, favour migrace) POTVRZEN proti kódu. battle.js NEDOTČEN.
+Verdikt: **GO**. DoD M7 **SPLNĚN** — milník kompletní. CI 1385/1385 (ověřeno reviewerem).
+
+Tvrdé invarianty 1-6 všechny ✓:
+1. Kontrakt §8.1 beze změny (battleStep PURE, cloneBs).
+2. Serializovatelnost F-1: liege=string, lastAttackId=string|null, žádný army self-ref, žádné closury (rng lokálně v battleTick), žádné undefined. JSON round-trip OK.
+3. G2 == live: battle.tick every:'step' order 30; advance(clock.js:44) i runCatchupBatch(catchup.js:50) volají identický step(). Žádná druhá implementace. Offline=prázdná queue→obranná AI.
+4. Determinismus 1:1: jediný rng('battle'), žádný Math.random. M-1 (?? ne ||, fallback 0.25), M-2 (opponent double cd-decrement 1:1 orig ř.265-291, ověřeno řádek-po-řádku), M-3 (crit 1× po guardu, NE per cíl, NE 2×).
+5. battle.js stub plně nahrazen (862 ř.), startBattle/banditRaid/armBanditRaid wired (main.js:216, world.js:1229-1230).
+6. UI bez logiky: BattleScreen pure, deriváty v selectBattle.
 
 ## Nálezy (severity)
 - BLOCKER: 0
 - MAJOR: 0
-- MINOR: 4 (F-1 zones.json favour stále number=0, ale migrateFavour absorbuje → fresh==load drží + QA tvrzení nepřesné; F-2 aiBattleResolve duplicita formulas.js vs inline processAI; F-3 docs/tickOrder.md neaktualizován o gatherTributes/handlery — gate §9.1; F-4 quests persist přes generický shallow fallback)
-- NIT: 1 (F-5 stuby jasně označené no-op — potvrzení)
+- MINOR: 2 (MIN-1 player-ATTACKING outcome větev neaktivní cesta nad rámec orig; MIN-2 atStep=startedAtStep hraniční offline filtr)
+- NIT: 4 (validace battleCommand vs getAttacks DRY; lastMaxCD magic; thumbRing obě strany 1:1; bandit numbers inline)
 
-Doporučeno před close: doplnit F-3 (tickOrder.md). F-1/F-2/F-4 → M9.
+Žádný nález nebrání GO. Determinismus (replay+kill-resume+G2+1:1) POTVRZEN.
 
-Výstup: agents/reviewer/artifacts/final/review_iter-017_T-008.md
+Výstup: agents/reviewer/artifacts/final/review_iter-018_T-009.md
 
 ## NEcommitnuto (per brief).

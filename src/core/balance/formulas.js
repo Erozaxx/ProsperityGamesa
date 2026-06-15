@@ -350,6 +350,80 @@ export function firewoodNeeds(curWorkers, seasonIndex) {
 }
 
 /**
+ * Battle damage formula (1:1 original battle.js ř.442 getDamage).
+ * PURE: no rng — crit roll is performed outside and passed as bool.
+ * Source: `Math.ceil(Math.max(Math.sqrt(number), number/10) * strength * multiplier * (crit?1.5:1))`
+ *
+ * iter-018 M7b T2.
+ *
+ * @param {number} number - attacking unit count
+ * @param {number} strength - unit strength stat
+ * @param {number} multiplier - attack multiplier (from attack catalog)
+ * @param {boolean} isCrit - true if crit roll passed (rng.next() < critChance, done outside)
+ * @returns {number}
+ */
+export function battleDamage(number, strength, multiplier, isCrit) {
+  return Math.ceil(
+    Math.max(Math.sqrt(number), number / 10) * strength * multiplier * (isCrit ? 1.5 : 1)
+  );
+}
+
+/**
+ * Battle defense formula (1:1 original battle.js ř.494-499).
+ * PURE. defenseCount = sqrt(min(focusNumber, attackerNumber)) / 2.
+ * If defenseCount > 5 → ceil(baseDefense), else ceil(baseDefense * defenseCount).
+ * Guard: if focusNumber === 0 returns 1 (prevents division by zero in caller).
+ *
+ * iter-018 M7b T2.
+ *
+ * @param {number} focusNumber - defending unit count
+ * @param {number} attackerNumber - attacking unit count
+ * @param {number} baseDefense - defender base defense stat
+ * @returns {number}
+ */
+export function battleDefense(focusNumber, attackerNumber, baseDefense) {
+  if (focusNumber <= 0) return 1; // edge: no defenders → minimal defense
+  const defenseCount = Math.sqrt(Math.min(focusNumber, attackerNumber)) / 2;
+  if (defenseCount > 5) {
+    return Math.ceil(baseDefense);
+  }
+  return Math.ceil(baseDefense * defenseCount);
+}
+
+/**
+ * Revival formula for player troops (PURE, deterministic, no rng).
+ * Source: orig battle.js ř.311 `Math.floor(casualties * (baseRevival + bonuses))`.
+ * baseRevival: from state.player.baseRevival ?? BALANCE.battle.baseRevivalDefault.
+ * bonuses: fieldHospital 0.15 + blessingOfHoney 0.1 from unlockedTechs.
+ *
+ * iter-018 M7b T2.
+ *
+ * @param {number} casualties - casualties count per unit type
+ * @param {number} baseRevival - base revival rate (e.g. 0.25)
+ * @param {number} bonuses - tech bonuses (0 if no techs unlocked)
+ * @returns {number}
+ */
+export function revivePlayer(casualties, baseRevival, bonuses) {
+  return Math.floor(casualties * (baseRevival + bonuses));
+}
+
+/**
+ * Revival formula for AI troops (random, uses rng stream 'battle').
+ * Source: orig battle.js ř.317 `~~(casualties * rng() / 4)` (original used Math.random; replaced with rng.next() for determinism).
+ * Uses rng.next() for determinism — no Math.random in this implementation.
+ * Called 2× in outcome: archers first, then warriors (fixed order).
+ *
+ * iter-018 M7b T2.
+ *
+ * @param {number} casualties - casualties count per unit type
+ * @param {{ next: () => number }} rng - rng stream 'battle'
+ * @returns {number}
+ */
+export function reviveAI(casualties, rng) {
+  return Math.floor(casualties * rng.next() / 4);
+}
+
+/**
  * AI-AI battle resolution formula (1:1 original world.js ř.952-981).
  * Pure function: takes all inputs explicitly, rng as parameter → deterministic.
  * Gap G-AI-BATTLE-FORMULA: tested tabulkově against original formula.

@@ -413,6 +413,41 @@ export const BALANCE = Object.freeze({
   },
 
   /**
+   * Battle mechanic constants. iter-018 M7b T1+T2.
+   * Source references: doc/original_source/modules/prosperity/services/battle.js ř.1-629.
+   * provenance: extracted (tick=30, reaction=60, endCheckPeriod=80, cooldowns 1:1 orig §5)
+   * provenance: approximated (baseRevivalDefault=0.25, critChanceDefault=0.1, banditPeriod — gap, kalibrace M9 R-F)
+   */
+  battle: {
+    /** Battle tick duration in ms. Source: orig battle.js ř.1 `var tick = 30`. provenance: extracted. */
+    battleTickMs: 30,
+    /** Default reaction (ticks before opponent first attacks). Source: orig ř.175 `opponent.reaction || 60`. provenance: extracted. */
+    reactionDefault: 60,
+    /** End-check modulo (check every 80 ticks at phase 30). Source: orig ř.231 `cB.curStep % 80 == 30`. provenance: extracted. */
+    endCheckPeriod: 80,
+    /** End-check phase offset. Source: orig ř.231. provenance: extracted. */
+    endCheckPhase: 30,
+    /** Archers react 20 ticks after warriors. Source: orig ř.281 `opponent.reaction + 20`. provenance: extracted. */
+    archerReactionOffset: 20,
+    /**
+     * Base revival rate for player troops (fraction of casualties revived).
+     * Source: orig ř.311 `$rootScope.player.baseRevival` — field DOES NOT EXIST in repo (grep=0).
+     * POVINNÝ fallback: state.player.baseRevival ?? BALANCE.battle.baseRevivalDefault.
+     * provenance: approximated (=0.25 approx from orig context), kalibrace M9 (R-F).
+     */
+    baseRevivalDefault: 0.25,
+    /**
+     * Default crit chance for AI units (player crit from military.json combat.critChance).
+     * Source: orig ř.129/138 `critChance: 0.1` for opponent. provenance: extracted.
+     */
+    critChanceDefault: 0.1,
+    /**
+     * Bandit raid period in steps (~15 in-game days). provenance: approximated, gap G-BANDIT-PERIOD, calibration M9.
+     */
+    banditPeriod: 13500,
+  },
+
+  /**
    * Contracts mechanic constants. iter-014 M5-2 T5.
    * Source: events.js + home.js:2407 + config.js:3248. See design_iter-014.md §5.3.
    */
