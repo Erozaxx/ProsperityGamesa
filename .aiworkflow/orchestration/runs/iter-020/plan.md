@@ -12,14 +12,14 @@
 - [x] T-004: coder – C-020-A Trh hotový [ověřeno orchestrátorem]: harness `test/helpers/marketHarness.mjs` (deterministický, staví na engine), `test/m9a-market.test.js` (11 testů: CÍL-1 recovery ≤5%/14dní + ≥48%/3dny, CÍL-2 arbitráž sell<buy + round-trip ztrátový, CÍL-3 impact ≥60%/den, T2 sweep+determinismus); **driftK=0.2 POTVRZENO** (provenance approximated→calibrated, G-MARKET-DRIFT closed). Cenový/drift vzorec BEZE ZMĚNY (market.js diff = jen komentář, grep-gate čistý). **ci 1526/1526**, smoke OK, M8/M7/M5/M6 nedotčeno, precache regen
 - [x] T-005: coder – C-020-B Cap+Regression hotový [ověřeno orchestrátorem]: **T3** capBalanceRealHours=8 (var.A, oddělená od capTechRealHours), **MINOR-1 vyřešeno** — `CATCHUP_CAP_MS=Math.min(capTechRealHours,capBalanceRealHours)*3600*1000` (main.js:64, ODVOZENO z BALANCE+exportováno, ne hardcoded; konstanta žije, ne no-op), test m9a-offline-cap.test.js (re-derivace≠literál, min-kontrakt, capBalance není no-op, D10 over-cap 576000 kroků). **T4** m9a-regression.test.js: kvartální segmenty 81900 kroků přes save/load checkpointy (bit-identické s kontinuálním, ~0.05-0.2s/kvartál), invarianty (pop 0-10000, gold≥0, food≤max, žádný NaN/kolaps>30dní, MINOR-2 cesty home.food.store ošetřeny), golden-hash 3 seedy×4 kvartály (REGEN_GOLDEN=1 dokumentováno). home.js:970 evidence (original-intended, mechanika v core neexistuje grep=0→jen evidence). **ci 1550/1550** (+24), smoke OK, M8/M7/M5/M6 nedotčeno, precache regen
 - [x] T-006: tester – **GO (DoD M9a), 8/8 AC PASS / 0 FAIL** [empiricky vlastní běh]: ci 1550/1550 + smoke 0 err; cíle trhu CÍL-1/2/3 deterministické (recoveryDays=14 empiricky, arbitráž neztrátová přes command registr, impact ≥60%/den, ne serverová data); **MINOR-1 no-op vyvráceno** (cap 8→2 ⇒ CATCHUP_CAP_MS 28.8M→7.2M, revert bit-identický); **regression bit-identičnost** (kontinuální==segmentovaný save/load==golden 4005350179, REGEN 2× deterministický, nejdelší it() ~1.5s); invarianty drží rok+ (home.food.store, žádný NaN/kolaps>30d); home.js:970 jen evidence (grep core=0, Math.random=0); M8/M7/M5/M6/M4b/catchup/iter005-edge 639/639, signatury+spread+driftK beze změny
-- [ ] T-007: reviewer – Review gate M9a + DoD M9a (Opus, právo re-run): DoD formulován proti hratelnostním cílům, odchylky zdokumentované v datech, cap zdůvodněný; GO/NO-GO
-- [ ] T-008: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → **M9a hotov** (kalibrace)
+- [x] T-007: reviewer – **GO (DoD M9a SPLNĚN)** [proti kódu]: 0 blocker/0 major/0 minor/2 nit (nezávazné). Kalibrace=data (market.js/formulas.js/catchup.js body diff=0ř, jen komentáře+balance data), MINOR-1 cap odvozen z BALANCE main.js:64 + **živě zapojen** do catch-up cesty (main.js:256-257 catchupStepCount, ne no-op past, D10 576000 kroků zachováno), cíle-proti-referenci R-C (harness na core+goods.json, N=14 korektní), determinismus segmentů (kvartální it() 81900 kroků save/load bit-identické, golden-hash Object.freeze REGEN protokol deterministický), vědomé odchylky (home.js:970 grep core=0 deferred, MINOR-4 zapsáno). DR-020-01 podmínky vyřešené
+- [x] T-008: human – **SCHVÁLENO (tom-proxy, auto dle DR-013-00)**: DoD M9a splněn, reviewer GO (0 blocker), tester GO (8/8 AC), cap rozhodnut (A=8h v mandátu). → /close-iteration + PR + merge → **M9a hotov** (kalibrace)
 
 ## Quality Gates
-- [ ] Architecture/design reviewed (T-002) + tom-proxy schválení (T-003)
-- [ ] Code review (Reviewer) – T-007
-- [ ] QA validace (Tester) – T-006
-- [ ] Plán neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architecture/design reviewed (T-002 GO-s-podmínkami) + tom-proxy schválení (T-003 SCHVÁLENO cap A)
+- [x] Code review (Reviewer) – T-007 GO (0 blocker/0 major/0 minor)
+- [x] QA validace (Tester) – T-006 GO (8/8 AC)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
 
 ## Exit Criteria (DoD M9a)
 - Trh a offline cap kalibrovány proti EXPLICITNÍM hratelnostním cílům (ne proti neexistující serverové referenci).
