@@ -391,6 +391,27 @@ export type EdgeName =
   | 'season'
   | 'year';
 
+/** Story event definition (from story catalog). iter-019 M8 T1. */
+export interface StoryEventDef {
+  speakerId: string;
+  text: string;
+  stopsEngine?: boolean;
+  trigger: Record<string, unknown> | null;
+  onShow?: Array<{ effect: string; params: Record<string, unknown> }>;
+  options: Array<{
+    text: string;
+    effects: Array<{ effect: string; params: Record<string, unknown> }>;
+    next?: string;
+    nextDelaySteps?: number;
+  }>;
+}
+
+/** Story catalog structure (events map). iter-019 M8 T1. */
+export interface StoryCatalog {
+  _meta?: Record<string, unknown>;
+  events: Record<string, StoryEventDef>;
+}
+
 /** Pre-loaded catalog cache for hot-path systems (BL-3). iter-009 M3. */
 export interface CatalogCache {
   jobs?: Array<Record<string, any>>;
@@ -399,6 +420,8 @@ export interface CatalogCache {
   skills?: Array<Record<string, any>>;
   /** Goods catalog for market init. iter-011 M4b. */
   goods?: Array<Record<string, any>>;
+  /** Story event catalog. iter-019 M8 T1. */
+  story?: StoryCatalog;
 }
 
 /** Tick execution context passed to handlers */
@@ -408,6 +431,8 @@ export interface TickContext {
   emitTx?: (tx: TxEvent) => void;
   /** Pre-loaded catalog arrays for BL-3 hot-path (optional). iter-009 M3. */
   catalog?: CatalogCache;
+  /** Emit a named event (e.g. storyEventShown). iter-019 M8 T1. */
+  emitEvent?: (event: { type: string; [key: string]: unknown }) => void;
 }
 
 /** RNG interface returned by makeRng */

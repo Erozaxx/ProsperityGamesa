@@ -111,6 +111,9 @@ export const SCHEMAS = {
   skills: {
     required: [],
   },
+  story: {
+    required: ['events'],
+  },
   techs: {
     required: ['techBase', 'techScale'],
   },

@@ -190,6 +190,10 @@ export function registerCorePeriodics(registry) {
   // iter-017 M7a-2 T3: gatherTributes month periodic
   register(registry, 'world.gatherTributes', gatherTributes);
 
+  // iter-019 M8 T1: story system (storyCheck day:90, storyApplyEffects step:5)
+  register(registry, 'story.check', storyCheck);
+  register(registry, 'story.applyEffects', storyApplyEffects);
+
   /** @type {PeriodicTask[]} */
   const periodics = [
     { id: 'population.migration',    every: 'step',       order: 10, systemFn: 'population.migration' },
@@ -229,6 +233,9 @@ export function registerCorePeriodics(registry) {
     { id: 'research.daily',          every: 'day',        order: 75, systemFn: 'research.daily' },
     { id: 'season.change',           every: 'season',     order: 10, systemFn: 'noop' },
     { id: 'battle.tick',             every: 'step',       order: 30, systemFn: 'battle.tick' },
+    // iter-019 M8 T1: story system
+    { id: 'story.applyEffects',      every: 'step',       order: 5,  systemFn: 'story.applyEffects' },
+    { id: 'story.check',             every: 'day',        order: 90, systemFn: 'story.check' },
   ];
 
   return periodics.sort((a, b) => {

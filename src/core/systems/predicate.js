@@ -39,16 +39,16 @@ export function evalPredicate(node, state) {
       return Boolean(val);
     }
     case 'sumGte': {
-      const sum = (node.paths || []).reduce((acc, p) => {
+      const sum = (node.paths || []).reduce((/** @type {number} */ acc, /** @type {string} */ p) => {
         const v = getPath(state, p);
         return acc + (typeof v === 'number' ? v : 0);
       }, 0);
       return sum >= node.value;
     }
     case 'and':
-      return (node.all || []).every(n => evalPredicate(n, state));
+      return (node.all || []).every((/** @type {any} */ n) => evalPredicate(n, state));
     case 'or':
-      return (node.any || []).some(n => evalPredicate(n, state));
+      return (node.any || []).some((/** @type {any} */ n) => evalPredicate(n, state));
     case 'settlementLevel': {
       const level = getPath(state, 'home.settlementLevel');
       return typeof level === 'number' && level >= (node.atLeast ?? 0);

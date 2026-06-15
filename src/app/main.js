@@ -27,6 +27,7 @@ import { registerRecruitUnit } from '../core/commands/recruitUnit.js';
 import { registerContractCommands } from '../core/commands/contracts.js';
 import { registerQuestCommands } from '../core/commands/quests.js';
 import { registerBattleCommands } from '../core/commands/battleCommand.js';
+import { registerStoryCommands } from '../core/commands/story.js';
 import { registerContractEffects, armContractOffer } from '../core/systems/contracts.js';
 import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
 import { armBanditRaid } from '../core/systems/battle.js';
@@ -69,10 +70,10 @@ function bootstrapNewState(seed) {
  * Builds the ctx.catalog preload from the global catalog store (BL-3 Variant A).
  * Reads jobs/skills/houseTypes/food catalogs into a plain object so tick systems
  * can use ctx.catalog instead of getCatalog() on every hot-path step.
- * @returns {Record<string, unknown[]>}
+ * @returns {import('../core/state/types.js').CatalogCache}
  */
 function buildCtxCatalog() {
-  /** @type {Record<string, unknown[]>} */
+  /** @type {Record<string, unknown>} */
   const catalog = {};
   for (const name of ['jobs', 'skills', 'houseTypes', 'food', 'goods']) {
     if (hasCatalog(name)) {
@@ -82,7 +83,12 @@ function buildCtxCatalog() {
       catalog[name] = Array.isArray(items) ? items : [];
     }
   }
-  return catalog;
+  // iter-019 M8 T1: story catalog uses an events map (not array)
+  if (hasCatalog('story')) {
+    const cat = getCatalog('story');
+    catalog['story'] = cat; // entire catalog object (events map)
+  }
+  return /** @type {import('../core/state/types.js').CatalogCache} */ (catalog);
 }
 
 /**
@@ -121,6 +127,8 @@ function bootstrapEngine() {
   registerQuestCommands(creg);
   // iter-018 M7b T3: battleCommand (hráčské bojové akce → battle queue; anti-dark-code B1)
   registerBattleCommands(creg);
+  // iter-019 M8 T1: story commands (acknowledgeEvent)
+  registerStoryCommands(creg);
   // BL-3 Var. A: preload catalog into ctx so tick systems avoid getCatalog() in hot-path
   const catalog = buildCtxCatalog();
   return { ctx: { registry, periodics, catalog }, creg };
@@ -312,7 +320,7 @@ export async function bootSequence(env) {
       catchupProgress = { done: 0, total: totalSteps };
       requestRender();
 
-      const result = await runCatchupBatch({
+      let result = await runCatchupBatch({
         state,
         ctx,
         totalSteps,
@@ -324,6 +332,34 @@ export async function bootSequence(env) {
           await new Promise(res => setTimeout(res, 0));
         },
       });
+
+      // MAJ-1: re-entry while-loop for engine-stopping events during catch-up
+      while (result.interrupted && /** @type {any} */ (state).story && /** @type {any} */ (state).story.event) {
+        // Engine stopped on a story event mid-catch-up
+        requestRender(); // UI shows the event
+        // Wait for player to acknowledge (engine.running becomes true)
+        await new Promise(res => {
+          const check = () => {
+            if (!state.engine || state.engine.running !== false) { res(undefined); }
+            else { setTimeout(check, 50); }
+          };
+          check();
+        });
+        // dotočit zbytek
+        const remaining = result.stepsRequested - result.stepsRun;
+        if (remaining <= 0) break;
+        result = await runCatchupBatch({
+          state,
+          ctx,
+          totalSteps: remaining,
+          wasCapped,
+          onChunk: async (done, _total) => {
+            catchupProgress = { done: result.stepsRun + done, total: result.stepsRequested };
+            requestRender();
+            await new Promise(res => setTimeout(res, 0));
+          },
+        });
+      }
 
       // B-3: Autosave after completed catch-up (§3.2: only when complete)
       if (!result.interrupted) {

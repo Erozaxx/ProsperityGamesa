@@ -81,7 +81,7 @@ export function advance(acc, state, ctx, nowMs) {
   let i = 0;
   for (; i < steps; i++) {
     step(state, ctx);
-    if (state.engine.running === false) break; // stopPending slot (M2+)
+    if (!state.engine.running) break; // stopPending slot (M2+)
   }
 
   // Only deduct actually performed steps
