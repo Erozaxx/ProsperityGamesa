@@ -1,33 +1,30 @@
 # Current Task
 
-- **Task ID**: T-007
-- **Brief**: BRIEF-019-007
-- **Iteration**: iter-019
+- **Task ID**: T-006
+- **Brief**: BRIEF-020-006
+- **Iteration**: iter-020
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-15
 - **Completed**: 2026-06-15
 
 ## Co teď dělám
-Dokončeno. Nezávislá QA M8 (story/importantEvent T1 + intro/tutoriál T2 + achievementy K18 T3 + notifikace/gamelog UI event bus T4) + DoD M8.
-Verdikt **GO** — všech 11 AC empiricky ověřeno vlastním během. CI 1509/1509 pass/0 fail, smoke OK (tab Deník renderuje, 0 console errors).
+Dokončeno. Nezávislá QA M9a (kalibrace trhu CÍL-1/2/3 + offline cap MINOR-1 + balanc regression segmenty/golden-hash) + DoD M9a.
+Verdikt **GO** — všech 8 AC empiricky ověřeno vlastním během. CI 1550/1550 pass / 0 fail, smoke OK (0 console errors).
 
 ## Předpoklady
-- T-004..T-006 implementoval coder (iter-019, M8 T1-T4).
-- Scope OUT: žádná změna produkčního kódu (necommituji — orchestrátor).
+- T-004 (C-020-A trh) + T-005 (C-020-B cap+regression) implementoval coder (iter-020).
+- Scope OUT: žádná trvalá změna produkčního kódu (jediná mutace = dočasný no-op probe v balance.js, bit-identicky revertován; necommituji — orchestrátor).
 
 ## Blockery
 –
 
-## Checklist (z briefu BRIEF-019-007)
-- [x] AC1: `npm run ci` zelené — 1509 pass / 0 fail; typecheck EXIT 0; lint OK; smoke OK (tab "Deník" renderuje, 0 console errors)
-- [x] AC2: emitEvent EFEMÉRNÍ — hashState identický s/bez busu (T4-1 + vlastní harness H1, 400 kroků, hash=2274103360); fronta mimo state; core nesahá na DOM (grep NONE)
-- [x] AC3: Story engine-stopping save/load — mid-event bit-identický (H2 hash=647467080, deepStrictEqual story.event); story serializovatelný; ack NELOSUJE RNG (H3 deepStrictEqual rng)
-- [x] AC4: Catch-up pauza D10 — MAJ-1 while-smyčka (main.js:370-395) re-vstup remaining; autosave/summary AŽ ZA smyčkou; cap neporušen; agreguje do offline summary (302 pass/0 fail)
-- [x] AC5: Achievementy deterministické + idempotentní (H4 dvojí unlock no-op); reálná mutace MIN-2 (H5 grantResource/unlockMap); persist round-trip (H6)
-- [x] AC6: C4 grep gate — jediné přiřazení unlocked[] = achievements.js:61 (unlockAchievement)
-- [x] AC7: Tutoriál/intro e2e + persist (state.story.tutorials round-trip); texty jako data, žádná logika v UI
-- [x] AC8: R-G — provenance='original-paraphrased' ve všech 4 (story12/dial2/tut3/ach15); 0 verbatim shod s originálem
-- [x] AC9: Gamelog/notifikace UI — GamelogScreen nad state.log ring buffer; Deník tab; 0 console errors
-- [x] AC10: M8 NEROZBIL M7/M5/M6/M4 — 292+302 pass / 0 fail; CI 1509/0
-- [x] AC11: DoD M8 celkově — začátek/vedení/meta-progres/notifikace; obsahová vrstva kompletní a hratelná
-- [x] QA report: artifacts/final/qa_report_iter-019_T-007.md (verdikt GO — DoD M8)
+## Checklist (z briefu BRIEF-020-006)
+- [x] AC1: `npm run ci` zelené — 1550 pass / 0 fail; typecheck + lint:core OK; smoke OK (0 console errors)
+- [x] AC2: Cíle trhu CÍL-1/2/3 deterministické proti definovaným cílům (recovery=14d empiricky, arbitráž neztrátová, impact ≥60%/den); NEodkazují na serverová data; 18/18 pass
+- [x] AC3: Cap odvozen z BALANCE (MINOR-1) — mutační test capBalanceRealHours 8→2 ⇒ CATCHUP_CAP_MS 28.8M→7.2M (2h); NENÍ no-op; revertováno; 7/7 pass
+- [x] AC4: Regression segmenty bit-identické (continuous==segmented==golden 4005350179); golden-hash REGEN 2× deterministický; žádný it() >limit (max ~1.5s); 17/17 pass
+- [x] AC5: Invarianty křivek drží rok+ (pop 0–10000, gold≥0, food≤max přes home.food.store MINOR-2, žádný NaN/kolaps>30d)
+- [x] AC6: Determinismus G1 přes save hranici + cap D10 over-cap=576000 kroků zachováno
+- [x] AC7: home.js:970 vědomá odchylka; mechanika v core grep=0; jen evidence v balance.js; žádná tichá logická změna; Math.random grep=0
+- [x] AC8: M9a nerozbil M8/M7/M5/M6 (639/639 pass vč. TC-01/iter005-edge); marketPrice/marketDailyDrift/catchupStepCount signatury + spread + baselineFraction + driftK hodnota beze změny
+- [x] QA report: artifacts/final/qa_report_iter-020_T-006.md (verdikt GO — DoD M9a)
