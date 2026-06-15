@@ -10,3 +10,9 @@
 - **tool_uses**: 49
 - **duration_ms**: 353421
 - **outcome**: ci 1332/1332; battleCommand+registerBattleCommands; 35 testů
+## T-006 (T4 dotažení invaze/bandité/offline)
+- **Timestamp**: 2026-06-15T10:00Z
+- **total_tokens**: 136078
+- **tool_uses**: 81
+- **duration_ms**: 542941
+- **outcome**: ci 1362/1362, smoke OK; battleLog→OfflineSummary; banditRaid z T-004; 30 testů
