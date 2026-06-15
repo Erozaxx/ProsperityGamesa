@@ -1,33 +1,33 @@
 # Current Task
 
 - **Task ID**: T-003
-- **Brief**: BRIEF-018-003 (human gate M7b design)
-- **Iteration**: iter-018
+- **Brief**: BRIEF-019-003 (human gate M8 design)
+- **Iteration**: iter-019
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-15
 - **Completed**: 2026-06-15
 
 ## Co teď dělám
-Hotovo — human gate na M7b design (battle automat: live battleCommand + offline auto-resolve G2, invaze + bandité) vydán jménem Toma.
+Hotovo — human gate na M8 design (Příběh & meta: importantEvent+ack engine-stopping, intro/tutoriál/dialogy, achievementy deklarativně K18, UI event bus efemérní) vydán jménem Toma.
 
 ## Dílčí checklist
 - [x] Přečíst AGENTS.md + brief
-- [x] Přečíst design (rev. T-002a: changelog M-1/M-2/M-3/F-1, §6.1a baseRevival, §7.3 double cd-decrement, §4 crit, §8.1a serializovatelnost) + DR-018-01 + DR-013-00
-- [x] Přečíst zadani_projektu.md + done-criteria.md
+- [x] Přečíst design_iter-019.md (T1 importantEvent, T2 intro/R-G, T3 achievementy K18, T4 UI bus) + DR-019-01 + DR-013-00
+- [x] Přečíst zadani_projektu.md (R-G/PROVENANCE) + done-criteria.md
 - [x] Posoudit 4 produktová rozhodnutí jménem Toma
-- [x] Vydat verdikt → artifacts/final/gate_iter-018_T-003.md
+- [x] Vydat verdikt → artifacts/final/gate_iter-019_T-003.md
 
 ## Verdikt
-SCHVÁLENO (proceed na implementaci M7b, SPLIT=NE, fallback M7b-1/M7b-2 otevřen).
-1. Bitvy dokončují M7 (live + offline auto-resolve, invaze + bandité) — OK (účel M7b, Scope IN, jádro věrného rebuildu; kostra hotová z M2a/M7a-2)
-2. G2 auto-resolve == live (zdarma, stejný automat, deterministické) — OK (strukturálně zadarmo přes battle.tick every:'step', jedna implementace; věrné + jednoduché)
-3. G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (analogické G-LIST*/G-CAPITAL-MISMATCH, fallback vzor DR-017-01 m-4; provenance flag, M9 ladí feel)
-4. battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd, pevný crit rng) — OK (přesně "věrný rebuild"; odchylka by rozbila balanc + referenční testy)
+SCHVÁLENO (proceed na implementaci M8). Bez eskalace — vše v mandátu DR-013-00.
+1. M8 = poslední obsahová vrstva (intro/story/achiev/notif) — OK (uzavírá obsah, naplnění existujících slotů, SPLIT=NE ok)
+2. R-G vlastní/parafráze texty (provenance:'original-paraphrased') — OK (přesně Scope OUT zadání + PROVENANCE; číselné prahy=fakta; reviewer T-REV ověří; finální licence až M9b/iter-021, zde nepredjímána, vratné)
+3. Achievementy deklarativně, centrální evaluator (C4 fix) — OK (čistší + věrnější, grep gate chrání proti C4)
+4. UI event bus efemérní mimo hashState (engine nesahá na DOM, C1 fix) — OK (determinismus chráněn, catch-up agreguje)
 
 ## Předpoklady
-- Mandát DR-013-00 (delegace human gatů na tom-proxy v autonomním doběhu M5–M9).
-- Technický review hotový (reviewer T-002 GO-s-podmínkami, architekt T-002a zapracoval M-1/M-2/M-3/F-1).
-- Precedens gatů iter-016 / iter-017 T-003 (oba SCHVÁLENO).
+- Mandát DR-013-00 (delegace human gatů vč. licence na tom-proxy v autonomním doběhu M5–M9).
+- Reviewer T-002 GO bez podmínek; DR-019-01 impl poznámky carry do coder briefů.
+- Precedens gatů iter-013..018 T-003 (všechny SCHVÁLENO).
 
 ## Blockery
 –
