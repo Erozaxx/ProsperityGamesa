@@ -78,9 +78,87 @@ export function acknowledgeEvent(state, params) {
 }
 
 /**
+ * Advance the current tutorial to the next step.
+ * If the last step is reached, the tutorial is completed and moved to done.
+ * params: { tutorialId?: string } — if provided, only advances if curId matches.
+ * T2 (iter-019 M8).
+ * @param {import('../state/types.js').GameState} state
+ * @param {{ tutorialId?: unknown }} params
+ * @returns {{ ok: boolean, error?: string }}
+ */
+export function advanceTutorial(state, params) {
+  const s = /** @type {any} */ (state);
+  if (!s.story || !s.story.tutorials) {
+    return { ok: false, error: 'advanceTutorial: no tutorial state' };
+  }
+  const t = s.story.tutorials;
+  if (!t.curId) {
+    return { ok: false, error: 'advanceTutorial: no active tutorial' };
+  }
+
+  // Optional guard: only advance if tutorialId matches
+  if (params.tutorialId !== undefined && params.tutorialId !== t.curId) {
+    return { ok: false, error: 'advanceTutorial: tutorialId mismatch' };
+  }
+
+  // Find the tutorial from state (tutorials catalog not in command layer — count steps via state)
+  // We need to know the total steps to decide completion. Use the tutorials catalog if available.
+  let totalSteps = null;
+  if (hasCatalog('tutorials')) {
+    const cat = /** @type {any} */ (getCatalog('tutorials'));
+    const tutorials = Array.isArray(cat.tutorials) ? cat.tutorials : [];
+    const def = tutorials.find((/** @type {any} */ tut) => tut.id === t.curId);
+    if (def && Array.isArray(def.steps)) {
+      totalSteps = def.steps.length;
+    }
+  }
+
+  const nextStep = t.curStep + 1;
+  if (totalSteps !== null && nextStep >= totalSteps) {
+    // Tutorial complete
+    if (!t.done) t.done = {};
+    t.done[t.curId] = true;
+    t.curId = null;
+    t.curStep = 0;
+  } else {
+    t.curStep = nextStep;
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Dismiss the current tutorial immediately (marks it done).
+ * T2 (iter-019 M8).
+ * @param {import('../state/types.js').GameState} state
+ * @param {object} _params
+ * @returns {{ ok: boolean, error?: string }}
+ */
+export function dismissTutorial(state, _params) {
+  const s = /** @type {any} */ (state);
+  if (!s.story || !s.story.tutorials) {
+    return { ok: false, error: 'dismissTutorial: no tutorial state' };
+  }
+  const t = s.story.tutorials;
+  if (!t.curId) {
+    return { ok: false, error: 'dismissTutorial: no active tutorial' };
+  }
+
+  if (!t.done) t.done = {};
+  t.done[t.curId] = true;
+  t.curId = null;
+  t.curStep = 0;
+
+  return { ok: true };
+}
+
+/**
  * Registers story commands into a command registry.
  * @param {import('./dispatch.js').CommandRegistry} creg
  */
 export function registerStoryCommands(creg) {
   registerCommand(creg, 'acknowledgeEvent', acknowledgeEvent);
+  // iter-019 M8 T2: tutorial commands
+  registerCommand(creg, 'advanceTutorial', advanceTutorial);
+  registerCommand(creg, 'dismissTutorial', dismissTutorial);
 }

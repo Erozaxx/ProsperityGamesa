@@ -909,6 +909,193 @@ export function selectBattle(s) {
 }
 
 // ---------------------------------------------------------------------------
+// M8 T4 — Gamelog selector (iter-019)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{
+ *   step: number,
+ *   msg: string
+ * }} LogViewEntry
+ */
+
+/**
+ * Selects the most recent N entries from the gamelog ring buffer.
+ * Newest-first (ring buffer is oldest-first, so we reverse).
+ * Pure selector — no logic, just reading.
+ * T4 (iter-019 M8).
+ * @param {GameState} s
+ * @param {number} [limit=50]
+ * @returns {LogViewEntry[]}
+ */
+export function selectLog(s, limit = 50) {
+  const log = s.log;
+  if (!log || !Array.isArray(log.entries)) return [];
+  // Ring buffer: entries filled from head; valid entries are non-null
+  const entries = log.entries.filter(e => e != null);
+  // Newest-first (ring is push-ordered oldest first)
+  const reversed = entries.slice().reverse();
+  return reversed.slice(0, limit).map(e => ({
+    step: e.step,
+    msg: e.msg,
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// M8 T2 — Tutorial selector (iter-019)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{
+ *   active: boolean,
+ *   id: string | null,
+ *   curStep: number,
+ *   totalSteps: number,
+ *   stepText: string | null,
+ *   anchor: string | null,
+ *   done: Record<string, boolean>
+ * }} TutorialView
+ */
+
+/**
+ * Selects the active tutorial state and current step text/anchor.
+ * Resolves text from the tutorials catalog (pure selector — no state mutation).
+ * T2 (iter-019 M8).
+ * @param {GameState} s
+ * @returns {TutorialView}
+ */
+export function selectTutorial(s) {
+  const st = /** @type {any} */ (s);
+  const tutorials = st.story && st.story.tutorials;
+
+  if (!tutorials || !tutorials.curId) {
+    return {
+      active: false,
+      id: null,
+      curStep: 0,
+      totalSteps: 0,
+      stepText: null,
+      anchor: null,
+      done: tutorials ? /** @type {Record<string, boolean>} */ (tutorials.done ?? {}) : {},
+    };
+  }
+
+  const curId = /** @type {string} */ (tutorials.curId);
+  const curStep = tutorials.curStep ?? 0;
+
+  // Resolve from tutorials catalog
+  let stepText = null;
+  let anchor = null;
+  let totalSteps = 0;
+
+  if (hasCatalog('tutorials')) {
+    const cat = /** @type {Record<string, any>} */ (getCatalog('tutorials'));
+    const list = /** @type {any[]} */ (Array.isArray(cat.tutorials) ? cat.tutorials : []);
+    const def = list.find(t => t.id === curId);
+    if (def && Array.isArray(def.steps)) {
+      totalSteps = def.steps.length;
+      const stepDef = def.steps[curStep];
+      if (stepDef) {
+        stepText = stepDef.text ?? null;
+        anchor = stepDef.anchor ?? null;
+      }
+    }
+  }
+
+  return {
+    active: true,
+    id: curId,
+    curStep,
+    totalSteps,
+    stepText,
+    anchor,
+    done: /** @type {Record<string, boolean>} */ (tutorials.done ?? {}),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// M8 T3 — Achievements selector (iter-019)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   description: string,
+ *   level: number,
+ *   unlocked: boolean
+ * }} AchievementViewItem
+ */
+
+/**
+ * Selects all achievements with their unlock status.
+ * Resolves name/description from catalog (pure selector).
+ * T3 (iter-019 M8).
+ * @param {GameState} s
+ * @returns {AchievementViewItem[]}
+ */
+export function selectAchievements(s) {
+  if (!hasCatalog('achievements')) return [];
+  const cat = /** @type {Record<string, any>} */ (getCatalog('achievements'));
+  const list = /** @type {any[]} */ (Array.isArray(cat.achievements) ? cat.achievements : []);
+  const unlocked = /** @type {Record<string, unknown>} */ (/** @type {any} */ (s).achievements?.unlocked ?? {});
+
+  return list.map(def => ({
+    id: def.id ?? '',
+    name: def.name ?? def.id ?? '',
+    description: def.description ?? '',
+    level: typeof def.level === 'number' ? def.level : 0,
+    unlocked: !!unlocked[def.id],
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// M8 T1/T2 — Active story event + tutorial overlay selectors (iter-019)
+// ---------------------------------------------------------------------------
+
+/**
+ * @typedef {{
+ *   id: string,
+ *   speakerId: string,
+ *   text: string,
+ *   options: Array<{ text: string, index: number }>,
+ *   lines?: Array<{ text: string }>
+ * } | null} ActiveStoryEventView
+ */
+
+/**
+ * Selects the active story event for UI rendering.
+ * Resolves text/speaker/options from story catalog (pure selector).
+ * T1/T2 (iter-019 M8).
+ * @param {GameState} s
+ * @returns {ActiveStoryEventView}
+ */
+export function selectActiveStoryEvent(s) {
+  const st = /** @type {any} */ (s);
+  if (!st.story || !st.story.event) return null;
+
+  const eventId = /** @type {string} */ (st.story.event.id);
+
+  if (!hasCatalog('story')) return { id: eventId, speakerId: '', text: '', options: [] };
+  const cat = /** @type {Record<string, any>} */ (getCatalog('story'));
+  const def = cat.events && cat.events[eventId];
+  if (!def) return { id: eventId, speakerId: '', text: '', options: [] };
+
+  const options = Array.isArray(def.options) ? def.options.map((/** @type {any} */ opt, /** @type {number} */ i) => ({
+    text: opt.text ?? '',
+    index: i,
+  })) : [];
+
+  return {
+    id: eventId,
+    speakerId: def.speakerId ?? '',
+    text: def.text ?? '',
+    options,
+    lines: Array.isArray(def.lines) ? def.lines : undefined,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // M7b T-006 — Battle log selector (iter-018)
 // ---------------------------------------------------------------------------
 

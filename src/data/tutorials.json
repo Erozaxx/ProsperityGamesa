@@ -1,0 +1,52 @@
+{
+  "_meta": {
+    "provenance": "original-paraphrased",
+    "source": "doc/original_source (tutorials structure/IDs); texty vlastní (R-G)",
+    "note": "Tutoriál kroky = UI overlay nápovědy; nezastavují engine; anchor = UI hint"
+  },
+  "tutorials": [
+    {
+      "id": "build",
+      "steps": [
+        {
+          "text": "Vítejte! Začněte stavbou prvního přístřešku — přejděte na záložku Stavba.",
+          "anchor": "tab-build"
+        },
+        {
+          "text": "Vyberte přístřešek (Chatrč) a klikněte na tlačítko Postavit. Budete potřebovat dřevo.",
+          "anchor": "building-hovel"
+        },
+        {
+          "text": "Výborně! Váš první dům stojí. Více staveb přiláká více obyvatel.",
+          "anchor": null
+        }
+      ]
+    },
+    {
+      "id": "jobs",
+      "steps": [
+        {
+          "text": "Přiřaďte obyvatele do povolání v záložce Práce. Každá profese přispívá k prosperitě.",
+          "anchor": "tab-jobs"
+        },
+        {
+          "text": "Doporučujeme nejprve zaměstnat zemědělce a lesníky — bez surovin se nic nepostaví.",
+          "anchor": "jobs-list"
+        }
+      ]
+    },
+    {
+      "id": "food",
+      "steps": [
+        {
+          "text": "Zásoby jídla jsou nezbytné. Sledujte ukazatel Jídlo v horní liště.",
+          "anchor": "stats-food"
+        },
+        {
+          "text": "Pokud lidé hladoví, opustí vaši osadu. Udržujte sklady plné.",
+          "anchor": "tab-overview"
+        }
+      ]
+    }
+  ]
+}

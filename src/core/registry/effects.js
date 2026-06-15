@@ -115,6 +115,47 @@ function grantResource(state, params, _ctx) {
 }
 
 /**
+ * Start a tutorial by ID.
+ * Sets state.story.tutorials.curId and resets curStep to 0.
+ * T2 (iter-019 M8): K14 effect, no DOM/Date/Math.random.
+ * @param {GameState} state
+ * @param {object} params
+ * @param {TickContext} _ctx
+ * @returns {void}
+ */
+function startTutorial(state, params, _ctx) {
+  const p = /** @type {Record<string, unknown>} */ (params);
+  if (typeof p['id'] !== 'string') {
+    throw new Error('effects.startTutorial: params.id must be a string');
+  }
+  const s = /** @type {any} */ (state);
+  if (!s.story) return;
+  if (!s.story.tutorials) s.story.tutorials = { done: {}, curId: null, curStep: 0 };
+  s.story.tutorials.curId = p['id'];
+  s.story.tutorials.curStep = 0;
+}
+
+/**
+ * Set a story flag (marks an ID as used/true in state.story.used).
+ * Useful for gating downstream events.
+ * T2 (iter-019 M8): K14 effect, no DOM/Date/Math.random.
+ * @param {GameState} state
+ * @param {object} params
+ * @param {TickContext} _ctx
+ * @returns {void}
+ */
+function setStoryFlag(state, params, _ctx) {
+  const p = /** @type {Record<string, unknown>} */ (params);
+  if (typeof p['flag'] !== 'string') {
+    throw new Error('effects.setStoryFlag: params.flag must be a string');
+  }
+  const s = /** @type {any} */ (state);
+  if (!s.story) return;
+  if (!s.story.used) s.story.used = {};
+  s.story.used[/** @type {string} */ (p['flag'])] = true;
+}
+
+/**
  * Register all effect handlers into a registry.
  * @param {import('./registry.js').Registry} reg
  * @returns {void}
@@ -128,4 +169,17 @@ export function registerEffects(reg) {
   register(reg, 'unlockMap', unlockMap);
   register(reg, 'insertInventory', insertInventory);
   register(reg, 'grantResource', grantResource);
+  // iter-019 M8 T2: story/tutorial effects
+  registerStoryEffects(reg);
+}
+
+/**
+ * Register story-specific K14 effects (startTutorial, setStoryFlag).
+ * Called from bootstrapEngine (anti-dark-code B1).
+ * @param {import('./registry.js').Registry} reg
+ * @returns {void}
+ */
+export function registerStoryEffects(reg) {
+  if (!has(reg, 'startTutorial')) register(reg, 'startTutorial', startTutorial);
+  if (!has(reg, 'setStoryFlag')) register(reg, 'setStoryFlag', setStoryFlag);
 }

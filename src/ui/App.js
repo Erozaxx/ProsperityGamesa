@@ -13,6 +13,7 @@ import { selectClock, selectSeason, selectSpeed } from './selectors.js';
 import { OfflineSummary } from './OfflineSummary.js';
 import { CatchupProgress } from './CatchupProgress.js';
 import { ForestScreen, JobsScreen, SkillsScreen, CouncilScreen, MarketScreen, BuildScreen, ContractsScreen, TechScreen, WorldZonesScreen, BattleScreen } from './screens.js';
+import { GamelogScreen, StoryEventOverlay, TutorialOverlay } from './GamelogScreen.js';
 
 const TABS = [
   { id: 'overview', label: 'Přehled' },
@@ -26,6 +27,7 @@ const TABS = [
   { id: 'tech', label: 'Veda' },
   { id: 'world-ai', label: 'Svět' },
   { id: 'battle', label: 'Bitva' },
+  { id: 'gamelog', label: 'Deník' },
 ];
 
 /**
@@ -118,6 +120,10 @@ export function App({ snapshot, send, offlineSummary, catchupProgress, onDismiss
         ${activeTab === 'tech' ? html`<${TechScreen} snapshot=${snapshot} send=${send} />` : null}
         ${activeTab === 'world-ai' ? html`<${WorldZonesScreen} snapshot=${snapshot} send=${send} />` : null}
         ${activeTab === 'battle' ? html`<${BattleScreen} snapshot=${snapshot} send=${send} />` : null}
+        ${activeTab === 'gamelog' ? html`<${GamelogScreen} snapshot=${snapshot} />` : null}
       </div>
+
+      ${html`<${StoryEventOverlay} snapshot=${snapshot} send=${send} />`}
+      ${html`<${TutorialOverlay} snapshot=${snapshot} send=${send} />`}
     </div>`;
 }

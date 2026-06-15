@@ -47,6 +47,7 @@ import { loadAllCatalogs } from './catalogs.js';
 import { createAutosave } from './autosave.js';
 import { exportToString, importFromString } from '../save/exportString.js';
 import { buildOfflineSummary } from '../ui/OfflineSummary.js';
+import { createUiEventBus, aggregateUiEvents } from './uiEventBus.js';
 
 const DEFAULT_SEED = 0x9E3779B9;
 
@@ -215,6 +216,11 @@ export async function bootSequence(env) {
     // Must be set AFTER state is known so the closure captures the correct state reference.
     ctx.emitTx = (tx) => recordTx(state, tx);
 
+    // iter-019 M8 T4: Wire ephemeral UI event bus (OUTSIDE state — zero hashState impact).
+    // ctx.emitEvent pushes to bus; UI drains each render; catch-up aggregates to summary.
+    const uiEvents = createUiEventBus();
+    ctx.emitEvent = (ev) => uiEvents.push(ev);
+
     // iter-011 M4b: Initialize market supply from goods catalog (idempotent – skips existing entries).
     // Runs after catalog load and after state is set, so works for fresh start and loaded save.
     marketInit(state, /** @type {any} */ ((ctx.catalog && ctx.catalog.goods) || []));
@@ -287,18 +293,37 @@ export async function bootSequence(env) {
       requestRender();
     };
 
+    // iter-019 M8 T4: Ephemeral UI events drained each render.
+    // pendingUiEvents is set each render by draining the bus; UI shows toasts etc.
+    // During catch-up we drain into catchupUiEventCounts (aggregate, not spam).
+    /** @type {import('./uiEventBus.js').UiEvent[]} */
+    let pendingUiEvents = [];
+    /** @type {Record<string, number> | null} */
+    let catchupUiEventCounts = null;
+
     // 7. Mount UI (render function forward-declared for use in callbacks)
     let requestRender = () => {};
     const mounted = env.mountUI({
       state,
       send,
-      getExtraProps: () => ({
-        offlineSummary,
-        catchupProgress,
-        onDismissOfflineSummary,
-        onExport,
-        onImport,
-      }),
+      getExtraProps: () => {
+        // Drain bus on every render (ephemeral — not stored in state)
+        const drained = uiEvents.drain();
+        if (drained.length > 0) {
+          pendingUiEvents = drained;
+        } else {
+          pendingUiEvents = [];
+        }
+        return {
+          offlineSummary,
+          catchupProgress,
+          onDismissOfflineSummary,
+          onExport,
+          onImport,
+          pendingUiEvents,
+          catchupUiEventCounts,
+        };
+      },
     });
     requestRender = mounted.requestRender;
 
@@ -374,6 +399,13 @@ export async function bootSequence(env) {
         autosave.requestSave('event');
       }
 
+      // iter-019 M8 T4: Aggregate UI events emitted during catch-up (§7.3).
+      // Do NOT spam individual toasts — drain into aggregate counts for offline summary.
+      const catchupEvents = uiEvents.drain();
+      if (catchupEvents.length > 0) {
+        catchupUiEventCounts = aggregateUiEvents(catchupEvents);
+      }
+
       // Build and store offline summary
       // iter-018 M7b T-006: pass state + startStep for battleLog integration (§9.3)
       offlineSummary = buildOfflineSummary({
@@ -383,6 +415,7 @@ export async function bootSequence(env) {
         interrupted: result.interrupted,
         state,
         startStep: state.engine.curStep - result.stepsRun,
+        uiEventCounts: catchupUiEventCounts ?? undefined,
       });
       catchupProgress = null;
       requestRender();

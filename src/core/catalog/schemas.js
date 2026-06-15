@@ -117,6 +117,20 @@ export const SCHEMAS = {
   techs: {
     required: ['techBase', 'techScale'],
   },
+  // iter-019 M8 T2: tutorial and dialogue catalogs
+  tutorials: {
+    required: ['id'],
+    itemShape: {
+      id: { type: 'string', required: true },
+    },
+  },
+  dialogues: {
+    required: ['id', 'speakerId'],
+    itemShape: {
+      id:        { type: 'string', required: true },
+      speakerId: { type: 'string', required: true },
+    },
+  },
   zones: {
     required: ['policies', 'factions', 'zones'],
   },
