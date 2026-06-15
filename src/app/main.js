@@ -33,6 +33,7 @@ import { registerContractEffects, armContractOffer } from '../core/systems/contr
 import { registerWorldEffects, armFactionAI } from '../core/systems/world.js';
 import { armBanditRaid } from '../core/systems/battle.js';
 import { marketInit } from '../core/systems/market.js';
+import { BALANCE } from '../core/balance/balance.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
 import { requestPersistentStorage } from './persist.js';
@@ -54,8 +55,14 @@ const DEFAULT_SEED = 0x9E3779B9;
 /** Default autosave interval: 60 s (design §5.2). */
 const AUTOSAVE_INTERVAL_MS = 60_000;
 
-/** Cap for offline catch-up (8 real hours in ms). */
-const CATCHUP_CAP_MS = 8 * 3600 * 1000;
+/**
+ * Cap for offline catch-up, in ms. iter-020 M9a T3 (MINOR-1, DR-020-01 §2):
+ * DERIVED from BALANCE — effective cap = min(tech, balance) — NOT a hardcoded literal.
+ * Tech cap = engine survivability (M0 benchmark); balance cap = healthy-progress UX value.
+ * Without this wiring capBalanceRealHours would be a latent no-op (firstStarve-class trap).
+ */
+export const CATCHUP_CAP_MS =
+  Math.min(BALANCE.offline.capTechRealHours, BALANCE.offline.capBalanceRealHours) * 3600 * 1000;
 
 /**
  * Bootstraps a fresh game state.
