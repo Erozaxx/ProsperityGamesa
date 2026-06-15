@@ -1,10 +1,10 @@
 # Current Task
-- **Task ID**: T-004 (iter-018)
+- **Task ID**: T-005 (iter-018)
 - **Iteration**: iter-018
-- **Milestone**: M7b — Battle automat T1+T2 (jádro + damage/revival vzorce)
+- **Milestone**: M7b — T3 battleCommand (hráčské bojové akce → battle queue)
 - **Status**: done
 - **Done**: 2026-06-15
-- **CI**: 1297 tests, 0 fail (37 new: test/m7b-battle-t1.test.js)
+- **CI**: 1332 tests, 0 fail (+35 nových: test/m7b-battle-t3.test.js)
 - **Smoke**: OK
-- **Determinismus**: G1 + M7a2-world-t2/t3 = 48/48 pass (nedotčené)
-- **Invarianty**: M-1 (baseRevival ??) / M-2 (cd double-decrement) / M-3 (crit 1×/útok) / F-1 (JSON round-trip) / G2 (auto-resolve==live) — všechny splněny
+- **Determinismus**: G1 + M7b-battle-t1 (37 pass) + M7a + M5/M6/M4b nedotčené
+- **Invarianty**: F-1 (queue=plain data) / C3 (jen enqueue, žádná mutace bitvy) / anti-dark-code (registerBattleCommands v main.js) — splněny
