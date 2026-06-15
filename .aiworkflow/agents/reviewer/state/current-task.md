@@ -1,36 +1,43 @@
 # Current Task
 
-- **Task ID**: T-007 (FINAL REVIEW GATE M9a + DoD M9a, iter-020, Opus, právo re-run)
-- **Brief**: BRIEF-020-007
-- **Iteration**: iter-020
+- **Task ID**: T-002 (iter-021, M9b – review designu release kandidáta, Opus přísnost)
+- **Brief**: BRIEF-021-002
+- **Iteration**: iter-021
 - **Status**: done  <!-- idle | in-progress | done | blocked -->
 - **Started**: 2026-06-15
 - **Completed**: 2026-06-15
 
 ## Co teď dělám
-Hotovo: závěrečný review gate M9a + ověření DoD M9a. Hodnoceno PROTI KÓDU (produkční diff
-`merge-base HEAD main..HEAD -- src/ test/`): main.js:64 cap derivace + 256-257 živé použití,
-balance.js driftK provenance/capBalanceRealHours/home.js:970 evidence, market.js (jen komentář),
-formulas.js marketPrice, catchup.js catchupStepCount + grep verifikace (cap usages, catchupStepCount
-callers, consecutiveDiseased/inoculation=0, diseaseRecoveryBase readers=0) + body-level diff market.js=0
-+ DR-020-01 podmínky (MINOR-1/2/4 + home.js:970).
+Hotovo: review designu M9b (DESIGN-021-001) PROTI KÓDU + architektuře iter-002. Ověřeno čtením:
+service-worker.js, src/ui/render.js, src/app/loop.js, src/app/persist.js, src/app/autosave.js,
+src/app/lifecycle.js, src/save/saveStore.js, src/save/schema.js, src/save/persistSchema.js,
+src/core/engine/rng.js (hashState), src/core/engine/clock.js, src/ui/App.js, src/ui/styles.css,
+index.html, src/precache.js, tools/gen-precache.mjs, icons/, arch §3.4/§6.1/§6.3/§9.2/§9.4,
+done-criteria.
 
 ## Výsledek
-Verdikt: **GO**. Žádný blocker, major ani minor; 2 nity (nezávazné).
+Verdikt: **GO-s-podmínkami** (3 podmínky, všechny minor/dispatch — žádný blocker).
 
-- INV-1 kalibrace=data: PASS — formulas/drift/catchup signatury i těla NEMĚNĚNY (body-diff market.js=0).
-- INV-2 MINOR-1 cap z BALANCE: PASS — odvozen z BALANCE (main.js:64), ŽIVĚ zapojen do catch-up (main.js:256-257), ne no-op; D10 zachováno.
-- INV-3 cíle-proti-referenci (R-C): PASS — harness na core+goods.json, žádná serverová data; N=14 korektní.
-- INV-4 determinismus+dekompozice: PASS — kvartální 81 900 kroků it(), save/load bit-identické, golden-hash deterministický/regenerovatelný (ne flaky).
-- INV-5 vědomé odchylky: PASS — home.js:970 grep=0 deferred evidence, MINOR-4 název, driftK calibrated — zapsané ne skryté.
-- DoD M9a: SPLNĚNO; G-MARKET-DRIFT uzavřen.
+- Determinismus nedotčen: PASS — render-throttle (UI vrstva), lastExportAt sidecar (envelope mimo
+  payload), _meta (allowlist persist) všechny MIMO hashState; hashState hashuje jen state/payload.
+- SW update bez ztráty savu: PASS — message-driven skip-waiting + autosave('hide') (existuje,
+  lifecycle wired) + IndexedDB mimo cache; offline zachován; cache verze se nemíchají.
+- Evikce: PASS — persisted() + reminder >7d, lastExportAt sidecar mimo hashState.
+- Mobile UX měřitelné: PASS — touch/overflow/render-cap deterministicky testovatelné; render ~60/s
+  nález správný (ověřeno render.js + loop.js + clock.js); fix v UI vrstvě.
+- Licence = user gate: PASS — jen doporučení, žádný LICENSE před rozhodnutím (ověřeno: repo nemá),
+  eskalace povinná; gen-precache EXCLUDE /\.md$/ + ROOTS bez doc//tools/ → distribuce čistá.
+- Split A/B: SOUHLAS (disjunktní, oba Sonnet) s podmínkou sekvenčního finálního gen-precache.
 
 ## Nálezy (severity)
 - BLOCKER: 0
 - MAJOR: 0
-- MINOR: 0
-- NIT: 2 (cap-test importuje CATCHUP_CAP_MS z app/main.js; sweep analytický model paralelně k empirickému — oba nezávazné)
+- MINOR: 3 (1: precache re-gen není čistě paralelní — _meta v src/data je v ROOTS → sekvenční
+  gen-precache; 2: render-throttle test musí pokrýt živou dávku ne klid; 3: C-021-B potřebuje
+  explicitní determinismus G1 gate po _meta změnách)
+- NIT: 2 (1: zkrácené cesty ve split/briefu — persist je src/app/ ne src/save/; 2: OFF-2 PNG ikona
+  rozhodnutí přiřadit na user-gate Q2)
 
-Výstup: agents/reviewer/artifacts/final/review_iter-020_T-007.md
+Výstup: agents/reviewer/artifacts/final/review_design_iter-021_T-002.md
 
 ## NEcommitnuto (per brief).
