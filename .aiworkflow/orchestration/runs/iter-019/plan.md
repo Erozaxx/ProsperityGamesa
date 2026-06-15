@@ -14,13 +14,13 @@
 - [x] T-006: coder – T2+T4 hotový [ověřeno orchestrátorem]: T2 startTutorial/setStoryFlag efekty K14 + advanceTutorial/dismissTutorial commandy, dialogues.json/tutorials.json (R-G provenance:'original-paraphrased'), tutorials/dialogues v CATALOG_NAMES+schemas; T4 uiEventBus.js (createUiEventBus push/drain/aggregate MIMO state), ctx.emitEvent wiring main.js (drain+aggregate v catch-upu), GamelogScreen.js (tab Deník ring buffer + StoryEventOverlay + TutorialOverlay), selektory selectLog/selectTutorial/selectAchievements/selectActiveStoryEvent, OfflineSummary uiEventCounts. **ci 1509/1509** (typecheck OK), **smoke OK** (tab Deník render, 0 console err), **emitEvent NEMĚNÍ hashState** (T4-1 test h1==h2 s/bez busu = efemérní), žádný DOM/Date.now/Math.random v core, C4 grep čistý, M8/M7/M5/M6 nedotčen, 42 testů, precache regen
 - [x] T-007: tester – **GO (DoD M8), 11/11 AC PASS / 0 FAIL** [empiricky vlastní harness]: ci 1509/0 (typecheck EXIT 0) + smoke 0 err (tab Deník); emitEvent EFEMÉRNÍ (H1 400 kroků hashState identický s/bez busu=2274103360, core bez DOM); story save mid-event bit-identický (H2 hash 647467080, deepStrictEqual) + ack NELOSUJE RNG (H3); catch-up MAJ-1 while-smyčka (main.js:370-395, autosave za smyčkou); achievementy idempotentní (H4) + reálná mutace MIN-2 (H5 wood 0→7, unlockMap) + persist (H6); C4 grep čistý (jediné `unlocked[]=` v achievements.js:61); R-G provenance 4 soubory, 0 verbatim shod s events.js; regrese M7/M5/M6/M4 292+302/0. Pozn (NE bug): onUnlock:[] prázdné u 15 ach (efekty funkční, kalibrace M9)
 - [x] T-008: reviewer – **GO-s-podmínkami (DoD M8 SPLNĚN)** [statické review proti kódu]: všechny tvrdé invarianty PASS (C4 grep čistý jediný `unlocked[id]=` achievements.js:61; emitEvent efemérní bus v closure mimo state/hashState, core bez DOM, T4-1 reálný; D10 serializovatelnost state.story plain-data + speakerId string + ack nelosuje RNG + advance akumulátor-zahození; MAJ-1 while-smyčka main.js:370-395 autosave za smyčkou). Nálezy 0 blocker/1 major/2 minor/3 nit. **MAJOR-1 (firstStarve dead trigger home.food.starvation neexistoval) → OPRAVENO v M8 orchestrátorem** (mirror diseaseActive: createHomeState init false + food.js set starved>0 + persistSchema food+starvation + types; regrese test m8-firststarve.test.js FS-1..5; ci 1514/1514, precache regen). MINOR-1/2 (survivedWinter once, chained event skip loadStoryEvent) + 3 nit → carry M9
-- [ ] T-009: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → **M8 hotov** (obsahová vrstva kompletní)
+- [x] T-009: human – **SCHVÁLENO (tom-proxy, auto dle DR-013-00)**: DoD M8 splněn, gaty GO, MAJOR-1 opraveno v M8, R-G OK (finální licence M9b). → /close-iteration + PR + merge → **M8 hotov** (obsahová vrstva kompletní). gate_iter-019_T-009.md
 
 ## Quality Gates
-- [ ] Architecture reviewed (T-002) + tom-proxy schválení (T-003)
-- [ ] Code review (Reviewer) – T-REV
-- [ ] QA validace (Tester) – T-TEST
-- [ ] Plán neobsahuje orchestratora jako agenta u žádného tasku
+- [x] Architecture reviewed (T-002 GO) + tom-proxy schválení (T-003 SCHVÁLENO)
+- [x] Code review (Reviewer) – T-008 GO-s-podmínkami (MAJOR-1 opraveno v M8)
+- [x] QA validace (Tester) – T-007 GO (11/11 AC)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
 
 ## Exit Criteria (DoD M8)
 - Obsahová vrstva kompletní: hra má začátek (intro/tutoriál), vedení hráče (story/importantEvent + acknowledge), meta-progres (achievementy K18), notifikace/gamelog.
