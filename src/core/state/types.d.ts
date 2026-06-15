@@ -137,6 +137,8 @@ export interface HousingState {
 /** Food sub-domain state */
 export interface FoodState {
   store: Record<string, number>;
+  /** True when last meal tick left population starving (starved > 0). Drives firstStarve story trigger. */
+  starvation?: boolean;
 }
 
 /** Health sub-domain state */

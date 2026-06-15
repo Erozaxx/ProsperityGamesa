@@ -64,6 +64,9 @@ function processMeal(state, _ctx) {
     }
   }
 
+  // Starvation flag (drives firstStarve story trigger; mirrors health.diseaseActive pattern).
+  state.home.food.starvation = starved > 0;
+
   // Starvation deaths: fractional (0.001 per starved unit)
   if (starved > 0) {
     const deaths = Math.floor(starved * 0.001);

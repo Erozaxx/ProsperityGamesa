@@ -15,7 +15,7 @@ export function createHomeState() {
   return {
     population: { total: 0, migrationAcc: 0, bornTotal: 0, diedTotal: 0 },
     housing: { counts: {} },
-    food: { store: { bread: 0, cheese: 0, fish: 0, fruit: 0, meat: 0, vegetable: 0 } },
+    food: { store: { bread: 0, cheese: 0, fish: 0, fruit: 0, meat: 0, vegetable: 0 }, starvation: false },
     health: { diseaseActive: false, diseaseDaysLeft: 0 },
     crime: { level: 0 },
     settlementLevel: 0,
