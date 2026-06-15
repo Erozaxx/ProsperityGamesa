@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "provenance": "original-paraphrased",
+    "source": "doc/original_source/modules/prosperity/services/dialogue.js (kostra/IDs); texty vlastní (R-G)",
+    "note": "Dialogy = víceřádkové rozhovory s NPC. MVP: milontDialogue1 dle originálu (prázdná kostra); texty vlastní."
+  },
+  "dialogues": [
+    {
+      "id": "milontiDialogue1",
+      "speakerId": "milonti",
+      "lines": [
+        {
+          "text": "Zdravím, příteli. Slyšel jsem o vašich úspěších — jméno vaší osady se šíří daleko za hranice zdejšího kraje.",
+          "anchor": null
+        },
+        {
+          "text": "Rád bych vám nabídl spojenectví. Moje znalosti obchodních cest by vám mohly přinést nemalý prospěch.",
+          "anchor": null
+        },
+        {
+          "text": "Co říkáte? Zavřeme dohodu?",
+          "anchor": null
+        }
+      ]
+    },
+    {
+      "id": "advisorIntroDialogue",
+      "speakerId": "advisor",
+      "lines": [
+        {
+          "text": "Pane, dovolte, abych vám představil situaci v kraji. Čekají nás výzvy, ale také příležitosti.",
+          "anchor": null
+        },
+        {
+          "text": "Zásoby jsou skromné, ale lidé jsou odhodlaní. S vaším vedením dokážeme vybudovat něco výjimečného.",
+          "anchor": null
+        }
+      ]
+    }
+  ]
+}

@@ -37,6 +37,8 @@ import { closeMonth } from '../resources/accounting.js';
 import { ageBuildings, buildersProcess } from '../systems/buildings.js';
 import { researchDaily } from '../systems/research.js';
 import { registerContractEffects } from '../systems/contracts.js';
+import { storyCheck, storyApplyEffects } from '../systems/story.js';
+import { achievementsEval } from '../systems/achievements.js';
 
 /**
  * Tick execution phases (living artefact – single source of truth for tickOrder.md).
@@ -45,7 +47,7 @@ import { registerContractEffects } from '../systems/contracts.js';
 export const TICK_ORDER = Object.freeze([
   { phase: 'calendar',   note: 'posun dne/měsíce/roku/sezóny – produkuje TimeEdges' },
   { phase: 'schedule',   note: 'one-shot události se step<=curStep přes fns registr' },
-  { phase: 'periodics',  note: 'periodika dle hran v deklarovaném order (viz registerCorePeriodics)' },
+  { phase: 'periodics',  note: 'periodika dle hran v deklarovaném order (viz registerCorePeriodics). Konec dne: story.check(90) → achievements.eval(95)' },
   { phase: 'eventFlush', note: 'dev-invarianty (NaN/záporné zásoby) – v iter-004 jen NaN guard na curStep' },
 ]);
 
@@ -189,6 +191,13 @@ export function registerCorePeriodics(registry) {
   // iter-017 M7a-2 T3: gatherTributes month periodic
   register(registry, 'world.gatherTributes', gatherTributes);
 
+  // iter-019 M8 T1: story system (storyCheck day:90, storyApplyEffects step:5)
+  register(registry, 'story.check', storyCheck);
+  register(registry, 'story.applyEffects', storyApplyEffects);
+
+  // iter-019 M8 T3: achievements evaluator (day:95, after story.check — K18/C4 fix)
+  register(registry, 'achievements.eval', achievementsEval);
+
   /** @type {PeriodicTask[]} */
   const periodics = [
     { id: 'population.migration',    every: 'step',       order: 10, systemFn: 'population.migration' },
@@ -228,6 +237,11 @@ export function registerCorePeriodics(registry) {
     { id: 'research.daily',          every: 'day',        order: 75, systemFn: 'research.daily' },
     { id: 'season.change',           every: 'season',     order: 10, systemFn: 'noop' },
     { id: 'battle.tick',             every: 'step',       order: 30, systemFn: 'battle.tick' },
+    // iter-019 M8 T1: story system
+    { id: 'story.applyEffects',      every: 'step',       order: 5,  systemFn: 'story.applyEffects' },
+    { id: 'story.check',             every: 'day',        order: 90, systemFn: 'story.check' },
+    // iter-019 M8 T3: achievements evaluator (after story.check so event rewards propagate first)
+    { id: 'achievements.eval',       every: 'day',        order: 95, systemFn: 'achievements.eval' },
   ];
 
   return periodics.sort((a, b) => {

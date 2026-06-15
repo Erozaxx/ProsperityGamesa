@@ -120,7 +120,14 @@ export function createInitialState(opts = {}) {
     world: createWorldState(),
     catalogState: { modifiers: [] },
     battle: null,
-    story: {},
+    story: {
+      event: null,
+      queue: [],
+      used: {},
+      lines: {},
+      tutorials: { done: {}, curId: null, curStep: 0 },
+      pendingEffects: [],
+    },
     log: {
       entries: [],
       capacity: logCapacity,

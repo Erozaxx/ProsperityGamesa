@@ -14,7 +14,7 @@ export const PERSIST_SCHEMA = {
   player:     ['gold', 'techPt', 'inventory', 'taxRate', 'totWarriors', 'totArchers', 'diseaseFromColdChance', 'unlockedTechs', 'research'],
   population: ['total', 'migrationAcc', 'bornTotal', 'diedTotal'],
   housing:    ['counts'],
-  food:       ['store'],
+  food:       ['store', 'starvation'],
   health:     ['diseaseActive', 'diseaseDaysLeft'],
   crime:      ['level'],
   home:       ['settlementLevel', 'workerEfficiency'],  // + sub-domains

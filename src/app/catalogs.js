@@ -11,6 +11,7 @@ const CATALOG_NAMES = [
   'achievements',
   'buildings',
   'contracts',
+  'dialogues',
   'food',
   'goods',
   'houseTypes',
@@ -19,7 +20,9 @@ const CATALOG_NAMES = [
   'resources',
   'companies',
   'skills',
+  'story',
   'techs',
+  'tutorials',
   'zones',
 ];
 

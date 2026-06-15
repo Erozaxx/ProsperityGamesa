@@ -45,6 +45,7 @@ const STEPS_PER_DAY = 900;
  * @property {number} realSecondsElapsed - real seconds elapsed while offline
  * @property {boolean} interrupted - whether the catch-up was interrupted
  * @property {BattlesSummary} battles - battle outcomes during offline period
+ * @property {Record<string, number> | null} [uiEventCounts] - aggregate counts of UI events during catch-up (T4)
  */
 
 /**
@@ -69,6 +70,7 @@ export function selectOfflineBattles(gameState, startStep) {
 /**
  * Build the offline summary model from catch-up result data.
  * iter-018 M7b: state param added for battle log integration.
+ * iter-019 M8 T4: uiEventCounts added for catch-up UI event aggregate.
  *
  * @param {Object} opts
  * @param {number} opts.missedMs - real ms elapsed while offline
@@ -77,6 +79,7 @@ export function selectOfflineBattles(gameState, startStep) {
  * @param {boolean} opts.interrupted - whether catch-up was interrupted
  * @param {object} [opts.state] - game state (optional; used for battle log)
  * @param {number} [opts.startStep] - step at which offline catch-up started
+ * @param {Record<string, number>} [opts.uiEventCounts] - aggregate UI event counts during catch-up (T4)
  * @returns {OfflineSummaryModel}
  */
 export function buildOfflineSummary(opts) {
@@ -109,6 +112,7 @@ export function buildOfflineSummary(opts) {
     realSecondsElapsed,
     interrupted,
     battles,
+    uiEventCounts: opts.uiEventCounts ?? null,
   };
 }
 
@@ -129,6 +133,17 @@ export function formatOfflineSummary(model) {
   const b = model.battles;
   if (b && b.hasBattles) {
     text += ` Proběhlo ${b.total} ${b.total === 1 ? 'bitva' : b.total < 5 ? 'bitvy' : 'bitev'}: ${b.wins} výher, ${b.losses} proher. Ztráty: ${b.playerCasualties}, nepřátelé poraženi: ${b.playerKills}.`;
+  }
+
+  // iter-019 M8 T4: Append catch-up UI event aggregate (§7.3 — not spam toasts)
+  if (model.uiEventCounts) {
+    const counts = model.uiEventCounts;
+    const parts = [];
+    const unlocked = counts['achievementUnlocked'];
+    if (unlocked) parts.push(`${unlocked} ${unlocked === 1 ? 'achievement' : 'achievementů'}`);
+    const storyShown = counts['storyEventShown'];
+    if (storyShown) parts.push(`${storyShown} ${storyShown === 1 ? 'příběhová událost' : 'příběhové události'}`);
+    if (parts.length > 0) text += ` Mezitím: ${parts.join(', ')}.`;
   }
 
   return text;

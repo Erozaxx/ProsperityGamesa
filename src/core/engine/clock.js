@@ -61,6 +61,13 @@ export function advance(acc, state, ctx, nowMs) {
   const elapsed = nowMs - acc.lastTimeMs;
   acc.lastTimeMs = nowMs;
 
+  if (state.engine.running === false) {
+    // Engine-stopping event: discard accumulated time (parallel to factor===0 pause).
+    // Prevents real-time debt accumulation while waiting for acknowledgeEvent.
+    acc.accMs = 0;
+    return { stepsRun: 0, dirty: false };
+  }
+
   if (factor === 0) {
     // Pause: discard accumulated time (no catch-up after unpause)
     acc.accMs = 0;
@@ -74,7 +81,7 @@ export function advance(acc, state, ctx, nowMs) {
   let i = 0;
   for (; i < steps; i++) {
     step(state, ctx);
-    if (state.engine.running === false) break; // stopPending slot (M2+)
+    if (!state.engine.running) break; // stopPending slot (M2+)
   }
 
   // Only deduct actually performed steps
