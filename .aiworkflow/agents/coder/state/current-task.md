@@ -1,6 +1,6 @@
 # Current Task
-- **Task ID**: T-006 (iter-019 M8 T2+T4)
-- **Iteration**: iter-019
+- **Task ID**: T-004 (iter-020 M9a — C-020-A Trh)
+- **Iteration**: iter-020
 - **Status**: done
 - **Done**: 2026-06-15
-- **Gate**: CI 1509/1509 pass (0 fail), smoke OK (0 console errors, Deník tab visible), emitEvent ephemeral (no hashState impact T4-1 test), precache regenerated
+- **Gate**: CI 1526/1526 pass (0 fail, typecheck + lint:core OK), smoke OK (0 console errors). Cíle CÍL-1/2/3 zelené (11 nových testů). driftK=0.2 potvrzeno (calibrated, G-MARKET-DRIFT closed). Cenový/drift signatury beze změny. Determinismus (seedy, žádný Date.now/Math.random/DOM).

@@ -76,7 +76,15 @@ export const BALANCE = Object.freeze({
     haggleBuy: 1.35,
     /** Haggle multiplier for selling. Source: config.js:417 */
     haggleSell: 0.6,
-    /** Daily mean-reversion drift rate toward baseline. provenance: approximated, gap G-MARKET-DRIFT (M9). */
+    /**
+     * Daily mean-reversion drift rate toward baseline (available += k·(baseline−available)).
+     * provenance: calibrated (iter-020 M9a, G-MARKET-DRIFT closed). Was approximated (M4b).
+     * Confirmed = 0.2 against playability goals CÍL-1/CÍL-3 (design_iter-020_T-001.md §1):
+     *   - CÍL-1 (recovery, dolní strážce): N(5% návrat k baseline) = 14 dní (0.8^14≈0.044<0.05).
+     *   - CÍL-3 (impact persistence, horní strážce): retention(1 den) = 1−k = 0.80 ≥ 0.60.
+     *   → 0.2 je bezpečný střed přípustného okna [0.10, 0.40]; mimo něj jeden z cílů padá.
+     * Sweep audit + asserty: test/m9a-market.test.js (T2). Drift vzorec se NEMĚNÍ (kalibrace = data).
+     */
     driftK: 0.2,
   },
 

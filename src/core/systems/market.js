@@ -115,7 +115,8 @@ export function marketInject(state, goodsId, qty) {
  * Daily mean-reversion drift toward baseline (simulates surrounding world supply).
  * available += k × (baseline − available), then clamp [0, max].
  * Day edge, order 35. Deterministic, no RNG, catch-up-safe (S-05).
- * Gap G-MARKET-DRIFT: driftK=0.2 approximated, calibrated M9.
+ * G-MARKET-DRIFT closed (iter-020 M9a): driftK=0.2 calibrated against playability goals
+ * CÍL-1/CÍL-3 (admissible range [0.10,0.40]). See balance.js market.driftK + test/m9a-market.test.js.
  * @param {GameState} state
  * @param {object} _params
  * @param {TickContext} _ctx
