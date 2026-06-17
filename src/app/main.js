@@ -36,7 +36,7 @@ import { marketInit } from '../core/systems/market.js';
 import { BALANCE } from '../core/balance/balance.js';
 import { recordTx } from '../core/resources/accounting.js';
 import { getCatalog, hasCatalog } from '../core/catalog/index.js';
-import { requestPersistentStorage } from './persist.js';
+import { requestPersistentStorage, isStoragePersisted, getLastExportAt, setLastExportAt, evaluateExportReminder } from './persist.js';
 import { registerServiceWorker } from './sw-register.js';
 import { createGameLoop } from './loop.js';
 import { attachLifecycle } from './lifecycle.js';
@@ -168,11 +168,16 @@ function bootstrapEngine() {
  * @param {(state: import('../core/state/types.js').GameState) => Promise<unknown>} env.saveGame - save game
  * @param {(state: import('../core/state/types.js').GameState, opts?: object) => string} env.exportToString
  * @param {(str: string, catalog: object) => {state: import('../core/state/types.js').GameState, lastSimTimestamp: number}} env.importFromString
+ * @param {() => (boolean | Promise<boolean>)} [env.getPersisted] - navigator.storage.persisted() (R-F)
+ * @param {() => (number | null)} [env.getLastExportAt] - sidecar lastExportAt reader (R-F)
+ * @param {(now: number) => void} [env.setLastExportAt] - sidecar lastExportAt writer (R-F)
  * @returns {Promise<{
  *   state: import('../core/state/types.js').GameState,
  *   autosave: import('./autosave.js').Autosave,
  *   offlineSummary: import('../ui/OfflineSummary.js').OfflineSummaryModel | null,
- *   loop: { start: () => void, stop: () => void }
+ *   loop: { start: () => void, stop: () => void },
+ *   onUpdateReady: (accept: () => void) => void,
+ *   flushSave: () => Promise<void>
  * } | null>}
  */
 export async function bootSequence(env) {
@@ -272,6 +277,14 @@ export async function bootSequence(env) {
     const send = (/** @type {string} */ type, /** @type {Record<string, unknown>|undefined} */ params) =>
       dispatch(creg, state, { type, params });
 
+    // iter-021 T2 (R-F): export-reminder state (sidecar `lastExportAt`, OUTSIDE hashState).
+    /** @type {{ reason: string } | null} */
+    let exportReminder = null;
+    /** @type {boolean} a new SW version is waiting */
+    let updateReady = false;
+    /** @type {(() => void) | null} accept handler supplied by the SW update flow */
+    let acceptUpdate = null;
+
     // B-4: export/import handlers
     const onExport = () => {
       const str = env.exportToString(state, { lastSimTimestamp: now() });
@@ -279,6 +292,19 @@ export async function bootSequence(env) {
       if (typeof navigator !== 'undefined' && navigator.clipboard) {
         navigator.clipboard.writeText(str).catch(() => {});
       }
+      // iter-021 T2 (R-F): record sidecar timestamp + clear the reminder.
+      if (env.setLastExportAt) env.setLastExportAt(now());
+      exportReminder = null;
+      requestRender();
+    };
+
+    const onDismissExportReminder = () => {
+      exportReminder = null;
+      requestRender();
+    };
+
+    const onApplyUpdate = () => {
+      if (acceptUpdate) acceptUpdate();
     };
 
     const onImport = () => {
@@ -329,6 +355,10 @@ export async function bootSequence(env) {
           onImport,
           pendingUiEvents,
           catchupUiEventCounts,
+          exportReminder,
+          onDismissExportReminder,
+          updateReady,
+          onApplyUpdate,
         };
       },
     });
@@ -431,7 +461,36 @@ export async function bootSequence(env) {
     // 10. Start live loop
     loop.start();
 
-    return { state, autosave, offlineSummary, loop };
+    // iter-021 T2 (R-F): evaluate the export reminder once at boot (non-blocking, best-effort).
+    // persisted()/lastExportAt are injected; Date.now() is read in the app layer only.
+    if (env.getPersisted && env.getLastExportAt) {
+      const getPersisted = env.getPersisted;
+      const readLastExportAt = env.getLastExportAt;
+      Promise.resolve(getPersisted()).then((persisted) => {
+        const decision = evaluateExportReminder({
+          persisted,
+          lastExportAt: readLastExportAt(),
+          now: now(),
+        });
+        if (decision.show) {
+          exportReminder = { reason: decision.reason ?? 'stale' };
+          requestRender();
+        }
+      }).catch(() => {});
+    }
+
+    // iter-021 T2 (SW update): the boot caller wires the SW flow and calls this when an update
+    // is ready, handing us the accept() action; we flip the banner on.
+    const onUpdateReady = (/** @type {() => void} */ accept) => {
+      acceptUpdate = accept;
+      updateReady = true;
+      requestRender();
+    };
+
+    // flushSave bridge for the SW flow: force an autosave to IndexedDB before the reload.
+    const flushSave = () => autosave.flush();
+
+    return { state, autosave, offlineSummary, loop, onUpdateReady, flushSave };
   } catch (e) {
     env.showError({
       kind: 'boot',
@@ -451,10 +510,7 @@ export async function boot() {
   // 1. Request persistent storage (best-effort, non-blocking)
   requestPersistentStorage();
 
-  // 2. Register service worker (best-effort)
-  await registerServiceWorker();
-
-  await bootSequence({
+  const booted = await bootSequence({
     now: Date.now.bind(Date),
     raf: requestAnimationFrame.bind(globalThis),
     cancelRaf: cancelAnimationFrame.bind(globalThis),
@@ -462,6 +518,11 @@ export async function boot() {
     lifecycleTarget: document,
     lifecycleWin: window,
     showError: (info) => showErrorScreen(root, /** @type {any} */ (info)),
+    // iter-021 T2 (R-F): inject app-layer eviction/export-reminder deps (Date.now/localStorage
+    // read HERE only, never in core; lastExportAt is a sidecar outside the save payload).
+    getPersisted: () => isStoragePersisted(),
+    getLastExportAt: () => getLastExportAt(),
+    setLastExportAt: (now) => setLastExportAt(now),
     mountUI: (deps) => mountUI({
       state: deps.state,
       send: deps.send,
@@ -480,6 +541,13 @@ export async function boot() {
     saveGame: (state) => saveGame(state),
     exportToString,
     importFromString,
+  });
+
+  // 2. Register service worker AFTER boot so the update flow can flush the save before reload
+  //    (invariant 3). Best-effort: failure only warns.
+  await registerServiceWorker({
+    onUpdateReady: booted ? booted.onUpdateReady : undefined,
+    flushSave: booted ? booted.flushSave : undefined,
   });
 }
 

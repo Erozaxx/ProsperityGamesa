@@ -1,16 +1,16 @@
 # Current Task
-- **Task ID**: T-005 (iter-020 M9a — C-020-B Offline cap + Balanc regression)
-- **Iteration**: iter-020
+- **Task ID**: T-004 (iter-021 M9b — C-021-A Mobile UX + PWA audit)
+- **Iteration**: iter-021
 - **Status**: done
-- **Done**: 2026-06-15
-- **Gate**: CI 1550/1550 pass (0 fail, typecheck + lint:core OK), smoke OK (0 console errors). T3 offline cap: capBalanceRealHours=8 (var A) přidán, MINOR-1 vydrátováno (CATCHUP_CAP_MS odvozen z BALANCE přes min(tech,balance), exportován + testován). T4: test/m9a-regression.test.js — kvartální segmenty (81 900 kroků) přes save/load checkpointy (bit-identické, žádný drift), denní sampling (správné cesty MINOR-2: home.food.store/population.total/player.gold), invarianty pop/gold/food/NaN/kolaps, golden-hash checkpointy (3 seedy × 4 kvartály, regenerovatelné REGEN_GOLDEN=1), smoke+plná varianta. home.js:970 evidence zapsána (zamýšlená varianta 0.02+(inoc?0.01:0), original-intended; mechanika v core neexistuje → bez logiky). Determinismus G1 + M-série nedotčené.
+- **Done**: 2026-06-17
+- **Gate**: CI 1566/1566 pass (0 fail, typecheck + lint:core OK), smoke OK (0 console errors, 0 horizontal overflow @320/360/390 napříč 12 taby). Determinismus G1 nedotčen (žádná změna v src/core/**, src/data/**, balance — hashState strukturálně identický s iter-020; 60 hashState/determinismus testů zelených). Render throttle hotový (WIP 601cc59) + nově ověřen testem ≤15/s při živé dávce. precache.js NEREGENEROVÁN (vrácen do commitnutého stavu — orchestrátor regeneruje JEDNOU po T-004+T-005).
 
 ## Dílčí checklist
-- [x] T3.1 capBalanceRealHours=8 do balance.js (oddělená, provenance+DR komentář)
-- [x] T3.2 MINOR-1: CATCHUP_CAP_MS odvozen z BALANCE min(tech,balance), volající přepojen + export
-- [x] T3.3 test: cap odvozen z BALANCE (ne literál), min aplikováno, capBalance není no-op
-- [x] T4.1 test/m9a-regression.test.js: kvartální segmenty přes save/load checkpointy (smoke+plný)
-- [x] T4.2 invarianty křivek (pop 0–10000, gold≥0, food≤maxFood, NaN, kolaps proxy ≤30 dní); cesty MINOR-2
-- [x] T4.3 golden-hash checkpointy (verzovaný, regenerovatelný, dokumentace regenerace)
-- [x] T4.4 home.js:970 evidence (DR-020-01, komentář v balance.js health; bez logiky — grep=0)
-- [x] Gate: npm run ci zelené (1550), npm run smoke OK
+- [x] T1.1 Render throttle TEST (MINOR-1): test/render-throttle.test.js — ≤15/s při živé 60fps dávce + trailing render + coalescing (injektovatelné now/raf/setTimeoutFn/renderFn)
+- [x] T1.2 Touch ≥44×44px: tools/audit-touch-targets.mjs gate (PASS) + styles.css (global button min-block-size:44px, touch-action:manipulation, .tab-btn/.speed/.save-actions)
+- [x] T1.3 0 horizontal overflow @320/360/390: .tabs single-row horizontal scroller + overflow-x:hidden; smoke rozšířen (overflow check napříč 12 taby × 3 šířky)
+- [x] T1.4 iOS Safari: 100dvh + env() safe-area insety (styles.css), apple-mobile-web-app meta (index.html)
+- [x] T2.1 Evikce (R-F): isStoragePersisted() + evaluateExportReminder() + lastExportAt sidecar (localStorage, MIMO hashState) v persist.js; banner v App.js; wiring v main.js
+- [x] T2.2 SW update: service-worker.js message-driven skip-waiting (skipWaiting() jen na SKIP_WAITING); sw-register.js wireUpdateFlow (updatefound→prompt→flushSave PŘED reloadem, controllerchange jednorázový reload); banner v App.js
+- [x] T2.3 Offline edge: cache-miss SPA fallback ověřen (nedotčen); apple/mobile meta + manifest
+- [x] Gate: npm run ci zelené (1566), npm run smoke OK, determinismus G1 nedotčen

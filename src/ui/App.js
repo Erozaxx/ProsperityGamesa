@@ -39,8 +39,12 @@ const TABS = [
  * @param {(() => void) | null} [props.onDismissOfflineSummary]
  * @param {(() => void) | null} [props.onExport]
  * @param {(() => void) | null} [props.onImport]
+ * @param {{ reason: string } | null} [props.exportReminder] - R-F backup nudge (iter-021 T2)
+ * @param {(() => void) | null} [props.onDismissExportReminder]
+ * @param {boolean} [props.updateReady] - a new SW version is waiting (iter-021 T2)
+ * @param {(() => void) | null} [props.onApplyUpdate]
  */
-export function App({ snapshot, send, offlineSummary, catchupProgress, onDismissOfflineSummary, onExport, onImport }) {
+export function App({ snapshot, send, offlineSummary, catchupProgress, onDismissOfflineSummary, onExport, onImport, exportReminder, onDismissExportReminder, updateReady, onApplyUpdate }) {
   const clock = selectClock(snapshot);
   const season = selectSeason(snapshot);
   const speed = selectSpeed(snapshot);
@@ -64,6 +68,19 @@ export function App({ snapshot, send, offlineSummary, catchupProgress, onDismiss
 
   return html`
     <div class="hud">
+      ${updateReady ? html`
+        <div class="banner banner-update" role="alert">
+          <span>Nová verze je připravena.</span>
+          <button onClick=${onApplyUpdate ?? (() => {})}>Aktualizovat</button>
+        </div>
+      ` : null}
+      ${exportReminder ? html`
+        <div class="banner banner-export" role="status">
+          <span>Zálohuj svůj postup — exportuj uloženou hru.</span>
+          <button onClick=${onExport ?? (() => {})}>Exportovat teď</button>
+          <button class="banner-dismiss" onClick=${onDismissExportReminder ?? (() => {})} aria-label="Zavřít">✕</button>
+        </div>
+      ` : null}
       <div class="clock">
         Rok ${clock.year} · den ${clock.day} (${season.name}, den v sezóně ${clock.dayInSeason}) · krok ${clock.curStep}
       </div>
