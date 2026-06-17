@@ -88,9 +88,13 @@ is a release blocker).
 
 ## Licence & provenance
 
-See [PROVENANCE.md](./PROVENANCE.md) for what is faithful re-implementation of facts vs. own
-content, and the licence status. **The licence is to be decided (user gate)** — no `LICENSE`
-file is committed yet.
+Licensed under **GPL-3.0-or-later** — see [`LICENSE`](./LICENSE). ProsperityGamesa is an
+**unofficial fan reimplementation** of the mechanics of *Prosperity* (v0.9.5), not affiliated
+with the original authors — see [`NOTICE`](./NOTICE).
+
+See [PROVENANCE.md](./PROVENANCE.md) for what is faithful re-implementation of facts (numbers,
+formulas, mechanics — not copyrightable) vs. own/paraphrased content, with a repeatable
+verbatim-scan audit (0 matches).
 
 ## Development
 

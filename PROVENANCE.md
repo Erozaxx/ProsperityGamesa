@@ -83,28 +83,26 @@ It verifies, over every `src/data/*.json`:
 **Last result:** PASS — 20 catalogs flagged, prose strings scanned vs the original-source
 corpus, **0 verbatim matches** (consistent with the M8 ad-hoc scan, now an automated gate).
 
-## 6. Licence (RECOMMENDATION — pending user decision)
+## 6. Licence (DECIDED — user gate T-008)
 
-> **This section is a PLACEHOLDER. The licence is an explicit user decision (legal,
-> irreversible) and has NOT been made.** No `LICENSE` file is committed yet, so as not to
-> imply a chosen licence. The architecture *recommends* but does **not** decide.
+> **Decision made by the user (legal owner) at user gate T-008 (iter-021 / M9b):
+> GPL-3.0 + fan disclaimer.** The repo ships the full `LICENSE` (GNU GPL v3) and a `NOTICE`
+> with the fan-reimplementation disclaimer.
 
-**Recommendation A (preferred): MIT** (or Apache-2.0) on the own code, plus this
-`PROVENANCE.md`/a `NOTICE` stating that the project is an independent reimplementation of the
-mechanics of the game *Prosperity* (fan rebuild), with no protected content copied.
-*Trade-off:* permissive, no copyleft obligations; does not keep derivatives open — usually
-fine for a fan project.
+**Chosen licence: GPL-3.0-or-later** (copyleft) on the own code. Derivatives must stay
+open-source under the same terms. The full licence text is in [`LICENSE`](LICENSE); the
+copyright + fan disclaimer is in [`NOTICE`](NOTICE).
 
-**Alternative B: GPL-3.0** (copyleft) — if derivatives should stay open. *Trade-off:* more
-obligations for integrators.
+**Fan disclaimer (ships in `NOTICE`):** ProsperityGamesa is an unofficial, independent fan
+reimplementation of the mechanics of the game *Prosperity* (v0.9.5), not affiliated with or
+endorsed by the original authors. No protected content is copied verbatim.
 
-**Alternative C: proprietary / "all rights reserved", do not publish** — if legal
-uncertainty around the fan rebuild outweighs the goal of public playability. *Trade-off:*
-defeats "installable/playable by others".
+**Safeguards satisfied before publishing:**
+1. Verbatim scan = 0 (`tools/audit-provenance.mjs`, §5).
+2. Own / paraphrased assets confirmed (§3); facts/mechanics treated as non-copyrightable (§2).
+3. Disclaimer present (`NOTICE`).
+4. Original source material (`doc/original_source/**`) is reference-only and **not distributed**
+   (excluded from the PWA precache manifest, §4).
 
-**Common safeguard (independent of A/B/C):** publish publicly only after (1) verbatim scan =
-0, (2) own assets confirmed, (3) a disclaimer: *"unofficial fan reimplementation, not
-affiliated with the authors of the original."*
-
-> The licence choice and whether to publish at all are the **user's** decision (user gate,
-> task T-008). Until then this section stays a placeholder and the repo ships **no** `LICENSE`.
+> Considered and not chosen: MIT/Apache-2.0 (permissive — rejected in favour of copyleft so
+> derivatives stay open); proprietary / do-not-publish (rejected — defeats public playability).
