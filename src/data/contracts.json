@@ -1,6 +1,7 @@
 {
   "_meta": {
-    "provenance": "derived (model+lifecycle z originálu) / approximated (deadlineStep repr., min. sada, deterministická čísla)",
+    "provenance": "derived",
+    "notes": "Provenance scope: derived (model+lifecycle z originálu); approximated (deadlineStep reprezentace, minimální sada, deterministická čísla).",
     "gap": "G-CONTRACTS-CATALOG",
     "source": "doc/original_source/.../events.js + home.js:2407 + config.js:3248"
   },

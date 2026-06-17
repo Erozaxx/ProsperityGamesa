@@ -8,7 +8,17 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(PRECACHE_VERSION).then((cache) => cache.addAll(PRECACHE_URLS))
   );
-  self.skipWaiting();
+  // iter-021 T2 (DR-021-01 §1): do NOT skipWaiting() automatically. A new version waits
+  // until the app explicitly opts in (SKIP_WAITING message), so a running session never
+  // gets a half-swapped module set mid-play (no-build ESM cache-mixing risk).
+});
+
+// iter-021 T2: message-driven skip-waiting. The page posts {type:'SKIP_WAITING'} after the
+// user accepts the update banner (and after autosave has flushed to IndexedDB).
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {

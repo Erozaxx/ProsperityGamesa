@@ -46,6 +46,30 @@ try {
   if (errors.length) { ok = false; console.error('SMOKE FAIL: console/page errors:\n - ' + errors.slice(0,10).join('\n - ')); }
   else if (!txt || /Načítám/.test(txt) && txt.length < 30) { ok = false; console.error('SMOKE FAIL: app did not render (still loading / empty #app).'); }
   else console.log('SMOKE OK: app rendered, 0 console errors.\n--- app text (head) ---\n' + txt.slice(0, 200));
+
+  // iter-021 T1 UX-2: no horizontal overflow @ 320/360/390 px across every tab.
+  if (ok) {
+    const tabIds = await page.$$eval('.tabs .tab-btn', (els) => els.length);
+    for (const width of [320, 360, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      for (let i = 0; i < tabIds; i++) {
+        await page.$$eval('.tabs .tab-btn', (els, idx) => {
+          const el = /** @type {HTMLElement|undefined} */ (els[idx]);
+          if (el) el.click();
+        }, i);
+        await page.waitForTimeout(60);
+        const overflow = await page.evaluate(() =>
+          document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        if (overflow > 1) {
+          ok = false;
+          console.error(`SMOKE FAIL: horizontal overflow ${overflow}px @ ${width}px (tab #${i}).`);
+          break;
+        }
+      }
+      if (!ok) break;
+    }
+    if (ok) console.log(`SMOKE OK: 0 horizontal overflow @ 320/360/390px across ${tabIds} tabs.`);
+  }
 } catch (e) { ok = false; console.error('SMOKE FAIL: ' + (e instanceof Error ? e.message : String(e))); }
 finally { await browser.close(); server.close(); }
 process.exit(ok ? 0 : 1);

@@ -1,0 +1,39 @@
+# Iteration Plan: iter-021
+
+- **Created**: 2026-06-15
+- **Goal**: M9b – Release kandidát: mobilní UX polish, finální PWA audit (evikce/SW update/offline edge), licence/PROVENANCE čistka (R-G, R-F) + release dokumentace. Master plán §3/iter-018(M9b). **Finální R-G licence = explicitní user gate před veřejným vydáním.** Posun číslování viz DR-013-00.
+- **Status**: active
+
+## Master Checklist
+<!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
+- [x] T-001: architect – Design M9b hotový (design_iter-021_T-001.md): **T1** touch ≥44px (audit-touch-targets.mjs), 0 horizontal overflow @320/360/390px, **render ≤15/s** (KLÍČOVÝ NÁLEZ: render.js dnes ~60/s porušuje §3.4 → fix time-gate RENDER_MIN_INTERVAL_MS=66 + trailing, UI vrstva), iOS Safari (100dvh/safe-area/touch-action). **T2** evikce R-F (persisted()+export prompt >7dní, lastExportAt sidecar MIMO hashState), SW update (auto skipWaiting→message-driven + UI prompt + autosave('hide') před reload), offline edge (cache-miss SPA fallback ✓). **T3 licence**: doporučení **MIT+disclaimer** (alt GPL-3.0/proprietární), finální=USER GATE, PROVENANCE.md §6 placeholder, **žádný LICENSE soubor před rozhodnutím**; audit-provenance.mjs gate. **T4** README přepis (zastaralý!), KNOWN_ISSUES. **Split**: C-021-A (T1+T2 UX/PWA) / C-021-B (T3+T4 licence/docs) disjunktní. DR-021-01. README zastaralý (vedlejší nález)
+- [x] T-002: reviewer – **GO-s-podmínkami** (ověřeno proti kódu): 0 blocker/0 major/3 minor/2 nit. 3 nejrizikovější osy PASS: determinismus nedotčen (hashState rng.js:69 jen payload; render-throttle/lastExportAt sidecar/_meta vše mimo hashState, identický s iter-020 = G1 gate), SW update bez ztráty savu (skipWaiting→message-driven+prompt+autosave('hide') existuje autosave.js:40-46, IndexedDB přežije), licence=user gate (jen doporučení, žádný LICENSE před rozhodnutím). Evikce+mobile UX (render ~60/s potvrzeno) PASS, split A/B disjunktní souhlas. **Podmínky DR-021-01**: MINOR-1 (render test živá dávka ne klid), MINOR-2 (C-021-B edituje data/_meta v precache ROOTS → A+B SEKVENČNĚ + 1 finální gen-precache), MINOR-3 (G1 gate po _meta). NIT: persist=src/app/persist.js
+- [x] T-003: tom-proxy – **SCHVÁLENO (DESIGN přístup, v mandátu)**: mobile UX scope OK (touch≥44px, 0 overflow, render≤15/s fix, iOS Safari), PWA audit OK (evikce R-F, SW message-driven save-safe, offline edge), PROVENANCE/licence PŘÍSTUP OK (R-G klasifikace, audit-provenance.mjs gate, MIT+disclaimer jen podklad), README přepis+known issues OK. **Finální licence EXPLICITNĚ eskalována na T-008** (nevratné/právní, tom-proxy NEROZHODUJE; žádný LICENSE soubor, PROVENANCE.md §6 placeholder do té doby)
+- [x] T-004: coder – C-021-A Mobile UX + PWA hotový [ověřeno orchestrátorem; 1. běh uříznut → re-dispatch dokončil]: **T1** render-throttle (RENDER_MIN_INTERVAL_MS=66+trailing, render.js UI-layer) + live-batch test ≤15/s (MINOR-1, test/render-throttle.test.js), touch ≥44px (tools/audit-touch-targets.mjs gate+styles), 0 horizontal overflow @320/360/390 (tab scroller, smoke check), iOS Safari (100dvh/safe-area/meta). **T2** evikce R-F (persisted()+export reminder, lastExportAt sidecar MIMO hashState, persist.js), SW message-driven skipWaiting+update prompt+flushSave před reload (save přežije, sw-register.js/service-worker.js), offline edge. **ci 1566/1566** (+16), smoke OK (0 overflow), **G1 NEDOTČEN** (nula změn src/core/src/data/balance → hashState identický s iter-020), precache regen deferred (MINOR-2)
+- [x] T-005: coder – C-021-B Licence/PROVENANCE + Release docs hotový [ověřeno orchestrátorem]: **T3** PROVENANCE.md (§1-5 evidence, §6 licence PLACEHOLDER+doporučení MIT/GPL/proprietární → user gate T-008, ŽÁDNÝ LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 43 prose vs 74 orig souborů, **0 verbatim shod**), _meta.provenance ujednocen (contracts.json derived; **herní DATA nedotčena, jen _meta**). **T4** README PŘEPSÁN (věrný rebuild Prosperity v0.9.5 PWA, jak hrát, install, export/import), KNOWN_ISSUES.md (carry-over gapy). **ci 1566/1566**, smoke OK, **G1 NEDOTČEN** (src/data diff = jen _meta/notes, golden-hash beze změny → hashState identický, MINOR-3 splněn). Precache regen JEDNOU po T-004+T-005 (prosperity-4830cd1e8c19, .md vyloučeny)
+- [x] T-006: tester – **GO (DoD M9b = release kandidát), 17/17 AC PASS / 0 FAIL** [empiricky vlastní běh]: ci 1566/1566 + smoke 0 err/0 overflow @320/360/390×12tabů; **G1 prokázán** (git diff src/core vs iter-020 2f5d7f1 PRÁZDNÝ, jediná src/data změna contracts.json čistě _meta, golden-hash 17/17 identický → hashState = iter-020); render ≤15/s živá dávka (60fps burst→≤16 paints+trailing, MINOR-1); SW update save-safe (flushSave PŘED postMessage SKIP_WAITING, 5/5); **e2e release scénář** (nová hra→30dní idle 27000 kroků→export→import round-trip hash MATCH→deterministická kontinuace MATCH, bez crashe); PROVENANCE audit PASS 0 verbatim + ŽÁDNÝ LICENSE (user gate T-008) + .md mimo precache; regrese m9a/m8/m7/m6/m5 vše zelené
+- [x] T-007: reviewer – **GO (RELEASE KANDIDÁT)** [proti kódu, vlastní běh]: 0 blocker/0 major/2 minor/2 nit (žádný release-blokující). INV-1 G1 PROKÁZÁN (git diff src/core PRÁZDNÉ, contracts.json jen _meta, golden-hash diff prázdný+17/17, lint:core 66 souborů → hashState=iter-020), INV-2 SW save-safe (flushSave PŘED postMessage SKIP_WAITING, test order assert + reload guard, SW reg po bootu), INV-3 render ≤15/s živá dávka (≤16 A ≥10), INV-4 licence=user gate (žádný LICENSE, PROVENANCE §6 placeholder, audit 0 verbatim, .md mimo precache). ci 1566/1566, acceptance criteria 1-4 PASS (hratelná/install/idle/save). **Done-criteria+acceptance SPLNĚNA, DoD M9 = release kandidát, master plán M0–M9 KOMPLETNÍ.** Zbývá jen volba licence (user gate T-008)
+- [x] T-008: human – **LICENCE ROZHODNUTA (USER GATE): GPL-3.0 + fan disclaimer** [rozhodl skutečný uživatel, ne tom-proxy]. LICENSE (GNU GPL v3 kanonický 674ř) + NOTICE (fan disclaimer) + PROVENANCE §6 finalizováno + README licence sekce. Safeguards: 0 verbatim, vlastní assety, disclaimer, doc/original mimo distribuci, LICENSE/NOTICE mimo precache. CI 1566/1566, audit PASS, smoke OK, G1 nedotčen. → /close-iteration + PR + merge → **M9b hotov = DoD M9 = RELEASE KANDIDÁT (master plán M0–M9 KOMPLETNÍ)**
+
+## Quality Gates
+- [x] Architecture/design reviewed (T-002 GO-s-podmínkami) + tom-proxy schválení (T-003 SCHVÁLENO)
+- [x] Code review / release gate (Reviewer) – T-007 GO (release kandidát, 0 blocker)
+- [x] QA validace + e2e release scénář (Tester) – T-006 GO (17/17 AC)
+- [x] Plán neobsahuje orchestratora jako agenta u žádného tasku
+
+## Exit Criteria (DoD M9b = DoD M9 = release)
+- Done-criteria projektu splněna (`project/done-criteria.md`); acceptance criteria zadání splněna (install mobil, offline hraní, idle smyčka, spolehlivý save vč. offline).
+- Mobilní UX polished (dotykové cíle, layout, render perf ≤10–15/s); finální PWA audit čistý (evikce/SW update/offline edge, install iOS/Android).
+- PROVENANCE úplná (vlastní assety/jména/texty, R-G evidence); **licenční otázka rozhodnuta uživatelem**.
+- `npm run ci` zelené, `npm run smoke` OK, determinismus G1 nedotčen.
+- Reviewer GO (release gate) → release kandidát.
+
+## Decisions Made This Iteration
+- DR-013-00: posun číslování (iter-018 master plán = iter-021 zde), autonomní doběh.
+- **Finální R-G licence = explicitní user gate** (nevratné/právní → tom-proxy NEROZHODUJE, eskaluje skutečnému uživateli).
+
+## Retrospective Notes
+- Vstup: master plán §3/iter-018(M9b), architektura §9.2/§9.4 (PWA/storage), R-F (evikce), R-G (licence), done-criteria.
+- M9b = poslední milník = DoD M9 = release kandidát → celý master plán M0–M9 hotov.
+- Carry-over k posouzení/cleanup: M8 MINOR-1/2 + nity, TXAUDIT, V1/V2, G-WORLD-*, G-AIBATTLE-DEDUP, G-MILITARY-STATS, MIN-1 — known issues do release docs.
+- LL-005 (monitor živost přes working-tree mtime), LL-006 (duplicitní spawny + ověřuj proti CI/working-tree).

@@ -1,0 +1,32 @@
+ProsperityGamesa
+Copyright (C) 2026 Erozaxx
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. See the LICENSE file for the full text.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+---
+
+DISCLAIMER (fan reimplementation)
+
+ProsperityGamesa is an unofficial, independent fan reimplementation of the
+mechanics of the game "Prosperity" (v0.9.5). It is NOT affiliated with,
+endorsed by, or connected to the authors of the original game.
+
+No protected content from the original is copied verbatim:
+  - Game numbers, balance values, formulas and mechanics are treated as facts
+    (not subject to copyright) and were extracted/derived from the original.
+  - All prose, names, story, dialogue and achievement texts are original or
+    paraphrased (provenance: original / original-paraphrased). A repeatable
+    audit (tools/audit-provenance.mjs) confirms 0 verbatim matches against the
+    original source.
+  - Original source material under doc/original_source/ is used only as a
+    research reference and is NOT distributed (excluded from the PWA precache
+    manifest).
+
+See PROVENANCE.md for the full provenance evidence.
