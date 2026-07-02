@@ -88,6 +88,32 @@ export function selectSkills(s) {
 }
 
 /**
+ * @typedef {{ id: string, name: string, products: Record<string, number> }} AvailableSkillItem
+ */
+
+/**
+ * Selects skills from the catalog (`src/data/skills.json`) that are not yet present in
+ * `state.home.skills` — i.e. never started. Pure catalog READ, does NOT write/seed
+ * `state.home.skills` (QA post-iter-021 #4: the only writer of home.skills must remain the
+ * `startSkill` command, dispatched from the "Spustit" button below).
+ * @param {GameState} s
+ * @returns {AvailableSkillItem[]}
+ */
+export function selectAvailableSkills(s) {
+  if (!hasCatalog('skills')) return [];
+  const cat = /** @type {Record<string, any>} */ (getCatalog('skills'));
+  const items = /** @type {any[]} */ (Array.isArray(cat.skills) ? cat.skills : []);
+  const existing = s.home.skills ?? {};
+  return items
+    .filter((sk) => typeof sk.id === 'string' && !existing[sk.id])
+    .map((sk) => ({
+      id: sk.id,
+      name: sk.name ?? sk.id,
+      products: /** @type {Record<string, number>} */ (sk.products ?? {}),
+    }));
+}
+
+/**
  * Selects workforce summary.
  * @param {GameState} s
  * @returns {{ total: number, assigned: number, unemployed: number, efficiency: number }}
@@ -757,6 +783,45 @@ export function selectQuests(s) {
       canAccept,
     };
   });
+}
+
+/**
+ * @typedef {{ id: string, name: string, goldCost: number, owned: number, canAfford: boolean }} RecruitCatalogItem
+ */
+
+/**
+ * Selects the recruitable unit catalog (`src/data/military.json`) with owned counts and
+ * affordability, for the recruit-unit UI (QA post-iter-021 #3: `recruitUnit` command exists
+ * in core but had no UI entry point). Mirrors the catalog/fallback lookup in
+ * `core/commands/recruitUnit.js` (findUnit) — read-only, same provenance, no seeding.
+ * @param {GameState} s
+ * @returns {RecruitCatalogItem[]}
+ */
+export function selectRecruitCatalog(s) {
+  /** @type {{id: string, name: string, goldCost: number}[]} */
+  let units;
+  if (hasCatalog('military')) {
+    const cat = /** @type {Record<string, any>} */ (getCatalog('military'));
+    const items = /** @type {any[]} */ (Array.isArray(cat.military) ? cat.military : []);
+    units = items
+      .filter((u) => typeof u.id === 'string' && typeof u.goldCost === 'number')
+      .map((u) => ({ id: u.id, name: u.name ?? u.id, goldCost: u.goldCost }));
+  } else {
+    // Fallback mirrors recruitUnit.js findUnit() fallback (BALANCE.army), same provenance.
+    units = [
+      { id: 'warrior', name: 'Warrior', goldCost: BALANCE.army.warriorCost },
+      { id: 'archer', name: 'Archer', goldCost: BALANCE.army.archerCost },
+    ];
+  }
+  const p = /** @type {any} */ (s.player);
+  const gold = p?.gold ?? 0;
+  return units.map((u) => ({
+    id: u.id,
+    name: u.name,
+    goldCost: u.goldCost,
+    owned: u.id === 'warrior' ? (p?.totWarriors ?? 0) : u.id === 'archer' ? (p?.totArchers ?? 0) : 0,
+    canAfford: gold >= u.goldCost,
+  }));
 }
 
 // ---------------------------------------------------------------------------

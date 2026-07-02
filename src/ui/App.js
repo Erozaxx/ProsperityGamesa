@@ -41,10 +41,14 @@ const TABS = [
  * @param {(() => void) | null} [props.onImport]
  * @param {{ reason: string } | null} [props.exportReminder] - R-F backup nudge (iter-021 T2)
  * @param {(() => void) | null} [props.onDismissExportReminder]
+ * @param {{ status: 'copied'|'fallback', text?: string } | null} [props.exportFeedback] - QA #5: visible export confirmation/fallback
+ * @param {(() => void) | null} [props.onDismissExportFeedback]
+ * @param {{ message: string } | null} [props.importError] - QA #8: visible import failure message
+ * @param {(() => void) | null} [props.onDismissImportError]
  * @param {boolean} [props.updateReady] - a new SW version is waiting (iter-021 T2)
  * @param {(() => void) | null} [props.onApplyUpdate]
  */
-export function App({ snapshot, send, offlineSummary, catchupProgress, onDismissOfflineSummary, onExport, onImport, exportReminder, onDismissExportReminder, updateReady, onApplyUpdate }) {
+export function App({ snapshot, send, offlineSummary, catchupProgress, onDismissOfflineSummary, onExport, onImport, exportReminder, onDismissExportReminder, exportFeedback, onDismissExportFeedback, importError, onDismissImportError, updateReady, onApplyUpdate }) {
   const clock = selectClock(snapshot);
   const season = selectSeason(snapshot);
   const speed = selectSpeed(snapshot);
@@ -79,6 +83,29 @@ export function App({ snapshot, send, offlineSummary, catchupProgress, onDismiss
           <span>Zálohuj svůj postup — exportuj uloženou hru.</span>
           <button onClick=${onExport ?? (() => {})}>Exportovat teď</button>
           <button class="banner-dismiss" onClick=${onDismissExportReminder ?? (() => {})} aria-label="Zavřít">✕</button>
+        </div>
+      ` : null}
+      ${exportFeedback && exportFeedback.status === 'copied' ? html`
+        <div class="banner banner-export-feedback" role="status">
+          <span>Hra byla zkopírována do schránky.</span>
+          <button class="banner-dismiss" onClick=${onDismissExportFeedback ?? (() => {})} aria-label="Zavřít">✕</button>
+        </div>
+      ` : null}
+      ${exportFeedback && exportFeedback.status === 'fallback' ? html`
+        <div class="banner banner-export-fallback" role="alert">
+          <span>Schránka není dostupná — zkopírujte řetězec ručně:</span>
+          <textarea
+            class="export-fallback-text"
+            readonly
+            onClick=${(/** @type {any} */ e) => e.target.select()}
+          >${exportFeedback.text}</textarea>
+          <button class="banner-dismiss" onClick=${onDismissExportFeedback ?? (() => {})} aria-label="Zavřít">✕</button>
+        </div>
+      ` : null}
+      ${importError ? html`
+        <div class="banner banner-import-error" role="alert">
+          <span>${importError.message}</span>
+          <button class="banner-dismiss" onClick=${onDismissImportError ?? (() => {})} aria-label="Zavřít">✕</button>
         </div>
       ` : null}
       <div class="clock">

@@ -7,10 +7,10 @@
  */
 import { html } from '../vendor/preact.standalone.js';
 import {
-  selectWorld, selectJobs, selectSkills, selectWorkforce, selectFinance, selectMarket,
+  selectWorld, selectJobs, selectSkills, selectAvailableSkills, selectWorkforce, selectFinance, selectMarket,
   selectBuildableBuildings, selectProjectQueue, selectBuilderCapacity, selectBuilderCompanies,
   selectContracts, selectTechTree, selectResearchProgress, selectTechPoints,
-  selectWorldZones, selectFactions, selectQuests, selectBattle,
+  selectWorldZones, selectFactions, selectQuests, selectBattle, selectRecruitCatalog,
 } from './selectors.js';
 
 // ---------------------------------------------------------------------------
@@ -573,12 +573,24 @@ export function JobsScreen({ snapshot, send }) {
  */
 export function SkillsScreen({ snapshot, send }) {
   const skills = selectSkills(snapshot);
+  const available = selectAvailableSkills(snapshot);
 
   /**
    * @param {string} skillId
    */
   function startSkill(skillId) {
     send('startSkill', { skillId });
+  }
+
+  /**
+   * Formats a skill product basket for display, e.g. "5 wood".
+   * @param {Record<string, number>} products
+   * @returns {string}
+   */
+  function formatProducts(products) {
+    const entries = Object.entries(products);
+    if (entries.length === 0) return '–';
+    return entries.map(([k, v]) => `${v} ${k}`).join(', ');
   }
 
   return html`
@@ -599,6 +611,25 @@ export function SkillsScreen({ snapshot, send }) {
           </li>
         `)}
       </ul>
+
+      <!-- QA post-iter-021 #4: catalog of skills never started — "Spustit" dispatches
+           startSkill (the only writer of state.home.skills). Pure catalog read, no seeding. -->
+      <section class="skills-available-section">
+        <h3>Dostupné dovednosti</h3>
+        ${available.length === 0
+          ? html`<p class="empty-state">Žádné další dovednosti k dispozici.</p>`
+          : html`
+            <ul class="skills-list skills-available-list">
+              ${available.map(sk => html`
+                <li key=${sk.id} class="skill-item skill-available-item">
+                  <span class="skill-id">${sk.name}</span>
+                  <span class="skill-status">Produkuje: ${formatProducts(sk.products)}</span>
+                  <button onClick=${() => startSkill(sk.id)}>Spustit</button>
+                </li>
+              `)}
+            </ul>
+          `}
+      </section>
     </div>`;
 }
 
@@ -754,12 +785,48 @@ export function WorldZonesScreen({ snapshot, send }) {
  */
 export function BattleScreen({ snapshot, send }) {
   const battle = selectBattle(snapshot);
+  const recruits = selectRecruitCatalog(snapshot);
+
+  /**
+   * @param {string} unitType
+   * @param {number} count
+   */
+  function recruit(unitType, count) {
+    send('recruitUnit', { unitType, count });
+  }
+
+  // QA post-iter-021 #3: recruitUnit command existed in core but had no UI entry point.
+  // Shown regardless of active-battle state — recruiting is not battle-gated.
+  const recruitSection = html`
+    <section class="recruit-section">
+      <h3>Nábor jednotek</h3>
+      <ul class="recruit-list">
+        ${recruits.map(u => html`
+          <li key=${u.id} class="recruit-item">
+            <span class="recruit-name">${u.name}</span>
+            <span class="recruit-owned">Máte: ${u.owned}</span>
+            <span class="recruit-cost">Cena: ${u.goldCost} zlata/ks</span>
+            <button
+              onClick=${() => recruit(u.id, 1)}
+              disabled=${!u.canAfford}
+              title=${u.canAfford ? `Naverbovat 1× ${u.name}` : 'Nedostatek zlata'}
+            >Naverbovat 1×</button>
+            <button
+              onClick=${() => recruit(u.id, 5)}
+              disabled=${snapshot.player.gold < u.goldCost * 5}
+              title=${snapshot.player.gold >= u.goldCost * 5 ? `Naverbovat 5× ${u.name}` : 'Nedostatek zlata'}
+            >Naverbovat 5×</button>
+          </li>
+        `)}
+      </ul>
+    </section>`;
 
   // ── No active battle ─────────────────────────────────────────────────────
   if (!battle.active) {
     return html`
       <div class="screen screen-battle">
         <h2>Bitva</h2>
+        ${recruitSection}
         <p class="empty-state">Žádná aktivní bitva. Bitva začne automaticky při napadení vaší zóny nebo vpádu banditů.</p>
         ${battle.summary ? html`
           <div class="battle-outcome battle-outcome-done">
@@ -805,6 +872,8 @@ export function BattleScreen({ snapshot, send }) {
   return html`
     <div class="screen screen-battle">
       <h2>Bitva${battle.zoneId ? ` — zóna: ${battle.zoneId}` : ''}</h2>
+
+      ${recruitSection}
 
       <!-- ── Status + progress ── -->
       <div class="battle-status-row">

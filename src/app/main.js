@@ -299,12 +299,34 @@ export async function bootSequence(env) {
     /** @type {(() => void) | null} accept handler supplied by the SW update flow */
     let acceptUpdate = null;
 
+    // QA post-iter-021 #5: visible export feedback + fallback when the clipboard is
+    // missing/fails. `status: 'copied'` = clipboard write succeeded (toast only);
+    // `status: 'fallback'` = clipboard unavailable/failed → show `text` for manual
+    // copy (textarea) so export is never a silent no-op. Ephemeral UI state — OUTSIDE
+    // hashState, same pattern as exportReminder above.
+    /** @type {{ status: 'copied' | 'fallback', text?: string } | null} */
+    let exportFeedback = null;
+    // QA post-iter-021 #8: visible error when an import string fails to parse/decompress.
+    /** @type {{ message: string } | null} */
+    let importError = null;
+
     // B-4: export/import handlers
     const onExport = () => {
       const str = env.exportToString(state, { lastSimTimestamp: now() });
-      // Copy to clipboard if available (best-effort)
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-        navigator.clipboard.writeText(str).catch(() => {});
+      const clipboard = (typeof navigator !== 'undefined') ? navigator.clipboard : undefined;
+      if (clipboard && typeof clipboard.writeText === 'function') {
+        clipboard.writeText(str).then(() => {
+          exportFeedback = { status: 'copied' };
+          requestRender();
+        }).catch(() => {
+          // QA #5: clipboard write rejected (e.g. missing permission) — fall back to
+          // a visible copy-manually surface instead of swallowing the error.
+          exportFeedback = { status: 'fallback', text: str };
+          requestRender();
+        });
+      } else {
+        // QA #5: no clipboard API at all (older browser / restrictive PWA context).
+        exportFeedback = { status: 'fallback', text: str };
       }
       // iter-021 T2 (R-F): record sidecar timestamp + clear the reminder.
       if (env.setLastExportAt) env.setLastExportAt(now());
@@ -314,6 +336,16 @@ export async function bootSequence(env) {
 
     const onDismissExportReminder = () => {
       exportReminder = null;
+      requestRender();
+    };
+
+    const onDismissExportFeedback = () => {
+      exportFeedback = null;
+      requestRender();
+    };
+
+    const onDismissImportError = () => {
+      importError = null;
       requestRender();
     };
 
@@ -328,9 +360,24 @@ export async function bootSequence(env) {
         const result = env.importFromString(str, {});
         Object.assign(state, result.state);
         lastSimTimestamp = result.lastSimTimestamp;
+        importError = null;
         requestRender();
+        // QA post-iter-021 #6: persist the imported state immediately so a reload
+        // before the next periodic/hide autosave doesn't discard it. `flush()`
+        // (unlike `requestSave()`) bypasses the throttle and writes unconditionally —
+        // the same primitive already used by the SW update flow (`flushSave` below).
+        // `env.saveGame` stamps its own `lastSimTimestamp = now()` on write (see
+        // save/saveStore.js), so the persisted record stays consistent with the
+        // in-memory `lastSimTimestamp` set above (both reflect "now", not a stale
+        // pre-import value).
+        autosave.flush().catch(() => {
+          importError = { message: 'Import proběhl, ale uložení selhalo. Zkuste to prosím znovu.' };
+          requestRender();
+        });
       } catch (_e) {
-        // silent – in real app show error screen
+        // QA post-iter-021 #8: surface the failure instead of silently ignoring it.
+        importError = { message: 'Neplatný importní řetězec — import se nezdařil.' };
+        requestRender();
       }
     };
 
@@ -371,6 +418,10 @@ export async function bootSequence(env) {
           catchupUiEventCounts,
           exportReminder,
           onDismissExportReminder,
+          exportFeedback,
+          onDismissExportFeedback,
+          importError,
+          onDismissImportError,
           updateReady,
           onApplyUpdate,
         };
