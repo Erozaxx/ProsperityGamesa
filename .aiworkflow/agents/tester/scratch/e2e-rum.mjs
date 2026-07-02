@@ -105,6 +105,10 @@ async function overviewStat(page, label) {
   }, label);
 }
 async function clickTab(page, label, { tap = false } = {}) {
+  // iter-022 re-verify: since Wave 1 the story overlay is correctly modal (blocks background
+  // clicks). A story event can legitimately fire at any day boundary mid-flow, so ack any
+  // pending dialog before every tab click (harness gap found during Wave 1, F4).
+  await clearOverlays(page);
   const btn = page.locator('.tabs .tab-btn', { hasText: label }).first();
   if (tap) await btn.tap({ timeout: 5000 }); else await btn.click({ timeout: 5000 });
   await page.waitForTimeout(120);
@@ -541,10 +545,26 @@ async function f8_offlineCatchup() {
 
   const deadline = Date.now() + 90000;
   let stepAfter = null, sawProgress = false, sawSummary = false, storyInterrupts = 0;
+  let catchupStyled = null; // iter-022 re-verify #10: sample computed style while visible
   while (Date.now() < deadline) {
     await page.clock.runFor(1000).catch(() => {});
     await page.waitForTimeout(80);
-    if (await page.locator('.catchup-progress').count() > 0) sawProgress = true;
+    if (await page.locator('.catchup-progress').count() > 0) {
+      sawProgress = true;
+      if (catchupStyled === null) {
+        catchupStyled = await page.evaluate(() => {
+          const el = document.querySelector('.catchup-progress');
+          if (!el) return null;
+          const cs = getComputedStyle(el);
+          const bar = el.querySelector('.catchup-bar');
+          return {
+            hasContainer: cs.backgroundColor !== 'rgba(0, 0, 0, 0)' || cs.borderStyle !== 'none',
+            border: cs.borderStyle, bg: cs.backgroundColor,
+            hasBar: !!bar, barBg: bar ? getComputedStyle(bar).backgroundColor : null,
+          };
+        });
+      }
+    }
     // story event can interrupt catch-up (by design) — ack it like a player would
     const opt = page.locator('.story-overlay .story-option-btn').first();
     if (await opt.count() > 0) {
@@ -559,6 +579,10 @@ async function f8_offlineCatchup() {
   }
   stepAfter = await curStep(page);
   console.log(`  krok ${stepBefore} -> ${stepAfter}; catchup-progress UI=${sawProgress}, offline-summary UI=${sawSummary}, story interrupts acked=${storyInterrupts}`);
+  if (catchupStyled) {
+    console.log(`  catchup-progress styled: ${JSON.stringify(catchupStyled)}`);
+    if (!catchupStyled.hasContainer) finding(f, 'CATCHUP-PROGRESS-UNSTYLED', 'MINOR', '.catchup-progress still has no visual container (transparent bg, no border).');
+  }
   if (stepBefore !== null && stepAfter !== null && stepAfter - stepBefore < 30000) {
     finding(f, 'OFFLINE-CATCHUP-SHORT', 'MAJOR', `Offline catch-up after 30 min advanced only ${stepAfter - stepBefore} steps (expected ~36000) even with story events acked.`);
   }
