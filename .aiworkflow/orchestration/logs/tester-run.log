@@ -1,0 +1,6 @@
+tester / post-iter-021 / T-ADV-002 (model: fable) — completed 2026-07-02T07:44Z
+Report: agents/tester/artifacts/final/e2e-rum-report_post-iter-021.md (15.9KB)
+Harness: agents/tester/scratch/e2e-rum.mjs (38.7KB, runnable)
+10 findings: 0 BLOCKER, 6 MAJOR, 4 MINOR. RUM clean across 12 tabs @320/360/390/1280.
+Orchestrator independent verification: top-3 findings confirmed by code reading (main.js:277 send lacks requestRender; onImport lacks IndexedDB persist; onExport silent clipboard best-effort). src/ unchanged.
+Caveat: live URL cross-check NOT possible from sandbox (proxy ERR_CONNECTION_CLOSED); tested local HEAD == live precache.
