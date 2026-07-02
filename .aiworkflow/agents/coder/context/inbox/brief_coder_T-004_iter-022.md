@@ -20,7 +20,7 @@ Vlna 2 oprav z QA reportu T-ADV-002: zpřístupnit dark-features (#3 nábor jedn
 - **#6 import→save:** `onImport` (`src/app/main.js:310`) po úspěšném importu zavolej `autosave.requestSave()` (najdi přesné API autosave v `src/app/autosave.js`), aby reload import nezahodil. Ověř konzistenci `lastSimTimestamp`.
 - **#5 export feedback/fallback:** `onExport` (`src/app/main.js:289`) — přidej viditelné potvrzení (toast/hláška) a fallback, když `navigator.clipboard` chybí nebo selže (např. zobraz textareu s řetězcem k ručnímu zkopírování, nebo download). Nespolkni chybu tiše.
 - **#8 neplatný import:** v `catch` (`main.js:317`) zobraz chybovou hlášku uživateli (ne `/* silent */`).
-- **#7 stale-closure daní:** `onClick` u daní (`src/ui/screens.js:242`) posílá `rate` z posledního renderu → rychlé kliky ztrácejí kroky. Oprav tak, aby každý klik vycházel z živého stavu (čti aktuální `finance.taxRate` v handleru) nebo lokálním counterem. Totéž pro „−".
+- **#7 stale-closure daní:** ~~oprav~~ **JIŽ VYŘEŠENO Vlnou 1** (tester T-003 potvrdil: render-on-send překreslí snapshot mezi kliky, 10 rychlých kliků → rateMax). NEŘEŠ, jen ověř že re-verify drží (nezhoršit).
 - **#9 HUD gap:** `.stats` v `styles.css` — přidej gap/mezery mezi statistikami.
 - Po změnách regeneruj precache: `node tools/gen-precache.mjs`.
 
