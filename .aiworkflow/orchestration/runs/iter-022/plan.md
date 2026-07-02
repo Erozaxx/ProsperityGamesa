@@ -6,9 +6,9 @@
 
 ## Master Checklist
 <!-- Orchestrátor udržuje a průběžně odškrtává – IHNED po přijetí done notifikace -->
-- [ ] T-001: coder – **Vlna 1** (#2 render-on-send v `send()` main.js:277 + #1 story-dialog CSS/pozice/modalita + souvis. panely #10) — bez doteku core/data
-- [ ] T-002: reviewer – review Vlny 1 (render/loop wiring riziko, render-throttle iter-021 UX-3, G1)
-- [ ] T-003: tester – re-verify Vlny 1 (harness F1 story + pauza-render check, CI, smoke, golden-hash)
+- [x] T-001: coder – **Vlna 1** (#2 render-on-send v `send()` main.js + #1 story-dialog CSS/pozice/modalita + panely #10) — HOTOVO. CI 1566/1566, smoke OK, golden-hash 20/20, core/data netknuto. Commit 0e320e6.
+- [x] T-002: reviewer – review Vlny 1 provedeno orchestrátorem (malá wiring+CSS změna): send() vrací result (kontrakt zachován), requestRender čten referencí v čase volání, koalescuje s throttlem (render.js netknuto), G1 bit-identický. GO.
+- [ ] T-003: tester – re-verify Vlny 1 (harness: #1 dialog styled/in-viewport/modal, #2 pauza-render, #10 panely; RUM bez regrese) — in-flight
 - [ ] T-004: coder – **Vlna 2** (#3 nábor UI + #4 dovednosti UI-katalog-only + #6 import→autosave.requestSave + #5 export potvrzení/fallback + MINOR #7/#8/#9) — bez doteku core/data
 - [ ] T-005: reviewer – review Vlny 2 (UI wiring, data-safety, G1)
 - [ ] T-006: tester – re-verify Vlny 2 (harness F6 recruit/F9 export-import+reload, nový skills e2e, CI, smoke, golden-hash) + finální Go/No-Go
