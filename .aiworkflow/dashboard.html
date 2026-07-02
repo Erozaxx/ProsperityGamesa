@@ -382,49 +382,44 @@
 
 <script>
 const DATA = {
-  "generated": "2026-06-15T05:19:09Z",
+  "generated": "2026-07-02T10:39:31Z",
   "iteration": {
-    "id": "iter-019",
-    "goal": "M8 – Příběh & meta vrstva: importantEvent systém + story progres, intro/tutoriál + dialogy, achievementy deklarativně (K18), notifikace/gamelog (efemérní UI event bus). Dle master plánu §3/iter-016(M8). Posun číslování viz DR-013-00/016-01.",
+    "id": "iter-022",
+    "goal": "Opravit UX/wiring/CSS bugy z QA reportu T-ADV-002 (Vlna 1+2, všech 6 MAJOR) tak, aby hra nepůsobila rozbitě/zamrzle, byla zpřístupněna dark-features (nábor, dovednosti) a save/import/export byly bezpečné — bez doteku core/data (G1 golden-hash bit-identický).",
     "status": "active",
     "tasks": [
       {
         "id": "T-001",
-        "text": "architect – Detailní design M8 dle master plánu §3/iter-016(M8) + architektury §3.4 (engine-stopping eventy/acknowledge), §7.2 (achievementy deklarativně K18), K14 (registr efektů, obsah jako data), D10 (catch-up pauza): (1) importantEvent systém + story progres ve stavu (story.*), engine-stopping eventy jako doménová událost + acknowledgeEvent command, interakce s catch-up pauzou; (2) intro/tutoriál + dialogy (obsah jako data přes registr efektů K14, vlastní texty – R-G licence); (3) achievementy deklarativně {id, when: predicate-as-data}, vyhodnocení na denním ticku + tx/doménových událostech, unlock mechanismus; (4) notifikace/confetti/hudba/devlog: efemérní UI event bus (engine NIKDY nesahá na DOM), gamelog ring buffer UI. Determinismus/catch-up-safe. Rozhodnout split. Výstup: design doc",
+        "text": "coder – **Vlna 1** (#2 render-on-send v `send()` main.js:277 + #1 story-dialog CSS/pozice/modalita + souvis. panely #10) — bez doteku core/data",
         "done": false
       },
       {
         "id": "T-002",
-        "text": "reviewer – Review designu M8 (achievementy deklarativní bez imperativních háčků rozsetých po mechanikách C4, engine-stopping eventy serializovatelné + acknowledge, UI event bus efemérní mimo determinismus, story progres persist, soulad s architekturou) + posouzení splitu",
+        "text": "reviewer – review Vlny 1 (render/loop wiring riziko, render-throttle iter-021 UX-3, G1)",
         "done": false
       },
       {
         "id": "T-003",
-        "text": "tom-proxy – Human gate: schválení M8 designu + R-G (vlastní texty intro/dialogy, ne 1:1 převzetí originálu) (mandát dle DR-013-00)",
+        "text": "tester – re-verify Vlny 1 (harness F1 story + pauza-render check, CI, smoke, golden-hash)",
         "done": false
       },
       {
-        "id": "",
-        "text": "T-004..T-00x: coder – implementační tasky dle schváleného designu/splitu (orchestrátor doplní po T-003: importantEvent+story, intro/tutoriál+dialogy, achievementy K18, notifikace/gamelog UI)",
+        "id": "T-004",
+        "text": "coder – **Vlna 2** (#3 nábor UI + #4 dovednosti UI-katalog-only + #6 import→autosave.requestSave + #5 export potvrzení/fallback + MINOR #7/#8/#9) — bez doteku core/data",
         "done": false
       },
       {
-        "id": "",
-        "text": "T-TEST: tester – Test loop M8 (sada §1.3): story event uprostřed catch-upu (pauza→pokračování), achievementy deterministické + save round-trip, tutoriál e2e, gamelog/notifikace UI bez chyb, M8 nerozbil M7/M5/M6, plné `npm run ci` + `npm run smoke`",
+        "id": "T-005",
+        "text": "reviewer – review Vlny 2 (UI wiring, data-safety, G1)",
         "done": false
       },
       {
-        "id": "",
-        "text": "T-REV: reviewer – Review gate M8: DoD bod po bodu, žádné imperativní achievement háčky rozseté po mechanikách (C4), texty bez 1:1 převzetí (R-G evidence), engine nikdy nesahá na DOM, derivovaná data se neukládají, tickOrder+diagram aktuální (právo re-run)",
-        "done": false
-      },
-      {
-        "id": "",
-        "text": "T-CLOSE: human – Schválení uzavření iterace (tom-proxy, auto dle DR-013-00) → /close-iteration + PR + merge → **M8 hotov** (obsahová vrstva kompletní)",
+        "id": "T-006",
+        "text": "tester – re-verify Vlny 2 (harness F6 recruit/F9 export-import+reload, nový skills e2e, CI, smoke, golden-hash) + finální Go/No-Go",
         "done": false
       }
     ],
-    "total": 7,
+    "total": 6,
     "done_count": 0
   },
   "closed_iterations": [
@@ -445,17 +440,20 @@ const DATA = {
     "iter-015",
     "iter-016",
     "iter-017",
-    "iter-018"
+    "iter-018",
+    "iter-019",
+    "iter-020",
+    "iter-021"
   ],
   "agents": [
     {
       "slug": "architect",
       "status": "done",
-      "task_id": "T-002a (iter-018) — Revize DESIGN M7b (3 major + serializovatelnost ostraha z reviewer gate)",
-      "brief": "context/inbox/brief_architect_T-002a_iter-018.md (BRIEF-018-002a)",
-      "iteration": "iter-018 (M7b – Bitvy; dokončuje M7)",
-      "started": "2026-06-15",
-      "completed": "2026-06-15"
+      "task_id": "T-ADV-001 (post-iter-021, advisory) — nezávislá revize stavu po iter-021 (release kandidát M0–M9) + návrh náplně iter-022",
+      "brief": "context/inbox/brief_architect_T-ADV-001_post-iter-021.md (BRIEF-ADV-001)",
+      "iteration": "post-iter-021 (mezi-iterační advisory; žádná aktivní iterace)",
+      "started": "2026-07-02",
+      "completed": "2026-07-02"
     },
     {
       "slug": "audience-adapter",
@@ -505,9 +503,9 @@ const DATA = {
     {
       "slug": "coder",
       "status": "done",
-      "task_id": "T-007 (iter-018)",
+      "task_id": "T-005 (iter-021 M9b — C-021-B Licence/PROVENANCE + Release dokumentace)",
       "brief": "",
-      "iteration": "iter-018",
+      "iteration": "iter-021",
       "started": "",
       "completed": ""
     },
@@ -622,11 +620,11 @@ const DATA = {
     {
       "slug": "reviewer",
       "status": "done",
-      "task_id": "T-009 (REVIEW GATE M7b + DoD M7, iter-018, Opus, právo re-run)",
-      "brief": "BRIEF-018-009",
-      "iteration": "iter-018",
-      "started": "2026-06-15",
-      "completed": "2026-06-15"
+      "task_id": "T-007 (iter-021, M9b – RELEASE GATE release kandidáta, Opus přísnost, právo re-run)",
+      "brief": "BRIEF-021-007",
+      "iteration": "iter-021",
+      "started": "2026-06-17",
+      "completed": "2026-06-17"
     },
     {
       "slug": "security",
@@ -649,18 +647,18 @@ const DATA = {
     {
       "slug": "tester",
       "status": "done",
-      "task_id": "T-008",
-      "brief": "BRIEF-018-008",
-      "iteration": "iter-018",
-      "started": "2026-06-15",
-      "completed": "2026-06-15"
+      "task_id": "T-ADV-002",
+      "brief": "BRIEF-ADV-002",
+      "iteration": "post-iter-021 (advisory)",
+      "started": "2026-07-02",
+      "completed": "2026-07-02"
     },
     {
       "slug": "tom-proxy",
       "status": "done",
       "task_id": "T-003",
-      "brief": "BRIEF-018-003 (human gate M7b design)",
-      "iteration": "iter-018",
+      "brief": "BRIEF-021-003 (human gate M9b DESIGN — release kandidát)",
+      "iteration": "iter-021",
       "started": "2026-06-15",
       "completed": "2026-06-15"
     },
@@ -681,8 +679,8 @@ const DATA = {
       "type": "final",
       "name": "analysis_keymechanics_iter-001_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -708,8 +706,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_playability_iter-012_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -726,8 +724,8 @@ const DATA = {
       "type": "final",
       "name": "architecture_proposal_iter-002_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -735,8 +733,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-004_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -744,8 +742,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-005_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -753,8 +751,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-006_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -762,8 +760,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-007_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -771,8 +769,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-008_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -780,8 +778,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-009_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -789,8 +787,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-010_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -798,8 +796,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-011_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -807,8 +805,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-013_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -816,8 +814,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-014_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -825,8 +823,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-015_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -834,8 +832,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-016_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -843,8 +841,8 @@ const DATA = {
       "type": "final",
       "name": "design_iter-017_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -852,8 +850,35 @@ const DATA = {
       "type": "final",
       "name": "design_iter-018_T-001.md",
       "task": "T-001",
-      "completed": "2026-06-14T23:55:28Z",
-      "description": "DESIGN M7b hotov (design_iter-018_T-001.md), pokrývá T1-T5 pro Sonnet. SPLIT M7b=NE (1 iterace; fallback M7b-1/M7b-2 otevřen): G2 strukturálně zadarmo, T2-T5 přírůstky/wiring ne paralelní L. G2 auto-resolve=catch-up==live BEZ druhé implementace: battle.tick je periodic every:'step' (tickOrder:230) → runCatchupBatch i advance volají identický step()→battleTick→battleStep; offline=queue prázdná→obranná AI (skript dle cd) hraje za hráče stejnou cestou. Determinismus: rng('battle') izolovaný (Math.random→rng.next pro crit ř.443 a reviveAI ř.317); battleStep pevné pořadí kroků+útoků; kill-resume bit-identický (celý state.battle vč subAccMs/cd/tick/queue v save, fresh==load hashState). Sub-step: battleTick subAccMs+=50ms; while≥30: battleStep (BATTLE_TICK_MS=30, žádný druhý časovač). Cooldowny 1:1 orig (charge80/shieldWall150/flank180/volley120/fireArrows220, reaction60). Damage→formulas.js (battleDamage/battleDefense/revive)+tabulkové testy. G-MILITARY-STATS: player combat staty approx+provenance, M9 kalibrace. startBattleStub(world.js:1189)+banditRaid napojeno; outcome→offline summary buffer. battle.tick step/30 už registrován, tickOrder beze změny. NEcommitnuto."
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-019_T-001.md",
+      "type": "final",
+      "name": "design_iter-019_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-020_T-001.md",
+      "type": "final",
+      "name": "design_iter-020_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/design_iter-021_T-001.md",
+      "type": "final",
+      "name": "design_iter-021_T-001.md",
+      "task": "T-001",
+      "completed": "2026-06-15T08:30:28Z",
+      "description": "Design M9b hotový (design_iter-021_T-001.md): T1 mobile UX měřitelné cíle (touch >=44px, 0 overflow @360px, render <=15/s — POZOR render.js dnes ~60/s, nutný throttle; iOS dvh+env+apple meta), T2 PWA audit (R-F export prompt + evikce detekce, SW update flow = message-driven skip-waiting + prompt + autosave pred reload, offline edge), T3 R-G PROVENANCE metodika + audit-provenance verbatim gate + DOPORUCENI MIT (alt GPL/proprietarni) → user gate (architekt NEROZHODUJE), T4 release docs (README prepis, known issues z gap-reportu, export/import). Split C-021-A (T1+T2 UX/PWA) || C-021-B (T3+T4 licence/docs), disjunktni paralelni. DR-021-01 impl pozn. Vse MIMO determinismus (zadny core zasah, hashState identicky). Licence = explicitni user gate."
     },
     {
       "agent": "architect",
@@ -872,6 +897,15 @@ const DATA = {
       "task": "T-013",
       "completed": "2026-06-13T19:52:32Z",
       "description": "fix decision pro reload-determinismus hotová"
+    },
+    {
+      "agent": "architect",
+      "file": "agents/architect/artifacts/final/review_post-iter-021_next-step.md",
+      "type": "final",
+      "name": "review_post-iter-021_next-step.md",
+      "task": "",
+      "completed": "2026-07-02T04:34:54Z",
+      "description": ""
     },
     {
       "agent": "architect",
@@ -978,8 +1012,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-012_T-005-009.md",
       "task": "T-005",
-      "completed": "2026-06-15T00:51:06Z",
-      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "coder",
@@ -1014,8 +1048,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-15T00:42:26Z",
-      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
     },
     {
       "agent": "coder",
@@ -1023,8 +1057,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-15T00:51:06Z",
-      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "coder",
@@ -1032,8 +1066,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-013_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-15T01:02:10Z",
-      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
+      "completed": "2026-06-15T06:45:35Z",
+      "description": "T2+T4 implementováno: uiEventBus (ephemeral, MIMO state), GamelogScreen/StoryEventOverlay/TutorialOverlay, selectLog/selectTutorial/selectAchievements/selectActiveStoryEvent, startTutorial+setStoryFlag effects, advanceTutorial+dismissTutorial commands, dialogues.json+tutorials.json catalogs, schema validace. Gate: CI 1509/1509 pass (0 fail), smoke OK (0 console errors, Deník tab visible), emitEvent hash-safe (T4-1 test), precache regen."
     },
     {
       "agent": "coder",
@@ -1059,8 +1093,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-014_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-15T00:42:26Z",
-      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
     },
     {
       "agent": "coder",
@@ -1068,8 +1102,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-014_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-15T00:51:06Z",
-      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "coder",
@@ -1077,8 +1111,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-015_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-15T00:42:26Z",
-      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
     },
     {
       "agent": "coder",
@@ -1086,8 +1120,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-015_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-15T00:51:06Z",
-      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "coder",
@@ -1095,8 +1129,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-015_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-15T01:02:10Z",
-      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
+      "completed": "2026-06-15T06:45:35Z",
+      "description": "T2+T4 implementováno: uiEventBus (ephemeral, MIMO state), GamelogScreen/StoryEventOverlay/TutorialOverlay, selectLog/selectTutorial/selectAchievements/selectActiveStoryEvent, startTutorial+setStoryFlag effects, advanceTutorial+dismissTutorial commands, dialogues.json+tutorials.json catalogs, schema validace. Gate: CI 1509/1509 pass (0 fail), smoke OK (0 console errors, Deník tab visible), emitEvent hash-safe (T4-1 test), precache regen."
     },
     {
       "agent": "coder",
@@ -1122,8 +1156,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-016_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-15T00:42:26Z",
-      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
     },
     {
       "agent": "coder",
@@ -1131,8 +1165,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-016_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-15T00:51:06Z",
-      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "coder",
@@ -1140,8 +1174,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-016_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-15T01:02:10Z",
-      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
+      "completed": "2026-06-15T06:45:35Z",
+      "description": "T2+T4 implementováno: uiEventBus (ephemeral, MIMO state), GamelogScreen/StoryEventOverlay/TutorialOverlay, selectLog/selectTutorial/selectAchievements/selectActiveStoryEvent, startTutorial+setStoryFlag effects, advanceTutorial+dismissTutorial commands, dialogues.json+tutorials.json catalogs, schema validace. Gate: CI 1509/1509 pass (0 fail), smoke OK (0 console errors, Deník tab visible), emitEvent hash-safe (T4-1 test), precache regen."
     },
     {
       "agent": "coder",
@@ -1158,8 +1192,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-017_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-15T00:42:26Z",
-      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
     },
     {
       "agent": "coder",
@@ -1167,8 +1201,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-017_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-15T00:51:06Z",
-      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "coder",
@@ -1176,8 +1210,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-017_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-15T01:02:10Z",
-      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
+      "completed": "2026-06-15T06:45:35Z",
+      "description": "T2+T4 implementováno: uiEventBus (ephemeral, MIMO state), GamelogScreen/StoryEventOverlay/TutorialOverlay, selectLog/selectTutorial/selectAchievements/selectActiveStoryEvent, startTutorial+setStoryFlag effects, advanceTutorial+dismissTutorial commands, dialogues.json+tutorials.json catalogs, schema validace. Gate: CI 1509/1509 pass (0 fail), smoke OK (0 console errors, Deník tab visible), emitEvent hash-safe (T4-1 test), precache regen."
     },
     {
       "agent": "coder",
@@ -1194,8 +1228,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-018_T-004.md",
       "task": "T-004",
-      "completed": "2026-06-15T00:42:26Z",
-      "description": "M7b T1+T2 hotovo: battle automat (battleStep/battleTick/createBattleState/resolveBattleOutcome) + damage/revival vzorce. CI 1297/0 fail, smoke OK. Invarianty M-1/M-2/M-3/F-1/G2 splněny. 37 nových testů v test/m7b-battle-t1.test.js."
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
     },
     {
       "agent": "coder",
@@ -1203,8 +1237,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-018_T-005.md",
       "task": "T-005",
-      "completed": "2026-06-15T00:51:06Z",
-      "description": "T3 battleCommand implementován a verifikován: battleCommand.js+main.js hotové, 35 nových testů (BC-1..BC-10), npm run ci 1332/0 fail, smoke OK, determinismus G1+M7b+M7a pass"
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "coder",
@@ -1212,8 +1246,8 @@ const DATA = {
       "type": "final",
       "name": "impl_summary_iter-018_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-15T01:02:10Z",
-      "description": "T4 dotažení: selectOfflineBattles+buildOfflineSummary battles+selectBattleLog+formatOfflineSummary s bitvami; main.js startStep wiring; test/m7b-battle-t4.test.js (30 testů). Gate: 1362 tests 0 fail, smoke OK, determinismus G1."
+      "completed": "2026-06-15T06:45:35Z",
+      "description": "T2+T4 implementováno: uiEventBus (ephemeral, MIMO state), GamelogScreen/StoryEventOverlay/TutorialOverlay, selectLog/selectTutorial/selectAchievements/selectActiveStoryEvent, startTutorial+setStoryFlag effects, advanceTutorial+dismissTutorial commands, dialogues.json+tutorials.json catalogs, schema validace. Gate: CI 1509/1509 pass (0 fail), smoke OK (0 console errors, Deník tab visible), emitEvent hash-safe (T4-1 test), precache regen."
     },
     {
       "agent": "coder",
@@ -1223,6 +1257,69 @@ const DATA = {
       "task": "T-007",
       "completed": "2026-06-15T01:10:49Z",
       "description": "T5 battle UI: selectBattle selektor (23 testů, pure), BattleScreen komponenta, tab 'Bitva' v App.js, CSS styly mobile-first. CI: 1385 tests 0 fail. Smoke OK, 0 console errors, Bitva tab viditelný. M7b done."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-019_T-004.md",
+      "type": "final",
+      "name": "impl_summary_iter-019_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-019_T-005.md",
+      "type": "final",
+      "name": "impl_summary_iter-019_T-005.md",
+      "task": "T-005",
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-019_T-006.md",
+      "type": "final",
+      "name": "impl_summary_iter-019_T-006.md",
+      "task": "T-006",
+      "completed": "2026-06-15T06:45:35Z",
+      "description": "T2+T4 implementováno: uiEventBus (ephemeral, MIMO state), GamelogScreen/StoryEventOverlay/TutorialOverlay, selectLog/selectTutorial/selectAchievements/selectActiveStoryEvent, startTutorial+setStoryFlag effects, advanceTutorial+dismissTutorial commands, dialogues.json+tutorials.json catalogs, schema validace. Gate: CI 1509/1509 pass (0 fail), smoke OK (0 console errors, Deník tab visible), emitEvent hash-safe (T4-1 test), precache regen."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-020_T-004.md",
+      "type": "final",
+      "name": "impl_summary_iter-020_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-020_T-005.md",
+      "type": "final",
+      "name": "impl_summary_iter-020_T-005.md",
+      "task": "T-005",
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-021_T-004.md",
+      "type": "final",
+      "name": "impl_summary_iter-021_T-004.md",
+      "task": "T-004",
+      "completed": "2026-06-17T00:05:42Z",
+      "description": "C-021-A (mobile UX + PWA audit) DOKONČENO. CI 1566/1566 zelené (+16 testů, typecheck+lint:core OK), smoke OK (0 console err, 0 horizontal overflow @320/360/390 napříč 12 taby). Render throttle ověřen testem ≤15/s při živé dávce (MINOR-1). Touch ≥44px (audit-touch-targets.mjs gate PASS). iOS: 100dvh+env() safe-area+apple meta. SW update: message-driven skip-waiting + flushSave PŘED reloadem (save-safe). Evikce R-F: export reminder banner + lastExportAt sidecar MIMO hashState. Determinismus G1 NEDOTČEN (0 změn v core/data/balance). precache NEREGENEROVÁN."
+    },
+    {
+      "agent": "coder",
+      "file": "agents/coder/artifacts/final/impl_summary_iter-021_T-005.md",
+      "type": "final",
+      "name": "impl_summary_iter-021_T-005.md",
+      "task": "T-005",
+      "completed": "2026-06-17T05:42:42Z",
+      "description": "C-021-B HOTOVO: PROVENANCE.md (root, §1-6, §6 licence=PLACEHOLDER+doporučení MIT, žádný LICENSE soubor), tools/audit-provenance.mjs (NOVÝ gate, PASS: 20 katalogů, 0 verbatim shod), _meta.provenance ujednocen (contracts.json; jen _meta, herní data nedotčena), README PŘEPSÁN (rebuild PWA + export/import návod, 0 starých skeleton termů), KNOWN_ISSUES.md (NOVÝ, carry-over gapy). Gate: npm run ci 1566/1566 (0 fail, typecheck), smoke OK, audit-provenance PASS. Determinismus G1 NEDOTČEN (MINOR-3: m9a-regression golden-hashe Q1-Q4 seed A/B + RNG round-trip zelené, _meta mimo persist allowlist → hashState identický). precache NEREGENEROVÁN (vrácen do commitnutého stavu)."
     },
     {
       "agent": "project-manager",
@@ -1257,8 +1354,8 @@ const DATA = {
       "type": "final",
       "name": "review_architecture_iter-012_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1266,8 +1363,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-013_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1275,8 +1372,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-014_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1284,8 +1381,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-015_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1293,8 +1390,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-016_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1302,8 +1399,8 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-017_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1311,8 +1408,35 @@ const DATA = {
       "type": "final",
       "name": "review_design_iter-018_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_design_iter-019_T-002.md",
+      "type": "final",
+      "name": "review_design_iter-019_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_design_iter-020_T-002.md",
+      "type": "final",
+      "name": "review_design_iter-020_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_design_iter-021_T-002.md",
+      "type": "final",
+      "name": "review_design_iter-021_T-002.md",
+      "task": "T-002",
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1329,8 +1453,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-002_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1437,8 +1561,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-014_T-007.md",
       "task": "T-007",
-      "completed": "2026-06-14T09:45:47Z",
-      "description": "GO — DoD M5 KOMPLETNÍ a hratelný. Všech 6 tvrdých invariantů platí proti kódu; zachráněná build UI úplná. Nálezy: 0 blocker, 0 major, 1 minor (gap-report neaktualizován), 2 nit. Podmínka MINOR (gap-report) neblokuje merge."
+      "completed": "2026-06-17T05:56:28Z",
+      "description": "GO (release kandidat) — DoD M9 splneno, master plan M0-M9 kompletni, hra je release kandidat (hratelna/instalovatelna/offline/vyladena/spolehlivy save); G1 nedotcen, SW save-safe, licence=user gate T-008; nalezy: 0 blocker, 0 major, 2 minor, 2 nit (zadny blokujici)"
     },
     {
       "agent": "reviewer",
@@ -1455,8 +1579,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-016_T-008.md",
       "task": "T-008",
-      "completed": "2026-06-14T23:31:39Z",
-      "description": "GO — DoD M7a SPLNĚNO. Determinismus (processAI replay/self-rearm set-diff/favour migrace) potvrzen proti kódu; battle.js NEDOTČEN (git). 0 blocker, 0 major, 4 minor (zones.json favour stále number ale migrateFavour absorbuje; aiBattleResolve duplicita formulas.js vs inline; docs/tickOrder.md neaktualizován §9.1; quests persist shallow), 1 nit. Testy 110/110 PASS. Doporučeno před close doplnit tickOrder.md."
+      "completed": "2026-06-15T07:05:04Z",
+      "description": "GO-s-podminkami | DoD M8 SPLNEN (s 1 data-gapem) | C4/engine-stopping/catch-up/UI-bus-efemernost vse PASS proti kodu | nalezy: 0 blocker, 1 major (firstStarve dead trigger - data fix M9), 2 minor, 3 nit"
     },
     {
       "agent": "reviewer",
@@ -1464,8 +1588,8 @@ const DATA = {
       "type": "final",
       "name": "review_iter-017_T-008.md",
       "task": "T-008",
-      "completed": "2026-06-14T23:31:39Z",
-      "description": "GO — DoD M7a SPLNĚNO. Determinismus (processAI replay/self-rearm set-diff/favour migrace) potvrzen proti kódu; battle.js NEDOTČEN (git). 0 blocker, 0 major, 4 minor (zones.json favour stále number ale migrateFavour absorbuje; aiBattleResolve duplicita formulas.js vs inline; docs/tickOrder.md neaktualizován §9.1; quests persist shallow), 1 nit. Testy 110/110 PASS. Doporučeno před close doplnit tickOrder.md."
+      "completed": "2026-06-15T07:05:04Z",
+      "description": "GO-s-podminkami | DoD M8 SPLNEN (s 1 data-gapem) | C4/engine-stopping/catch-up/UI-bus-efemernost vse PASS proti kodu | nalezy: 0 blocker, 1 major (firstStarve dead trigger - data fix M9), 2 minor, 3 nit"
     },
     {
       "agent": "reviewer",
@@ -1478,12 +1602,39 @@ const DATA = {
     },
     {
       "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-019_T-008.md",
+      "type": "final",
+      "name": "review_iter-019_T-008.md",
+      "task": "T-008",
+      "completed": "2026-06-15T07:05:04Z",
+      "description": "GO-s-podminkami | DoD M8 SPLNEN (s 1 data-gapem) | C4/engine-stopping/catch-up/UI-bus-efemernost vse PASS proti kodu | nalezy: 0 blocker, 1 major (firstStarve dead trigger - data fix M9), 2 minor, 3 nit"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-020_T-007.md",
+      "type": "final",
+      "name": "review_iter-020_T-007.md",
+      "task": "T-007",
+      "completed": "2026-06-17T05:56:28Z",
+      "description": "GO (release kandidat) — DoD M9 splneno, master plan M0-M9 kompletni, hra je release kandidat (hratelna/instalovatelna/offline/vyladena/spolehlivy save); G1 nedotcen, SW save-safe, licence=user gate T-008; nalezy: 0 blocker, 0 major, 2 minor, 2 nit (zadny blokujici)"
+    },
+    {
+      "agent": "reviewer",
+      "file": "agents/reviewer/artifacts/final/review_iter-021_T-007.md",
+      "type": "final",
+      "name": "review_iter-021_T-007.md",
+      "task": "T-007",
+      "completed": "2026-06-17T05:56:28Z",
+      "description": "GO (release kandidat) — DoD M9 splneno, master plan M0-M9 kompletni, hra je release kandidat (hratelna/instalovatelna/offline/vyladena/spolehlivy save); G1 nedotcen, SW save-safe, licence=user gate T-008; nalezy: 0 blocker, 0 major, 2 minor, 2 nit (zadny blokujici)"
+    },
+    {
+      "agent": "reviewer",
       "file": "agents/reviewer/artifacts/final/review_iteration_master_plan_iter-003_T-002.md",
       "type": "final",
       "name": "review_iteration_master_plan_iter-003_T-002.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
     },
     {
       "agent": "reviewer",
@@ -1491,8 +1642,17 @@ const DATA = {
       "type": "draft",
       "name": "review_iter-002_T-002_PARTIAL.md",
       "task": "T-002",
-      "completed": "2026-06-15T00:03:49Z",
-      "description": "GO s podmínkami | G2 auto-resolve==live ZADARMO POTVRZENO (advance+catchup volají identický step→battle.tick every:step) | kill-resume serializovatelný DOSAŽITELNÝ (podm. F-1: žádné closury/cykly/units.army) | split=NE SOUHLASÍM | 0 BLOCKER / 3 MAJOR / 5 MINOR / 3 NIT"
+      "completed": "2026-06-15T08:39:00Z",
+      "description": "GO-s-podmínkami | determinismus PASS (throttle/lastExportAt/_meta mimo hashState) | SW update bez ztráty savu PASS (msg-driven skip-waiting + autosave('hide') + IDB mimo cache) | licence=user gate PASS (žádný LICENSE před rozhodnutím) | evikce PASS | mobile UX měřitelné PASS | split A/B SOUHLAS (sekvenční gen-precache) | nálezy: 0 blocker / 0 major / 3 minor / 2 nit"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/e2e-rum-report_post-iter-021.md",
+      "type": "final",
+      "name": "e2e-rum-report_post-iter-021.md",
+      "task": "",
+      "completed": "2026-07-02T07:44:56Z",
+      "description": ""
     },
     {
       "agent": "tester",
@@ -1518,8 +1678,8 @@ const DATA = {
       "type": "final",
       "name": "qa_report_iter-014_T-006.md",
       "task": "T-006",
-      "completed": "2026-06-14T09:35:20Z",
-      "description": "GO — M5 kompletní: 990/990 CI pass, B2 re-arm PASS (starý save→arm→offer; M5-2→no-op), kontrakty lifecycle deterministické, build UI reálně staví (B1), G1 nedotčen, SAVE_VERSION=3"
+      "completed": "2026-06-17T05:50:49Z",
+      "description": "GO — DoD M9b release kandidát: 17/17 AC PASS, 0 FAIL; G1 hashState identický s iter-020, SW update save-safe, render ≤15/s živá dávka, e2e release scénář hratelný end-to-end bez crashe, PROVENANCE 0 verbatim, žádný LICENSE (user gate T-008)."
     },
     {
       "agent": "tester",
@@ -1536,8 +1696,8 @@ const DATA = {
       "type": "final",
       "name": "qa_report_iter-016_T-007.md",
       "task": "T-007",
-      "completed": "2026-06-14T23:23:00Z",
-      "description": "GO — DoD M7a. CI 1255/1255, catch-up deterministický (1 rok sim), processAI replay PASS, armFactionAI self-rearm PASS, favour migrace PASS bez M7a-1 regrese, battle.js nedotčen, M7a-2 nerozbilo M7a-1/M5/M6/M4b."
+      "completed": "2026-06-15T06:55:58Z",
+      "description": "GO (DoD M8): M8 příběh/tutoriál/achievementy/gamelog ověřeny empiricky — CI 1509/0, smoke OK, emitEvent efemérní, story save/load bit-identický, ach idempotentní, C4 čistý."
     },
     {
       "agent": "tester",
@@ -1545,8 +1705,8 @@ const DATA = {
       "type": "final",
       "name": "qa_report_iter-017_T-007.md",
       "task": "T-007",
-      "completed": "2026-06-14T23:23:00Z",
-      "description": "GO — DoD M7a. CI 1255/1255, catch-up deterministický (1 rok sim), processAI replay PASS, armFactionAI self-rearm PASS, favour migrace PASS bez M7a-1 regrese, battle.js nedotčen, M7a-2 nerozbilo M7a-1/M5/M6/M4b."
+      "completed": "2026-06-15T06:55:58Z",
+      "description": "GO (DoD M8): M8 příběh/tutoriál/achievementy/gamelog ověřeny empiricky — CI 1509/0, smoke OK, emitEvent efemérní, story save/load bit-identický, ach idempotentní, C4 čistý."
     },
     {
       "agent": "tester",
@@ -1556,6 +1716,33 @@ const DATA = {
       "task": "T-008",
       "completed": "2026-06-15T05:05:13Z",
       "description": "GO — DoD M7 splněn: CI 1385/1385, smoke OK, battleStep replay+kill-resume bit-identické, G2 auto-resolve==live, vzorce 1:1 originál, M7b nerozbitý M7a/M5/M6/M4b"
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-019_T-007.md",
+      "type": "final",
+      "name": "qa_report_iter-019_T-007.md",
+      "task": "T-007",
+      "completed": "2026-06-15T06:55:58Z",
+      "description": "GO (DoD M8): M8 příběh/tutoriál/achievementy/gamelog ověřeny empiricky — CI 1509/0, smoke OK, emitEvent efemérní, story save/load bit-identický, ach idempotentní, C4 čistý."
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-020_T-006.md",
+      "type": "final",
+      "name": "qa_report_iter-020_T-006.md",
+      "task": "T-006",
+      "completed": "2026-06-17T05:50:49Z",
+      "description": "GO — DoD M9b release kandidát: 17/17 AC PASS, 0 FAIL; G1 hashState identický s iter-020, SW update save-safe, render ≤15/s živá dávka, e2e release scénář hratelný end-to-end bez crashe, PROVENANCE 0 verbatim, žádný LICENSE (user gate T-008)."
+    },
+    {
+      "agent": "tester",
+      "file": "agents/tester/artifacts/final/qa_report_iter-021_T-006.md",
+      "type": "final",
+      "name": "qa_report_iter-021_T-006.md",
+      "task": "T-006",
+      "completed": "2026-06-17T05:50:49Z",
+      "description": "GO — DoD M9b release kandidát: 17/17 AC PASS, 0 FAIL; G1 hashState identický s iter-020, SW update save-safe, render ≤15/s živá dávka, e2e release scénář hratelný end-to-end bez crashe, PROVENANCE 0 verbatim, žádný LICENSE (user gate T-008)."
     },
     {
       "agent": "tester",
@@ -1635,8 +1822,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-013_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-15T00:16:26Z",
-      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
     },
     {
       "agent": "tom-proxy",
@@ -1644,8 +1831,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-014_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-15T00:16:26Z",
-      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
     },
     {
       "agent": "tom-proxy",
@@ -1653,8 +1840,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-015_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-15T00:16:26Z",
-      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
     },
     {
       "agent": "tom-proxy",
@@ -1662,8 +1849,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-016_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-15T00:16:26Z",
-      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
     },
     {
       "agent": "tom-proxy",
@@ -1671,8 +1858,8 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-017_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-15T00:16:26Z",
-      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
     },
     {
       "agent": "tom-proxy",
@@ -1680,8 +1867,62 @@ const DATA = {
       "type": "final",
       "name": "gate_iter-018_T-003.md",
       "task": "T-003",
-      "completed": "2026-06-15T00:16:26Z",
-      "description": "SCHVÁLENO M7b gate jménem Toma: (1) bitvy dokončují M7 live+offline auto-resolve, invaze+bandité — OK; (2) G2 auto-resolve==live zdarma, jedna implementace, deterministické — OK; (3) G-MILITARY-STATS approx combat staty + baseRevival 0.25, kalibrace M9 — OK s pozn. (provenance flag); (4) battle.js 1:1 originál vč. kuriozit (dvojí dekrement cd) — OK. Bez blokujících výhrad, bez eskalace (v mandátu DR-013-00). Proceed na implementaci."
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-019_T-003.md",
+      "type": "final",
+      "name": "gate_iter-019_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-019_T-009.md",
+      "type": "final",
+      "name": "gate_iter-019_T-009.md",
+      "task": "T-009",
+      "completed": "2026-06-15T07:13:19Z",
+      "description": ""
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-020_T-003.md",
+      "type": "final",
+      "name": "gate_iter-020_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-020_T-008.md",
+      "type": "final",
+      "name": "gate_iter-020_T-008.md",
+      "task": "T-008",
+      "completed": "2026-06-15T08:18:04Z",
+      "description": ""
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-021_T-003.md",
+      "type": "final",
+      "name": "gate_iter-021_T-003.md",
+      "task": "T-003",
+      "completed": "2026-06-15T08:42:35Z",
+      "description": "SCHVALENO (DESIGN pristup M9b release kandidat): mobile UX scope + PWA audit scope + PROVENANCE/licence PRISTUP + README/known issues OK. Finalni licence NEROZHODNUTA -> eskalace na T-008 (user gate, nevratne/pravni)."
+    },
+    {
+      "agent": "tom-proxy",
+      "file": "agents/tom-proxy/artifacts/final/gate_iter-021_T-008.md",
+      "type": "final",
+      "name": "gate_iter-021_T-008.md",
+      "task": "T-008",
+      "completed": "2026-06-17T11:53:59Z",
+      "description": ""
     }
   ],
   "metrics": {
@@ -1720,6 +1961,15 @@ const DATA = {
     },
     "iter-012_summary": {
       "raw": "# Orchestration Metrics: iter-012\n\n- **Closed**: 2026-06-13\n- **Goal**: Playability hardening (A1–A5) + reload-determinismus fix\n- **Outcome**: MERGED do main (PR #15, 2baffaa); ci 780/780, smoke OK\n\n## Per-Agent Metrics\n\n| Agent | Task | total_tokens | tool_uses | duration_ms |\n|-------|------|-------------|-----------|-------------|\n| coder | T-005..T-009 (A1-A5) | (viz coder/metrics) | – | – |\n| coder | T-014 (Option A) | – | – | – |\n| coder | T-016 (derive-on-init) | 53956 | 41 | 286209 |\n| coder | T-017 (F-1+F-2) | 56655 | 42 | 286545 |\n| tester | T-010 (plná QA) | 115119 | 62 | 433657 |\n| reviewer | T-011 (code review) | 114654 | 53 | 382217 |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A). Architekt T-013/T-015 a A1-A5 coder metriky viz agents/*/metrics/iter-012.md.\n"
+    },
+    "iter-019_summary": {
+      "raw": "# Orchestration Metrics: iter-019 (M8 – Příběh & meta vrstva)\n\n- **Closed**: 2026-06-15\n\n## Per-Agent Metrics\n\n| Agent | Task | total_tokens | tool_uses | duration_ms |\n|-------|------|-------------|-----------|-------------|\n| architect | T-001 (M8 design) | 143109 | 83 | 710276 |\n| reviewer | T-002 (design review) | 97432 | 47 | 416315 |\n| tom-proxy | T-003 (human gate) | 69614 | N/A | N/A |\n| coder | T-004 (T1 story) [zachráněno] | ~314000 | N/A | N/A |\n| coder | T-005 (T3 achievementy K18) | 151116 | 145 | 1169216 |\n| coder | T-006 (T2+T4 intro/gamelog) | 164784 | 137 | 1041502 |\n| tester | T-007 (test loop + DoD M8) | 85787 | 59 | 473701 |\n| reviewer | T-008 (review gate + DoD M8) | 133469 | 75 | 487501 |\n| tom-proxy | T-009 (close gate) | N/A | N/A | N/A |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Výsledek\n- **DoD M8 splněn**: obsahová vrstva kompletní (intro/tutoriál + story/acknowledge + achievementy K18 + gamelog/notifikace).\n- CI 1514/1514, smoke OK, determinismus G1 + catch-up-safe nedotčen.\n- MAJOR-1 firstStarve dead trigger opraveno v M8 (mirror diseaseActive + regrese test).\n- Carry-over na M9: MINOR-1 (survivedWinter once), MINOR-2 (chained event skip loadStoryEvent), 3 nit, + dříve evidované gapy (G-BUILD/RECRUIT-TXAUDIT, V1/V2, G-WORLD-*, G-AIBATTLE-DEDUP, G-MILITARY-STATS, MIN-1).\n"
+    },
+    "iter-020_summary": {
+      "raw": "# Orchestration Metrics: iter-020 (M9a – Balanční kalibrace)\n\n- **Closed**: 2026-06-15\n\n## Per-Agent Metrics\n\n| Agent | Task | total_tokens | tool_uses | duration_ms |\n|-------|------|-------------|-----------|-------------|\n| architect | T-001 (M9a design) | 111735 | 39 | 493750 |\n| reviewer | T-002 (design review) | 94631 | 47 | 386594 |\n| tom-proxy | T-003 (cap gate) | 48523 | 11 | 117875 |\n| coder | T-004 (C-020-A trh) | 123530 | 53 | 434648 |\n| coder | T-005 (C-020-B cap+regression) | 145286 | 83 | 748018 |\n| tester | T-006 (test loop + DoD M9a) | 99235 | 56 | 411151 |\n| reviewer | T-007 (review gate + DoD M9a) | 87634 | 38 | 294285 |\n| tom-proxy | T-008 (close gate) | N/A | N/A | N/A |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A).\n\n## Výsledek\n- **DoD M9a splněn**: trh + offline cap kalibrovány proti explicitním hratelnostním cílům; balanc regression zelená; vědomé odchylky zapsané.\n- CI 1550/1550, smoke OK, determinismus G1 nedotčen.\n- driftK=0.2 calibrated (G-MARKET-DRIFT closed); cap=8h (capBalanceRealHours, MINOR-1 wiring fix); regression bit-identičnost (golden 4005350179).\n- Carry-over na M9b/cleanup: TXAUDIT, V1/V2, G-WORLD-*, G-AIBATTLE-DEDUP, G-MILITARY-STATS, MIN-1; M8 MINOR-1/2 + nity.\n"
+    },
+    "iter-021_summary": {
+      "raw": "# Orchestration Metrics: iter-021 (M9b – Release kandidát)\n\n- **Closed**: 2026-06-17\n\n## Per-Agent Metrics\n\n| Agent | Task | total_tokens | tool_uses | duration_ms |\n|-------|------|-------------|-----------|-------------|\n| architect | T-001 (M9b design) | 162900 | 58 | 572202 |\n| reviewer | T-002 (design review) | 86336 | 44 | 406844 |\n| tom-proxy | T-003 (design gate) | 47069 | 9 | 115820 |\n| coder | T-004 (C-021-A mobile UX+PWA, 2 běhy) | ~241000 | ~160 | ~1310000 |\n| coder | T-005 (C-021-B licence/PROVENANCE+docs) | 107341 | 65 | 642002 |\n| tester | T-006 (test loop + e2e release) | 86493 | 39 | 321208 |\n| reviewer | T-007 (RELEASE GATE) | 84280 | 26 | 230798 |\n| human(user) | T-008 (licence GPL-3.0 + close) | N/A | N/A | N/A |\n\n> Orchestrátorské tokeny nejsou dostupné (N/A). T-004 = 2 běhy (1. uříznut reclaimem, re-dispatch dokončil).\n\n## Výsledek\n- **DoD M9b = DoD M9 = RELEASE KANDIDÁT**. Master plán M0–M9 KOMPLETNÍ.\n- Mobile UX (touch≥44px, render≤15/s, iOS Safari) + PWA audit (evikce R-F, SW save-safe update) + PROVENANCE (0 verbatim) + GPL-3.0 licence (user gate).\n- CI 1566/1566, smoke OK, determinismus G1 nedotčen (hashState identický s iter-020).\n- Licence: **GPL-3.0-or-later** + fan disclaimer (rozhodl uživatel).\n- Known issues (KNOWN_ISSUES.md): carry-over gapy, žádný blokující.\n"
     }
   },
   "agent_tokens": {}
