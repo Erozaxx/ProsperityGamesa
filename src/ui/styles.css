@@ -481,3 +481,150 @@ button {
   .battle-actions-row { gap: 0.35rem; }
   .battle-action { min-width: 70px; }
 }
+
+/* ---- Story event overlay (iter-022 T-001, QA finding #1) ----
+   Engine-stopping dialog: must be a fixed, centered, backdropped modal above everything
+   (tabs/HUD), in-viewport at 320/360/390/desktop. The overlay itself covers the full
+   viewport and sits above the (non-positioned, z-index:auto) rest of the app purely via
+   `position: fixed` + z-index, so it also blocks clicks from reaching tabs/buttons behind
+   it (CSS-first modality per #1c — no JS focus-trap needed for click blocking). */
+.story-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 1rem;
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+}
+.story-dialog {
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--on);
+  border-radius: 8px;
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+.story-speaker { font-size: 0.85rem; font-weight: 600; color: var(--accent); }
+.story-text { font-size: 0.95rem; line-height: 1.45; white-space: pre-wrap; }
+.story-options { display: flex; flex-direction: column; gap: 0.5rem; }
+.story-option-btn {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid var(--on);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-align: left;
+}
+.story-option-btn:hover { background: var(--btn-hover); }
+
+/* ---- Tutorial overlay (iter-022 T-001, related to QA #1/#10) ----
+   Non-blocking helper card (role="complementary"); fixed to a corner so it never
+   overlaps tab content or gets pushed below the fold on narrow viewports. */
+.tutorial-overlay {
+  position: fixed;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.tutorial-box {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--on);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+.tutorial-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.tutorial-label { font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+.tutorial-progress { font-size: 0.75rem; opacity: 0.75; }
+.tutorial-text { font-size: 0.88rem; line-height: 1.4; }
+.tutorial-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
+.tutorial-actions button {
+  padding: 0.35rem 0.7rem;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.tutorial-actions button:hover { background: var(--btn-hover); }
+.tutorial-btn-next, .tutorial-btn-done { border-color: var(--on); }
+
+/* ---- Runtime dynamic panels: offline summary + catch-up progress (iter-022 T-001, QA #10) ----
+   Same visual language as .banner (update/export banners) for consistency. */
+.offline-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  border: 1px solid var(--on);
+  background: var(--surface);
+}
+.offline-summary p { flex: 1 1 220px; margin: 0; line-height: 1.4; }
+.offline-summary button {
+  padding: 0.35rem 0.7rem;
+  background: var(--btn-bg);
+  color: var(--text);
+  border: 1px solid #2e4a35;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+.offline-summary button:hover { background: var(--btn-hover); }
+
+.catchup-progress {
+  position: relative;
+  max-width: 100%;
+  min-height: 2.1rem;
+  border-radius: 6px;
+  border: 1px solid #2e4a35;
+  background: var(--surface);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.catchup-progress .catchup-bar {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0.35;
+  transition: width 0.2s ease;
+}
+.catchup-progress span {
+  position: relative;
+  z-index: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+}

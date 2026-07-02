@@ -274,8 +274,22 @@ export async function bootSequence(env) {
     );
 
     // 6. Send function (UI → commands)
-    const send = (/** @type {string} */ type, /** @type {Record<string, unknown>|undefined} */ params) =>
-      dispatch(creg, state, { type, params });
+    // QA #2 (post-iter-021 report, finding #2): after a successful dispatch, request a
+    // repaint. Without this, clicks made while paused or during a story-freeze mutate
+    // state but the UI never repaints until the game loop's onDirty fires again (which
+    // requires advance() to run a step) — dead-looking buttons. `requestRender` is a
+    // `let` binding assigned below (~ř. 365) once mountUI() returns; this closure reads
+    // it by reference at CALL time (not at definition time), so by the time `send` is
+    // actually invoked (always from a UI event handler, i.e. strictly after mount) the
+    // binding is populated. `requestRender()` itself is the throttled UI-layer scheduler
+    // (src/ui/render.js) — calling it here just enqueues a paint request; it coalesces
+    // with any paint the live loop's onDirty already scheduled, so this never doubles
+    // the paint rate or bypasses the throttle (§ RENDER_MIN_INTERVAL_MS).
+    const send = (/** @type {string} */ type, /** @type {Record<string, unknown>|undefined} */ params) => {
+      const result = dispatch(creg, state, { type, params });
+      if (result.ok) requestRender();
+      return result;
+    };
 
     // iter-021 T2 (R-F): export-reminder state (sidecar `lastExportAt`, OUTSIDE hashState).
     /** @type {{ reason: string } | null} */
