@@ -18,10 +18,12 @@
  *   F3  tab-sweep mobile 390/360/320 + touch
  *   F4  economy loop: assign jobs, skills tab, tax +/- (spaced + rapid), 1x vs 2x speed
  *   F5  market buy/sell, caravan, build, builder company, contracts, tech, world/quests
- *   F6  recruit UI audit (core command exists — any UI path?)
+ *   F6  recruit UI (#3 re-verify): Bitva tab section, live-gold wiring, real recruit click
+ *       (gold accrued via offline catch-up rounds when a fresh game can't afford a unit)
  *   F7  save via hide -> reload -> restore
  *   F8  offline catch-up via fake clock (+30 min) incl. story interrupt + summary
- *   F9  export/import round-trip (clipboard + prompt), invalid import, no-permission export
+ *   F9  export/import (#5/#6/#8 re-verify): confirmation banner, fallback textarea without
+ *       clipboard grants, import->immediate-reload persistence, DOM import-error banner
  *   F10 (optional) live URL boot cross-check
  *
  * NO game code is modified; only public UI + browser APIs are used
@@ -202,20 +204,28 @@ async function f1_storyEventAudit() {
     finding(f, 'HUD-NO-STEP', 'MAJOR', 'HUD clock does not show "krok N".');
   }
 
-  // HUD stats spacing (.stats has no CSS): do adjacent spans touch?
+  // HUD stats spacing — iter-022 re-verify #9: adjacent spans must not touch and
+  // .stats must have a real computed gap (> 0) @390px.
   const squash = await page.evaluate(() => {
+    const stats = document.querySelector('.stats');
     const spans = Array.from(document.querySelectorAll('.stats > span'));
-    if (spans.length < 2) return null;
-    let touching = 0;
+    if (!stats || spans.length < 2) return null;
+    let touching = 0, minGap = Infinity;
     for (let i = 1; i < spans.length; i++) {
       const a = spans[i - 1].getBoundingClientRect(), b = spans[i].getBoundingClientRect();
-      if (Math.abs(b.top - a.top) < 2 && b.left - a.right < 1) touching++;
+      if (Math.abs(b.top - a.top) < 2) { // same row
+        const gap = b.left - a.right;
+        if (gap < minGap) minGap = gap;
+        if (gap < 1) touching++;
+      }
     }
-    return { spans: spans.length, touching, text: document.querySelector('.stats')?.textContent ?? '' };
+    const cs = getComputedStyle(stats);
+    return { spans: spans.length, touching, minGapPx: minGap === Infinity ? null : Math.round(minGap * 10) / 10, display: cs.display, gap: cs.gap, text: stats.textContent ?? '' };
   });
+  if (squash) console.log(`  .stats: display=${squash.display}, computed gap=${squash.gap}, min same-row gap=${squash.minGapPx}px, touching pairs=${squash.touching}`);
   if (squash && squash.touching > 0) {
     finding(f, 'HUD-STATS-SQUASHED', 'MINOR',
-      `HUD stat spans render with no gap (".stats" has zero CSS): "${squash.text.slice(0, 80)}" — e.g. "Jídlo: 0Zdraví: OKZločin: 0.0%" runs together (${squash.touching} adjacent pairs touching @390px).`);
+      `HUD stat spans still render with no gap: "${squash.text.slice(0, 80)}" (${squash.touching} adjacent pairs touching @390px, computed gap=${squash.gap}). QA #9 NOT resolved.`);
   }
   const hb = await rafHeartbeat(page);
   if (hb > 3000) finding(f, 'JANK-BOOT', 'MAJOR', `30 rAF frames took ${hb.toFixed(0)} ms.`);
@@ -275,13 +285,37 @@ async function f4_economyLoop() {
     }
   }
 
-  // Skills: fresh game — is any skill startable from UI?
+  // Skills — iter-022 re-verify #4: fresh game must show a CATALOG of startable skills
+  // (no seeding of state.home.skills!), and "Spustit" must actually start the skill.
   await clickTab(page, 'Dovednosti');
-  const skillItems = await page.locator('.skill-item').count();
-  console.log(`  skills tab items on fresh game: ${skillItems}`);
-  if (skillItems === 0) {
+  const startedItems = page.locator('.skill-item:not(.skill-available-item)');
+  const availItems = page.locator('.skill-available-item');
+  const started0 = await startedItems.count();
+  const avail0 = await availItems.count();
+  const availNames = await page.locator('.skill-available-item .skill-id').allInnerTexts();
+  console.log(`  skills fresh: started=${started0} (expect 0 — nothing seeded), available catalog=${avail0} [${availNames.join(', ')}]`);
+  if (started0 !== 0) {
+    finding(f, 'SKILLS-SEEDED', 'MAJOR',
+      `Fresh game already has ${started0} started skill(s) — state.home.skills must stay empty until the user clicks Spustit (user decision).`);
+  }
+  if (avail0 === 0) {
     finding(f, 'SKILLS-DARK-FEATURE', 'MAJOR',
-      'Skills tab is permanently empty on a fresh game: SkillsScreen only lists existing state.home.skills entries (src/ui/screens.js:574-603, selectors.js:80-88), but nothing ever seeds them — the only writer is the startSkill command (src/core/commands/startSkill.js), whose "Spustit" button is itself only rendered for existing entries. The whole skills feature is unreachable from the UI.');
+      'Skills tab offers no startable skills on a fresh game (no available-skills catalog rendered) — feature still unreachable from the UI. QA #4 NOT resolved.');
+  } else {
+    const firstName = (availNames[0] || '').trim();
+    await availItems.first().locator('button', { hasText: 'Spustit' }).click().catch(() => {});
+    await page.waitForTimeout(500);
+    const started1 = await startedItems.count();
+    const progressing1 = await page.locator('.skill-item.progressing').count();
+    const avail1 = await availItems.count();
+    console.log(`  after Spustit("${firstName}"): started=${started1}, progressing=${progressing1}, available=${avail1}`);
+    if (started1 !== started0 + 1 || avail1 !== avail0 - 1) {
+      finding(f, 'SKILLS-START-NOOP', 'MAJOR',
+        `Clicking "Spustit" on catalog skill "${firstName}" did not start it (started ${started0}->${started1}, available ${avail0}->${avail1}). QA #4 NOT resolved.`);
+    } else if (progressing1 === 0) {
+      finding(f, 'SKILLS-START-NOT-PROGRESSING', 'MINOR',
+        `Skill "${firstName}" moved out of the catalog after Spustit but is not in "progressing" state.`);
+    } else console.log('  #4 catalog -> Spustit -> progressing: OK');
   }
 
   // Council: tax +/- — spaced clicks (basic function) then rapid clicks (stale closure)
@@ -448,26 +482,125 @@ async function f5_marketBuildContracts() {
 }
 
 // ---------------------------------------------------------------------------
-// F6: recruit UI audit
+// F6: recruit UI — iter-022 re-verify #3: recruit section on Bitva tab must exist,
+// buttons must be wired to live gold, and a click must REALLY add a unit.
+// A fresh game cannot afford a warrior (830 gold < 1080), so gold is accrued via
+// real offline catch-up rounds (page.clock, same public mechanism as F8).
 // ---------------------------------------------------------------------------
 async function f6_recruitAudit() {
-  const f = newFlow('F6 recruit-ui-audit desktop 1280x800');
+  const f = newFlow('F6 recruit-ui #3 desktop 1280x800 (+offline gold accrual)');
   console.log('\n== ' + f.flow);
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  const page = await bootPage(ctx, f);
+  const page = await ctx.newPage();
+  wireRum(page, f);
+  const T0 = Date.now();
+  await page.clock.install({ time: T0 });
+  await page.goto(BASE, { waitUntil: 'networkidle', timeout: 20000 });
+  await page.clock.runFor(2500);
+  await page.waitForTimeout(400);
   await clearOverlays(page);
-  let found = false;
-  for (const label of TAB_LABELS) {
-    await clickTab(page, label).catch(() => {});
-    const hit = await page.evaluate(() => {
-      const t = (document.querySelector('.tab-content')?.innerText || '').toLowerCase();
-      return /nábor|naverbovat|rekrut|recruit|verbovat/.test(t);
-    });
-    if (hit) { found = true; console.log(`  possible recruit UI on tab "${label}"`); }
-  }
-  if (!found) {
+
+  const readGold = async () => {
+    await clickTab(page, 'Přehled');
+    const g = await overviewStat(page, 'Zlato');
+    return g === null ? null : parseFloat(String(g).replace(/[^\d.,-]/g, '').replace(',', '.'));
+  };
+  const parseRecruits = async () => {
+    const items = page.locator('.recruit-section .recruit-item');
+    const n = await items.count();
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const it = items.nth(i);
+      const name = (await it.locator('.recruit-name').innerText().catch(() => '')).trim();
+      const ownedT = await it.locator('.recruit-owned').innerText().catch(() => '');
+      const costT = await it.locator('.recruit-cost').innerText().catch(() => '');
+      const btn1 = it.locator('button', { hasText: 'Naverbovat 1×' });
+      out.push({
+        i, name,
+        owned: Number((ownedT.match(/(\d+)/) || [])[1] ?? NaN),
+        cost: Number((costT.match(/(\d+(?:[.,]\d+)?)/) || [])[1] ?? NaN),
+        disabled1: await btn1.isDisabled().catch(() => true),
+      });
+    }
+    return out;
+  };
+
+  // Part A: presence + wiring of the recruit UI on the Bitva tab (fresh game)
+  await clickTab(page, 'Bitva');
+  let recruits = await parseRecruits();
+  if (recruits.length === 0) {
     finding(f, 'NO-RECRUIT-UI', 'MAJOR',
-      'recruitUnit command is registered in core (src/core/commands/recruitUnit.js, wired src/app/main.js:139) but NO tab exposes any recruit control (0 hits for recruit-related strings across all 12 tabs; grep of src/ui/ confirms 0 references) — the player cannot recruit warriors/archers at all, so army size for battles/defence is uncontrollable from the UI.');
+      'Bitva tab renders no .recruit-section/.recruit-item — the player still cannot recruit warriors/archers from the UI. QA #3 NOT resolved.');
+    await ctx.close();
+    return f;
+  }
+  console.log('  recruit items (fresh): ' + recruits.map(r => `${r.name} owned=${r.owned} cost=${r.cost} disabled1x=${r.disabled1}`).join(' | '));
+  let gold = await readGold();
+  console.log(`  gold (fresh): ${gold}`);
+  for (const r of recruits) {
+    const expectDisabled = gold !== null && !Number.isNaN(r.cost) ? gold < r.cost : null;
+    if (expectDisabled !== null && r.disabled1 !== expectDisabled) {
+      finding(f, 'RECRUIT-AFFORD-MISMATCH', 'MAJOR',
+        `"Naverbovat 1×" for ${r.name}: disabled=${r.disabled1} but gold=${gold} vs cost=${r.cost} — button state not wired to live gold.`);
+    }
+  }
+
+  // Part B: accrue gold via offline catch-up until a 1× recruit is affordable, then click.
+  let clickTested = false;
+  for (let round = 0; round <= 3 && !clickTested; round++) {
+    if (round > 0) {
+      console.log(`  gold accrual round ${round}: hide -> +45 min offline -> reload -> catch-up`);
+      await page.evaluate(() => {
+        Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+      });
+      await page.waitForTimeout(900);
+      await page.clock.setSystemTime(T0 + round * 45 * 60 * 1000);
+      await page.reload({ waitUntil: 'networkidle' });
+      const dl = Date.now() + 90000;
+      while (Date.now() < dl) {
+        await page.clock.runFor(1000).catch(() => {});
+        await page.waitForTimeout(80);
+        const opt = page.locator('.story-overlay .story-option-btn').first();
+        if (await opt.count() > 0) { await opt.click({ timeout: 2000 }).catch(() => {}); await page.waitForTimeout(100); }
+        if (await page.locator('.offline-summary').count() > 0) break;
+      }
+      await clearOverlays(page);
+    }
+    // pause so the before/after comparison is not polluted by the running sim
+    // (also re-exercises Wave-1 #2 render-on-send with a different command)
+    await page.locator('.speed button', { hasText: '⏸' }).click().catch(() => {});
+    await page.waitForTimeout(300);
+    gold = await readGold();
+    await clickTab(page, 'Bitva');
+    recruits = await parseRecruits();
+    console.log(`  round ${round}: gold=${gold}; ` + recruits.map(r => `${r.name} owned=${r.owned} cost=${r.cost} disabled1x=${r.disabled1}`).join(' | '));
+    const target = recruits.find(r => !r.disabled1);
+    if (!target) {
+      await page.locator('.speed button', { hasText: '1×' }).click().catch(() => {});
+      await page.waitForTimeout(200);
+      continue;
+    }
+    const before = target;
+    await page.locator('.recruit-section .recruit-item').nth(before.i)
+      .locator('button', { hasText: 'Naverbovat 1×' }).click();
+    await page.waitForTimeout(500);
+    const afterList = await parseRecruits();
+    const after = afterList[before.i];
+    const goldAfter = await readGold();
+    console.log(`  clicked "Naverbovat 1×" on ${before.name} (paused): owned ${before.owned} -> ${after && after.owned}; gold ${gold} -> ${goldAfter}`);
+    if (!after || after.owned !== before.owned + 1) {
+      finding(f, 'RECRUIT-CLICK-NOOP', 'MAJOR',
+        `Clicking "Naverbovat 1×" on ${before.name} did not add a unit (owned ${before.owned} -> ${after && after.owned}). QA #3 NOT resolved.`);
+    } else if (gold !== null && goldAfter !== null && !(goldAfter < gold - before.cost * 0.5)) {
+      finding(f, 'RECRUIT-NO-GOLD-DEBIT', 'MAJOR',
+        `Recruiting ${before.name} added the unit but gold did not drop by ~cost (${gold} -> ${goldAfter}, cost ${before.cost}).`);
+    } else console.log('  #3 recruit click adds a unit and debits gold: OK');
+    clickTested = true;
+  }
+  if (!clickTested) {
+    finding(f, 'RECRUIT-CLICK-UNTESTABLE', 'MAJOR',
+      'Could not afford any unit even after 3 offline catch-up rounds (~135 min) — successful recruit click NOT verified end-to-end (economy/balance gap, wiring itself present).');
   }
   await ctx.close();
   return f;
@@ -626,14 +759,18 @@ async function f9_exportImport() {
   let clip = '';
   try { clip = await page.evaluate(() => navigator.clipboard.readText()); } catch { clip = ''; }
   console.log(`  clipboard length after export: ${clip.length}`);
-  // any success confirmation? (code has none: src/app/main.js:289-299 — clipboard write only, catch(() => {}))
-  const confirm = await page.evaluate(() => /zkopírov|schránk|exportováno|hotovo/i.test(document.body.innerText));
-  if (clip && !confirm) {
+  // iter-022 re-verify #5: success confirmation must be a real DOM banner, not just any text
+  const copiedBanner = await page.locator('.banner-export-feedback').count();
+  const copiedText = copiedBanner ? (await page.locator('.banner-export-feedback').innerText().catch(() => '')).replace(/\n/g, ' ').trim() : '';
+  console.log(`  export confirmation: .banner-export-feedback count=${copiedBanner}, text="${copiedText.slice(0, 60)}"`);
+  if (clip && copiedBanner === 0) {
     finding(f, 'EXPORT-NO-FEEDBACK', 'MAJOR',
-      'Export writes the save string ONLY to the clipboard, silently (src/app/main.js:289-299; failures swallowed by .catch(() => {})). No confirmation, no textarea/download fallback. Where the Clipboard API is unavailable/denied (e.g. iOS standalone PWA quirks, permission denied), the button does literally nothing and the user cannot back up their save.');
+      'Export copied the save string to the clipboard but NO visible confirmation banner (.banner-export-feedback) rendered — QA #5 NOT resolved.');
   }
   if (!clip) {
-    finding(f, 'EXPORT-NO-OUTPUT', 'BLOCKER', 'Export produced no accessible output at all (clipboard empty) and no UI fallback.');
+    const fbCount = await page.locator('.banner-export-fallback .export-fallback-text').count();
+    if (fbCount === 0) finding(f, 'EXPORT-NO-OUTPUT', 'BLOCKER', 'Export produced no accessible output at all (clipboard empty, no fallback textarea).');
+    else console.log('  clipboard empty but fallback textarea present (acceptable path)');
   }
 
   // import the exported string via prompt dialog
@@ -649,26 +786,47 @@ async function f9_exportImport() {
     const txt = await appText(page);
     if (!txt || txt.length < 30) finding(f, 'IMPORT-BLANK', 'BLOCKER', 'App blank after importing a valid export string.');
     else console.log('  valid import OK (app rendered)');
+    // a VALID import must not show the error banner (would also indicate a failed flush-save)
+    const errAfterValid = await page.locator('.banner-import-error').count();
+    if (errAfterValid > 0) {
+      const et = (await page.locator('.banner-import-error').innerText().catch(() => '')).replace(/\n/g, ' ').trim();
+      finding(f, 'IMPORT-VALID-SHOWS-ERROR', 'MAJOR', `Valid import rendered an error banner: "${et.slice(0, 100)}"`);
+    }
 
-    // invalid string -> silent swallow (src/app/main.js:317-320)
+    // invalid string -> iter-022 re-verify #8: REALLY read the DOM for the error banner
+    // (the pre-fix harness logged a static IMPORT-NO-ERROR-FEEDBACK finding here without
+    // checking the DOM — that hardcoded assert is replaced by this live check).
     page.once('dialog', (d) => d.accept('THIS-IS-NOT-A-SAVE').catch(() => {}));
     await page.locator('.save-actions button', { hasText: 'Importovat hru' }).click();
     await page.waitForTimeout(600);
     const txt2 = await appText(page);
     if (!txt2 || txt2.length < 30) finding(f, 'IMPORT-GARBAGE-CRASH', 'BLOCKER', 'App broke after importing an invalid string.');
     else {
-      finding(f, 'IMPORT-NO-ERROR-FEEDBACK', 'MINOR',
-        'Importing an invalid string is silently ignored (catch swallows the error, src/app/main.js:317-320) — user cannot tell a failed import from a successful one.');
+      const errCount = await page.locator('.banner-import-error').count();
+      const errText = errCount ? (await page.locator('.banner-import-error').innerText().catch(() => '')).replace(/\n/g, ' ').trim() : '';
+      console.log(`  invalid import -> .banner-import-error count=${errCount}, text="${errText.slice(0, 90)}"`);
+      if (errCount === 0) {
+        finding(f, 'IMPORT-NO-ERROR-FEEDBACK', 'MINOR',
+          'Invalid import shows NO visible error banner (.banner-import-error absent from DOM) — user cannot tell a failed import from a successful one. QA #8 NOT resolved.');
+      } else {
+        // banner is dismissable — verify the dismiss control works, and clear it for the reload check
+        await page.locator('.banner-import-error .banner-dismiss').click().catch(() => {});
+        await page.waitForTimeout(200);
+        const stillThere = await page.locator('.banner-import-error').count();
+        if (stillThere > 0) finding(f, 'IMPORT-ERROR-NOT-DISMISSABLE', 'MINOR', 'Import error banner cannot be dismissed via its ✕ button.');
+      }
     }
-    // import is not persisted automatically (no save after import) — verify reload behavior
+    // iter-022 re-verify #6 (data safety): the import must be persisted IMMEDIATELY —
+    // a plain reload right after import must NOT fall back to a fresh game (krok 1).
     await page.reload({ waitUntil: 'networkidle' });
     await page.waitForTimeout(2500);
+    await clearOverlays(page);
     const stepAfterReload = await curStep(page);
-    console.log(`  krok after plain reload following import: ${stepAfterReload} (import persisted only if an autosave happened to run)`);
-    if (stepAfterReload !== null && stepAfterImport !== null && stepAfterReload < 5 && stepAfterImport > 50) {
+    console.log(`  krok after plain reload following import: ${stepAfterReload} (expected >= ${stepAfterImport}: import flushed to IndexedDB + offline catch-up since save)`);
+    if (stepAfterReload === null || stepAfterImport === null || stepAfterReload < stepAfterImport) {
       finding(f, 'IMPORT-NOT-PERSISTED', 'MAJOR',
-        `Imported save is NOT saved to IndexedDB (onImport only mutates in-memory state, src/app/main.js:310-321; no autosave.requestSave). Reloading within the 60 s autosave window silently discards the import (krok ${stepAfterImport} -> ${stepAfterReload}).`);
-    }
+        `Imported save did NOT survive an immediate plain reload (krok ${stepAfterImport} -> ${stepAfterReload}) — QA #6 NOT resolved.`);
+    } else console.log('  #6 import persisted across immediate reload: OK');
   }
   await ctx.close();
 
@@ -683,11 +841,18 @@ async function f9_exportImport() {
   await page2.locator('.save-actions button', { hasText: 'Exportovat hru' }).click().catch(() => {});
   await page2.waitForTimeout(600);
   f2track.after = await appText(page2);
-  const anyNewText = /zkopírov|schránk|export.*(ok|hotovo)/i.test(f2track.after);
-  console.log(`  export without clipboard permission: dialog=${sawDialog}, confirmation text=${anyNewText}`);
-  if (!sawDialog && !anyNewText) {
-    console.log('  -> confirms EXPORT-NO-FEEDBACK: without clipboard access the export button is a complete no-op for the user');
-  }
+  // iter-022 re-verify #5 (fallback path): without clipboard grants the export must render
+  // a visible fallback banner with the save string in a textarea for manual copy.
+  const fbBanner = await page2.locator('.banner-export-fallback').count();
+  const fbText = fbBanner ? await page2.evaluate(() => {
+    const el = document.querySelector('.export-fallback-text');
+    return el ? (/** @type {HTMLTextAreaElement} */ (el).value || el.textContent || '') : '';
+  }) : '';
+  console.log(`  export without clipboard permission: dialog=${sawDialog}, .banner-export-fallback=${fbBanner}, textarea string length=${fbText.length}`);
+  if (fbBanner === 0 || fbText.trim().length < 50) {
+    finding(f, 'EXPORT-NO-FALLBACK', 'MAJOR',
+      `Without clipboard access the export gives no usable fallback (banner count=${fbBanner}, textarea string length=${fbText.trim().length}) — QA #5 NOT resolved.`);
+  } else console.log('  #5 fallback textarea contains the export string: OK');
   await ctx2.close();
   return f;
 }

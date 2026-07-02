@@ -15,3 +15,10 @@
 - **duration_ms**: 1304660
 - **model**: fable
 - **verdikt**: #1/#2/#10 RESOLVED, #7 už vyřešen (vedl. efekt #2), 0 regrese. Go pro Vlnu 1.
+
+## T-006 (iter-022 finální re-verify Vlna 2)
+- **Timestamp**: 2026-07-02T13:30Z
+- **total_tokens**: ~287000 (3 běhy: 103848+91521+resume; agent se opakovaně vracel před dokončením)
+- **tool_uses**: ~85
+- **model**: fable
+- **verdikt**: GO. #4 harness false-negative → orchestrátor override reprodukcí. Verdikt dotažen orchestrátorem.
