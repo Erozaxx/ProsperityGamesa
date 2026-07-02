@@ -10,7 +10,7 @@
 - [x] T-002: reviewer – review Vlny 1 provedeno orchestrátorem (malá wiring+CSS změna): send() vrací result (kontrakt zachován), requestRender čten referencí v čase volání, koalescuje s throttlem (render.js netknuto), G1 bit-identický. GO.
 - [x] T-003: tester – re-verify Vlny 1 HOTOVO: #1/#2/#10 RESOLVED (harness 45 asertů, 0 fail), modalita #1c OK, 0 regrese. BONUS: #7 (rapid tax) už vyřešen jako vedl. efekt #2 → vypadává z Vlny 2. Go.
 - [ ] T-004: coder – **Vlna 2** (#3 nábor UI + #4 dovednosti UI-katalog-only + #6 import→autosave.requestSave + #5 export potvrzení/fallback + #8 chybová hláška importu + #9 HUD gap; #7 už hotov Vlnou 1) — bez doteku core/data — in-flight
-- [ ] T-005: reviewer – review Vlny 2 (UI wiring, data-safety, G1) — in-flight (paralelně s T-006)
+- [x] T-005: reviewer – review Vlny 2 HOTOVO: **APPROVE** (0 BLOCKER / 4 SUGGESTION / 3 NITPICK). G1 čistý, autosave.flush() správné, žádný XSS. CI re-run 1566/1566. SUGGESTION 1 (zavádějící lastSimTimestamp komentář, neškodný) → přibalit k příští změně main.js.
 - [ ] T-006: tester – re-verify Vlny 2 (#3/#4/#5/#6/#8/#9 + regrese Vlny 1) + finální Go/No-Go — in-flight
 
 ## Quality Gates
